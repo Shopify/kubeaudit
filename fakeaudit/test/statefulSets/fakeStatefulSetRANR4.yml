@@ -1,0 +1,15 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+    name: fakeStatefulSetRANR4
+    namespace: fakeStatefulSetRANR
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeRunAsNonRoot
+        spec:
+            containers:
+            - name: fakeContainerRORF
+              securityContext:
+                runAsNonRoot: true

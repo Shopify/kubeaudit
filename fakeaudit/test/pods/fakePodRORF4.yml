@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: fakePodRORF4
+    namespace: fakePodRORF
+spec:
+    containers:
+    - name: fakeContainerRORF
+      securityContext:
+        readOnlyRootFilesystem: true

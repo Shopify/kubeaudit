@@ -1,0 +1,15 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+    name: fakeStatefulSetRORF4
+    namespace: fakeStatefulSetRORF
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeReadOnlyRootFilesystem
+        spec:
+            containers:
+            - name: fakeContainerRORF
+              securityContext:
+                readOnlyRootFilesystem: true

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+    name: fakeReplicationControllerASAT1
+    namespace: fakeReplicationControllerASAT
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeAutomountServiceAccountToken
+        spec:
+            serviceAccount: fakeDeprecatedServiceAccount
+            containers:
+            - name: fakeContainerASAT
+

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+    name: fakeReplicationControllerRORF1
+    namespace: fakeReplicationControllerRORF
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeReadOnlyRootFilesystem
+        spec:
+            containers:
+            - name: fakeContainerRORF
+

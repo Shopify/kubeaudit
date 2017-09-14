@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+    name: fakeDaemonSetRORF1
+    namespace: fakeDaemonSetRORF
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeReadOnlyRootFilesystem
+        spec:
+            containers:
+            - name: fakeContainerRORF
+

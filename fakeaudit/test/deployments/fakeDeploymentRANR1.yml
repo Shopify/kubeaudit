@@ -1,0 +1,14 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+    name: fakeDeploymentRANR1
+    namespace: fakeDeploymentRANR
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeRunAsNonRoot
+        spec:
+            containers:
+            - name: fakeContainerRANR
+

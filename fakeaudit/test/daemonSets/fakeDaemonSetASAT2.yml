@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+    name: fakeDaemonSetASAT2
+    namespace: fakeDaemonSetASAT
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeAutomountServiceAccountToken
+        spec:
+            automountServiceAccountToken: true
+            containers:
+            - name: fakeContainerASAT
+

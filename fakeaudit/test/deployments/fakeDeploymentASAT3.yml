@@ -1,0 +1,16 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+    name: fakeDeploymentASAT3
+    namespace: fakeDeploymentASAT
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeAutomountServiceAccountToken
+        spec:
+            automountServiceAccountToken: false
+            serviceAccountName: fakeServiceAccountName
+            containers:
+            - name: fakeContainerASAT
+

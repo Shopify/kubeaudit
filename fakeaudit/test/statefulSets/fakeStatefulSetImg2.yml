@@ -1,0 +1,15 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+    name: fakeStatefulSetImg2
+    namespace: fakeStatefulSetImg
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeImage
+        spec:
+            containers:
+              - name: fakeContainerImg
+                image: fakeContainerImg:1.5
+

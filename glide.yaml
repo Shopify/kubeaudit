@@ -1,0 +1,12 @@
+package: github.com/Shopify/kubeaudit
+import:
+- package: github.com/sirupsen/logrus
+  version: ^1.0.0
+- package: github.com/spf13/cobra
+- package: github.com/spf13/pflag
+  version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
+- package: k8s.io/apimachinery
+  version: 12d70001ef0c75fc5a26057ca73d3caf5e2cf682
+- package: k8s.io/api
+- package: k8s.io/client-go
+  version: 45673e060eb921b510677b1123737ad1158e49fa

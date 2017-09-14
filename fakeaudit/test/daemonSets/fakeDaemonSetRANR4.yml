@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+    name: fakeDaemonSetRANR4
+    namespace: fakeDaemonSetRANR
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeRunAsNonRoot
+        spec:
+            containers:
+            - name: fakeContainerRORF
+              securityContext:
+                runAsNonRoot: true

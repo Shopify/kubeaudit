@@ -1,0 +1,15 @@
+---
+name: kubeaudit
+up:
+  - homebrew:
+      - glide
+  - go:
+      version: 1.9
+  - custom:
+      name: Install vendored dependencies
+      met?: test -e vendor
+      meet: glide install -v
+commands:
+  build: go build
+  run-built: ./kubeaudit
+  test: go test ./...

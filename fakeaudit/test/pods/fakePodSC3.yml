@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: fakePodSC3
+    namespace: fakePodSC
+spec:
+    containers:
+    - name: fakeContainerSC
+      securityContext:
+        capabilities:
+          add: ["NET_ADMIN", "SYS_TIME"]

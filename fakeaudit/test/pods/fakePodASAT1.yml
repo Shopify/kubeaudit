@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: fakePodASAT1
+    namespace: fakePodASAT
+spec:
+    serviceAccount: fakeDeprecatedServiceAccount
+    containers:
+    - name: fakeContainerASAT
+

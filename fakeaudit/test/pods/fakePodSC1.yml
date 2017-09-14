@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: fakePodSC1
+    namespace: fakePodSC
+spec:
+    containers:
+    - name: fakeContainerSC
+

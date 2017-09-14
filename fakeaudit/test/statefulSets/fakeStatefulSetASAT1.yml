@@ -1,0 +1,15 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+    name: fakeStatefulSetASAT1
+    namespace: fakeStatefulSetASAT
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeAutomountServiceAccountToken
+        spec:
+            serviceAccount: fakeDeprecatedServiceAccount
+            containers:
+            - name: fakeContainerASAT
+

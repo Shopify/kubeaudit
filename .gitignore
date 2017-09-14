@@ -1,0 +1,5 @@
+/kubeaudit
+/tmp
+/.glide
+/.dev
+.DS_Store

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+    name: fakeReplicationControllerRANR3
+    namespace: fakeReplicationControllerRANR
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakeRunAsNonRoot
+        spec:
+            containers:
+            - name: fakeContainerRANR
+              securityContext:
+                runAsNonRoot: false
