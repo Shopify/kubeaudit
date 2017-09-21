@@ -1,4 +1,5 @@
 /kubeaudit
+/kubeaudit_unix
 /tmp
 /.glide
 /.dev
