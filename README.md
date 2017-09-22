@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.org/Shopify/kubeaudit.svg?branch=master)](https://travis-ci.com/Shopify/kubeaudit/)
+[![Build Status](https://api.travis-ci.org/Shopify/kubeaudit.svg?branch=master)](https://travis-ci.org/Shopify/kubeaudit/)
 
 # kubeaudit
 
@@ -13,6 +13,12 @@
 - [Audit RBAC policies](#rbac)
 
 ## Installation
+
+#### Download a binary
+
+[Official releases](https://github.com/Shopify/kubeaudit/releases)
+
+#### DIY build
 
 Add kubeaudit and its dependencies by running the following command:
 
