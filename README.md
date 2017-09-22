@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.com/Shopify/kubeaudit.svg?token=wh19RsdvyDqC62mzTTLb&branch=master)](https://travis-ci.com/Shopify/kubeaudit/)
+[![Build Status](https://api.travis-ci.org/Shopify/kubeaudit.svg?branch=master)](https://travis-ci.com/Shopify/kubeaudit/)
 
 # kubeaudit
 
