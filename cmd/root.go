@@ -15,6 +15,7 @@ type rootFlags struct {
 	verbose    bool
 	allPods    bool
 	json       bool
+	version    bool
 }
 
 var RootCmd = &cobra.Command{
@@ -38,6 +39,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "config file (default is $HOME/.kube/config")
 
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.localMode, "local", "l", false, "Local mode, uses ~/.kube/config as configuration")
+	RootCmd.PersistentFlags().BoolVarP(&rootConfig.version, "version", "t", false, "Print kubeaudit version/tag")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.verbose, "verbose", "v", false, "Enable debug (verbose) logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Enable json logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
