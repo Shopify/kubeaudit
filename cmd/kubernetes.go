@@ -29,10 +29,6 @@ func kubeClientConfig(kubeconfig string) (*rest.Config, error) {
 }
 
 func kubeClient(kubeconfig string) (*kubernetes.Clientset, error) {
-	if rootConfig.version {
-		printKubeauditVersion()
-	}
-
 	if rootConfig.localMode {
 		kubeconfig = os.Getenv("HOME") + "/.kube/config"
 	}
