@@ -55,6 +55,7 @@ Available Commands:
   np          Audit namespace network policies
   rbac        Audit RBAC things
   sc          Audit container security contexts
+  version     Print the version number of kubeaudit
 
 Flags:
   -a, --allPods             Audit againsts pods in all the phases (default Running Phase)
