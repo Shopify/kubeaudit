@@ -28,24 +28,28 @@ func TestDeploymentImg(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeDeploymentImg1" && result.err != 1 {
+		if result.img_name == "fakeDeploymentImg1" && result.err != 1 {
 			t.Error("Test 2: Failed to identify that image tag is missing. Refer: fakeDeploymentImg1.yml")
+		}
+
+		if result.img_name == "fakeDeploymentImg2" && result.img_tag != "1.5" {
+			t.Error("Test 3: Failed to identify the correct image tag which is present. Refer: fakeDeploymentImg2.yml")
 		}
 	}
 
 	results = auditImages("fakeContainerImg:1.6", kubeAuditDeployments{list: fakeDeployments})
 
 	if len(results) != 2 {
-		t.Error("Test 3: Failed to identify all bad configurations")
+		t.Error("Test 4: Failed to identify all bad configurations")
 	}
 
 	for _, result := range results {
-		if result.name == "fakeDeploymentImg1" && result.err != 1 {
-			t.Error("Test 4: Failed to identify that image tag is missing. Refer: fakeDeploymentImg1.yml")
+		if result.img_name == "fakeDeploymentImg1" && result.err != 1 {
+			t.Error("Test 5: Failed to identify that image tag is missing. Refer: fakeDeploymentImg1.yml")
 		}
 
-		if result.name == "fakeDeploymentImg2" && result.err != 1 {
-			t.Error("Test 5: Failed to identify wrong image tag. Refer: fakeDeploymentImg2.yml")
+		if result.img_name == "fakeDeploymentImg2" && result.err != 1 {
+			t.Error("Test 6: Failed to identify wrong image tag. Refer: fakeDeploymentImg2.yml")
 		}
 	}
 

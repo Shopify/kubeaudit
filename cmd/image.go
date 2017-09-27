@@ -20,7 +20,7 @@ func printResultImg(results []Result) {
 		if result.err > 0 {
 			log.WithFields(log.Fields{
 				"type": result.kubeType,
-				"tag":  result.img}).Error(result.namespace,
+				"tag":  result.img_tag}).Error(result.namespace,
 				"/", result.name)
 
 		}
@@ -56,7 +56,8 @@ func checkImage(container apiv1.Container, image string, result *Result) {
 
 	if contImg == compImg && contTag != compImgTag {
 		result.err = 1
-		result.img = contImg
+		result.img_name = contImg
+		result.img_tag = contTag
 	}
 	return
 }
