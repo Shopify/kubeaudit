@@ -23,6 +23,14 @@ func CreateFakeDaemonSetRunAsNonRoot(namespace string) {
 	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRANR4.yml")))
 }
 
+func CreateFakeDaemonSetPrivileged(namespace string) {
+	fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
+	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetPrivileged1.yml")))
+	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetPrivileged2.yml")))
+	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetPrivileged3.yml")))
+	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetPrivileged4.yml")))
+}
+
 func CreateFakeDaemonSetReadOnlyRootFilesystem(namespace string) {
 	fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
 	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRORF1.yml")))

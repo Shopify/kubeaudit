@@ -19,13 +19,6 @@ func debugPrint() {
 	}
 }
 
-func convertDeploymentToDeploymentList(deployment v1beta1.Deployment) (deploymentList *v1beta1.DeploymentList) {
-	deploymentList = &v1beta1.DeploymentList{
-		Items: []v1beta1.Deployment{deployment},
-	}
-	return
-}
-
 type kubeAuditDeployments struct {
 	list *v1beta1.DeploymentList
 }

@@ -4,42 +4,50 @@ import (
 	"path/filepath"
 )
 
-var deploymetsPath = filepath.Join(absPath, "fakeaudit", "test", "deployments")
+var deploymentsPath = filepath.Join(absPath, "fakeaudit", "test", "deployments")
 
 func CreateFakeDeploymentSC(namespace string) {
 	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentSC1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentSC2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentSC3.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentSC4.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentSC5.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC1.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC2.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC3.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC4.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC5.yml")))
 }
 
 func CreateFakeDeploymentRunAsNonRoot(namespace string) {
 	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentRANR1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentRANR2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentRANR3.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentRANR4.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRANR1.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRANR2.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRANR3.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRANR4.yml")))
+}
+
+func CreateFakeDeploymentPrivileged(namespace string) {
+	fakeDeploymentClient := getFakeDeploymentClient(namespace)
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentPrivileged1.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentPrivileged2.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentPrivileged3.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentPrivileged4.yml")))
 }
 
 func CreateFakeDeploymentReadOnlyRootFilesystem(namespace string) {
 	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentRORF1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentRORF2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentRORF3.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentRORF4.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRORF1.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRORF2.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRORF3.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRORF4.yml")))
 }
 
 func CreateFakeDeploymentAutomountServiceAccountToken(namespace string) {
 	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentASAT1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentASAT2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentASAT3.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentASAT1.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentASAT2.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentASAT3.yml")))
 }
 
 func CreateFakeDeploymentImg(namespace string) {
 	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentImg1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymetsPath, "fakeDeploymentImg2.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentImg1.yml")))
+	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentImg2.yml")))
 }

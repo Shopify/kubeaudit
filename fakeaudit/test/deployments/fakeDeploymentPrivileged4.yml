@@ -1,0 +1,15 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+    name: fakeDeploymentPrivileged4
+    namespace: fakeDeploymentPrivileged
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakePrivileged
+        spec:
+            containers:
+            - name: fakeContainerPrivileged
+              securityContext:
+                privileged: false

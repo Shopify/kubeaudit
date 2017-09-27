@@ -1,0 +1,15 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+    name: fakeStatefulSetPrivileged4
+    namespace: fakeStatefulSetPrivileged
+spec:
+    template:
+        metadata:
+            labels:
+                apps: fakePrivileged
+        spec:
+            containers:
+            - name: fakeContainerPrivileged
+              securityContext:
+                privileged: false
