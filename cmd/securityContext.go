@@ -55,6 +55,7 @@ func printResultSC(results []Result) {
 					Warn("No capabilities were dropped! ", result.namespace, "/", result.name)
 			}
 		}
+
 	}
 }
 

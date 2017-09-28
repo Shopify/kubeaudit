@@ -23,6 +23,14 @@ func CreateFakeStatefulSetRunAsNonRoot(namespace string) {
 	fakeStatefulSetClient.Create(getStatefulSet(filepath.Join(statefulSetPath, "fakeStatefulSetRANR4.yml")))
 }
 
+func CreateFakeStatefulSetPrivileged(namespace string) {
+	fakeStatefulSetClient := getFakeStatefulSetClient(namespace)
+	fakeStatefulSetClient.Create(getStatefulSet(filepath.Join(statefulSetPath, "fakeStatefulSetPrivileged1.yml")))
+	fakeStatefulSetClient.Create(getStatefulSet(filepath.Join(statefulSetPath, "fakeStatefulSetPrivileged2.yml")))
+	fakeStatefulSetClient.Create(getStatefulSet(filepath.Join(statefulSetPath, "fakeStatefulSetPrivileged3.yml")))
+	fakeStatefulSetClient.Create(getStatefulSet(filepath.Join(statefulSetPath, "fakeStatefulSetPrivileged4.yml")))
+}
+
 func CreateFakeStatefulSetReadOnlyRootFilesystem(namespace string) {
 	fakeStatefulSetClient := getFakeStatefulSetClient(namespace)
 	fakeStatefulSetClient.Create(getStatefulSet(filepath.Join(statefulSetPath, "fakeStatefulSetRORF1.yml")))

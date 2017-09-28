@@ -23,6 +23,14 @@ func CreateFakePodRunAsNonRoot(namespace string) {
 	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRANR4.yml")))
 }
 
+func CreateFakePodPrivileged(namespace string) {
+	fakePodClient := getFakePodClient(namespace)
+	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodPrivileged1.yml")))
+	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodPrivileged2.yml")))
+	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodPrivileged3.yml")))
+	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodPrivileged4.yml")))
+}
+
 func CreateFakePodReadOnlyRootFilesystem(namespace string) {
 	fakePodClient := getFakePodClient(namespace)
 	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRORF1.yml")))

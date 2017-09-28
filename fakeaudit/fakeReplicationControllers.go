@@ -23,6 +23,14 @@ func CreateFakeReplicationControllerRunAsNonRoot(namespace string) {
 	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRANR4.yml")))
 }
 
+func CreateFakeReplicationControllerPrivileged(namespace string) {
+	fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
+	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerPrivileged1.yml")))
+	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerPrivileged2.yml")))
+	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerPrivileged3.yml")))
+	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerPrivileged4.yml")))
+}
+
 func CreateFakeReplicationControllerReadOnlyRootFilesystem(namespace string) {
 	fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
 	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRORF1.yml")))
