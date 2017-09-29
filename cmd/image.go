@@ -89,8 +89,8 @@ An ERROR log is generated when a container does not match the image:tag
 This command is also a root command, check kubeaudit sc --help
 
 Example usage:
-kubeaudit image
-kubeaudit image gcr.io/google_containers/echoserver:1.7`,
+kubeaudit image --image gcr.io/google_containers/echoserver:1.7
+kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 	Run: func(cmd *cobra.Command, args []string) {
 		kube, err := kubeClient(rootConfig.kubeConfig)
 		if err != nil {
