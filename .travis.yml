@@ -5,4 +5,4 @@ go:
 
 script:
   - make test
-  - make
+  - make check_version
