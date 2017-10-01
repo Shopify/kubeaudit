@@ -55,30 +55,37 @@ A FAIL is generated when a container runs in a privileged mode
 Example usage:
 kubeaudit privileged`,
 	Run: func(cmd *cobra.Command, args []string) {
-		kube, err := kubeClient(rootConfig.kubeConfig)
-		if err != nil {
-			log.Error(err)
-		}
-
 		if rootConfig.json {
 			log.SetFormatter(&log.JSONFormatter{})
 		}
 
-		// fetch deployments, statefulsets, daemonsets
-		// and pods which do not belong to another abstraction
-		deployments := getDeployments(kube)
-		statefulSets := getStatefulSets(kube)
-		daemonSets := getDaemonSets(kube)
-		pods := getPods(kube)
-		replicationControllers := getReplicationControllers(kube)
+		if rootConfig.manifest != "" {
+			wg.Add(1)
+			resource := getKubeResource(rootConfig.manifest)
+			auditSecurityContext(resource)
+			wg.Wait()
+		} else {
+			kube, err := kubeClient(rootConfig.kubeConfig)
+			if err != nil {
+				log.Error(err)
+			}
 
-		wg.Add(5)
-		go auditPrivileged(kubeAuditStatefulSets{list: statefulSets})
-		go auditPrivileged(kubeAuditDaemonSets{list: daemonSets})
-		go auditPrivileged(kubeAuditPods{list: pods})
-		go auditPrivileged(kubeAuditReplicationControllers{list: replicationControllers})
-		go auditPrivileged(kubeAuditDeployments{list: deployments})
-		wg.Wait()
+			// fetch deployments, statefulsets, daemonsets
+			// and pods which do not belong to another abstraction
+			deployments := getDeployments(kube)
+			statefulSets := getStatefulSets(kube)
+			daemonSets := getDaemonSets(kube)
+			pods := getPods(kube)
+			replicationControllers := getReplicationControllers(kube)
+
+			wg.Add(5)
+			go auditPrivileged(kubeAuditStatefulSets{list: statefulSets})
+			go auditPrivileged(kubeAuditDaemonSets{list: daemonSets})
+			go auditPrivileged(kubeAuditPods{list: pods})
+			go auditPrivileged(kubeAuditReplicationControllers{list: replicationControllers})
+			go auditPrivileged(kubeAuditDeployments{list: deployments})
+			wg.Wait()
+		}
 	},
 }
 
