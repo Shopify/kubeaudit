@@ -19,9 +19,9 @@ clean:
 	rm -f $(BINARY_NAME)
 	rm -f $(BINARY_UNIX)
 
-run:
-	$(GOBUILD) -o $(BINARY_NAME) -v ./...
-	./$(BINARY_NAME)
+check_version:
+	$(GOBUILD) -o $(BINARY_NAME)
+	./$(BINARY_NAME) version
 
 
 # Cross Compilation
@@ -31,4 +31,4 @@ build-linux:
 docker-build:
 	docker run --rm -it -v "$(GOPATH)":/go -w /go/src/github.com/Shopify/kubeaudit golang:1.9 go build -o "$(BINARY_UNIX)" -v
 
-.PHONY: build clean test run build-linux docker-build
+.PHONY: build clean test check_version build-linux docker-build

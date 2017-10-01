@@ -1,5 +1,5 @@
-hash: ee51734d6970277133ec4ae91ec0e9ca2c89b9d05ac2994ecac7f152efd1c4c5
-updated: 2017-08-28T11:53:55.504260971-04:00
+hash: c999290c9826c57d7e03b7b61bb496a76579e4e0a4fb341f8be1f382ff63c069
+updated: 2017-09-30T09:29:25.691873502+02:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -49,6 +49,8 @@ imports:
   - OpenAPIv2
   - compiler
   - extensions
+- name: github.com/hashicorp/go-version
+  version: fc61389e27c71d120f87031ca8c88a3428f372dd
 - name: github.com/howeyc/gopass
   version: bf9dde6d0d2c004a008c27aaee91170c786f6db8
 - name: github.com/imdario/mergo
