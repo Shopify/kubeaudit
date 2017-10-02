@@ -11,6 +11,7 @@
 - [Audit container image](#image)
 - [Audit network policies](#netpol)
 - [Audit RBAC policies](#rbac)
+- [Audit .yamls](#yamls)
 
 ## Installation
 
@@ -62,6 +63,7 @@ Flags:
   -h, --help                help for kubeaudit
   -j, --json                Enable json logging
   -c, --kubeconfig string   config file (default is $HOME/.kube/config
+  -f, --manifest string     yaml configuration to audit
   -l, --local               Local mode, uses ~/.kube/config as configuration
   -v, --verbose             Enable debug (verbose) logging
 
@@ -133,6 +135,17 @@ It audits against the following scenarios:
 % kubeaudit -l rbac sat
 ERRO[0000] automountServiceAccountToken nil (mounted by default) with no serviceAccountName name=alpine namespace=test type=deployment
 WARN[0000] deprecated serviceAccount detected (sub for serviceAccountName)  name=nginx namespace=staging serviceAccount=nginx serviceAccountName=nginx type=deployment
+```
+
+<a name="yamls" />
+
+### Audit .yamls
+
+Kubeaudit can audit undeployed resources when defined in a yaml as well:
+
+```sh
+% kubeaudit -f /path/to/your.yml pick_your_action_from_above
+ERRO{0000] ...
 ```
 
 ## Contributing
