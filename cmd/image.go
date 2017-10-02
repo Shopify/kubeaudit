@@ -92,29 +92,37 @@ Example usage:
 kubeaudit image --image gcr.io/google_containers/echoserver:1.7
 kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 	Run: func(cmd *cobra.Command, args []string) {
-		kube, err := kubeClient(rootConfig.kubeConfig)
-		if err != nil {
-			log.Error(err)
-		}
-
 		if rootConfig.json {
 			log.SetFormatter(&log.JSONFormatter{})
 		}
-		// fetch deployments, statefulsets, daemonsets
-		// and pods which do not belong to another abstraction
-		deployments := getDeployments(kube)
-		statefulSets := getStatefulSets(kube)
-		daemonSets := getDaemonSets(kube)
-		replicationControllers := getReplicationControllers(kube)
-		pods := getPods(kube)
 
-		wg.Add(5)
-		go auditImages(imgConfig.img, kubeAuditStatefulSets{list: statefulSets})
-		go auditImages(imgConfig.img, kubeAuditDaemonSets{list: daemonSets})
-		go auditImages(imgConfig.img, kubeAuditPods{list: pods})
-		go auditImages(imgConfig.img, kubeAuditReplicationControllers{list: replicationControllers})
-		go auditImages(imgConfig.img, kubeAuditDeployments{list: deployments})
-		wg.Wait()
+		if rootConfig.manifest != "" {
+			wg.Add(1)
+			resource := getKubeResource(rootConfig.manifest)
+			auditSecurityContext(resource)
+			wg.Wait()
+		} else {
+			kube, err := kubeClient(rootConfig.kubeConfig)
+			if err != nil {
+				log.Error(err)
+			}
+
+			// fetch deployments, statefulsets, daemonsets
+			// and pods which do not belong to another abstraction
+			deployments := getDeployments(kube)
+			statefulSets := getStatefulSets(kube)
+			daemonSets := getDaemonSets(kube)
+			replicationControllers := getReplicationControllers(kube)
+			pods := getPods(kube)
+
+			wg.Add(5)
+			go auditImages(imgConfig.img, kubeAuditStatefulSets{list: statefulSets})
+			go auditImages(imgConfig.img, kubeAuditDaemonSets{list: daemonSets})
+			go auditImages(imgConfig.img, kubeAuditPods{list: pods})
+			go auditImages(imgConfig.img, kubeAuditReplicationControllers{list: replicationControllers})
+			go auditImages(imgConfig.img, kubeAuditDeployments{list: deployments})
+			wg.Wait()
+		}
 	},
 }
 

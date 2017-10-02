@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"runtime"
+	"sync"
+
+	fakeaudit "github.com/Shopify/kubeaudit/fakeaudit"
 	log "github.com/sirupsen/logrus"
 	v1beta1 "k8s.io/api/apps/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
-	"runtime"
-	"sync"
 )
 
 var wg sync.WaitGroup
@@ -17,6 +19,46 @@ func debugPrint() {
 		stacklen := runtime.Stack(buf, true)
 		log.Debugf("%s", buf[:stacklen])
 	}
+}
+
+func convertDeploymentToDeploymentList(deployment v1beta1.Deployment) (deploymentList *v1beta1.DeploymentList) {
+	deploymentList = &v1beta1.DeploymentList{
+		Items: []v1beta1.Deployment{deployment},
+	}
+	return
+
+}
+
+func convertDaemonSetToDaemonSetList(daemonSet extensionsv1beta1.DaemonSet) (daemonSetList *extensionsv1beta1.DaemonSetList) {
+	daemonSetList = &extensionsv1beta1.DaemonSetList{
+		Items: []extensionsv1beta1.DaemonSet{daemonSet},
+	}
+	return
+
+}
+
+func convertPodToPodList(pod apiv1.Pod) (podList *apiv1.PodList) {
+	podList = &apiv1.PodList{
+		Items: []apiv1.Pod{pod},
+	}
+	return
+
+}
+
+func convertStatefulSetToStatefulSetList(statefulSet v1beta1.StatefulSet) (statefulSetList *v1beta1.StatefulSetList) {
+	statefulSetList = &v1beta1.StatefulSetList{
+		Items: []v1beta1.StatefulSet{statefulSet},
+	}
+	return
+
+}
+
+func convertReplicationControllerToReplicationList(replicationController apiv1.ReplicationController) (replicationControllerList *apiv1.ReplicationControllerList) {
+	replicationControllerList = &apiv1.ReplicationControllerList{
+		Items: []apiv1.ReplicationController{replicationController},
+	}
+	return
+
 }
 
 type kubeAuditDeployments struct {
@@ -218,4 +260,21 @@ func ServiceAccountIter(t interface{}) (result *Result) {
 		return
 
 	}
+}
+
+func getKubeResource(config string) (items Items) {
+	resource := fakeaudit.ReadConfigFiles(config)
+	switch resource := resource.(type) {
+	case *v1beta1.Deployment:
+		items = kubeAuditDeployments{list: convertDeploymentToDeploymentList(*resource)}
+	case *v1beta1.StatefulSet:
+		items = kubeAuditStatefulSets{list: convertStatefulSetToStatefulSetList(*resource)}
+	case *extensionsv1beta1.DaemonSet:
+		items = kubeAuditDaemonSets{list: convertDaemonSetToDaemonSetList(*resource)}
+	case *apiv1.Pod:
+		items = kubeAuditPods{list: convertPodToPodList(*resource)}
+	case *apiv1.ReplicationController:
+		items = kubeAuditReplicationControllers{list: convertReplicationControllerToReplicationList(*resource)}
+	}
+	return
 }

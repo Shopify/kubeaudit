@@ -15,6 +15,7 @@ type rootFlags struct {
 	verbose    bool
 	allPods    bool
 	json       bool
+	manifest   string
 }
 
 var RootCmd = &cobra.Command{
@@ -41,4 +42,5 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.verbose, "verbose", "v", false, "Enable debug (verbose) logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Enable json logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
 }

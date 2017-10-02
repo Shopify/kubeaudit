@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/Shopify/kubeaudit/fakeaudit"
 	"testing"
+
+	"github.com/Shopify/kubeaudit/fakeaudit"
 )
 
 func init() {
