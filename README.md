@@ -101,6 +101,13 @@ ERRO[0005] testbuilder/testpod-312-3213                  type=pod
 ERRO[0004] test/testPod                                  type=pod
 ```
 
+4. Every container is running in non-privileged mode:
+
+```sh
+% kubeaudit -l sc privileged
+ERRO[0004] test/testPod                                  type=pod
+```
+
 <a name="image" />
 
 ### Audit container image tags
@@ -147,7 +154,7 @@ Kubeaudit can audit undeployed resources when defined in a yaml as well:
 
 ```sh
 % kubeaudit -f /path/to/your.yml pick_your_action_from_above
-ERRO{0000] ...
+ERRO[0000] ...
 ```
 
 ## Contributing
