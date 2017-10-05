@@ -62,9 +62,15 @@ kubeaudit runAsNonRoot`,
 		}
 
 		if rootConfig.manifest != "" {
-			wg.Add(1)
-			resource := getKubeResource(rootConfig.manifest)
-			auditSecurityContext(resource)
+			resources, err := getKubeResources(rootConfig.manifest)
+			if err != nil {
+				log.Error(err)
+			}
+			count := len(resources)
+			wg.Add(count)
+			for _, resource := range resources {
+				go auditSecurityContext(resource)
+			}
 			wg.Wait()
 		} else {
 			kube, err := kubeClient(rootConfig.kubeConfig)

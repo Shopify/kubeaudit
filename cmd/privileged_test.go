@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/Shopify/kubeaudit/fakeaudit"
 	"testing"
+
+	"github.com/Shopify/kubeaudit/fakeaudit"
 )
 
 func init() {
@@ -24,7 +25,7 @@ func TestDeploymentPrivileged(t *testing.T) {
 	results := auditPrivileged(kubeAuditDeployments{list: fakeDeployments})
 
 	if len(results) != 2 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -44,7 +45,7 @@ func TestStatefulSetPrivileged(t *testing.T) {
 	results := auditPrivileged(kubeAuditStatefulSets{list: fakeStatefulSets})
 
 	if len(results) != 2 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -64,7 +65,7 @@ func TestDaemonSetPrivileged(t *testing.T) {
 	results := auditPrivileged(kubeAuditDaemonSets{list: fakeDaemonSets})
 
 	if len(results) != 2 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -84,7 +85,7 @@ func TestPodPrivileged(t *testing.T) {
 	results := auditPrivileged(kubeAuditPods{list: fakePods})
 
 	if len(results) != 2 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -104,7 +105,7 @@ func TestReplicationControllerPrivileged(t *testing.T) {
 	results := auditPrivileged(kubeAuditReplicationControllers{list: fakeReplicationControllers})
 
 	if len(results) != 2 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {

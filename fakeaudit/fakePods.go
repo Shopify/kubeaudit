@@ -7,47 +7,31 @@ import (
 var podsPath = filepath.Join(absPath, "fakeaudit", "test", "pods")
 
 func CreateFakePodSC(namespace string) {
-	fakePodClient := getFakePodClient(namespace)
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodSC1.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodSC2.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodSC3.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodSC4.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodSC5.yml")))
+	yamls := []string{"fakePodSC2.yml", "fakePodSC1.yml", "fakePodSC3.yml", "fakePodSC4.yml", "fakePodSC5.yml"}
+	createHelper(namespace, podsPath, yamls)
 }
 
 func CreateFakePodRunAsNonRoot(namespace string) {
-	fakePodClient := getFakePodClient(namespace)
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRANR1.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRANR2.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRANR3.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRANR4.yml")))
+	yamls := []string{"fakePodRANR1.yml", "fakePodRANR2.yml", "fakePodRANR3.yml", "fakePodRANR4.yml"}
+	createHelper(namespace, podsPath, yamls)
 }
 
 func CreateFakePodPrivileged(namespace string) {
-	fakePodClient := getFakePodClient(namespace)
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodPrivileged1.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodPrivileged2.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodPrivileged3.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodPrivileged4.yml")))
+	yamls := []string{"fakePodPrivileged1.yml", "fakePodPrivileged2.yml", "fakePodPrivileged3.yml", "fakePodPrivileged4.yml"}
+	createHelper(namespace, podsPath, yamls)
 }
 
 func CreateFakePodReadOnlyRootFilesystem(namespace string) {
-	fakePodClient := getFakePodClient(namespace)
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRORF1.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRORF2.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRORF3.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodRORF4.yml")))
+	yamls := []string{"fakePodRORF1.yml", "fakePodRORF2.yml", "fakePodRORF3.yml", "fakePodRORF4.yml"}
+	createHelper(namespace, podsPath, yamls)
 }
 
 func CreateFakePodAutomountServiceAccountToken(namespace string) {
-	fakePodClient := getFakePodClient(namespace)
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodASAT1.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodASAT2.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodASAT3.yml")))
+	yamls := []string{"fakePodASAT1.yml", "fakePodASAT2.yml", "fakePodASAT3.yml"}
+	createHelper(namespace, podsPath, yamls)
 }
 
 func CreateFakePodImg(namespace string) {
-	fakePodClient := getFakePodClient(namespace)
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodImg1.yml")))
-	fakePodClient.Create(getPod(filepath.Join(podsPath, "fakePodImg2.yml")))
+	yamls := []string{"fakePodImg1.yml", "fakePodImg2.yml"}
+	createHelper(namespace, podsPath, yamls)
 }

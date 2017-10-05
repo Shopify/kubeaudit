@@ -262,19 +262,25 @@ func ServiceAccountIter(t interface{}) (result *Result) {
 	}
 }
 
-func getKubeResource(config string) (items Items) {
-	resource := fakeaudit.ReadConfigFiles(config)
-	switch resource := resource.(type) {
-	case *v1beta1.Deployment:
-		items = kubeAuditDeployments{list: convertDeploymentToDeploymentList(*resource)}
-	case *v1beta1.StatefulSet:
-		items = kubeAuditStatefulSets{list: convertStatefulSetToStatefulSetList(*resource)}
-	case *extensionsv1beta1.DaemonSet:
-		items = kubeAuditDaemonSets{list: convertDaemonSetToDaemonSetList(*resource)}
-	case *apiv1.Pod:
-		items = kubeAuditPods{list: convertPodToPodList(*resource)}
-	case *apiv1.ReplicationController:
-		items = kubeAuditReplicationControllers{list: convertReplicationControllerToReplicationList(*resource)}
+func getKubeResources(config string) (items []Items, err error) {
+	resources, read_err := fakeaudit.ReadConfigFile(config)
+	if err != nil {
+		err = read_err
+		return
+	}
+	for _, resource := range resources {
+		switch resource := resource.(type) {
+		case *v1beta1.Deployment:
+			items = append(items, kubeAuditDeployments{list: convertDeploymentToDeploymentList(*resource)})
+		case *v1beta1.StatefulSet:
+			items = append(items, kubeAuditStatefulSets{list: convertStatefulSetToStatefulSetList(*resource)})
+		case *extensionsv1beta1.DaemonSet:
+			items = append(items, kubeAuditDaemonSets{list: convertDaemonSetToDaemonSetList(*resource)})
+		case *apiv1.Pod:
+			items = append(items, kubeAuditPods{list: convertPodToPodList(*resource)})
+		case *apiv1.ReplicationController:
+			items = append(items, kubeAuditReplicationControllers{list: convertReplicationControllerToReplicationList(*resource)})
+		}
 	}
 	return
 }

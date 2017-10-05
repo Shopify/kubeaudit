@@ -7,47 +7,31 @@ import (
 var deploymentsPath = filepath.Join(absPath, "fakeaudit", "test", "deployments")
 
 func CreateFakeDeploymentSC(namespace string) {
-	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC3.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC4.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentSC5.yml")))
+	yamls := []string{"fakeDeploymentSC1.yml", "fakeDeploymentSC2.yml", "fakeDeploymentSC3.yml", "fakeDeploymentSC4.yml", "fakeDeploymentSC5.yml"}
+	createHelper(namespace, deploymentsPath, yamls)
 }
 
 func CreateFakeDeploymentRunAsNonRoot(namespace string) {
-	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRANR1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRANR2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRANR3.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRANR4.yml")))
+	yamls := []string{"fakeDeploymentRANR1.yml", "fakeDeploymentRANR2.yml", "fakeDeploymentRANR3.yml", "fakeDeploymentRANR4.yml"}
+	createHelper(namespace, deploymentsPath, yamls)
 }
 
 func CreateFakeDeploymentPrivileged(namespace string) {
-	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentPrivileged1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentPrivileged2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentPrivileged3.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentPrivileged4.yml")))
+	yamls := []string{"fakeDeploymentPrivileged1.yml", "fakeDeploymentPrivileged2.yml", "fakeDeploymentPrivileged3.yml", "fakeDeploymentPrivileged4.yml"}
+	createHelper(namespace, deploymentsPath, yamls)
 }
 
 func CreateFakeDeploymentReadOnlyRootFilesystem(namespace string) {
-	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRORF1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRORF2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRORF3.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentRORF4.yml")))
+	yamls := []string{"fakeDeploymentRORF1.yml", "fakeDeploymentRORF2.yml", "fakeDeploymentRORF3.yml", "fakeDeploymentRORF4.yml"}
+	createHelper(namespace, deploymentsPath, yamls)
 }
 
 func CreateFakeDeploymentAutomountServiceAccountToken(namespace string) {
-	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentASAT1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentASAT2.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentASAT3.yml")))
+	yamls := []string{"fakeDeploymentASAT1.yml", "fakeDeploymentASAT2.yml", "fakeDeploymentASAT3.yml"}
+	createHelper(namespace, deploymentsPath, yamls)
 }
 
 func CreateFakeDeploymentImg(namespace string) {
-	fakeDeploymentClient := getFakeDeploymentClient(namespace)
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentImg1.yml")))
-	fakeDeploymentClient.Create(getDeployment(filepath.Join(deploymentsPath, "fakeDeploymentImg2.yml")))
+	yamls := []string{"fakeDeploymentImg1.yml", "fakeDeploymentImg2.yml"}
+	createHelper(namespace, deploymentsPath, yamls)
 }

@@ -7,47 +7,31 @@ import (
 var daemonSetPath = filepath.Join(absPath, "fakeaudit", "test", "daemonSets")
 
 func CreateFakeDaemonSetSC(namespace string) {
-	fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetSC1.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetSC2.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetSC3.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetSC4.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetSC5.yml")))
+	yamls := []string{"fakeDaemonSetSC1.yml", "fakeDaemonSetSC2.yml", "fakeDaemonSetSC3.yml", "fakeDaemonSetSC4.yml", "fakeDaemonSetSC5.yml"}
+	createHelper(namespace, daemonSetPath, yamls)
 }
 
 func CreateFakeDaemonSetRunAsNonRoot(namespace string) {
-	fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRANR1.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRANR2.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRANR3.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRANR4.yml")))
+	yamls := []string{"fakeDaemonSetRANR1.yml", "fakeDaemonSetRANR2.yml", "fakeDaemonSetRANR2.yml", "fakeDaemonSetRANR3.yml", "fakeDaemonSetRANR4.yml"}
+	createHelper(namespace, daemonSetPath, yamls)
 }
 
 func CreateFakeDaemonSetPrivileged(namespace string) {
-	fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetPrivileged1.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetPrivileged2.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetPrivileged3.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetPrivileged4.yml")))
+	yamls := []string{"fakeDaemonSetPrivileged1.yml", "fakeDaemonSetPrivileged2.yml", "fakeDaemonSetPrivileged3.yml", "fakeDaemonSetPrivileged4.yml"}
+	createHelper(namespace, daemonSetPath, yamls)
 }
 
 func CreateFakeDaemonSetReadOnlyRootFilesystem(namespace string) {
-	fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRORF1.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRORF2.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRORF3.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetRORF4.yml")))
+	yamls := []string{"fakeDaemonSetRORF1.yml", "fakeDaemonSetRORF2.yml", "fakeDaemonSetRORF3.yml", "fakeDaemonSetRORF4.yml"}
+	createHelper(namespace, daemonSetPath, yamls)
 }
 
 func CreateFakeDaemonSetAutomountServiceAccountToken(namespace string) {
-	fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetASAT1.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetASAT2.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetASAT3.yml")))
+	yamls := []string{"fakeDaemonSetASAT1.yml", "fakeDaemonSetASAT2.yml", "fakeDaemonSetASAT3.yml"}
+	createHelper(namespace, daemonSetPath, yamls)
 }
 
 func CreateFakeDaemonSetImg(namespace string) {
-	fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetImg1.yml")))
-	fakeDaemonSetClient.Create(getDaemonSet(filepath.Join(daemonSetPath, "fakeDaemonSetImg2.yml")))
+	yamls := []string{"fakeDaemonSetImg1.yml", "fakeDaemonSetImg2.yml"}
+	createHelper(namespace, daemonSetPath, yamls)
 }
