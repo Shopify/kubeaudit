@@ -23,7 +23,7 @@ func TestDeploymentImg(t *testing.T) {
 	wg.Add(2)
 	results := auditImages("fakeContainerImg:1.5", kubeAuditDeployments{list: fakeDeployments})
 
-	if len(results) != 1 {
+	if len(results) != 2 {
 		t.Error("Test 1: Failed to identify all bad configurations")
 	}
 
@@ -60,7 +60,7 @@ func TestStatefulSetImg(t *testing.T) {
 	wg.Add(2)
 	results := auditImages("fakeContainerImg:1.5", kubeAuditStatefulSets{list: fakeStatefulSets})
 
-	if len(results) != 1 {
+	if len(results) != 2 {
 		t.Error("Test 1: Failed to identify all bad configurations")
 	}
 
@@ -81,11 +81,11 @@ func TestStatefulSetImg(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeStatefulSetImg1" && result.err != 1 {
+		if result.name == "fakeStatefulSetImg1" && result.err == 2 {
 			t.Error("Test 5: Failed to identify that image tag is missing. Refer: fakeStatefulSetImg1")
 		}
 
-		if result.name == "fakeStatefulSetImg2" && result.err != 2 {
+		if result.name == "fakeStatefulSetImg2" && result.err == 1 {
 			t.Error("Test 6: Failed to identify wrong image tag. Refer: fakeStatefulSetImg2")
 		}
 	}
@@ -97,7 +97,7 @@ func TestDaemonSetImg(t *testing.T) {
 	wg.Add(2)
 	results := auditImages("fakeContainerImg:1.5", kubeAuditDaemonSets{list: fakeDaemonSets})
 
-	if len(results) != 1 {
+	if len(results) != 2 {
 		t.Error("Test 1: Failed to identify all bad configurations")
 	}
 
@@ -118,11 +118,11 @@ func TestDaemonSetImg(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeDaemonSetImg1" && result.err != 1 {
+		if result.name == "fakeDaemonSetImg1" && result.err == 2 {
 			t.Error("Test 5: Failed to identify that image tag is missing. Refer: fakeDaemonSetImg1")
 		}
 
-		if result.name == "fakeDaemonSetImg2" && result.err != 2 {
+		if result.name == "fakeDaemonSetImg2" && result.err == 1 {
 			t.Error("Test 6: Failed to identify wrong image tag. Refer: fakeDaemonSetImg2")
 		}
 	}
@@ -134,7 +134,7 @@ func TestPodImg(t *testing.T) {
 	wg.Add(2)
 	results := auditImages("fakeContainerImg:1.5", kubeAuditPods{list: fakePods})
 
-	if len(results) != 1 {
+	if len(results) != 2 {
 		t.Error("Test 1: Failed to identify all bad configurations")
 	}
 
@@ -155,11 +155,11 @@ func TestPodImg(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakePodImg1" && result.err != 1 {
+		if result.name == "fakePodImg1" && result.err == 2 {
 			t.Error("Test 5: Failed to identify that image tag is missing. Refer: fakePodImg1")
 		}
 
-		if result.name == "fakePodImg2" && result.err != 2 {
+		if result.name == "fakePodImg2" && result.err == 1 {
 			t.Error("Test 6: Failed to identify wrong image tag. Refer: fakePodImg2")
 		}
 	}
@@ -171,7 +171,7 @@ func TestReplicationControllerImg(t *testing.T) {
 	wg.Add(2)
 	results := auditImages("fakeContainerImg:1.5", kubeAuditReplicationControllers{list: fakeReplicationControllers})
 
-	if len(results) != 1 {
+	if len(results) != 2 {
 		t.Error("Test 1: Failed to identify all bad configurations")
 	}
 
@@ -192,11 +192,11 @@ func TestReplicationControllerImg(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeReplicationControllerImg1" && result.err != 1 {
+		if result.name == "fakeReplicationControllerImg1" && result.err == 2 {
 			t.Error("Test 5: Failed to identify that image tag is missing. Refer: fakeReplicationControllerImg1")
 		}
 
-		if result.name == "fakeReplicationControllerImg2" && result.err != 2 {
+		if result.name == "fakeReplicationControllerImg2" && result.err == 1 {
 			t.Error("Test 6: Failed to identify wrong image tag. Refer: fakeReplicationControllerImg2")
 		}
 	}

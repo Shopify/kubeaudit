@@ -66,11 +66,15 @@ func checkImage(container apiv1.Container, image string, result *Result) {
 
 	contTag = contImgLabel[1]
 
+	result.img_name = contImg
+	result.img_tag = contTag
+
 	if contImg == compImg && contTag != compTag {
 		result.err = 2
-		result.img_name = contImg
-		result.img_tag = contTag
 	}
+
+	result.err = 0
+
 	return
 }
 
@@ -79,7 +83,7 @@ func auditImages(image string, items Items) (results []Result) {
 		containers, result := containerIter(item)
 		for _, container := range containers {
 			checkImage(container, image, result)
-			if result != nil && result.err > 0 {
+			if result != nil && result.err >= 0 {
 				results = append(results, *result)
 				break
 			}
