@@ -1,6 +1,7 @@
 package fakeaudit
 
 import (
+	"bytes"
 	"io/ioutil"
 	"path/filepath"
 
@@ -14,51 +15,51 @@ import (
 
 var absPath, _ = filepath.Abs("../")
 
-func ReadConfigFiles(filename string) runtime.Object {
+func ReadConfigFile(filename string) (decoded []runtime.Object, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
 	if err != nil {
 		log.Error("File not found")
-		panic(err)
+		return
 	}
+	buf_slice := bytes.Split(buf, []byte("---"))
 
 	decoder := scheme.Codecs.UniversalDeserializer()
-	obj, _, err := decoder.Decode(buf, nil, nil)
 
-	if err != nil {
-		log.Errorf("Could not decode the given yaml: %s\n%s", string(buf), err)
+	for _, b := range buf_slice {
+		obj, _, err := decoder.Decode(b, nil, nil)
+		if err == nil && obj != nil {
+			decoded = append(decoded, obj)
+		}
 	}
-
-	return obj
-}
-
-func getDeployment(filename string) (deployment *v1beta1.Deployment) {
-	obj := ReadConfigFiles(filename)
-	deployment = obj.(*v1beta1.Deployment)
 	return
 }
 
-func getStatefulSet(filename string) (statefulSet *v1beta1.StatefulSet) {
-	obj := ReadConfigFiles(filename)
-	statefulSet = obj.(*v1beta1.StatefulSet)
-	return
-}
-
-func getDaemonSet(filename string) (daemonSet *extensionsv1beta1.DaemonSet) {
-	obj := ReadConfigFiles(filename)
-	daemonSet = obj.(*extensionsv1beta1.DaemonSet)
-	return
-}
-
-func getPod(filename string) (pod *apiv1.Pod) {
-	obj := ReadConfigFiles(filename)
-	pod = obj.(*apiv1.Pod)
-	pod.Status.Phase = "Running"
-	return
-}
-
-func getReplicationController(filename string) (rc *apiv1.ReplicationController) {
-	obj := ReadConfigFiles(filename)
-	rc = obj.(*apiv1.ReplicationController)
-	return
+func createHelper(namespace string, path string, yamls []string) {
+	for _, yaml := range yamls {
+		obj_slice, err := ReadConfigFile(filepath.Join(path, yaml))
+		if err != nil {
+			return
+		}
+		for _, obj := range obj_slice {
+			switch resource := obj.(type) {
+			case *v1beta1.Deployment:
+				fakeDeploymentClient := getFakeDeploymentClient(namespace)
+				fakeDeploymentClient.Create(resource)
+			case *v1beta1.StatefulSet:
+				fakeStatefulSetClient := getFakeStatefulSetClient(namespace)
+				fakeStatefulSetClient.Create(resource)
+			case *extensionsv1beta1.DaemonSet:
+				fakeDaemonSetClient := getFakeDaemonSetClient(namespace)
+				fakeDaemonSetClient.Create(resource)
+			case *apiv1.Pod:
+				fakePodClient := getFakePodClient(namespace)
+				resource.Status.Phase = "Running"
+				fakePodClient.Create(resource)
+			case *apiv1.ReplicationController:
+				fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
+				fakeReplicationControllerClient.Create(resource)
+			}
+		}
+	}
 }

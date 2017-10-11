@@ -25,7 +25,7 @@ func TestDeploymentSC(t *testing.T) {
 	results := auditSecurityContext(kubeAuditDeployments{list: fakeDeployments})
 
 	if len(results) != 4 {
-		t.Error("Test 1: Failed to caught all the bad configurations")
+		t.Error("Test 1: Failed to catch all the bad configurations")
 	}
 
 	for _, result := range results {
@@ -57,7 +57,7 @@ func TestStatefulSetSC(t *testing.T) {
 	results := auditSecurityContext(kubeAuditStatefulSets{list: fakeStatefulSets})
 
 	if len(results) != 4 {
-		t.Error("Test 1: Failed to caught all the bad configurations")
+		t.Error("Test 1: Failed to catch all the bad configurations")
 	}
 
 	for _, result := range results {
@@ -89,7 +89,7 @@ func TestDaemonSetSC(t *testing.T) {
 	results := auditSecurityContext(kubeAuditDaemonSets{list: fakeDaemonSets})
 
 	if len(results) != 4 {
-		t.Error("Test 1: Failed to caught all the bad configurations")
+		t.Error("Test 1: Failed to catch all the bad configurations")
 	}
 
 	for _, result := range results {
@@ -121,7 +121,7 @@ func TestPodSC(t *testing.T) {
 	results := auditSecurityContext(kubeAuditPods{list: fakePods})
 
 	if len(results) != 4 {
-		t.Error("Test 1: Failed to caught all the bad configurations")
+		t.Error("Test 1: Failed to catch all the bad configurations")
 	}
 
 	for _, result := range results {
@@ -153,7 +153,7 @@ func TestReplicationControllerSC(t *testing.T) {
 	results := auditSecurityContext(kubeAuditReplicationControllers{list: fakeReplicationControllers})
 
 	if len(results) != 4 {
-		t.Error("Test 1: Failed to caught all the bad configurations")
+		t.Error("Test 1: Failed to catch all the bad configurations")
 	}
 
 	for _, result := range results {

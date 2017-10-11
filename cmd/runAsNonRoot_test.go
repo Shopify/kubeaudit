@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/Shopify/kubeaudit/fakeaudit"
 	"testing"
+
+	"github.com/Shopify/kubeaudit/fakeaudit"
 )
 
 func init() {
@@ -24,7 +25,7 @@ func TestDeploymentRANR(t *testing.T) {
 	results := auditRunAsNonRoot(kubeAuditDeployments{list: fakeDeployments})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -48,7 +49,7 @@ func TestStatefulSetRANR(t *testing.T) {
 	results := auditRunAsNonRoot(kubeAuditStatefulSets{list: fakeStatefulSets})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -72,7 +73,7 @@ func TestDaemonSetRANR(t *testing.T) {
 	results := auditRunAsNonRoot(kubeAuditDaemonSets{list: fakeDaemonSets})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -96,7 +97,7 @@ func TestPodRANR(t *testing.T) {
 	results := auditRunAsNonRoot(kubeAuditPods{list: fakePods})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -120,7 +121,7 @@ func TestReplicationControllerRANR(t *testing.T) {
 	results := auditRunAsNonRoot(kubeAuditReplicationControllers{list: fakeReplicationControllers})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {

@@ -41,7 +41,7 @@ func kubeClient(kubeconfig string) (*kubernetes.Clientset, error) {
 	}
 	config, err := kubeClientConfig(kubeconfig)
 	if err != nil {
-		panic(err)
+		log.Error(err)
 	}
 	kube, err := kubernetes.NewForConfig(config)
 	printKubernetesVersion(kube)

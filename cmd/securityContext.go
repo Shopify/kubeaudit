@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
@@ -60,6 +62,7 @@ func printResultSC(results []Result) {
 }
 
 func auditSecurityContext(items Items) (results []Result) {
+	fmt.Println(items)
 	for _, item := range items.Iter() {
 		containers, result := containerIter(item)
 		for _, container := range containers {
@@ -96,9 +99,15 @@ kubeaudit sc rootfs`,
 		}
 
 		if rootConfig.manifest != "" {
-			wg.Add(1)
-			resource := getKubeResource(rootConfig.manifest)
-			auditSecurityContext(resource)
+			resources, err := getKubeResources(rootConfig.manifest)
+			if err != nil {
+				log.Error(err)
+			}
+			count := len(resources)
+			wg.Add(count)
+			for _, resource := range resources {
+				go auditSecurityContext(resource)
+			}
 			wg.Wait()
 		} else {
 			kube, err := kubeClient(rootConfig.kubeConfig)

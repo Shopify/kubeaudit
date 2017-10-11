@@ -7,47 +7,31 @@ import (
 var replicationControllerPath = filepath.Join(absPath, "fakeaudit", "test", "replicationControllers")
 
 func CreateFakeReplicationControllerSC(namespace string) {
-	fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerSC1.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerSC2.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerSC3.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerSC4.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerSC5.yml")))
+	yamls := []string{"fakeReplicationControllerSC1.yml", "fakeReplicationControllerSC2.yml", "fakeReplicationControllerSC3.yml", "fakeReplicationControllerSC4.yml", "fakeReplicationControllerSC5.yml"}
+	createHelper(namespace, replicationControllerPath, yamls)
 }
 
 func CreateFakeReplicationControllerRunAsNonRoot(namespace string) {
-	fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRANR1.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRANR2.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRANR3.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRANR4.yml")))
+	yamls := []string{"fakeReplicationControllerRANR1.yml", "fakeReplicationControllerRANR2.yml", "fakeReplicationControllerRANR2.yml", "fakeReplicationControllerRANR3.yml", "fakeReplicationControllerRANR4.yml"}
+	createHelper(namespace, replicationControllerPath, yamls)
 }
 
 func CreateFakeReplicationControllerPrivileged(namespace string) {
-	fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerPrivileged1.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerPrivileged2.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerPrivileged3.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerPrivileged4.yml")))
+	yamls := []string{"fakeReplicationControllerPrivileged1.yml", "fakeReplicationControllerPrivileged2.yml", "fakeReplicationControllerPrivileged3.yml", "fakeReplicationControllerPrivileged4.yml"}
+	createHelper(namespace, replicationControllerPath, yamls)
 }
 
 func CreateFakeReplicationControllerReadOnlyRootFilesystem(namespace string) {
-	fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRORF1.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRORF2.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRORF3.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerRORF4.yml")))
+	yamls := []string{"fakeReplicationControllerRORF1.yml", "fakeReplicationControllerRORF2.yml", "fakeReplicationControllerRORF3.yml", "fakeReplicationControllerRORF4.yml"}
+	createHelper(namespace, replicationControllerPath, yamls)
 }
 
 func CreateFakeReplicationControllerAutomountServiceAccountToken(namespace string) {
-	fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerASAT1.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerASAT2.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerASAT3.yml")))
+	yamls := []string{"fakeReplicationControllerASAT1.yml", "fakeReplicationControllerASAT2.yml", "fakeReplicationControllerASAT3.yml"}
+	createHelper(namespace, replicationControllerPath, yamls)
 }
 
 func CreateFakeReplicationControllerImg(namespace string) {
-	fakeReplicationControllerClient := getFakeReplicationControllerClient(namespace)
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerImg1.yml")))
-	fakeReplicationControllerClient.Create(getReplicationController(filepath.Join(replicationControllerPath, "fakeReplicationControllerImg2.yml")))
+	yamls := []string{"fakeReplicationControllerImg1.yml", "fakeReplicationControllerImg2.yml"}
+	createHelper(namespace, replicationControllerPath, yamls)
 }

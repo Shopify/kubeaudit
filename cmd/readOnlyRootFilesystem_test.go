@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/Shopify/kubeaudit/fakeaudit"
 	"testing"
+
+	"github.com/Shopify/kubeaudit/fakeaudit"
 )
 
 func init() {
@@ -24,7 +25,7 @@ func TestDeploymentRORF(t *testing.T) {
 	results := auditReadOnlyRootFS(kubeAuditDeployments{list: fakeDeployments})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -48,7 +49,7 @@ func TestStatefulSetRORF(t *testing.T) {
 	results := auditReadOnlyRootFS(kubeAuditStatefulSets{list: fakeStatefulSets})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -72,7 +73,7 @@ func TestDaemonSetRORF(t *testing.T) {
 	results := auditReadOnlyRootFS(kubeAuditDaemonSets{list: fakeDaemonSets})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -96,7 +97,7 @@ func TestPodRORF(t *testing.T) {
 	results := auditReadOnlyRootFS(kubeAuditPods{list: fakePods})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
@@ -120,7 +121,7 @@ func TestReplicationControllerRORF(t *testing.T) {
 	results := auditReadOnlyRootFS(kubeAuditReplicationControllers{list: fakeReplicationControllers})
 
 	if len(results) != 3 {
-		t.Error("Test 1: Failed to caught all bad configurations")
+		t.Error("Test 1: Failed to catch all bad configurations")
 	}
 
 	for _, result := range results {
