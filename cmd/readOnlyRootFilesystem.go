@@ -67,7 +67,7 @@ kubeaudit runAsNonRoot`,
 			count := len(resources)
 			wg.Add(count)
 			for _, resource := range resources {
-				go auditSecurityContext(resource)
+				go auditReadOnlyRootFS(resource)
 			}
 			wg.Wait()
 		} else {

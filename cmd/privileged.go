@@ -67,7 +67,7 @@ kubeaudit privileged`,
 			count := len(resources)
 			wg.Add(count)
 			for _, resource := range resources {
-				go auditSecurityContext(resource)
+				go auditPrivileged(resource)
 			}
 			wg.Wait()
 		} else {
