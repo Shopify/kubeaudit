@@ -121,7 +121,7 @@ kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 			count := len(resources)
 			wg.Add(count)
 			for _, resource := range resources {
-				go auditSecurityContext(resource)
+				go auditImages(imgConfig.img, resource)
 			}
 			wg.Wait()
 		} else {
