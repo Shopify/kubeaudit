@@ -24,7 +24,6 @@ func (image *imgFlags) splitImageString() {
 	if len(tokens) > 1 {
 		image.tag = tokens[1]
 	}
-	return
 }
 
 func printResultImg(results []Result) {
@@ -32,19 +31,25 @@ func printResultImg(results []Result) {
 		switch result.err {
 		case KubeAuditInfo:
 			log.WithFields(log.Fields{
-				"type": result.kubeType,
-				"tag":  result.imgTag}).Info(result.namespace,
-				"/", result.name)
+				"type":      result.kubeType,
+				"tag":       result.imgTag,
+				"namespace": result.namespace,
+				"name":      result.name,
+			}).Info(result.namespace, "/", result.name)
 		case ErrorImageTagMissing:
 			log.WithFields(log.Fields{
-				"type": result.kubeType,
-				"tag":  result.imgTag}).Error("Image tag was missing ", result.namespace,
-				"/", result.name)
+				"type":      result.kubeType,
+				"tag":       result.imgTag,
+				"namespace": result.namespace,
+				"name":      result.name,
+			}).Error("Image tag was missing")
 		case ErrorImageTagIncorrect:
 			log.WithFields(log.Fields{
-				"type": result.kubeType,
-				"tag":  result.imgTag}).Error("Image tag was incorrect ", result.namespace,
-				"/", result.name)
+				"type":      result.kubeType,
+				"tag":       result.imgTag,
+				"namespace": result.namespace,
+				"name":      result.name,
+			}).Error("Image tag was incorrect")
 		}
 	}
 }
@@ -63,11 +68,10 @@ func checkImage(container apiv1.Container, image imgFlags, result *Result) {
 	}
 
 	if contImage.name == image.name && contImage.tag != image.tag {
-		result.err = 2
+		result.err = ErrorImageTagIncorrect
 		result.imgName = contImage.name
 		result.imgTag = contImage.tag
 	}
-	return
 }
 
 func auditImages(image imgFlags, items Items) (results []Result) {
