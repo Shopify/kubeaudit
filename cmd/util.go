@@ -86,13 +86,13 @@ type Result struct {
 	namespace   string
 	name        string
 	capsAdded   []apiv1.Capability
-	img_name    string
+	imgName     string
 	capsDropped bool
 	kubeType    string
 	dsa         string
 	sa          string
 	token       *bool
-	img_tag     string
+	imgTag      string
 }
 
 type Items interface {

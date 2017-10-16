@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"os"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -12,69 +11,66 @@ import (
 var imgConfig imgFlags
 
 type imgFlags struct {
-	img string
+	img  string
+	name string
+	tag  string
+}
+
+func (image *imgFlags) splitImageString() {
+	tokens := strings.Split(image.img, ":")
+	if len(tokens) > 0 {
+		image.name = tokens[0]
+	}
+	if len(tokens) > 1 {
+		image.tag = tokens[1]
+	}
+	return
 }
 
 func printResultImg(results []Result) {
 	for _, result := range results {
 		switch result.err {
-		case 0:
+		case KubeAuditInfo:
 			log.WithFields(log.Fields{
 				"type": result.kubeType,
-				"tag":  result.img_tag}).Info(result.namespace,
+				"tag":  result.imgTag}).Info(result.namespace,
 				"/", result.name)
-		case 1:
+		case ErrorImageTagMissing:
 			log.WithFields(log.Fields{
 				"type": result.kubeType,
-				"tag":  result.img_tag}).Error("Image tag was missing ", result.namespace,
+				"tag":  result.imgTag}).Error("Image tag was missing ", result.namespace,
 				"/", result.name)
-		case 2:
+		case ErrorImageTagIncorrect:
 			log.WithFields(log.Fields{
 				"type": result.kubeType,
-				"tag":  result.img_tag}).Error("Image tag was incorrect ", result.namespace,
+				"tag":  result.imgTag}).Error("Image tag was incorrect ", result.namespace,
 				"/", result.name)
 		}
 	}
 }
 
-func checkImage(container apiv1.Container, image string, result *Result) {
-	var (
-		contImg string
-		contTag string
-	)
+func checkImage(container apiv1.Container, image imgFlags, result *Result) {
+	image.splitImageString()
+	contImage := imgFlags{img: container.Image}
+	contImage.splitImageString()
 
-	imageLabel := strings.Split(image, ":")
-
-	if len(imageLabel) < 2 {
-		log.Error("Image tag is missing!")
-		os.Exit(1)
-	}
-
-	compImg := imageLabel[0]
-	compTag := imageLabel[1]
-
-	contImgLabel := strings.Split(container.Image, ":")
-	contImg = contImgLabel[0]
-
-	if len(contImgLabel) < 2 {
-		if compImg == contImg {
+	if len(contImage.tag) == 0 {
+		if image.name == contImage.name {
 			// Image name was proper but image tag was missing
-			result.err = 1
+			result.err = ErrorImageTagMissing
 		}
 		return
 	}
 
-	contTag = contImgLabel[1]
-
-	if contImg == compImg && contTag != compTag {
+	if contImage.name == image.name && contImage.tag != image.tag {
 		result.err = 2
-		result.img_name = contImg
-		result.img_tag = contTag
+		result.imgName = contImage.name
+		result.imgTag = contImage.tag
 	}
 	return
 }
 
-func auditImages(image string, items Items) (results []Result) {
+func auditImages(image imgFlags, items Items) (results []Result) {
 	for _, item := range items.Iter() {
 		containers, result := containerIter(item)
 		for _, container := range containers {
@@ -108,6 +104,11 @@ kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 			log.Error("Empty image name. Are you missing the image flag?")
 			return
 		}
+		imgConfig.splitImageString()
+		if len(imgConfig.tag) == 0 {
+			log.Error("Empty image tag. Are you missing the image tag?")
+			return
+		}
 
 		if rootConfig.json {
 			log.SetFormatter(&log.JSONFormatter{})
@@ -121,7 +122,7 @@ kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 			count := len(resources)
 			wg.Add(count)
 			for _, resource := range resources {
-				go auditImages(imgConfig.img, resource)
+				go auditImages(imgConfig, resource)
 			}
 			wg.Wait()
 		} else {
@@ -139,11 +140,11 @@ kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 			pods := getPods(kube)
 
 			wg.Add(5)
-			go auditImages(imgConfig.img, kubeAuditStatefulSets{list: statefulSets})
-			go auditImages(imgConfig.img, kubeAuditDaemonSets{list: daemonSets})
-			go auditImages(imgConfig.img, kubeAuditPods{list: pods})
-			go auditImages(imgConfig.img, kubeAuditReplicationControllers{list: replicationControllers})
-			go auditImages(imgConfig.img, kubeAuditDeployments{list: deployments})
+			go auditImages(imgConfig, kubeAuditStatefulSets{list: statefulSets})
+			go auditImages(imgConfig, kubeAuditDaemonSets{list: daemonSets})
+			go auditImages(imgConfig, kubeAuditPods{list: pods})
+			go auditImages(imgConfig, kubeAuditReplicationControllers{list: replicationControllers})
+			go auditImages(imgConfig, kubeAuditDeployments{list: deployments})
 			wg.Wait()
 		}
 	},
