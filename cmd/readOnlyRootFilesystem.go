@@ -8,21 +8,35 @@ import (
 
 func printResultRFS(results []Result) {
 	for _, result := range results {
-		if result.err > 0 {
-			log.WithField("type", result.kubeType).Error(result.namespace, "/", result.name)
+		switch result.err {
+		case ErrorSecurityContextNIL:
+			log.WithFields(log.Fields{
+				"type": result.kubeType,
+			}).Error("SecurityContext not set, please set it!", result.namespace, "/", result.name)
+		case ErrorReadOnlyRootFilesystemNIL:
+			log.WithFields(log.Fields{
+				"type": result.kubeType,
+			}).Error("ReadOnlyFilesystem not set, defaults to nil", result.namespace, "/", result.name)
+		case ErrorReadOnlyRootFilesystemFalse:
+			log.WithFields(log.Fields{
+				"type": result.kubeType,
+			}).Error("ReadOnlyFilesystem set to false", result.namespace, "/", result.name)
 		}
 	}
 }
 
 func checkReadOnlyRootFS(container apiv1.Container, result *Result) {
-	if container.SecurityContext != nil {
-		if container.SecurityContext.ReadOnlyRootFilesystem == nil {
-			result.err = 1
-		} else if !*container.SecurityContext.ReadOnlyRootFilesystem {
-			result.err = 2
-		}
-	} else {
-		result.err = 3
+	if container.SecurityContext == nil {
+		result.err = ErrorSecurityContextNIL
+		return
+	}
+	if container.SecurityContext.ReadOnlyRootFilesystem == nil {
+		result.err = ErrorReadOnlyRootFilesystemNIL
+		return
+	}
+	if !*container.SecurityContext.ReadOnlyRootFilesystem {
+		result.err = ErrorReadOnlyRootFilesystemFalse
+		return
 	}
 	return
 }

@@ -29,15 +29,15 @@ func TestDeploymentRORF(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeDeploymentRORF1" && result.err != 3 {
+		if result.name == "fakeDeploymentRORF1" && result.err != ErrorSecurityContextNIL {
 			t.Error("Test 2: Failed to identify security context missing. Refer: fakeDeploymentRORF1.yml")
 		}
 
-		if result.name == "fakeDeploymentRORF2" && result.err != 1 {
+		if result.name == "fakeDeploymentRORF2" && result.err != ErrorReadOnlyRootFilesystemNIL {
 			t.Error("Test 3: Failed to identify RunAsNonRoot was nil. Refer: fakeDeploymentRORF2.yml")
 		}
 
-		if result.name == "fakeDeploymentRORF3" && result.err != 2 {
+		if result.name == "fakeDeploymentRORF3" && result.err != ErrorReadOnlyRootFilesystemFalse {
 			t.Error("Test 4: Failed to identify RunAsNonRoot was false. Refer: fakeDeploymentRORF3.yml")
 		}
 	}
@@ -53,15 +53,15 @@ func TestStatefulSetRORF(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeStatefulSetRORF1" && result.err != 3 {
+		if result.name == "fakeStatefulSetRORF1" && result.err != ErrorSecurityContextNIL {
 			t.Error("Test 2: Failed to identify security context missing. Refer: fakeStatefulSetRORF1.yml")
 		}
 
-		if result.name == "fakeStatefulSetRORF2" && result.err != 1 {
+		if result.name == "fakeStatefulSetRORF2" && result.err != ErrorReadOnlyRootFilesystemNIL {
 			t.Error("Test 3: Failed to identify RunAsNonRoot was nil. Refer: fakeStatefulSetRORF2.yml")
 		}
 
-		if result.name == "fakeStatefulSetRORF3" && result.err != 2 {
+		if result.name == "fakeStatefulSetRORF3" && result.err != ErrorReadOnlyRootFilesystemFalse {
 			t.Error("Test 4: Failed to identify RunAsNonRoot was false. Refer: fakeStatefulSetRORF3.yml")
 		}
 	}
@@ -77,15 +77,15 @@ func TestDaemonSetRORF(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeDaemonSetRORF1" && result.err != 3 {
+		if result.name == "fakeDaemonSetRORF1" && result.err != ErrorSecurityContextNIL {
 			t.Error("Test 2: Failed to identify security context missing. Refer: fakeDaemonSetRORF1.yml")
 		}
 
-		if result.name == "fakeDaemonSetRORF2" && result.err != 1 {
+		if result.name == "fakeDaemonSetRORF2" && result.err != ErrorReadOnlyRootFilesystemNIL {
 			t.Error("Test 3: Failed to identify RunAsNonRoot was nil. Refer: fakeDaemonSetRORF2.yml")
 		}
 
-		if result.name == "fakeDaemonSetRORF3" && result.err != 2 {
+		if result.name == "fakeDaemonSetRORF3" && result.err != ErrorReadOnlyRootFilesystemFalse {
 			t.Error("Test 4: Failed to identify RunAsNonRoot was false. Refer: fakeDaemonSetRORF3.yml")
 		}
 	}
@@ -101,15 +101,15 @@ func TestPodRORF(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakePodRORF1" && result.err != 3 {
+		if result.name == "fakePodRORF1" && result.err != ErrorSecurityContextNIL {
 			t.Error("Test 2: Failed to identify security context missing. Refer: fakePodRORF1.yml")
 		}
 
-		if result.name == "fakePodRORF2" && result.err != 1 {
+		if result.name == "fakePodRORF2" && result.err != ErrorReadOnlyRootFilesystemNIL {
 			t.Error("Test 3: Failed to identify RunAsNonRoot was nil. Refer: fakePodRORF2.yml")
 		}
 
-		if result.name == "fakePodRORF3" && result.err != 2 {
+		if result.name == "fakePodRORF3" && result.err != ErrorReadOnlyRootFilesystemFalse {
 			t.Error("Test 4: Failed to identify RunAsNonRoot was false. Refer: fakePodRORF3.yml")
 		}
 	}
@@ -125,15 +125,15 @@ func TestReplicationControllerRORF(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeReplicationControllerRORF1" && result.err != 3 {
+		if result.name == "fakeReplicationControllerRORF1" && result.err != ErrorSecurityContextNIL {
 			t.Error("Test 2: Failed to identify security context missing. Refer: fakeReplicationControllerRORF1.yml")
 		}
 
-		if result.name == "fakeReplicationControllerRORF2" && result.err != 1 {
+		if result.name == "fakeReplicationControllerRORF2" && result.err != ErrorReadOnlyRootFilesystemNIL {
 			t.Error("Test 3: Failed to identify RunAsNonRoot was nil. Refer: fakeReplicationControllerRORF2.yml")
 		}
 
-		if result.name == "fakeReplicationControllerRORF3" && result.err != 2 {
+		if result.name == "fakeReplicationControllerRORF3" && result.err != ErrorReadOnlyRootFilesystemFalse {
 			t.Error("Test 4: Failed to identify RunAsNonRoot was false. Refer: fakeReplicationControllerRORF3.yml")
 		}
 	}
