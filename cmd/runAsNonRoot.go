@@ -8,24 +8,41 @@ import (
 
 func printResultNR(results []Result) {
 	for _, result := range results {
-		if result.err > 0 {
-			log.WithField("type", result.kubeType).Error(result.namespace, "/", result.name)
+		switch result.err {
+		case ErrorSecurityContextNIL:
+			log.WithFields(log.Fields{
+				"type":      result.kubeType,
+				"namespace": result.namespace,
+				"name":      result.name,
+			}).Error("SecurityContext not set, please set it!")
+		case ErrorRunAsNonRootNIL:
+			log.WithFields(log.Fields{
+				"type":      result.kubeType,
+				"namespace": result.namespace,
+				"name":      result.name,
+			}).Error("RunAsNonRoot is not set (i.e. 'nil')")
+		case ErrorRunAsNonRootFalse:
+			log.WithFields(log.Fields{
+				"type":      result.kubeType,
+				"namespace": result.namespace,
+				"name":      result.name,
+			}).Error("RunAsNonRoot is set to false")
 		}
 	}
 }
 
 func checkRunAsNonRoot(container apiv1.Container, result *Result) {
-	if container.SecurityContext != nil {
-		if container.SecurityContext.RunAsNonRoot == nil {
-			result.err = 1
-		} else if !*container.SecurityContext.RunAsNonRoot {
-			result.err = 2
-		}
-	} else {
-		result.err = 3
+	if container.SecurityContext == nil {
+		result.err = ErrorSecurityContextNIL
+		return
 	}
-
-	return
+	if container.SecurityContext.RunAsNonRoot == nil {
+		result.err = ErrorRunAsNonRootNIL
+		return
+	}
+	if !*container.SecurityContext.RunAsNonRoot {
+		result.err = ErrorRunAsNonRootFalse
+	}
 }
 
 func auditRunAsNonRoot(items Items) (results []Result) {

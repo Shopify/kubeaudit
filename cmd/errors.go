@@ -7,4 +7,6 @@ const (
 	ErrorSecurityContextNIL
 	ErrorReadOnlyRootFilesystemNIL
 	ErrorReadOnlyRootFilesystemFalse
+	ErrorRunAsNonRootNIL
+	ErrorRunAsNonRootFalse
 )
