@@ -12,52 +12,59 @@ func checkSecurityContext(container apiv1.Container, result *Result) {
 	result.capsDropped = true
 
 	if container.SecurityContext == nil {
-		result.err = 1
+		result.err = ErrorSecurityContextNIL
 		return
 	}
 
 	if container.SecurityContext.Capabilities == nil {
-		result.err = 2
+		result.err = ErrorCapabilitiesNIL
 		return
 	}
 
 	if container.SecurityContext.Capabilities.Add != nil {
-		result.err = 3
+		result.err = ErrorCapabilitiesAddedOrNotDropped
 		result.capsAdded = container.SecurityContext.Capabilities.Add
 	}
 
 	if container.SecurityContext.Capabilities.Drop == nil {
-		result.err = 3
+		result.err = ErrorCapabilitiesAddedOrNotDropped
 		result.capsDropped = false
 	}
-
-	return
 }
 
 func printResultSC(results []Result) {
 	for _, result := range results {
 		switch err := result.err; err {
-		case 1:
-			log.WithField("type", result.kubeType).Error(result.namespace,
-				"/", result.name)
-		case 2:
+		case ErrorSecurityContextNIL:
 			log.WithFields(log.Fields{
-				"type": result.kubeType,
-			}).Warn("Capabilities field not defined! ", result.namespace, "/", result.name)
-		case 3:
+				"type":      result.kubeType,
+				"tag":       result.imgTag,
+				"namespace": result.namespace,
+				"name":      result.name}).Error("Security context is nil!")
+		case ErrorCapabilitiesNIL:
+			log.WithFields(log.Fields{
+				"type":      result.kubeType,
+				"tag":       result.imgTag,
+				"namespace": result.namespace,
+				"name":      result.name}).Error("Capabilities field not defined!")
+		case ErrorCapabilitiesAddedOrNotDropped:
 			if result.capsAdded != nil {
 				log.WithFields(log.Fields{
-					"type": result.kubeType,
-					"caps": result.capsAdded}).
-					Warn("Capabilities added to ", result.namespace, "/", result.name)
+					"type":      result.kubeType,
+					"tag":       result.imgTag,
+					"namespace": result.namespace,
+					"name":      result.name,
+					"caps":      result.capsAdded}).Error("Capabilities added!")
 			}
 
 			if !result.capsDropped {
-				log.WithField("type", result.kubeType).
-					Warn("No capabilities were dropped! ", result.namespace, "/", result.name)
+				log.WithFields(log.Fields{
+					"type":      result.kubeType,
+					"tag":       result.imgTag,
+					"namespace": result.namespace,
+					"name":      result.name}).Error("No capabilities were dropped!")
 			}
 		}
-
 	}
 }
 
