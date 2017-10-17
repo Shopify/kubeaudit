@@ -87,7 +87,7 @@ type Result struct {
 	name        string
 	capsAdded   []apiv1.Capability
 	imgName     string
-	capsDropped bool
+	capsDropped []apiv1.Capability
 	kubeType    string
 	dsa         string
 	sa          string
