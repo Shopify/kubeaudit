@@ -9,8 +9,6 @@ import (
 )
 
 func checkSecurityContext(container apiv1.Container, result *Result) {
-	result.capsDropped = true
-
 	if container.SecurityContext == nil {
 		result.err = ErrorSecurityContextNIL
 		return
@@ -28,7 +26,10 @@ func checkSecurityContext(container apiv1.Container, result *Result) {
 
 	if container.SecurityContext.Capabilities.Drop == nil {
 		result.err = ErrorCapabilitiesAddedOrNotDropped
-		result.capsDropped = false
+	}
+
+	if container.SecurityContext.Capabilities.Drop != nil {
+		result.capsDropped = container.SecurityContext.Capabilities.Drop
 	}
 }
 
@@ -57,7 +58,7 @@ func printResultSC(results []Result) {
 					"caps":      result.capsAdded}).Error("Capabilities added!")
 			}
 
-			if !result.capsDropped {
+			if result.capsDropped == nil {
 				log.WithFields(log.Fields{
 					"type":      result.kubeType,
 					"tag":       result.imgTag,

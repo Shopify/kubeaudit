@@ -41,11 +41,11 @@ func TestDeploymentSC(t *testing.T) {
 			t.Error("Test 4: Failed to identify new capabilities were added. Refer: fakeDeploymentSC3.yml")
 		}
 
-		if result.name == "fakeDeploymentSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped) {
+		if result.name == "fakeDeploymentSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped != nil) {
 			t.Error("Test 5: Failed to identify no capabilities were droped. Refer: fakeDeploymentsSC3.yml")
 		}
 
-		if result.name == "fakeDeploymentSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || !result.capsDropped || result.capsAdded == nil) {
+		if result.name == "fakeDeploymentSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped == nil || result.capsAdded == nil) {
 			t.Error("Test 6: Failed to identify caps were added. Refer: fakeDeploymentSC4.yml")
 		}
 	}
@@ -73,11 +73,11 @@ func TestStatefulSetSC(t *testing.T) {
 			t.Error("Test 4: Failed to identify new capabilities were added. Refer: fakeStatefulSetSC3.yml")
 		}
 
-		if result.name == "fakeStatefulSetSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped) {
+		if result.name == "fakeStatefulSetSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped != nil) {
 			t.Error("Test 5: Failed to identify no capabilities were droped. Refer: fakeStatefulSetSC3.yml")
 		}
 
-		if result.name == "fakeStatefulSetSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || !result.capsDropped || result.capsAdded == nil) {
+		if result.name == "fakeStatefulSetSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped == nil || result.capsAdded == nil) {
 			t.Error("Test 6: Failed to identify caps were added. Refer: fakeStatefulSetSC4.yml")
 		}
 	}
@@ -105,11 +105,11 @@ func TestDaemonSetSC(t *testing.T) {
 			t.Error("Test 4: Failed to identify new capabilities were added. Refer: fakeDaemonSetSC3.yml")
 		}
 
-		if result.name == "fakeDaemonSetSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped) {
+		if result.name == "fakeDaemonSetSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped != nil) {
 			t.Error("Test 5: Failed to identify no capabilities were droped. Refer: fakeDaemonSetSC3.yml")
 		}
 
-		if result.name == "fakeDaemonSetSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || !result.capsDropped || result.capsAdded == nil) {
+		if result.name == "fakeDaemonSetSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped == nil || result.capsAdded == nil) {
 			t.Error("Test 6: Failed to identify caps were added. Refer: fakeDaemonSetSC4.yml")
 		}
 	}
@@ -137,11 +137,11 @@ func TestPodSC(t *testing.T) {
 			t.Error("Test 4: Failed to identify new capabilities were added. Refer: fakePodSC3.yml")
 		}
 
-		if result.name == "fakePodSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped) {
+		if result.name == "fakePodSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped != nil) {
 			t.Error("Test 5: Failed to identify no capabilities were droped. Refer: fakePodSC3.yml")
 		}
 
-		if result.name == "fakePodSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || !result.capsDropped || result.capsAdded == nil) {
+		if result.name == "fakePodSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped == nil || result.capsAdded == nil) {
 			t.Error("Test 6: Failed to identify caps were added. Refer: fakePodSC4.yml")
 		}
 	}
@@ -169,11 +169,11 @@ func TestReplicationControllerSC(t *testing.T) {
 			t.Error("Test 4: Failed to identify new capabilities were added. Refer: fakeReplicationControllerSC3.yml")
 		}
 
-		if result.name == "fakeReplicationControllerSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped) {
+		if result.name == "fakeReplicationControllerSC3" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped != nil) {
 			t.Error("Test 5: Failed to identify no capabilities were droped. Refer: fakeReplicationControllerSC3.yml")
 		}
 
-		if result.name == "fakeReplicationControllerSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || !result.capsDropped || result.capsAdded == nil) {
+		if result.name == "fakeReplicationControllerSC4" && (result.err != ErrorCapabilitiesAddedOrNotDropped || result.capsDropped == nil || result.capsAdded == nil) {
 			t.Error("Test 6: Failed to identify caps were added. Refer: fakeReplicationControllerSC4.yml")
 		}
 	}
