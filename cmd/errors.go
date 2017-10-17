@@ -9,4 +9,6 @@ const (
 	ErrorReadOnlyRootFilesystemFalse
 	ErrorRunAsNonRootNIL
 	ErrorRunAsNonRootFalse
+	ErrorCapabilitiesNIL
+	ErrorCapabilitiesAddedOrNotDropped
 )
