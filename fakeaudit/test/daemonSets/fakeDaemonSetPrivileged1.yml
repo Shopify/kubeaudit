@@ -10,4 +10,4 @@ spec:
                 apps: fakePrivileged
         spec:
             containers:
-            - name: fakeContainerPrivileged                
+            - name: fakeContainerPrivileged

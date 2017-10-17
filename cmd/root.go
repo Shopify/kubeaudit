@@ -10,12 +10,12 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	kubeConfig string
-	localMode  bool
-	verbose    bool
 	allPods    bool
 	json       bool
+	kubeConfig string
+	localMode  bool
 	manifest   string
+	verbose    string
 }
 
 var RootCmd = &cobra.Command{
@@ -37,9 +37,8 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "config file (default is $HOME/.kube/config")
-
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.verbose, "verbose", "v", "INFO", "Set the debug level")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.localMode, "local", "l", false, "Local mode, uses ~/.kube/config as configuration")
-	RootCmd.PersistentFlags().BoolVarP(&rootConfig.verbose, "verbose", "v", false, "Enable debug (verbose) logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Enable json logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")

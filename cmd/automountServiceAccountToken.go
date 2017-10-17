@@ -5,49 +5,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func printResultASAT(results []Result) {
-	for _, result := range results {
-		switch result.err {
-		case ErrorServiceAccountTokenDeprecated:
-			log.WithFields(log.Fields{
-				"type":               result.kubeType,
-				"namespace":          result.namespace,
-				"name":               result.name,
-				"serviceAccount":     result.dsa,
-				"serviceAccountName": result.sa,
-			}).Warn("deprecated serviceAccount detected (sub for serviceAccountName)")
-		case ErrorServiceAccountTokenTrueAndNoName:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("automountServiceAccountToken = true with no serviceAccountName")
-		case ErrorServiceAccountTokenNILAndNoName:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("automountServiceAccountToken nil (mounted by default) with no serviceAccountName")
-		}
-	}
-}
-
 func checkAutomountServiceAccountToken(result *Result) {
 	// Check for use of deprecated service account name
-	if result.dsa != "" {
-		result.err = ErrorServiceAccountTokenDeprecated
+	if result.DSA != "" {
+		occ := Occurrence{id: ErrorServiceAccountTokenDeprecated, kind: Warn, message: "serviceAccount is a depreciated alias for ServiceAccountName, use that one instead"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
-	if result.token != nil && *result.token && result.sa == "" {
+	if result.Token != nil && *result.Token && result.SA == "" {
 		// automountServiceAccountToken = true, and serviceAccountName is blank (default: default)
-		result.err = ErrorServiceAccountTokenTrueAndNoName
+		occ := Occurrence{id: ErrorServiceAccountTokenTrueAndNoName, kind: Error, message: "Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
-	if result.token == nil && result.sa == "" {
+	if result.Token == nil && result.SA == "" {
 		// automountServiceAccountToken = nil (default: true), and serviceAccountName is blank (default: default)
-		result.err = ErrorServiceAccountTokenNILAndNoName
+		occ := Occurrence{id: ErrorServiceAccountTokenNILAndNoName, kind: Error, message: "Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 }
@@ -57,12 +33,13 @@ func auditAutomountServiceAccountToken(items Items) (results []Result) {
 		result := ServiceAccountIter(item)
 		checkAutomountServiceAccountToken(result)
 
-		if result.err > 0 {
+		if result != nil && len(result.Occurrences) > 0 {
 			results = append(results, *result)
 		}
 	}
-
-	printResultASAT(results)
+	for _, result := range results {
+		result.Print()
+	}
 	defer wg.Done()
 	return
 }
@@ -89,9 +66,9 @@ kubeaudit rbac sat`,
 		}
 
 		if rootConfig.manifest != "" {
-			resources, err := getKubeResources(rootConfig.manifest)
-			if err != nil {
-				log.Error(err)
+			resources, Err := getKubeResources(rootConfig.manifest)
+			if Err != nil {
+				log.Error(Err)
 			}
 			count := len(resources)
 			wg.Add(count)
@@ -100,9 +77,9 @@ kubeaudit rbac sat`,
 			}
 			wg.Wait()
 		} else {
-			kube, err := kubeClient(rootConfig.kubeConfig)
-			if err != nil {
-				log.Error(err)
+			kube, Err := kubeClient(rootConfig.kubeConfig)
+			if Err != nil {
+				log.Error(Err)
 			}
 
 			// fetch deployments, statefulsets, daemonsets

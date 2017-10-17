@@ -2,10 +2,15 @@ package cmd
 
 const (
 	KubeAuditInfo = iota
+	ErrorCapabilitiesAdded
 	ErrorCapabilitiesAddedOrNotDropped
 	ErrorCapabilitiesNIL
+	ErrorCapabilitiesNoneDropped
+	ErrorCapabilitiesSomeDropped
 	ErrorImageTagIncorrect
 	ErrorImageTagMissing
+	ErrorPrivilegedNIL
+	ErrorPrivilegedTrue
 	ErrorReadOnlyRootFilesystemFalse
 	ErrorReadOnlyRootFilesystemNIL
 	ErrorRunAsNonRootFalse
@@ -16,4 +21,5 @@ const (
 	ErrorServiceAccountTokenNILAndNoName
 	ErrorServiceAccountTokenNoName
 	ErrorServiceAccountTokenTrueAndNoName
+	InfoImageCorrect
 )
