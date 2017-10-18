@@ -1,0 +1,18 @@
+[submodule "vendor/github.com/Sirupsen/logrus"]
+	path = vendor/github.com/Sirupsen/logrus
+	url = https://github.com/Sirupsen/logrus
+[submodule "vendor/github.com/hashicorp/go-version"]
+	path = vendor/github.com/hashicorp/go-version
+	url = https://github.com/hashicorp/go-version
+[submodule "vendor/github.com/spf13/cobra"]
+	path = vendor/github.com/spf13/cobra
+	url = https://github.com/spf13/cobra
+[submodule "vendor/k8s.io/api"]
+	path = vendor/k8s.io/api
+	url = https://github.com/kubernetes/api
+[submodule "vendor/k8s.io/apimachinery"]
+	path = vendor/k8s.io/apimachinery
+	url = https://github.com/kubernetes/apimachinery
+[submodule "vendor/k8s.io/client-go"]
+	path = vendor/k8s.io/client-go
+	url = https://github.com/kubernetes/client-go
