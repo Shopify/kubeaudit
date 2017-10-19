@@ -6,9 +6,6 @@ import (
 
 	fakeaudit "github.com/Shopify/kubeaudit/fakeaudit"
 	log "github.com/sirupsen/logrus"
-	v1beta1 "k8s.io/api/apps/v1beta1"
-	apiv1 "k8s.io/api/core/v1"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 )
 
 var wg sync.WaitGroup
@@ -21,73 +18,73 @@ func debugPrint() {
 	}
 }
 
-func convertDeploymentToDeploymentList(deployment v1beta1.Deployment) (deploymentList *v1beta1.DeploymentList) {
-	deploymentList = &v1beta1.DeploymentList{
-		Items: []v1beta1.Deployment{deployment},
+func convertDeploymentToDeploymentList(deployment Deployment) (deploymentList *DeploymentList) {
+	deploymentList = &DeploymentList{
+		Items: []Deployment{deployment},
 	}
 	return
 
 }
 
-func convertDaemonSetToDaemonSetList(daemonSet extensionsv1beta1.DaemonSet) (daemonSetList *extensionsv1beta1.DaemonSetList) {
-	daemonSetList = &extensionsv1beta1.DaemonSetList{
-		Items: []extensionsv1beta1.DaemonSet{daemonSet},
+func convertDaemonSetToDaemonSetList(daemonSet DaemonSet) (daemonSetList *DaemonSetList) {
+	daemonSetList = &DaemonSetList{
+		Items: []DaemonSet{daemonSet},
 	}
 	return
 
 }
 
-func convertPodToPodList(pod apiv1.Pod) (podList *apiv1.PodList) {
-	podList = &apiv1.PodList{
-		Items: []apiv1.Pod{pod},
+func convertPodToPodList(pod Pod) (podList *PodList) {
+	podList = &PodList{
+		Items: []Pod{pod},
 	}
 	return
 
 }
 
-func convertStatefulSetToStatefulSetList(statefulSet v1beta1.StatefulSet) (statefulSetList *v1beta1.StatefulSetList) {
-	statefulSetList = &v1beta1.StatefulSetList{
-		Items: []v1beta1.StatefulSet{statefulSet},
+func convertStatefulSetToStatefulSetList(statefulSet StatefulSet) (statefulSetList *StatefulSetList) {
+	statefulSetList = &StatefulSetList{
+		Items: []StatefulSet{statefulSet},
 	}
 	return
 
 }
 
-func convertReplicationControllerToReplicationList(replicationController apiv1.ReplicationController) (replicationControllerList *apiv1.ReplicationControllerList) {
-	replicationControllerList = &apiv1.ReplicationControllerList{
-		Items: []apiv1.ReplicationController{replicationController},
+func convertReplicationControllerToReplicationList(replicationController ReplicationController) (replicationControllerList *ReplicationControllerList) {
+	replicationControllerList = &ReplicationControllerList{
+		Items: []ReplicationController{replicationController},
 	}
 	return
 
 }
 
 type kubeAuditDeployments struct {
-	list *v1beta1.DeploymentList
+	list *DeploymentList
 }
 
 type kubeAuditStatefulSets struct {
-	list *v1beta1.StatefulSetList
+	list *StatefulSetList
 }
 
 type kubeAuditDaemonSets struct {
-	list *extensionsv1beta1.DaemonSetList
+	list *DaemonSetList
 }
 
 type kubeAuditPods struct {
-	list *apiv1.PodList
+	list *PodList
 }
 
 type kubeAuditReplicationControllers struct {
-	list *apiv1.ReplicationControllerList
+	list *ReplicationControllerList
 }
 
 type Result struct {
 	err         int
 	namespace   string
 	name        string
-	capsAdded   []apiv1.Capability
+	capsAdded   []Capability
 	imgName     string
-	capsDropped []apiv1.Capability
+	capsDropped []Capability
 	kubeType    string
 	dsa         string
 	sa          string
@@ -147,9 +144,9 @@ func (replicationControllers kubeAuditReplicationControllers) Iter() (it []inter
 	return
 }
 
-func containerIter(t interface{}) (containers []apiv1.Container, result *Result) {
+func containerIter(t interface{}) (containers []Container, result *Result) {
 	switch kubeType := t.(type) {
-	case v1beta1.Deployment:
+	case Deployment:
 		containers = kubeType.Spec.Template.Spec.Containers
 		result = &Result{
 			name:      kubeType.Name,
@@ -158,7 +155,7 @@ func containerIter(t interface{}) (containers []apiv1.Container, result *Result)
 		}
 		return
 
-	case v1beta1.StatefulSet:
+	case StatefulSet:
 		containers = kubeType.Spec.Template.Spec.Containers
 		result = &Result{
 			name:      kubeType.Name,
@@ -167,7 +164,7 @@ func containerIter(t interface{}) (containers []apiv1.Container, result *Result)
 		}
 		return
 
-	case extensionsv1beta1.DaemonSet:
+	case DaemonSet:
 		containers = kubeType.Spec.Template.Spec.Containers
 		result = &Result{
 			name:      kubeType.Name,
@@ -176,7 +173,7 @@ func containerIter(t interface{}) (containers []apiv1.Container, result *Result)
 		}
 		return
 
-	case apiv1.Pod:
+	case Pod:
 		containers = kubeType.Spec.Containers
 		result = &Result{
 			name:      kubeType.Name,
@@ -185,7 +182,7 @@ func containerIter(t interface{}) (containers []apiv1.Container, result *Result)
 		}
 		return
 
-	case apiv1.ReplicationController:
+	case ReplicationController:
 		containers = kubeType.Spec.Template.Spec.Containers
 		result = &Result{
 			name:      kubeType.Name,
@@ -201,7 +198,7 @@ func containerIter(t interface{}) (containers []apiv1.Container, result *Result)
 
 func ServiceAccountIter(t interface{}) (result *Result) {
 	switch kubeType := t.(type) {
-	case v1beta1.Deployment:
+	case Deployment:
 		result = &Result{
 			name:      kubeType.Name,
 			namespace: kubeType.Namespace,
@@ -212,7 +209,7 @@ func ServiceAccountIter(t interface{}) (result *Result) {
 		}
 		return
 
-	case v1beta1.StatefulSet:
+	case StatefulSet:
 		result = &Result{
 			name:      kubeType.Name,
 			namespace: kubeType.Namespace,
@@ -223,7 +220,7 @@ func ServiceAccountIter(t interface{}) (result *Result) {
 		}
 		return
 
-	case extensionsv1beta1.DaemonSet:
+	case DaemonSet:
 		result = &Result{
 			name:      kubeType.Name,
 			namespace: kubeType.Namespace,
@@ -234,7 +231,7 @@ func ServiceAccountIter(t interface{}) (result *Result) {
 		}
 		return
 
-	case apiv1.Pod:
+	case Pod:
 		result = &Result{
 			name:      kubeType.Name,
 			namespace: kubeType.Namespace,
@@ -245,7 +242,7 @@ func ServiceAccountIter(t interface{}) (result *Result) {
 		}
 		return
 
-	case apiv1.ReplicationController:
+	case ReplicationController:
 		result = &Result{
 			name:      kubeType.Name,
 			namespace: kubeType.Namespace,
@@ -270,15 +267,15 @@ func getKubeResources(config string) (items []Items, err error) {
 	}
 	for _, resource := range resources {
 		switch resource := resource.(type) {
-		case *v1beta1.Deployment:
+		case *Deployment:
 			items = append(items, kubeAuditDeployments{list: convertDeploymentToDeploymentList(*resource)})
-		case *v1beta1.StatefulSet:
+		case *StatefulSet:
 			items = append(items, kubeAuditStatefulSets{list: convertStatefulSetToStatefulSetList(*resource)})
-		case *extensionsv1beta1.DaemonSet:
+		case *DaemonSet:
 			items = append(items, kubeAuditDaemonSets{list: convertDaemonSetToDaemonSetList(*resource)})
-		case *apiv1.Pod:
+		case *Pod:
 			items = append(items, kubeAuditPods{list: convertPodToPodList(*resource)})
-		case *apiv1.ReplicationController:
+		case *ReplicationController:
 			items = append(items, kubeAuditReplicationControllers{list: convertReplicationControllerToReplicationList(*resource)})
 		}
 	}

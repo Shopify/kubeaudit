@@ -5,7 +5,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	apiv1 "k8s.io/api/core/v1"
 )
 
 var imgConfig imgFlags
@@ -54,7 +53,7 @@ func printResultImg(results []Result) {
 	}
 }
 
-func checkImage(container apiv1.Container, image imgFlags, result *Result) {
+func checkImage(container Container, image imgFlags, result *Result) {
 	image.splitImageString()
 	contImage := imgFlags{img: container.Image}
 	contImage.splitImageString()

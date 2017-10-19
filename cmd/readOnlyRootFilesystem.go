@@ -3,7 +3,6 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	apiv1 "k8s.io/api/core/v1"
 )
 
 func printResultRFS(results []Result) {
@@ -31,7 +30,7 @@ func printResultRFS(results []Result) {
 	}
 }
 
-func checkReadOnlyRootFS(container apiv1.Container, result *Result) {
+func checkReadOnlyRootFS(container Container, result *Result) {
 	if container.SecurityContext == nil {
 		result.err = ErrorSecurityContextNIL
 		return

@@ -3,11 +3,10 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	networking "k8s.io/api/networking/v1"
 )
 
-func checkNamespaceNetworkPolicies(netPols *networking.NetworkPolicyList) {
-	badNetPols := []networking.NetworkPolicy{}
+func checkNamespaceNetworkPolicies(netPols *NetworkPolicyList) {
+	badNetPols := []NetworkPolicy{}
 
 	for _, netPol := range netPols.Items {
 		for _, ingress := range netPol.Spec.Ingress {

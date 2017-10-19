@@ -5,10 +5,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	apiv1 "k8s.io/api/core/v1"
 )
 
-func checkSecurityContext(container apiv1.Container, result *Result) {
+func checkSecurityContext(container Container, result *Result) {
 	if container.SecurityContext == nil {
 		result.err = ErrorSecurityContextNIL
 		return

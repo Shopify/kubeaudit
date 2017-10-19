@@ -3,7 +3,6 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	apiv1 "k8s.io/api/core/v1"
 )
 
 func printResultPrivileged(results []Result) {
@@ -14,7 +13,7 @@ func printResultPrivileged(results []Result) {
 	}
 }
 
-func checkPrivileged(container apiv1.Container, result *Result) {
+func checkPrivileged(container Container, result *Result) {
 	if container.SecurityContext != nil {
 		if container.SecurityContext.Privileged != nil && *container.SecurityContext.Privileged {
 			result.err = 1

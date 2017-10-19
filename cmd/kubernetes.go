@@ -5,11 +5,8 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	networking "k8s.io/api/networking/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/version"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // auth for GKE clusters
@@ -48,54 +45,54 @@ func kubeClient(kubeconfig string) (*kubernetes.Clientset, error) {
 	return kube, err
 }
 
-func getNamespaces(clientset *kubernetes.Clientset) *apiv1.NamespaceList {
+func getNamespaces(clientset *kubernetes.Clientset) *NamespaceList {
 	namespaceClient := clientset.Namespaces()
-	namespaces, err := namespaceClient.List(metav1.ListOptions{})
+	namespaces, err := namespaceClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
 	}
 	return namespaces
 }
 
-func getDeployments(clientset *kubernetes.Clientset) *appsv1beta1.DeploymentList {
+func getDeployments(clientset *kubernetes.Clientset) *DeploymentList {
 	deploymentClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceAll)
-	deployments, err := deploymentClient.List(metav1.ListOptions{})
+	deployments, err := deploymentClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
 	}
 	return deployments
 }
 
-func getStatefulSets(clientset *kubernetes.Clientset) *appsv1beta1.StatefulSetList {
+func getStatefulSets(clientset *kubernetes.Clientset) *StatefulSetList {
 	statefulSetClient := clientset.AppsV1beta1().StatefulSets(apiv1.NamespaceAll)
-	statefulSets, err := statefulSetClient.List(metav1.ListOptions{})
+	statefulSets, err := statefulSetClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
 	}
 	return statefulSets
 }
 
-func getDaemonSets(clientset *kubernetes.Clientset) *extensionsv1beta1.DaemonSetList {
+func getDaemonSets(clientset *kubernetes.Clientset) *DaemonSetList {
 	daemonSetClient := clientset.ExtensionsV1beta1().DaemonSets(apiv1.NamespaceAll)
-	daemonSets, err := daemonSetClient.List(metav1.ListOptions{})
+	daemonSets, err := daemonSetClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
 	}
 	return daemonSets
 }
 
-func getPods(clientset *kubernetes.Clientset) *apiv1.PodList {
+func getPods(clientset *kubernetes.Clientset) *PodList {
 	podClient := clientset.Pods(apiv1.NamespaceAll)
-	pods, err := podClient.List(metav1.ListOptions{})
+	pods, err := podClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
 	}
 	return pods
 }
 
-func getReplicationControllers(clientset *kubernetes.Clientset) *apiv1.ReplicationControllerList {
+func getReplicationControllers(clientset *kubernetes.Clientset) *ReplicationControllerList {
 	replicationControllerClient := clientset.ReplicationControllers(apiv1.NamespaceAll)
-	replicationControllers, err := replicationControllerClient.List(metav1.ListOptions{})
+	replicationControllers, err := replicationControllerClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -104,7 +101,7 @@ func getReplicationControllers(clientset *kubernetes.Clientset) *apiv1.Replicati
 
 func getNetworkPolicies(clientset *kubernetes.Clientset) *networking.NetworkPolicyList {
 	netPolClient := clientset.NetworkPolicies(apiv1.NamespaceAll)
-	netPols, err := netPolClient.List(metav1.ListOptions{})
+	netPols, err := netPolClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
 	}
