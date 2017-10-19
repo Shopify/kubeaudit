@@ -4,3 +4,4 @@
 /.glide
 /.dev
 .DS_Store
+/vendor
