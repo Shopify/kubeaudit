@@ -1,12 +1,13 @@
 # Go parameters
 GOCMD=go
+GODEP=dep
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 BINARY_NAME=kubeaudit
 BINARY_UNIX=$(BINARY_NAME)_unix
 
-all: test build
+all: setup test build
 
 build:
 	$(GOBUILD) -o $(BINARY_NAME) -v
@@ -23,6 +24,9 @@ check_version:
 	$(GOBUILD) -o $(BINARY_NAME)
 	./$(BINARY_NAME) version
 
+setup:
+	$(GOCMD) get -u github.com/golang/dep/cmd/dep
+	$(GODEP) ensure
 
 # Cross Compilation
 build-linux:
