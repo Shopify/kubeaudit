@@ -4,5 +4,7 @@ go:
   - 1.9
 
 script:
+  - git submodule update --init --recursive
+  - go get
   - make test
   - make check_version
