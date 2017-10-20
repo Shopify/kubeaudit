@@ -39,3 +39,4 @@
 
 [[constraint]]
   name = "k8s.io/client-go"
+  branch = "master"
