@@ -46,7 +46,7 @@ func kubeClient(kubeconfig string) (*kubernetes.Clientset, error) {
 }
 
 func getNamespaces(clientset *kubernetes.Clientset) *NamespaceList {
-	namespaceClient := clientset.Namespaces()
+	namespaceClient := clientset.CoreV1().Namespaces()
 	namespaces, err := namespaceClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
@@ -82,7 +82,7 @@ func getDaemonSets(clientset *kubernetes.Clientset) *DaemonSetList {
 }
 
 func getPods(clientset *kubernetes.Clientset) *PodList {
-	podClient := clientset.Pods(apiv1.NamespaceAll)
+	podClient := clientset.CoreV1().Pods(apiv1.NamespaceAll)
 	pods, err := podClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
@@ -91,7 +91,7 @@ func getPods(clientset *kubernetes.Clientset) *PodList {
 }
 
 func getReplicationControllers(clientset *kubernetes.Clientset) *ReplicationControllerList {
-	replicationControllerClient := clientset.ReplicationControllers(apiv1.NamespaceAll)
+	replicationControllerClient := clientset.CoreV1().ReplicationControllers(apiv1.NamespaceAll)
 	replicationControllers, err := replicationControllerClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)
@@ -100,7 +100,7 @@ func getReplicationControllers(clientset *kubernetes.Clientset) *ReplicationCont
 }
 
 func getNetworkPolicies(clientset *kubernetes.Clientset) *networking.NetworkPolicyList {
-	netPolClient := clientset.NetworkPolicies(apiv1.NamespaceAll)
+	netPolClient := clientset.NetworkingV1().NetworkPolicies(apiv1.NamespaceAll)
 	netPols, err := netPolClient.List(ListOptions{})
 	if err != nil {
 		log.Error(err)

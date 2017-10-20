@@ -5,30 +5,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func checkAutomountServiceAccountToken(result *Result) {
-
-	// Check for use of deprecated service account name
-	if result.dsa != "" {
-		result.err = 1
-	}
-
-	if result.token != nil {
-		// automountServiceAccountToken = true, and serviceAccountName is blank (default: default)
-		if *result.token && result.sa == "" {
-			result.err = 2
-		}
-	} else {
-		// automountServiceAccountToken = nil (default: true), and serviceAccountName is blank (default: default)
-		if result.sa == "" {
-			result.err = 3
-		}
-	}
-}
-
 func printResultASAT(results []Result) {
-
 	for _, result := range results {
-		if result.dsa != "" {
+		switch result.err {
+		case ErrorServiceAccountTokenDeprecated:
 			log.WithFields(log.Fields{
 				"type":               result.kubeType,
 				"namespace":          result.namespace,
@@ -36,22 +16,39 @@ func printResultASAT(results []Result) {
 				"serviceAccount":     result.dsa,
 				"serviceAccountName": result.sa,
 			}).Warn("deprecated serviceAccount detected (sub for serviceAccountName)")
-		}
-
-		if result.err == 2 {
+		case ErrorServiceAccountTokenTrueAndNoName:
 			log.WithFields(log.Fields{
 				"type":      result.kubeType,
 				"namespace": result.namespace,
 				"name":      result.name,
 			}).Error("automountServiceAccountToken = true with no serviceAccountName")
-		} else if result.err == 3 {
+		case ErrorServiceAccountTokenNILAndNoName:
 			log.WithFields(log.Fields{
 				"type":      result.kubeType,
 				"namespace": result.namespace,
 				"name":      result.name,
 			}).Error("automountServiceAccountToken nil (mounted by default) with no serviceAccountName")
 		}
+	}
+}
 
+func checkAutomountServiceAccountToken(result *Result) {
+	// Check for use of deprecated service account name
+	if result.dsa != "" {
+		result.err = ErrorServiceAccountTokenDeprecated
+		return
+	}
+
+	if result.token != nil && *result.token && result.sa == "" {
+		// automountServiceAccountToken = true, and serviceAccountName is blank (default: default)
+		result.err = ErrorServiceAccountTokenTrueAndNoName
+		return
+	}
+
+	if result.token == nil && result.sa == "" {
+		// automountServiceAccountToken = nil (default: true), and serviceAccountName is blank (default: default)
+		result.err = ErrorServiceAccountTokenNILAndNoName
+		return
 	}
 }
 
@@ -76,7 +73,7 @@ var satCmd = &cobra.Command{
 	Short: "Audit automountServiceAccountToken = true pods against an empty (default) service account",
 	Long: `This command determines which pods are running with
 autoMountServiceAcccountToken = true and default service account names.
-	
+
 An ERROR log is generated when a container matches one of the fol:
   automountServiceAccountToken = true and serviceAccountName is blank (default: default)
   automountServiceAccountToken = nil  and serviceAccountName is blank (default: default)
