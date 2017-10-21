@@ -24,15 +24,15 @@ func TestDeploymentASAT(t *testing.T) {
 	results := auditAutomountServiceAccountToken(kubeAuditDeployments{list: fakeDeployments})
 
 	if len(results) != 2 {
-		t.Error("Test 1: Failed to detect all bad configuarations")
+		t.Error("Test 1: Failed to detect all bad configurations")
 	}
 
 	for _, result := range results {
-		if result.name == "fakeDeploymentASAT1" && (result.err != 3 || result.dsa == "") {
+		if result.name == "fakeDeploymentASAT1" && result.err != ErrorServiceAccountTokenDeprecated {
 			t.Error("Test 2: Failed to identify deprecated service account name. Refer: fakeDeploymentASAT1.yml")
 		}
 
-		if result.name == "fakeDeploymentASAT2" && result.err != 2 {
+		if result.name == "fakeDeploymentASAT2" && result.err != ErrorServiceAccountTokenTrueAndNoName {
 			t.Error("Test 3: Failed to identify automountServiceAccountToken set to true. Refer: fakeDeploymentASAT2.yml")
 		}
 	}
@@ -48,11 +48,11 @@ func TestStatefulSetASAT(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeStatefulSetASAT1" && (result.err != 3 || result.dsa == "") {
+		if result.name == "fakeStatefulSetASAT1" && result.err != ErrorServiceAccountTokenDeprecated {
 			t.Error("Test 2: Failed to identify deprecated service account name. Refer: fakeStatefulSetASAT1.yml")
 		}
 
-		if result.name == "fakeStatefulSetASAT2" && result.err != 2 {
+		if result.name == "fakeStatefulSetASAT2" && result.err != ErrorServiceAccountTokenTrueAndNoName {
 			t.Error("Test 3: Failed to identify automountServiceAccountToken set to true. Refer: fakeStatefulSetASAT2.yml")
 		}
 	}
@@ -68,11 +68,11 @@ func TestDaemonSetASAT(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeDaemonSetASAT1" && (result.err != 3 || result.dsa == "") {
+		if result.name == "fakeDaemonSetASAT1" && result.err != ErrorServiceAccountTokenDeprecated {
 			t.Error("Test 2: Failed to identify deprecated service account name. Refer: fakeDaemonSetASAT1.yml")
 		}
 
-		if result.name == "fakeDaemonSetASAT2" && result.err != 2 {
+		if result.name == "fakeDaemonSetASAT2" && result.err != ErrorServiceAccountTokenTrueAndNoName {
 			t.Error("Test 3: Failed to identify automountServiceAccountToken set to true. Refer: fakeDaemonSetASAT2.yml")
 		}
 	}
@@ -88,11 +88,11 @@ func TestPodASAT(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakePodASAT1" && (result.err != 3 || result.dsa == "") {
+		if result.name == "fakePodASAT1" && result.err != ErrorServiceAccountTokenDeprecated {
 			t.Error("Test 2: Failed to identify deprecated service account name. Refer: fakePodASAT1.yml")
 		}
 
-		if result.name == "fakePodASAT2" && result.err != 2 {
+		if result.name == "fakePodASAT2" && result.err != ErrorServiceAccountTokenTrueAndNoName {
 			t.Error("Test 3: Failed to identify automountServiceAccountToken set to true. Refer: fakePodASAT2.yml")
 		}
 	}
@@ -108,11 +108,11 @@ func TestReplicationControllerASAT(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.name == "fakeReplicationControllerASAT1" && (result.err != 3 || result.dsa == "") {
+		if result.name == "fakeReplicationControllerASAT1" && result.err != ErrorServiceAccountTokenDeprecated {
 			t.Error("Test 2: Failed to identify deprecated service account name. Refer: fakeReplicationControllerASAT1.yml")
 		}
 
-		if result.name == "fakeReplicationControllerASAT2" && result.err != 2 {
+		if result.name == "fakeReplicationControllerASAT2" && result.err != ErrorServiceAccountTokenTrueAndNoName {
 			t.Error("Test 3: Failed to identify automountServiceAccountToken set to true. Refer: fakeReplicationControllerASAT2.yml")
 		}
 	}
