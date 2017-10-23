@@ -29,7 +29,7 @@ func kubeClient(kubeconfig string) (*kubernetes.Clientset, error) {
 	if rootConfig.localMode {
 		kubeconfig = os.Getenv("HOME") + "/.kube/config"
 	}
-	if rootConfig.verbose {
+	if rootConfig.verbose == "DEBUG" {
 		log.SetLevel(log.DebugLevel)
 		log.AddHook(NewDebugHook())
 	}

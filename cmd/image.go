@@ -25,51 +25,29 @@ func (image *imgFlags) splitImageString() {
 	}
 }
 
-func printResultImg(results []Result) {
-	for _, result := range results {
-		switch result.err {
-		case KubeAuditInfo:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"tag":       result.imgTag,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Info(result.namespace, "/", result.name)
-		case ErrorImageTagMissing:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"tag":       result.imgTag,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("Image tag was missing")
-		case ErrorImageTagIncorrect:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"tag":       result.imgTag,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("Image tag was incorrect")
-		}
-	}
-}
-
 func checkImage(container Container, image imgFlags, result *Result) {
 	image.splitImageString()
 	contImage := imgFlags{img: container.Image}
 	contImage.splitImageString()
+	result.ImageName = contImage.name
+	result.ImageTag = contImage.tag
 
 	if len(contImage.tag) == 0 {
-		if image.name == contImage.name {
-			// Image name was proper but image tag was missing
-			result.err = ErrorImageTagMissing
-		}
+		occ := Occurrence{id: ErrorImageTagMissing, kind: Warn, message: "Image tag was missing"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
 	if contImage.name == image.name && contImage.tag != image.tag {
-		result.err = ErrorImageTagIncorrect
-		result.imgName = contImage.name
-		result.imgTag = contImage.tag
+		occ := Occurrence{id: ErrorImageTagIncorrect, kind: Error, message: "Image tag was incorrect"}
+		result.Occurrences = append(result.Occurrences, occ)
+		return
+	}
+
+	if contImage.name == image.name && contImage.tag == image.tag {
+		occ := Occurrence{id: InfoImageCorrect, kind: Info, message: "Image tag was correct"}
+		result.Occurrences = append(result.Occurrences, occ)
+		return
 	}
 }
 
@@ -78,13 +56,15 @@ func auditImages(image imgFlags, items Items) (results []Result) {
 		containers, result := containerIter(item)
 		for _, container := range containers {
 			checkImage(container, image, result)
-			if result != nil && result.err > 0 {
+			if result != nil && len(result.Occurrences) > 0 {
 				results = append(results, *result)
 				break
 			}
 		}
 	}
-	printResultImg(results)
+	for _, result := range results {
+		result.Print()
+	}
 	defer wg.Done()
 	return
 }

@@ -5,42 +5,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func printResultRFS(results []Result) {
-	for _, result := range results {
-		switch result.err {
-		case ErrorSecurityContextNIL:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("SecurityContext not set, please set it!")
-		case ErrorReadOnlyRootFilesystemNIL:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("ReadOnlyFilesystem not set, defaults to nil")
-		case ErrorReadOnlyRootFilesystemFalse:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("ReadOnlyFilesystem set to false")
-		}
-	}
-}
-
 func checkReadOnlyRootFS(container Container, result *Result) {
 	if container.SecurityContext == nil {
-		result.err = ErrorSecurityContextNIL
+		occ := Occurrence{id: ErrorSecurityContextNIL, kind: Error, message: "SecurityContext not set, please set it!"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 	if container.SecurityContext.ReadOnlyRootFilesystem == nil {
-		result.err = ErrorReadOnlyRootFilesystemNIL
+		occ := Occurrence{id: ErrorReadOnlyRootFilesystemNIL, kind: Error, message: "ReadOnlyRootFilesystem not set which results in a writable rootFS, please set to true"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 	if !*container.SecurityContext.ReadOnlyRootFilesystem {
-		result.err = ErrorReadOnlyRootFilesystemFalse
+		occ := Occurrence{id: ErrorReadOnlyRootFilesystemFalse, kind: Error, message: "ReadOnlyRootFilesystem set to false, please set to true"}
+		result.Occurrences = append(result.Occurrences, occ)
 	}
 }
 
@@ -49,13 +27,15 @@ func auditReadOnlyRootFS(items Items) (results []Result) {
 		containers, result := containerIter(item)
 		for _, container := range containers {
 			checkReadOnlyRootFS(container, result)
-			if result != nil && result.err > 0 {
+			if result != nil && len(result.Occurrences) > 0 {
 				results = append(results, *result)
 				break
 			}
 		}
 	}
-	printResultRFS(results)
+	for _, result := range results {
+		result.Print()
+	}
 	defer wg.Done()
 	return
 }

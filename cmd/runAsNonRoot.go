@@ -5,42 +5,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func printResultNR(results []Result) {
-	for _, result := range results {
-		switch result.err {
-		case ErrorSecurityContextNIL:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("SecurityContext not set, please set it!")
-		case ErrorRunAsNonRootNIL:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("RunAsNonRoot is not set (i.e. 'nil')")
-		case ErrorRunAsNonRootFalse:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"namespace": result.namespace,
-				"name":      result.name,
-			}).Error("RunAsNonRoot is set to false")
-		}
-	}
-}
-
 func checkRunAsNonRoot(container Container, result *Result) {
 	if container.SecurityContext == nil {
-		result.err = ErrorSecurityContextNIL
+		occ := Occurrence{id: ErrorSecurityContextNIL, kind: Error, message: "SecurityContext not set, please set it!"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 	if container.SecurityContext.RunAsNonRoot == nil {
-		result.err = ErrorRunAsNonRootNIL
+		occ := Occurrence{id: ErrorRunAsNonRootNIL, kind: Error, message: "RunAsNonRoot is not set, which results in root user being allowed!"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
-	if !*container.SecurityContext.RunAsNonRoot {
-		result.err = ErrorRunAsNonRootFalse
+	if *container.SecurityContext.RunAsNonRoot == false {
+		occ := Occurrence{id: ErrorRunAsNonRootFalse, kind: Error, message: "RunAsNonRoot is set to false (root user allowed), please set to true!"}
+		result.Occurrences = append(result.Occurrences, occ)
 	}
 }
 
@@ -49,13 +27,15 @@ func auditRunAsNonRoot(items Items) (results []Result) {
 		containers, result := containerIter(item)
 		for _, container := range containers {
 			checkRunAsNonRoot(container, result)
-			if result != nil && result.err > 0 {
+			if result != nil && len(result.Occurrences) > 0 {
 				results = append(results, *result)
 				break
 			}
 		}
 	}
-	printResultNR(results)
+	for _, result := range results {
+		result.Print()
+	}
 	defer wg.Done()
 	return
 }

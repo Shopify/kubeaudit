@@ -1,88 +1,57 @@
 package cmd
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 func checkSecurityContext(container Container, result *Result) {
 	if container.SecurityContext == nil {
-		result.err = ErrorSecurityContextNIL
+		occ := Occurrence{id: ErrorSecurityContextNIL, kind: Error, message: "SecurityContext not set, please set it!"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
 	if container.SecurityContext.Capabilities == nil {
-		result.err = ErrorCapabilitiesNIL
+		occ := Occurrence{id: ErrorCapabilitiesNIL, kind: Error, message: "Capabilites field not defined!"}
+		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
 	if container.SecurityContext.Capabilities.Add != nil {
-		result.err = ErrorCapabilitiesAddedOrNotDropped
-		result.capsAdded = container.SecurityContext.Capabilities.Add
+		result.CapsAdded = container.SecurityContext.Capabilities.Add
+		occ := Occurrence{id: ErrorCapabilitiesAdded, kind: Error, message: "Capabilities were added!"}
+		result.Occurrences = append(result.Occurrences, occ)
 	}
 
 	if container.SecurityContext.Capabilities.Drop == nil {
-		result.err = ErrorCapabilitiesAddedOrNotDropped
+		occ := Occurrence{id: ErrorCapabilitiesNoneDropped, kind: Error, message: "No capabilities were dropped!"}
+		result.Occurrences = append(result.Occurrences, occ)
 	}
 
 	if container.SecurityContext.Capabilities.Drop != nil {
-		result.capsDropped = container.SecurityContext.Capabilities.Drop
-	}
-}
-
-func printResultSC(results []Result) {
-	for _, result := range results {
-		switch err := result.err; err {
-		case ErrorSecurityContextNIL:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"tag":       result.imgTag,
-				"namespace": result.namespace,
-				"name":      result.name}).Error("Security context is nil!")
-		case ErrorCapabilitiesNIL:
-			log.WithFields(log.Fields{
-				"type":      result.kubeType,
-				"tag":       result.imgTag,
-				"namespace": result.namespace,
-				"name":      result.name}).Error("Capabilities field not defined!")
-		case ErrorCapabilitiesAddedOrNotDropped:
-			if result.capsAdded != nil {
-				log.WithFields(log.Fields{
-					"type":      result.kubeType,
-					"tag":       result.imgTag,
-					"namespace": result.namespace,
-					"name":      result.name,
-					"caps":      result.capsAdded}).Error("Capabilities added!")
-			}
-
-			if result.capsDropped == nil {
-				log.WithFields(log.Fields{
-					"type":      result.kubeType,
-					"tag":       result.imgTag,
-					"namespace": result.namespace,
-					"name":      result.name}).Error("No capabilities were dropped!")
-			}
-		}
+		// TODO need a check for which caps have been dropped and whether that's an
+		// error because not enough have been dropped
+		result.CapsDropped = container.SecurityContext.Capabilities.Drop
+		occ := Occurrence{id: ErrorCapabilitiesSomeDropped, kind: Error, message: "Not all of the capabilities were dropped!"}
+		result.Occurrences = append(result.Occurrences, occ)
 	}
 }
 
 func auditSecurityContext(items Items) (results []Result) {
-	fmt.Println(items)
 	for _, item := range items.Iter() {
 		containers, result := containerIter(item)
 		for _, container := range containers {
 			checkSecurityContext(container, result)
-			if result != nil && result.err > 0 {
+			if result != nil && len(result.Occurrences) > 0 {
 				results = append(results, *result)
 				break
 			}
-
 		}
 	}
-
-	printResultSC(results)
+	for _, result := range results {
+		result.Print()
+	}
 	defer wg.Done()
 	return
 }

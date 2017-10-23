@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"reflect"
 	"runtime"
 	"sync"
 
@@ -11,7 +12,7 @@ import (
 var wg sync.WaitGroup
 
 func debugPrint() {
-	if rootConfig.verbose {
+	if rootConfig.verbose == "DEBUG" {
 		buf := make([]byte, 1<<16)
 		stacklen := runtime.Stack(buf, true)
 		log.Debugf("%s", buf[:stacklen])
@@ -79,17 +80,67 @@ type kubeAuditReplicationControllers struct {
 }
 
 type Result struct {
-	err         int
-	namespace   string
-	name        string
-	capsAdded   []Capability
-	imgName     string
-	capsDropped []Capability
-	kubeType    string
-	dsa         string
-	sa          string
-	token       *bool
-	imgTag      string
+	Err         int
+	Occurrences []Occurrence
+	Namespace   string
+	Name        string
+	CapsAdded   []Capability
+	ImageName   string
+	CapsDropped []Capability
+	KubeType    string
+	DSA         string
+	SA          string
+	Token       *bool
+	ImageTag    string
+}
+
+func (res Result) Print() {
+	for _, occ := range res.Occurrences {
+		if occ.kind <= KubeauditLogLevels[rootConfig.verbose] {
+			logger := log.WithFields(createFields(res, occ.id))
+			switch occ.kind {
+			case Debug:
+				logger.Debug(occ.message)
+			case Info:
+				logger.Info(occ.message)
+			case Warn:
+				logger.Warn(occ.message)
+			case Error:
+				logger.Error(occ.message)
+			}
+		}
+	}
+}
+
+func createFields(res Result, err int) (fields log.Fields) {
+	fields = log.Fields{}
+	v := reflect.ValueOf(res)
+	for _, member := range shouldLog(err) {
+		value := v.FieldByName(member)
+		if value.IsValid() && value.Interface() != nil && value.Interface() != "" {
+			fields[member] = value
+		}
+	}
+	return
+}
+
+func shouldLog(err int) (members []string) {
+	members = []string{"Name", "Namespace", "KubeType"}
+	switch err {
+	case ErrorCapabilitiesAdded:
+		members = append(members, "CapsAdded")
+	case ErrorCapabilitiesSomeDropped:
+		members = append(members, "CapsDropped")
+	case ErrorServiceAccountTokenDeprecated:
+		members = append(members, "DSA")
+		members = append(members, "SA")
+	case InfoImageCorrect:
+	case ErrorImageTagMissing:
+	case ErrorImageTagIncorrect:
+		members = append(members, "ImageTag")
+		members = append(members, "ImageName")
+	}
+	return
 }
 
 type Items interface {
@@ -149,45 +200,45 @@ func containerIter(t interface{}) (containers []Container, result *Result) {
 	case Deployment:
 		containers = kubeType.Spec.Template.Spec.Containers
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			kubeType:  "deployment",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			KubeType:  "deployment",
 		}
 		return
 
 	case StatefulSet:
 		containers = kubeType.Spec.Template.Spec.Containers
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			kubeType:  "statefulSet",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			KubeType:  "statefulSet",
 		}
 		return
 
 	case DaemonSet:
 		containers = kubeType.Spec.Template.Spec.Containers
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			kubeType:  "daemonSet",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			KubeType:  "daemonSet",
 		}
 		return
 
 	case Pod:
 		containers = kubeType.Spec.Containers
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			kubeType:  "pod",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			KubeType:  "pod",
 		}
 		return
 
 	case ReplicationController:
 		containers = kubeType.Spec.Template.Spec.Containers
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			kubeType:  "replicationController",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			KubeType:  "replicationController",
 		}
 		return
 
@@ -200,56 +251,56 @@ func ServiceAccountIter(t interface{}) (result *Result) {
 	switch kubeType := t.(type) {
 	case Deployment:
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			dsa:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
-			token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
-			sa:        kubeType.Spec.Template.Spec.ServiceAccountName,
-			kubeType:  "deployment",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			DSA:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
+			Token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
+			SA:        kubeType.Spec.Template.Spec.ServiceAccountName,
+			KubeType:  "deployment",
 		}
 		return
 
 	case StatefulSet:
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			dsa:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
-			token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
-			sa:        kubeType.Spec.Template.Spec.ServiceAccountName,
-			kubeType:  "statefulSet",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			DSA:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
+			Token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
+			SA:        kubeType.Spec.Template.Spec.ServiceAccountName,
+			KubeType:  "statefulSet",
 		}
 		return
 
 	case DaemonSet:
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			dsa:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
-			token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
-			sa:        kubeType.Spec.Template.Spec.ServiceAccountName,
-			kubeType:  "daemonSet",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			DSA:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
+			Token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
+			SA:        kubeType.Spec.Template.Spec.ServiceAccountName,
+			KubeType:  "daemonSet",
 		}
 		return
 
 	case Pod:
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			dsa:       kubeType.Spec.DeprecatedServiceAccount,
-			token:     kubeType.Spec.AutomountServiceAccountToken,
-			sa:        kubeType.Spec.ServiceAccountName,
-			kubeType:  "pod",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			DSA:       kubeType.Spec.DeprecatedServiceAccount,
+			Token:     kubeType.Spec.AutomountServiceAccountToken,
+			SA:        kubeType.Spec.ServiceAccountName,
+			KubeType:  "pod",
 		}
 		return
 
 	case ReplicationController:
 		result = &Result{
-			name:      kubeType.Name,
-			namespace: kubeType.Namespace,
-			dsa:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
-			token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
-			sa:        kubeType.Spec.Template.Spec.ServiceAccountName,
-			kubeType:  "replicationController",
+			Name:      kubeType.Name,
+			Namespace: kubeType.Namespace,
+			DSA:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
+			Token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
+			SA:        kubeType.Spec.Template.Spec.ServiceAccountName,
+			KubeType:  "replicationController",
 		}
 		return
 
