@@ -80,18 +80,19 @@ type kubeAuditReplicationControllers struct {
 }
 
 type Result struct {
-	Err         int
-	Occurrences []Occurrence
-	Namespace   string
-	Name        string
-	CapsAdded   []Capability
-	ImageName   string
-	CapsDropped []Capability
-	KubeType    string
-	DSA         string
-	SA          string
-	Token       *bool
-	ImageTag    string
+	Err            int
+	Occurrences    []Occurrence
+	Namespace      string
+	Name           string
+	CapsAdded      []Capability
+	ImageName      string
+	CapsDropped    []Capability
+	CapsNotDropped []Capability
+	KubeType       string
+	DSA            string
+	SA             string
+	Token          *bool
+	ImageTag       string
 }
 
 func (res Result) Print() {
@@ -130,7 +131,7 @@ func shouldLog(err int) (members []string) {
 	case ErrorCapabilitiesAdded:
 		members = append(members, "CapsAdded")
 	case ErrorCapabilitiesSomeDropped:
-		members = append(members, "CapsDropped")
+		members = append(members, "CapsNotDropped")
 	case ErrorServiceAccountTokenDeprecated:
 		members = append(members, "DSA")
 		members = append(members, "SA")

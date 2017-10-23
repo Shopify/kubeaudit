@@ -1,9 +1,51 @@
 package cmd
 
 import (
+	"io/ioutil"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
+
+type capsDropList struct {
+	Drop []string `yaml:"capabilitiesToBeDropped"`
+}
+
+func recommendedCapabilitiesToBeDropped() (dropList []Capability, err error) {
+	yamlFile, err := ioutil.ReadFile("config/capabilities-drop-list.yml")
+	if err != nil {
+		return
+	}
+	caps := capsDropList{}
+	err = yaml.Unmarshal(yamlFile, &caps)
+	if err != nil {
+		return
+	}
+	for _, drop := range caps.Drop {
+		dropList = append(dropList, Capability(drop))
+	}
+	return
+}
+
+func capsNotDropped(dropped []Capability) (notDropped []Capability, err error) {
+	toBeDropped, err := recommendedCapabilitiesToBeDropped()
+	if err != nil {
+		return
+	}
+	for _, toBeDroppedCap := range toBeDropped {
+		found := false
+		for _, droppedCap := range dropped {
+			if toBeDroppedCap == droppedCap {
+				found = true
+			}
+		}
+		if found == false {
+			notDropped = append(notDropped, toBeDroppedCap)
+		}
+	}
+	return
+}
 
 func checkSecurityContext(container Container, result *Result) {
 	if container.SecurityContext == nil {
@@ -30,11 +72,17 @@ func checkSecurityContext(container Container, result *Result) {
 	}
 
 	if container.SecurityContext.Capabilities.Drop != nil {
-		// TODO need a check for which caps have been dropped and whether that's an
-		// error because not enough have been dropped
-		result.CapsDropped = container.SecurityContext.Capabilities.Drop
-		occ := Occurrence{id: ErrorCapabilitiesSomeDropped, kind: Error, message: "Not all of the capabilities were dropped!"}
-		result.Occurrences = append(result.Occurrences, occ)
+		capsNotDropped, err := capsNotDropped(container.SecurityContext.Capabilities.Drop)
+		if err != nil {
+			occ := Occurrence{id: KubeauditInternalError, kind: Error, message: "This should not have happened, if you are on kubeaudit master please consider to report: " + err.Error()}
+			result.Occurrences = append(result.Occurrences, occ)
+			return
+		}
+		if len(capsNotDropped) > 0 {
+			result.CapsNotDropped = capsNotDropped
+			occ := Occurrence{id: ErrorCapabilitiesSomeDropped, kind: Error, message: "Not all of the recommended capabilities were dropped! Please drop the mentioned capabiliites."}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
 	}
 }
 
