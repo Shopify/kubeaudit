@@ -26,5 +26,17 @@ var versionCmd = &cobra.Command{
 		log.WithFields(log.Fields{
 			"Version": ver,
 		}).Info("Kubeaudit")
+
+		kubeconfig := rootConfig.kubeConfig
+		if rootConfig.localMode {
+			kubeconfig = os.Getenv("HOME") + "/.kube/config"
+		}
+
+		kube, err := kubeClient(kubeconfig)
+		if err != nil {
+			log.Error(err)
+			os.Exit(1)
+		}
+		printKubernetesVersion(kube)
 	},
 }
