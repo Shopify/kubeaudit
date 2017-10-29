@@ -7,6 +7,7 @@ import (
 
 	fakeaudit "github.com/Shopify/kubeaudit/fakeaudit"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/kubernetes"
 )
 
 var wg sync.WaitGroup
@@ -310,7 +311,25 @@ func ServiceAccountIter(t interface{}) (result *Result) {
 	}
 }
 
-func getKubeResources(config string) (items []Items, err error) {
+func getKubeResources(clientset *kubernetes.Clientset) (items []Items) {
+	// fetch deployments, statefulsets, daemonsets
+	// and pods which do not belong to another abstraction
+	deployments := getDeployments(clientset)
+	statefulSets := getStatefulSets(clientset)
+	daemonSets := getDaemonSets(clientset)
+	pods := getPods(clientset)
+	replicationControllers := getReplicationControllers(clientset)
+
+	items = append(items, kubeAuditDeployments{deployments})
+	items = append(items, kubeAuditStatefulSets{statefulSets})
+	items = append(items, kubeAuditDaemonSets{daemonSets})
+	items = append(items, kubeAuditPods{pods})
+	items = append(items, kubeAuditReplicationControllers{replicationControllers})
+
+	return
+}
+
+func getKubeResourcesManifest(config string) (items []Items, err error) {
 	resources, read_err := fakeaudit.ReadConfigFile(config)
 	if err != nil {
 		err = read_err
