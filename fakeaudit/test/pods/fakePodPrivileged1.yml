@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: Pod
-metadata:
-    name: fakePodPrivileged1
-    namespace: fakePodPrivileged
-spec:
-    containers:
-    - name: fakeContainerPrivileged

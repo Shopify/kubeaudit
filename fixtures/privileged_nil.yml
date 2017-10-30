@@ -1,0 +1,19 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: fakeDaemonSetPrivileged2
+  namespace: fakeDaemonSetPrivileged
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakePrivileged
+    spec:
+      containers:
+      - name: fakeContainerPrivileged
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+            - SYS_TIME

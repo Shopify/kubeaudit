@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"bytes"
+	"io/ioutil"
 	"reflect"
 	"runtime"
 
-	fakeaudit "github.com/Shopify/kubeaudit/fakeaudit"
 	log "github.com/sirupsen/logrus"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
 )
 
 func debugPrint() {
@@ -328,7 +331,7 @@ func getKubeResources(clientset *kubernetes.Clientset) (items []Items) {
 }
 
 func getKubeResourcesManifest(config string) (items []Items, err error) {
-	resources, read_err := fakeaudit.ReadConfigFile(config)
+	resources, read_err := readConfigFiles(config)
 	if err != nil {
 		err = read_err
 		return
@@ -345,6 +348,26 @@ func getKubeResourcesManifest(config string) (items []Items, err error) {
 			items = append(items, kubeAuditPods{list: convertPodToPodList(*resource)})
 		case *ReplicationController:
 			items = append(items, kubeAuditReplicationControllers{list: convertReplicationControllerToReplicationList(*resource)})
+		}
+	}
+	return
+}
+
+func readConfigFiles(filename string) (decoded []k8sRuntime.Object, err error) {
+	buf, err := ioutil.ReadFile(filename)
+
+	if err != nil {
+		log.Error("File not found")
+		return
+	}
+	buf_slice := bytes.Split(buf, []byte("---"))
+
+	decoder := scheme.Codecs.UniversalDeserializer()
+
+	for _, b := range buf_slice {
+		obj, _, err := decoder.Decode(b, nil, nil)
+		if err == nil && obj != nil {
+			decoded = append(decoded, obj)
 		}
 	}
 	return

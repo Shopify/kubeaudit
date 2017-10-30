@@ -82,9 +82,7 @@ kubeaudit runAsNonRoot`,
 				auditRunAsNonRoot(resource)
 				wg.Done()
 			}()
-
 		}
-
 		wg.Wait()
 	},
 }
