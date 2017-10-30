@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Shopify/kubeaudit/fakeaudit"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -11,12 +12,27 @@ func init() {
 	fakeaudit.CreateFakeDeploymentSC("fakeDeploymentSC")
 }
 
+func TestRecommendedCapabilitiesToBeDropped(t *testing.T) {
+	assert := assert.New(t)
+	capabilities, err := recommendedCapabilitiesToBeDropped()
+	assert.Nil(err)
+	assert.Equal([]Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}, capabilities, "")
+}
+
+func TestCapsNotDropped(t *testing.T) {
+	assert := assert.New(t)
+	caps := []Capability{"CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}
+	notDropped, err := capsNotDropped(caps)
+	assert.Nil(err)
+	assert.Equal([]Capability{"AUDIT_WRITE"}, notDropped, "")
+}
+
 func TestDeploymentSC(t *testing.T) {
 	fakeDeployments := fakeaudit.GetDeployments("fakeDeploymentSC")
 	wg.Add(1)
 	results := auditSecurityContext(kubeAuditDeployments{list: fakeDeployments})
 
-	if len(results) != 5 {
+	if len(results) != 4 {
 		t.Error("Test 1: Failed to catch all the bad configurations")
 	}
 

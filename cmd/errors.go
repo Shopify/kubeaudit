@@ -1,7 +1,8 @@
 package cmd
 
 const (
-	KubeAuditInfo = iota
+	_ = iota
+	KubeauditInternalError
 	ErrorCapabilitiesAdded
 	ErrorCapabilitiesAddedOrNotDropped
 	ErrorCapabilitiesNIL
