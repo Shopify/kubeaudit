@@ -58,40 +58,29 @@ kubeaudit privileged`,
 		if rootConfig.json {
 			log.SetFormatter(&log.JSONFormatter{})
 		}
+		var resources []Items
 
 		if rootConfig.manifest != "" {
-			resources, err := getKubeResources(rootConfig.manifest)
+			var err error
+			resources, err = getKubeResourcesManifest(rootConfig.manifest)
 			if err != nil {
 				log.Error(err)
 			}
-			count := len(resources)
-			wg.Add(count)
-			for _, resource := range resources {
-				go auditPrivileged(resource)
-			}
-			wg.Wait()
 		} else {
 			kube, err := kubeClient(rootConfig.kubeConfig)
 			if err != nil {
 				log.Error(err)
 			}
 
-			// fetch deployments, statefulsets, daemonsets
-			// and pods which do not belong to another abstraction
-			deployments := getDeployments(kube)
-			statefulSets := getStatefulSets(kube)
-			daemonSets := getDaemonSets(kube)
-			pods := getPods(kube)
-			replicationControllers := getReplicationControllers(kube)
-
-			wg.Add(5)
-			go auditPrivileged(kubeAuditStatefulSets{list: statefulSets})
-			go auditPrivileged(kubeAuditDaemonSets{list: daemonSets})
-			go auditPrivileged(kubeAuditPods{list: pods})
-			go auditPrivileged(kubeAuditReplicationControllers{list: replicationControllers})
-			go auditPrivileged(kubeAuditDeployments{list: deployments})
-			wg.Wait()
+			resources = getKubeResources(kube)
 		}
+
+		count := len(resources)
+		wg.Add(count)
+		for _, resource := range resources {
+			go auditPrivileged(resource)
+		}
+		wg.Wait()
 	},
 }
 

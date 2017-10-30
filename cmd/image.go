@@ -73,12 +73,9 @@ var imageCmd = &cobra.Command{
 	Use:   "image",
 	Short: "Audit container images",
 	Long: `This command audits a container against a given image:tag
-
 An INFO log is given when a container has a matching image:tag
 An ERROR log is generated when a container does not match the image:tag
-
 This command is also a root command, check kubeaudit sc --help
-
 Example usage:
 kubeaudit image --image gcr.io/google_containers/echoserver:1.7
 kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
@@ -96,40 +93,28 @@ kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 		if rootConfig.json {
 			log.SetFormatter(&log.JSONFormatter{})
 		}
+		var resources []Items
 
 		if rootConfig.manifest != "" {
-			resources, err := getKubeResources(rootConfig.manifest)
+			var err error
+			resources, err = getKubeResourcesManifest(rootConfig.manifest)
 			if err != nil {
 				log.Error(err)
 			}
-			count := len(resources)
-			wg.Add(count)
-			for _, resource := range resources {
-				go auditImages(imgConfig, resource)
-			}
-			wg.Wait()
 		} else {
 			kube, err := kubeClient(rootConfig.kubeConfig)
 			if err != nil {
 				log.Error(err)
 			}
-
-			// fetch deployments, statefulsets, daemonsets
-			// and pods which do not belong to another abstraction
-			deployments := getDeployments(kube)
-			statefulSets := getStatefulSets(kube)
-			daemonSets := getDaemonSets(kube)
-			replicationControllers := getReplicationControllers(kube)
-			pods := getPods(kube)
-
-			wg.Add(5)
-			go auditImages(imgConfig, kubeAuditStatefulSets{list: statefulSets})
-			go auditImages(imgConfig, kubeAuditDaemonSets{list: daemonSets})
-			go auditImages(imgConfig, kubeAuditPods{list: pods})
-			go auditImages(imgConfig, kubeAuditReplicationControllers{list: replicationControllers})
-			go auditImages(imgConfig, kubeAuditDeployments{list: deployments})
-			wg.Wait()
+			resources = getKubeResources(kube)
 		}
+
+		count := len(resources)
+		wg.Add(count)
+		for _, resource := range resources {
+			go auditImages(imgConfig, resource)
+		}
+		wg.Wait()
 	},
 }
 
