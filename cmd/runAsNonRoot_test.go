@@ -13,7 +13,6 @@ func init() {
 
 func TestDeploymentRANR(t *testing.T) {
 	fakeDeployments := fakeaudit.GetDeployments("fakeDeploymentRANR")
-	wg.Add(1)
 	results := auditRunAsNonRoot(kubeAuditDeployments{list: fakeDeployments})
 
 	if len(results) != 3 {

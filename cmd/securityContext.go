@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"io/ioutil"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -100,7 +101,6 @@ func auditSecurityContext(items Items) (results []Result) {
 	for _, result := range results {
 		result.Print()
 	}
-	defer wg.Done()
 	return
 }
 
@@ -137,11 +137,16 @@ kubeaudit sc rootfs`,
 			resources = getKubeResources(kube)
 		}
 
-		count := len(resources)
-		wg.Add(count)
+		var wg sync.WaitGroup
+		wg.Add(len(resources))
+
 		for _, resource := range resources {
-			go auditSecurityContext(resource)
+			go func() {
+				auditSecurityContext(resource)
+				wg.Done()
+			}()
 		}
+
 		wg.Wait()
 	},
 }

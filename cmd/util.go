@@ -3,14 +3,11 @@ package cmd
 import (
 	"reflect"
 	"runtime"
-	"sync"
 
 	fakeaudit "github.com/Shopify/kubeaudit/fakeaudit"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/kubernetes"
 )
-
-var wg sync.WaitGroup
 
 func debugPrint() {
 	if rootConfig.verbose == "DEBUG" {
