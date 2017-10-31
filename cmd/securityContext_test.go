@@ -29,7 +29,6 @@ func TestCapsNotDropped(t *testing.T) {
 
 func TestDeploymentSC(t *testing.T) {
 	fakeDeployments := fakeaudit.GetDeployments("fakeDeploymentSC")
-	wg.Add(1)
 	results := auditSecurityContext(kubeAuditDeployments{list: fakeDeployments})
 
 	if len(results) != 4 {

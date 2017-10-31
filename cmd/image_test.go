@@ -13,7 +13,6 @@ func init() {
 
 func TestPodImg(t *testing.T) {
 	fakePods := fakeaudit.GetPods("fakePodImg")
-	wg.Add(2)
 	image := imgFlags{img: "fakeContainerImg:1.5"}
 	image.splitImageString()
 	results := auditImages(image, kubeAuditPods{list: fakePods})

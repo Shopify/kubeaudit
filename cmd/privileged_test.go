@@ -13,7 +13,6 @@ func init() {
 
 func TestDaemonSetPrivileged(t *testing.T) {
 	fakeDaemonSets := fakeaudit.GetDaemonSets("fakeDaemonSetPrivileged")
-	wg.Add(1)
 	results := auditPrivileged(kubeAuditDaemonSets{list: fakeDaemonSets})
 
 	if len(results) != 3 {

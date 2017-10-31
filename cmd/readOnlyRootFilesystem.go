@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"sync"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -36,7 +38,6 @@ func auditReadOnlyRootFS(items Items) (results []Result) {
 	for _, result := range results {
 		result.Print()
 	}
-	defer wg.Done()
 	return
 }
 
@@ -71,11 +72,16 @@ kubeaudit runAsNonRoot`,
 			resources = getKubeResources(kube)
 		}
 
-		count := len(resources)
-		wg.Add(count)
+		var wg sync.WaitGroup
+		wg.Add(len(resources))
+
 		for _, resource := range resources {
-			go auditReadOnlyRootFS(resource)
+			go func() {
+				auditReadOnlyRootFS(resource)
+				wg.Done()
+			}()
 		}
+
 		wg.Wait()
 	},
 }

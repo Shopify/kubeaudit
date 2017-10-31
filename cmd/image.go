@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -65,7 +66,6 @@ func auditImages(image imgFlags, items Items) (results []Result) {
 	for _, result := range results {
 		result.Print()
 	}
-	defer wg.Done()
 	return
 }
 
@@ -109,11 +109,16 @@ kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 			resources = getKubeResources(kube)
 		}
 
-		count := len(resources)
-		wg.Add(count)
+		var wg sync.WaitGroup
+		wg.Add(len(resources))
+
 		for _, resource := range resources {
-			go auditImages(imgConfig, resource)
+			go func() {
+				auditImages(imgConfig, resource)
+				wg.Done()
+			}()
 		}
+
 		wg.Wait()
 	},
 }

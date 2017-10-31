@@ -13,7 +13,6 @@ func init() {
 
 func TestReplicationControllerASAT(t *testing.T) {
 	fakeReplicationControllers := fakeaudit.GetReplicationControllers("fakeReplicationControllerASAT")
-	wg.Add(1)
 	results := auditAutomountServiceAccountToken(kubeAuditReplicationControllers{list: fakeReplicationControllers})
 
 	if len(results) != 2 {

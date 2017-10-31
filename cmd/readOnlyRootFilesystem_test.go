@@ -13,7 +13,6 @@ func init() {
 
 func TestStatefulSetRORF(t *testing.T) {
 	fakeStatefulSets := fakeaudit.GetStatefulSets("fakeStatefulSetRORF")
-	wg.Add(1)
 	results := auditReadOnlyRootFS(kubeAuditStatefulSets{list: fakeStatefulSets})
 
 	if len(results) != 3 {
