@@ -5,3 +5,4 @@
 /.dev
 .DS_Store
 /vendor
+coverage.txt
