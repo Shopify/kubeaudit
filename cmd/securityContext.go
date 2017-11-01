@@ -56,7 +56,7 @@ func checkSecurityContext(container Container, result *Result) {
 	}
 
 	if container.SecurityContext.Capabilities == nil {
-		occ := Occurrence{id: ErrorCapabilitiesNIL, kind: Error, message: "Capabilites field not defined!"}
+		occ := Occurrence{id: ErrorCapabilitiesNIL, kind: Error, message: "Capabilities field not defined!"}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
