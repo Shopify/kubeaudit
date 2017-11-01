@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"io/ioutil"
-	"sync"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )
@@ -98,47 +96,13 @@ func auditCapabilities(items Items) (results []Result) {
 			}
 		}
 	}
-	for _, result := range results {
-		result.Print()
-	}
 	return
 }
 
 var capabilitiesCmd = &cobra.Command{
 	Use:   "caps",
 	Short: "Audit container for capabilities",
-	Run: func(cmd *cobra.Command, args []string) {
-		if rootConfig.json {
-			log.SetFormatter(&log.JSONFormatter{})
-		}
-		var resources []Items
-
-		if rootConfig.manifest != "" {
-			var err error
-			resources, err = getKubeResourcesManifest(rootConfig.manifest)
-			if err != nil {
-				log.Error(err)
-			}
-		} else {
-			kube, err := kubeClient(rootConfig.kubeConfig)
-			if err != nil {
-				log.Error(err)
-			}
-			resources = getKubeResources(kube)
-		}
-
-		var wg sync.WaitGroup
-		wg.Add(len(resources))
-
-		for _, resource := range resources {
-			go func(items Items) {
-				auditCapabilities(resource)
-				wg.Done()
-			}(resource)
-		}
-
-		wg.Wait()
-	},
+	Run:   runAudit(auditCapabilities),
 }
 
 func init() {

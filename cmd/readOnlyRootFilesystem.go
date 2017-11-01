@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"sync"
-
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -52,38 +49,7 @@ A FAIL is given when a container does not have a read only root filesystem
 
 Example usage:
 kubeaudit runAsNonRoot`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if rootConfig.json {
-			log.SetFormatter(&log.JSONFormatter{})
-		}
-		var resources []Items
-
-		if rootConfig.manifest != "" {
-			var err error
-			resources, err = getKubeResourcesManifest(rootConfig.manifest)
-			if err != nil {
-				log.Error(err)
-			}
-		} else {
-			kube, err := kubeClient(rootConfig.kubeConfig)
-			if err != nil {
-				log.Error(err)
-			}
-			resources = getKubeResources(kube)
-		}
-
-		var wg sync.WaitGroup
-		wg.Add(len(resources))
-
-		for _, resource := range resources {
-			go func(items Items) {
-				auditReadOnlyRootFS(items)
-				wg.Done()
-			}(resource)
-		}
-
-		wg.Wait()
-	},
+	Run: runAudit(auditReadOnlyRootFS),
 }
 
 func init() {
