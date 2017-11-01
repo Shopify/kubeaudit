@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Pod
-metadata:
-    name: fakePodRANR1
-    namespace: fakePodRANR
-spec:
-    containers:
-    - name: fakeContainerRANR
-

@@ -4,7 +4,6 @@ const (
 	_ = iota
 	KubeauditInternalError
 	ErrorCapabilitiesAdded
-	ErrorCapabilitiesAddedOrNotDropped
 	ErrorCapabilitiesNIL
 	ErrorCapabilitiesNoneDropped
 	ErrorCapabilitiesSomeDropped

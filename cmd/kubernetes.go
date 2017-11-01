@@ -44,15 +44,6 @@ func kubeClient(kubeconfig string) (*kubernetes.Clientset, error) {
 	return kube, err
 }
 
-func getNamespaces(clientset *kubernetes.Clientset) *NamespaceList {
-	namespaceClient := clientset.CoreV1().Namespaces()
-	namespaces, err := namespaceClient.List(ListOptions{})
-	if err != nil {
-		log.Error(err)
-	}
-	return namespaces
-}
-
 func getDeployments(clientset *kubernetes.Clientset) *DeploymentList {
 	deploymentClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceAll)
 	deployments, err := deploymentClient.List(ListOptions{})

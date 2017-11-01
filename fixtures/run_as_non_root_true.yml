@@ -1,0 +1,16 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: run_as_non_root_true
+  namespace: fakeDeploymentRANR
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakeRunAsNonRoot
+    spec:
+      containers:
+      - name: fakeContainerRORF
+        securityContext:
+          runAsNonRoot: true
