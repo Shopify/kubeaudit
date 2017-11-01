@@ -120,7 +120,7 @@ func createFields(res Result, err int) (fields log.Fields) {
 	for _, member := range shouldLog(err) {
 		value := v.FieldByName(member)
 		if value.IsValid() && value.Interface() != nil && value.Interface() != "" {
-			fields[member] = value
+			fields[member] = value.Interface()
 		}
 	}
 	return
