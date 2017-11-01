@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"sync"
+
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +55,39 @@ A FAIL is generated when a container runs in a privileged mode
 
 Example usage:
 kubeaudit privileged`,
-	Run: runAudit(auditPrivileged),
+	Run: func(cmd *cobra.Command, args []string) {
+		if rootConfig.json {
+			log.SetFormatter(&log.JSONFormatter{})
+		}
+		var resources []Items
+
+		if rootConfig.manifest != "" {
+			var err error
+			resources, err = getKubeResourcesManifest(rootConfig.manifest)
+			if err != nil {
+				log.Error(err)
+			}
+		} else {
+			kube, err := kubeClient(rootConfig.kubeConfig)
+			if err != nil {
+				log.Error(err)
+			}
+
+			resources = getKubeResources(kube)
+		}
+
+		var wg sync.WaitGroup
+		wg.Add(len(resources))
+
+		for _, resource := range resources {
+			go func() {
+				auditPrivileged(resource)
+				wg.Done()
+			}()
+		}
+
+		wg.Wait()
+	},
 }
 
 func init() {

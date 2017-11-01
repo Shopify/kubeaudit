@@ -5,10 +5,8 @@ import (
 	"io/ioutil"
 	"reflect"
 	"runtime"
-	"sync"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -373,92 +371,4 @@ func readConfigFiles(filename string) (decoded []k8sRuntime.Object, err error) {
 		}
 	}
 	return
-}
-
-func runAudit(auditFunc func(item Items) (results []Result)) func(cmd *cobra.Command, args []string) {
-	return func(cmd *cobra.Command, args []string) {
-		if rootConfig.json {
-			log.SetFormatter(&log.JSONFormatter{})
-		}
-		var resources []Items
-
-		if rootConfig.manifest != "" {
-			var err error
-			resources, err = getKubeResourcesManifest(rootConfig.manifest)
-			if err != nil {
-				log.Error(err)
-			}
-		} else {
-			kube, err := kubeClient(rootConfig.kubeConfig)
-			if err != nil {
-				log.Error(err)
-			}
-
-			resources = getKubeResources(kube)
-		}
-
-		var wg sync.WaitGroup
-		wg.Add(len(resources))
-
-		results := make(chan Result)
-		for i := range resources {
-			go func(resource Items) {
-				for _, result := range auditFunc(resource) {
-					results <- result
-				}
-				wg.Done()
-			}(resources[i])
-		}
-		wg.Wait()
-		close(results)
-
-		for result := range results {
-			result.Print()
-		}
-	}
-}
-
-func runImageAudit(auditFunc func(image imgFlags, item Items) (results []Result)) func(cmd *cobra.Command, args []string) {
-	return func(cmd *cobra.Command, args []string) {
-		if len(imgConfig.img) == 0 {
-			log.Error("Empty image name. Are you missing the image flag?")
-			return
-		}
-		imgConfig.splitImageString()
-		if len(imgConfig.tag) == 0 {
-			log.Error("Empty image tag. Are you missing the image tag?")
-			return
-		}
-
-		if rootConfig.json {
-			log.SetFormatter(&log.JSONFormatter{})
-		}
-		var resources []Items
-
-		if rootConfig.manifest != "" {
-			var err error
-			resources, err = getKubeResourcesManifest(rootConfig.manifest)
-			if err != nil {
-				log.Error(err)
-			}
-		} else {
-			kube, err := kubeClient(rootConfig.kubeConfig)
-			if err != nil {
-				log.Error(err)
-			}
-			resources = getKubeResources(kube)
-		}
-
-		var wg sync.WaitGroup
-		wg.Add(len(resources))
-
-		for i := range resources {
-			go func(resource Items) {
-				auditFunc(imgConfig, resource)
-				wg.Done()
-			}(resources[i])
-		}
-
-		wg.Wait()
-	}
 }
