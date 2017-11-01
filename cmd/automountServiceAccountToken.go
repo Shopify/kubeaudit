@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"sync"
+
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -36,6 +39,9 @@ func auditAutomountServiceAccountToken(items Items) (results []Result) {
 			results = append(results, *result)
 		}
 	}
+	for _, result := range results {
+		result.Print()
+	}
 	return
 }
 
@@ -55,7 +61,38 @@ Fix this by updating serviceAccount to serviceAccountName in your .yamls
 
 Example usage:
 kubeaudit rbac sat`,
-	Run: runAudit(auditAutomountServiceAccountToken),
+	Run: func(cmd *cobra.Command, args []string) {
+		if rootConfig.json {
+			log.SetFormatter(&log.JSONFormatter{})
+		}
+		var resources []Items
+
+		if rootConfig.manifest != "" {
+			var err error
+			resources, err = getKubeResourcesManifest(rootConfig.manifest)
+			if err != nil {
+				log.Error(err)
+			}
+		} else {
+			kube, err := kubeClient(rootConfig.kubeConfig)
+			if err != nil {
+				log.Error(err)
+			}
+			resources = getKubeResources(kube)
+		}
+
+		var wg sync.WaitGroup
+		wg.Add(len(resources))
+
+		for _, resource := range resources {
+			go func() {
+				auditAutomountServiceAccountToken(resource)
+				wg.Done()
+			}()
+		}
+
+		wg.Wait()
+	},
 }
 
 func init() {

@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"strings"
+	"sync"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -77,7 +79,48 @@ This command is also a root command, check kubeaudit sc --help
 Example usage:
 kubeaudit image --image gcr.io/google_containers/echoserver:1.7
 kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
-	Run: runImageAudit(auditImages),
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(imgConfig.img) == 0 {
+			log.Error("Empty image name. Are you missing the image flag?")
+			return
+		}
+		imgConfig.splitImageString()
+		if len(imgConfig.tag) == 0 {
+			log.Error("Empty image tag. Are you missing the image tag?")
+			return
+		}
+
+		if rootConfig.json {
+			log.SetFormatter(&log.JSONFormatter{})
+		}
+		var resources []Items
+
+		if rootConfig.manifest != "" {
+			var err error
+			resources, err = getKubeResourcesManifest(rootConfig.manifest)
+			if err != nil {
+				log.Error(err)
+			}
+		} else {
+			kube, err := kubeClient(rootConfig.kubeConfig)
+			if err != nil {
+				log.Error(err)
+			}
+			resources = getKubeResources(kube)
+		}
+
+		var wg sync.WaitGroup
+		wg.Add(len(resources))
+
+		for _, resource := range resources {
+			go func() {
+				auditImages(imgConfig, resource)
+				wg.Done()
+			}()
+		}
+
+		wg.Wait()
+	},
 }
 
 func init() {
