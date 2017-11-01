@@ -13,7 +13,7 @@ build:
 	$(GOBUILD) -o $(BINARY_NAME) -v
 
 test:
-	$(GOTEST) -cover ./... .
+	./test.sh
 
 clean:
 	$(GOCLEAN)
