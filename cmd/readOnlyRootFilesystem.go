@@ -87,5 +87,5 @@ kubeaudit runAsNonRoot`,
 }
 
 func init() {
-	securityContextCmd.AddCommand(readonlyfsCmd)
+	RootCmd.AddCommand(readonlyfsCmd)
 }

@@ -12,6 +12,9 @@ all: setup test build
 build:
 	$(GOBUILD) -o $(BINARY_NAME) -v
 
+install:
+	cp $(BINARY_NAME) $(GOPATH)/bin/kubeaudit
+
 test:
 	./test.sh
 

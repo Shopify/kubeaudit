@@ -96,5 +96,5 @@ kubeaudit rbac sat`,
 }
 
 func init() {
-	rbacCmd.AddCommand(satCmd)
+	RootCmd.AddCommand(satCmd)
 }

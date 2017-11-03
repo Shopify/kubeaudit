@@ -48,7 +48,7 @@ func capsNotDropped(dropped []Capability) (notDropped []Capability, err error) {
 	return
 }
 
-func checkSecurityContext(container Container, result *Result) {
+func checkCapabilities(container Container, result *Result) {
 	if container.SecurityContext == nil {
 		occ := Occurrence{id: ErrorSecurityContextNIL, kind: Error, message: "SecurityContext not set, please set it!"}
 		result.Occurrences = append(result.Occurrences, occ)
@@ -87,11 +87,11 @@ func checkSecurityContext(container Container, result *Result) {
 	}
 }
 
-func auditSecurityContext(items Items) (results []Result) {
+func auditCapabilities(items Items) (results []Result) {
 	for _, item := range items.Iter() {
 		containers, result := containerIter(item)
 		for _, container := range containers {
-			checkSecurityContext(container, result)
+			checkCapabilities(container, result)
 			if result != nil && len(result.Occurrences) > 0 {
 				results = append(results, *result)
 				break
@@ -104,19 +104,9 @@ func auditSecurityContext(items Items) (results []Result) {
 	return
 }
 
-var securityContextCmd = &cobra.Command{
-	Use:   "sc",
-	Short: "Audit container security contexts",
-	Long: `This command determines which containers in a kubernetes cluster
-are running as root.
-An INFO log is given when a container has a securityContext
-An ERROR log is generated when a container does not have a defined securityContext
-A WARN log is generated when some linux capabilities are added or not dropped
-This command is also a root command, check kubeaudit sc --help
-Example usage:
-kubeaudit sc
-kubeaudit sc nonroot
-kubeaudit sc rootfs`,
+var capabilitiesCmd = &cobra.Command{
+	Use:   "caps",
+	Short: "Audit container for capabilities",
 	Run: func(cmd *cobra.Command, args []string) {
 		if rootConfig.json {
 			log.SetFormatter(&log.JSONFormatter{})
@@ -142,7 +132,7 @@ kubeaudit sc rootfs`,
 
 		for _, resource := range resources {
 			go func(items Items) {
-				auditSecurityContext(items)
+				auditCapabilities(resource)
 				wg.Done()
 			}(resource)
 		}
@@ -152,5 +142,5 @@ kubeaudit sc rootfs`,
 }
 
 func init() {
-	RootCmd.AddCommand(securityContextCmd)
+	RootCmd.AddCommand(capabilitiesCmd)
 }

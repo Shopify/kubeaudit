@@ -22,21 +22,21 @@ func TestCapsNotDropped(t *testing.T) {
 }
 
 func TestSecurityContextNIL_SC(t *testing.T) {
-	runTest(t, "security_context_nil.yml", auditSecurityContext, ErrorSecurityContextNIL)
+	runTest(t, "security_context_nil.yml", auditCapabilities, ErrorSecurityContextNIL)
 }
 
 func TestCapabilitiesNIL(t *testing.T) {
-	runTest(t, "capabilities_nil.yml", auditSecurityContext, ErrorCapabilitiesNIL)
+	runTest(t, "capabilities_nil.yml", auditCapabilities, ErrorCapabilitiesNIL)
 }
 
 func TestCapabilitiesAdded(t *testing.T) {
-	runTest(t, "capabilities_added.yml", auditSecurityContext, ErrorCapabilitiesAdded)
+	runTest(t, "capabilities_added.yml", auditCapabilities, ErrorCapabilitiesAdded)
 }
 
 func TestCapabilitiesNoneDropped(t *testing.T) {
-	runTest(t, "capabilities_none_dropped.yml", auditSecurityContext, ErrorCapabilitiesNoneDropped)
+	runTest(t, "capabilities_none_dropped.yml", auditCapabilities, ErrorCapabilitiesNoneDropped)
 }
 
 func TestCapabilitiesSomeDropped(t *testing.T) {
-	runTest(t, "capabilities_some_dropped.yml", auditSecurityContext, ErrorCapabilitiesSomeDropped)
+	runTest(t, "capabilities_some_dropped.yml", auditCapabilities, ErrorCapabilitiesSomeDropped)
 }
