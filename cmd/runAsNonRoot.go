@@ -78,11 +78,12 @@ kubeaudit runAsNonRoot`,
 		wg.Add(len(resources))
 
 		for _, resource := range resources {
-			go func() {
-				auditRunAsNonRoot(resource)
+			go func(items Items) {
+				auditRunAsNonRoot(items)
 				wg.Done()
-			}()
+			}(resource)
 		}
+
 		wg.Wait()
 	},
 }

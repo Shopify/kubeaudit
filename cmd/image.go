@@ -113,10 +113,10 @@ kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 		wg.Add(len(resources))
 
 		for _, resource := range resources {
-			go func() {
-				auditImages(imgConfig, resource)
+			go func(items Items) {
+				auditImages(imgConfig, items)
 				wg.Done()
-			}()
+			}(resource)
 		}
 
 		wg.Wait()
