@@ -5,8 +5,10 @@ import (
 	"io/ioutil"
 	"reflect"
 	"runtime"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -371,4 +373,67 @@ func readConfigFiles(filename string) (decoded []k8sRuntime.Object, err error) {
 		}
 	}
 	return
+}
+
+func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
+	return func(cmd *cobra.Command, args []string) {
+		switch auditFunc.(type) {
+		case (func(image imgFlags, item Items) (results []Result)):
+			if len(imgConfig.img) == 0 {
+				log.Error("Empty image name. Are you missing the image flag?")
+				return
+			}
+			imgConfig.splitImageString()
+			if len(imgConfig.tag) == 0 {
+				log.Error("Empty image tag. Are you missing the image tag?")
+				return
+			}
+		}
+
+		if rootConfig.json {
+			log.SetFormatter(&log.JSONFormatter{})
+		}
+		var resources []Items
+
+		if rootConfig.manifest != "" {
+			var err error
+			resources, err = getKubeResourcesManifest(rootConfig.manifest)
+			if err != nil {
+				log.Error(err)
+			}
+		} else {
+			kube, err := kubeClient(rootConfig.kubeConfig)
+			if err != nil {
+				log.Error(err)
+			}
+			resources = getKubeResources(kube)
+		}
+
+		var wg sync.WaitGroup
+		wg.Add(len(resources))
+
+		resultsChannel := make(chan []Result, 1)
+		go func() { resultsChannel <- []Result{} }()
+		for _, resource := range resources {
+			results := <-resultsChannel
+			go func(item Items) {
+				switch f := auditFunc.(type) {
+				case func(item Items) (results []Result):
+					resultsChannel <- append(results, f(item)...)
+				case func(image imgFlags, item Items) (results []Result):
+					resultsChannel <- append(results, f(imgConfig, item)...)
+				default:
+					log.Fatal("Invalid audit function provided")
+				}
+				wg.Done()
+			}(resource)
+		}
+
+		wg.Wait()
+		close(resultsChannel)
+
+		for _, result := range <-resultsChannel {
+			result.Print()
+		}
+	}
 }
