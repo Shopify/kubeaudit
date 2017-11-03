@@ -80,10 +80,10 @@ kubeaudit privileged`,
 		wg.Add(len(resources))
 
 		for _, resource := range resources {
-			go func() {
-				auditPrivileged(resource)
+			go func(items Items) {
+				auditPrivileged(items)
 				wg.Done()
-			}()
+			}(resource)
 		}
 
 		wg.Wait()

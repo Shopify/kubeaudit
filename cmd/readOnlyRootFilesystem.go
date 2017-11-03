@@ -76,10 +76,10 @@ kubeaudit runAsNonRoot`,
 		wg.Add(len(resources))
 
 		for _, resource := range resources {
-			go func() {
-				auditReadOnlyRootFS(resource)
+			go func(items Items) {
+				auditReadOnlyRootFS(items)
 				wg.Done()
-			}()
+			}(resource)
 		}
 
 		wg.Wait()

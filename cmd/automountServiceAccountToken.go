@@ -85,10 +85,10 @@ kubeaudit rbac sat`,
 		wg.Add(len(resources))
 
 		for _, resource := range resources {
-			go func() {
-				auditAutomountServiceAccountToken(resource)
+			go func(items Items) {
+				auditAutomountServiceAccountToken(items)
 				wg.Done()
-			}()
+			}(resource)
 		}
 
 		wg.Wait()

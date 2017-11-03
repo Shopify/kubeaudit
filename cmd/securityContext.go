@@ -141,10 +141,10 @@ kubeaudit sc rootfs`,
 		wg.Add(len(resources))
 
 		for _, resource := range resources {
-			go func() {
-				auditSecurityContext(resource)
+			go func(items Items) {
+				auditSecurityContext(items)
 				wg.Done()
-			}()
+			}(resource)
 		}
 
 		wg.Wait()
