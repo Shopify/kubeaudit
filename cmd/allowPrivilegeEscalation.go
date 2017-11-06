@@ -9,7 +9,7 @@ func checkAllowPrivilegeEscalation(container Container, result *Result) {
 		return
 	}
 	if container.SecurityContext.AllowPrivilegeEscalation == nil {
-		occ := Occurrence{id: ErrorAllowPrivilegeEscalationNIL, kind: Warn, message: "AllowPrivilegeEscalation defaults to false, which is okay"}
+		occ := Occurrence{id: ErrorAllowPrivilegeEscalationNIL, kind: Error, message: "AllowPrivilegeEscalation not set which allows privilege escalation, please set to false"}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
