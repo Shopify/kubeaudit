@@ -3,13 +3,13 @@ package cmd
 import "testing"
 
 func TestImageTagMissing(t *testing.T) {
-	runImageTest(t, "image_tag_missing.yml", auditImages, "fakeContainerImg:1.6", ErrorImageTagMissing)
+	runTest(t, "image_tag_missing.yml", auditImages, ErrorImageTagMissing, "fakeContainerImg:1.6")
 }
 
 func TestImageTagIncorrect(t *testing.T) {
-	runImageTest(t, "image_tag_present.yml", auditImages, "fakeContainerImg:1.6", ErrorImageTagIncorrect)
+	runTest(t, "image_tag_present.yml", auditImages, ErrorImageTagIncorrect, "fakeContainerImg:1.6")
 }
 
 func TestImageTagCorrect(t *testing.T) {
-	runImageTest(t, "image_tag_present.yml", auditImages, "fakeContainerImg:1.5", InfoImageCorrect)
+	runTest(t, "image_tag_present.yml", auditImages, InfoImageCorrect, "fakeContainerImg:1.5")
 }
