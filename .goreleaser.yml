@@ -1,0 +1,41 @@
+project_name: kubeaudit
+release:
+  github:
+    owner: Shopify
+    name: kubeaudit
+  draft: true
+  name_template: "{{.ProjectName}}-v{{.Version}}"
+brew:
+  github:
+    owner: Shopify
+    name: homebrew-shopify
+  install: bin.install "kubeaudit"
+  homepage: "https://github.com/Shopify/kubeaudit"
+  description: "kubeaudit audits Kubernetes clusters for common security controls"
+builds:
+- goos:
+  - linux
+  - darwin
+  goarm:
+  - 6
+  - 7
+  main: .
+  ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+  binary: kubeaudit
+archive:
+  format: tar.gz
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{.Arm }}{{ end }}'
+  files:
+  - licence*
+  - LICENCE*
+  - license*
+  - LICENSE*
+  - readme*
+  - README*
+  - changelog*
+  - CHANGELOG*
+  - config/*
+snapshot:
+  name_template: SNAPSHOT-{{ .Commit }}
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
