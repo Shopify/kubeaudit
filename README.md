@@ -78,6 +78,7 @@ audits against pods in all the phases (default Running Phase)
 - [Audit security context](#sc)
   - [Audit readOnlyRootFilesystem](#rootfs)
   - [Audit runAsNonRoot](#root)
+  - [Audit allowPrivilegeEscalation](#allowpe)
   - [Audit privileged](#priv)
   - [Audit capabilities](#caps)
 - [Audit image](#image)
@@ -121,6 +122,18 @@ ERRO[0000] ReadOnlyRootFilesystem set to false, please set to true
 kubeaudit -l nonroot
 ERRO[0000] RunAsNonRoot is set to false (root user allowed), please set to true!
 ERRO[0000] RunAsNonRoot is not set, which results in root user being allowed!
+```
+
+<a name="allowpe" />
+
+#### Audit allowPrivilegeEscalation
+
+`kubeaudit` will detect whether `allowPrivilegeEscalation` is either set to `nil` or explicitly set to `false`
+
+```sh
+kubeaudit -l allowpe
+ERRO[0000] AllowPrivilegeEscalation set to true, please set to false
+ERRO[0000] AllowPrivilegeEscalation not set which allows privilege escalation, please set to false
 ```
 
 <a name="priv" />
