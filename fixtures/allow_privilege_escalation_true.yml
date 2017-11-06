@@ -1,0 +1,16 @@
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: fakeStatefulSetAPE
+  namespace: fakeStatefulSetAPE
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakeAllowPrivilegeEscalation
+    spec:
+      containers:
+      - name: fakeContainerAPE
+        securityContext:
+          allowPrivilegeEscalation: true

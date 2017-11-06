@@ -3,6 +3,8 @@ package cmd
 const (
 	_ = iota
 	KubeauditInternalError
+	ErrorAllowPrivilegeEscalationNIL
+	ErrorAllowPrivilegeEscalationTrue
 	ErrorCapabilitiesAdded
 	ErrorCapabilitiesNIL
 	ErrorCapabilitiesNoneDropped
