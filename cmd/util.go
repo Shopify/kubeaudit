@@ -96,6 +96,10 @@ type Result struct {
 	SA             string
 	Token          *bool
 	ImageTag       string
+	CPULimitActual string
+	CPULimitMax    string
+	MEMLimitActual string
+	MEMLimitMax    string
 }
 
 func (res Result) Print() {
@@ -143,6 +147,12 @@ func shouldLog(err int) (members []string) {
 	case ErrorImageTagIncorrect:
 		members = append(members, "ImageTag")
 		members = append(members, "ImageName")
+	case ErrorResourcesLimitsCpuExceeded:
+		members = append(members, "CPULimitActual")
+		members = append(members, "CPULimitMax")
+	case ErrorResourcesLimitsMemoryExceeded:
+		members = append(members, "MEMLimitActual")
+		members = append(members, "MEMLimitMax")
 	}
 	return
 }
@@ -422,6 +432,8 @@ func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 					resultsChannel <- append(results, f(item)...)
 				case func(image imgFlags, item Items) (results []Result):
 					resultsChannel <- append(results, f(imgConfig, item)...)
+				case func(limits limitFlags, item Items) (results []Result):
+					resultsChannel <- append(results, f(limitConfig, item)...)
 				default:
 					log.Fatal("Invalid audit function provided")
 				}

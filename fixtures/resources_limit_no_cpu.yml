@@ -1,0 +1,18 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: resources_limit_no_cpu
+  namespace: fakeDeploymentQuota
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakeNoLimitQuota
+    spec:
+      containers:
+      - name: fakeContainerNoCPULimit
+        resources: 
+          limits:
+            memory: 512Mi
+

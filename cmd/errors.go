@@ -15,6 +15,11 @@ const (
 	ErrorPrivilegedTrue
 	ErrorReadOnlyRootFilesystemFalse
 	ErrorReadOnlyRootFilesystemNIL
+	ErrorResourcesLimitsNIL
+	ErrorResourcesLimitsCpuNIL
+	ErrorResourcesLimitsCpuExceeded
+	ErrorResourcesLimitsMemoryNIL
+	ErrorResourcesLimitsMemoryExceeded
 	ErrorRunAsNonRootFalse
 	ErrorRunAsNonRootNIL
 	ErrorSecurityContextNIL

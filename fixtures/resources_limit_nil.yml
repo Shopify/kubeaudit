@@ -1,0 +1,15 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: resources_limit_nil
+  namespace: fakeDeploymentQuota
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakeNoLimitQuota
+    spec:
+      containers:
+      - name: fakeContainerNoLimit
+        resources:

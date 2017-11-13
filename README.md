@@ -84,6 +84,7 @@ audits against pods in all the phases (default Running Phase)
 - [Audit image](#image)
 - [Audit Service Accounts](#sat)
 - [Audit network policies](#netpol)
+- [Audit resources](#resources)
 
 <a name="sc" />
 
@@ -247,6 +248,27 @@ for more information:
 # don't specify -l or -c to run inside the clsuter
 kubeaudit np
 WARN[0000] Default allow mode on test/testing
+```
+
+<a name="resources" />
+
+### Audit resources limits
+
+It checks that every resource has a CPU and memory limit. See [Kubernetes Resource Quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/)
+for more information:
+
+```sh
+kubeaudit -l limits
+WARN[0000] CPU limit not set, please set it!
+WARN[0000] Memory limit not set, please set it!
+```
+
+With the `--cpu` and `--memory` parameters, `kubeaudit` can check the limits not to be exceeded.
+
+```sh
+kubeaudit -l limits --cpu 500m --memory 125Mi
+WARN[0000] CPU limit exceeded, it is set to 1 but it must not exceed 500m. Please adjust it! !
+WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125Mi. Please adjust it!
 ```
 
 <a name="contribute" />
