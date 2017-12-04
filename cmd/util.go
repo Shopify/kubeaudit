@@ -9,6 +9,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	apiv1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -22,44 +24,57 @@ func debugPrint() {
 	}
 }
 
+func isInRootConfigNamespace(meta metav1.ObjectMeta) (valid bool) {
+	return isInNamespace(meta, rootConfig.namespace)
+}
+
+func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
+	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
+}
+
 func convertDeploymentToDeploymentList(deployment Deployment) (deploymentList *DeploymentList) {
-	deploymentList = &DeploymentList{
-		Items: []Deployment{deployment},
+	if isInRootConfigNamespace(deployment.ObjectMeta) {
+		deploymentList = &DeploymentList{Items: []Deployment{deployment}}
+	} else {
+		deploymentList = &DeploymentList{Items: []Deployment{}}
 	}
 	return
-
 }
 
 func convertDaemonSetToDaemonSetList(daemonSet DaemonSet) (daemonSetList *DaemonSetList) {
-	daemonSetList = &DaemonSetList{
-		Items: []DaemonSet{daemonSet},
+	if isInRootConfigNamespace(daemonSet.ObjectMeta) {
+		daemonSetList = &DaemonSetList{Items: []DaemonSet{daemonSet}}
+	} else {
+		daemonSetList = &DaemonSetList{Items: []DaemonSet{}}
 	}
 	return
-
 }
 
 func convertPodToPodList(pod Pod) (podList *PodList) {
-	podList = &PodList{
-		Items: []Pod{pod},
+	if isInRootConfigNamespace(pod.ObjectMeta) {
+		podList = &PodList{Items: []Pod{pod}}
+	} else {
+		podList = &PodList{Items: []Pod{}}
 	}
 	return
-
 }
 
 func convertStatefulSetToStatefulSetList(statefulSet StatefulSet) (statefulSetList *StatefulSetList) {
-	statefulSetList = &StatefulSetList{
-		Items: []StatefulSet{statefulSet},
+	if isInRootConfigNamespace(statefulSet.ObjectMeta) {
+		statefulSetList = &StatefulSetList{Items: []StatefulSet{statefulSet}}
+	} else {
+		statefulSetList = &StatefulSetList{Items: []StatefulSet{}}
 	}
 	return
-
 }
 
 func convertReplicationControllerToReplicationList(replicationController ReplicationController) (replicationControllerList *ReplicationControllerList) {
-	replicationControllerList = &ReplicationControllerList{
-		Items: []ReplicationController{replicationController},
+	if isInRootConfigNamespace(replicationController.ObjectMeta) {
+		replicationControllerList = &ReplicationControllerList{Items: []ReplicationController{replicationController}}
+	} else {
+		replicationControllerList = &ReplicationControllerList{Items: []ReplicationController{}}
 	}
 	return
-
 }
 
 type kubeAuditDeployments struct {

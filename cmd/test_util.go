@@ -6,11 +6,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	apiv1 "k8s.io/api/core/v1"
 )
 
 var path = "../fixtures/"
 
-func runTest(t *testing.T, file string, function interface{}, errCode int, argStr ...string) {
+func runTest(t *testing.T, file string, function interface{}, errCode int, argStr ...string) (results []Result) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)
 	var image imgFlags
@@ -35,7 +36,7 @@ func runTest(t *testing.T, file string, function interface{}, errCode int, argSt
 
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
-	var results []Result
+
 	for _, resource := range resources {
 		var currentResults []Result
 		switch f := function.(type) {
@@ -58,5 +59,23 @@ func runTest(t *testing.T, file string, function interface{}, errCode int, argSt
 			errors = append(errors, occurrence.id)
 		}
 	}
-	assert.Contains(errors, errCode)
+
+	if errCode != 0 {
+		assert.Contains(errors, errCode)
+	}
+	return
+}
+
+func runTestInNamespace(t *testing.T, namespace string, file string, function interface{}, errCode ...int) {
+	rootConfig.namespace = namespace
+	var results = runTest(t, file, function, 0)
+	var errors []int
+	for _, result := range results {
+		for _, occurrence := range result.Occurrences {
+			errors = append(errors, occurrence.id)
+			assert.Contains(t, errCode, occurrence.id)
+		}
+	}
+	assert.Equal(t, len(errCode), len(errors))
+	rootConfig.namespace = apiv1.NamespaceAll
 }
