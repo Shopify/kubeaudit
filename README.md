@@ -14,6 +14,7 @@ privileged, ... You get the gist of it and more on that later. Just know:
 - [Installation](#installation)
 - [General instructions](#general)
 - [Audits](#audits)
+- [Override Labels](#labels)
 - [Contribute!](#contribute)
 
 <a name="installation" />
@@ -160,7 +161,7 @@ WARN[0000] Privileged defaults to false, which results in non privileged, which 
 #### Audit capabilities
 
 Docker comes with a couple of capabilities that shouldn't be needed and
-therefore should be dropped. It will also complain about added capabilities.
+therefore should be dropped. `kubeaudit` will also complain about added capabilities.
 
 If the capabilities field doesn't exist within the security context:
 
@@ -173,14 +174,7 @@ When capabilities were added:
 
 ```sh
 kubeaudiit -l caps
-ERRO[0000] Capabilities were added!
-```
-
-When no capabilities were dropped:
-
-```sh
-kubeaudiit -l caps
-ERRO[0000] No capabilities were dropped!
+ERRO[0000] Capability added  CapName=NET_ADMIN
 ```
 
 [`config/caps`](https://github.com/Shopify/kubeaudit/blob/master/config/capabilities-drop-list.yml)
@@ -190,7 +184,7 @@ them not being dropped:
 
 ```sh
 kubeaudiit -l caps
-ERRO[0000] Not all of the recommended capabilities were dropped! Please drop the mentioned capabiliites. CapsNotDropped="[AUDIT_WRITE]"
+ERRO[0000] Capability not dropped  CapName=AUDIT_WRITE
 ```
 
 <a name="image" />
@@ -233,7 +227,7 @@ ERRO[0000] Default serviceAccount with token mounted. Please set AutomountServic
 1.  A deprecated service account:
 ```sh
 kubeaudit -l sat
-WARN[0000] serviceAccount is a depreciated alias for ServiceAccountName, use that one instead  DSA=DeprecatedServiceAccount
+WARN[0000] serviceAccount is a deprecated alias for ServiceAccountName, use that one instead  DSA=DeprecatedServiceAccount
 ```
 
 <a name="netpol" />
@@ -245,7 +239,7 @@ installed. See [Kubernetes Network Policies](https://Kubernetes.io/docs/concepts
 for more information:
 
 ```sh
-# don't specify -l or -c to run inside the clsuter
+# don't specify -l or -c to run inside the cluster
 kubeaudit np
 WARN[0000] Default allow mode on test/testing
 ```
@@ -269,6 +263,105 @@ With the `--cpu` and `--memory` parameters, `kubeaudit` can check the limits not
 kubeaudit -l limits --cpu 500m --memory 125Mi
 WARN[0000] CPU limit exceeded, it is set to 1 but it must not exceed 500m. Please adjust it! !
 WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125Mi. Please adjust it!
+```
+
+<a name="labels" />
+
+## Override Labels
+
+Override labels give you the ability to have `kubeaudit` allow certain audits to fail.
+For example, if you want `kubeaudit` to ignore the fact that `AllowPrivilegeEscalation` was set to `true`, you can add the following label:
+
+```sh
+spec:
+  template:
+    metadata:
+      labels:
+        apps: YourAppNameHere
+        kubeaudit.allow.privilegeEscalation: "YourReasonForOverrideHere"
+```
+
+Any label with a non-nil reason string will prevent `kubeaudit` from throwing the corresponding error and issue a warning instead.
+Reasons matching `"true"` (not case sensitive) will be displayed as `Unspecified`.
+
+`kubeaudit` supports many labels:
+- [kubeaudit.allow.privilegeEscalation](#allowpe_label)
+- [kubeaudit.allow.privileged](#priv_label)
+- [kubeaudit.allow.capability](#caps_label)
+- [kubeaudit.allow.runAsRoot](#nonroot_label)
+- [kubeaudit.allow.automountServiceAccountToken](#sat_label)
+- [kubeaudit.allow.readOnlyRootFilesystemFalse](#rootfs_label)
+
+<a name="allowpe_label"/>
+
+### kubeaudit.allow.privilegeEscalation
+
+Allows `allowPrivilegeEscalation` to be set to `true`.
+
+```sh
+kubeaudit.allow.privilegeEscalation: "Superuser privileges needed"
+
+WARN[0000] Allowed setting AllowPrivilegeEscalation to true  Reason="Superuser privileges needed"
+```
+
+<a name="priv_label"/>
+
+### kubeaudit.allow.privileged
+
+Allows `privileged` to be set to `true`.
+
+```sh
+kubeaudit.allow.privileged: "Privileged execution required"
+
+WARN[0000] Allowed setting privileged to true                Reason="Privileged execution required"
+```
+
+<a name="caps_label"/>
+
+### kubeaudit.allow.capability
+
+Allows adding a capability or keeping one that would otherwise be dropped.
+
+```sh
+kubeaudit.allow.capability.chown: "true"
+
+WARN[0000] Capability allowed                                CapName=CHOWN Reason=Unspecified
+```
+
+<a name="nonroot_label"/>
+
+### kubeaudit.allow.runAsRoot
+
+Allows setting `runAsNonRoot` to `false`.
+
+```sh
+kubeaudit.allow.runAsRoot: "Root privileges needed"
+
+WARN[0000] Allowed setting RunAsNonRoot to false             Reason="Root privileges needed"
+```
+
+<a name="sat_label"/>
+
+### kubeaudit.automountServiceAccountToken
+
+Allows setting `automountServiceAccountToken` to `true`.
+
+```sh
+kubeaudit.allow.autmountServiceAccountToken: "True"
+
+WARN[0000] Allowed setting automountServiceAccountToken to true  Reason=Unspecified
+```
+
+<a name="rootfs_label"/>
+
+### kubeaudit.readOnlyRootFilesystemFalse
+
+Allows setting `readOnlyRootFilesystem` to `false`
+
+```sh
+kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"
+
+WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permissions needed"
 ```
 
 <a name="contribute" />

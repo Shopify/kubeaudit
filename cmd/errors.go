@@ -4,16 +4,20 @@ const (
 	_ = iota
 	KubeauditInternalError
 	ErrorAllowPrivilegeEscalationNIL
+	ErrorAllowPrivilegeEscalationTrueAllowed
 	ErrorAllowPrivilegeEscalationTrue
-	ErrorCapabilitiesAdded
+	ErrorCapabilityAdded
+	ErrorCapabilityAllowed
 	ErrorCapabilitiesNIL
 	ErrorCapabilitiesNoneDropped
-	ErrorCapabilitiesSomeDropped
+	ErrorCapabilityNotDropped
 	ErrorImageTagIncorrect
 	ErrorImageTagMissing
 	ErrorPrivilegedNIL
 	ErrorPrivilegedTrue
+	ErrorPrivilegedTrueAllowed
 	ErrorReadOnlyRootFilesystemFalse
+	ErrorReadOnlyRootFilesystemFalseAllowed
 	ErrorReadOnlyRootFilesystemNIL
 	ErrorResourcesLimitsNIL
 	ErrorResourcesLimitsCpuNIL
@@ -22,11 +26,13 @@ const (
 	ErrorResourcesLimitsMemoryExceeded
 	ErrorRunAsNonRootFalse
 	ErrorRunAsNonRootNIL
+	ErrorRunAsNonRootFalseAllowed
 	ErrorSecurityContextNIL
 	ErrorServiceAccountTokenDeprecated
-	ErrorServiceAccountTokenNIL
-	ErrorServiceAccountTokenNILAndNoName
+	ErrorAutomountServiceAccountTokenNILAndNoName
 	ErrorServiceAccountTokenNoName
-	ErrorServiceAccountTokenTrueAndNoName
+	ErrorAutomountServiceAccountTokenTrueAndNoName
+	ErrorAutomountServiceAccountTokenTrueAllowed
+	ErrorMisconfiguredKubeauditAllow
 	InfoImageCorrect
 )

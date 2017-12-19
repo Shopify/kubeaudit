@@ -7,29 +7,27 @@ import (
 )
 
 type Result struct {
-	Err            int
-	Occurrences    []Occurrence
-	Namespace      string
-	Name           string
-	CapsAdded      []Capability
-	ImageName      string
-	CapsDropped    []Capability
-	CapsNotDropped []Capability
-	KubeType       string
-	DSA            string
-	SA             string
-	Token          *bool
-	ImageTag       string
 	CPULimitActual string
 	CPULimitMax    string
+	DSA            string
+	Err            int
+	ImageName      string
+	ImageTag       string
+	KubeType       string
+	Labels         map[string]string
 	MEMLimitActual string
 	MEMLimitMax    string
+	Name           string
+	Namespace      string
+	Occurrences    []Occurrence
+	SA             string
+	Token          *bool
 }
 
 func (res Result) Print() {
 	for _, occ := range res.Occurrences {
 		if occ.kind <= KubeauditLogLevels[rootConfig.verbose] {
-			logger := log.WithFields(createFields(res, occ.id))
+			logger := log.WithFields(createFields(res, occ))
 			switch occ.kind {
 			case Debug:
 				logger.Debug(occ.message)
@@ -44,14 +42,17 @@ func (res Result) Print() {
 	}
 }
 
-func createFields(res Result, err int) (fields log.Fields) {
+func createFields(res Result, occ Occurrence) (fields log.Fields) {
 	fields = log.Fields{}
 	v := reflect.ValueOf(res)
-	for _, member := range shouldLog(err) {
+	for _, member := range shouldLog(occ.id) {
 		value := v.FieldByName(member)
 		if value.IsValid() && value.Interface() != nil && value.Interface() != "" {
 			fields[member] = value.Interface()
 		}
+	}
+	for k, v := range occ.metadata {
+		fields[k] = v
 	}
 	return
 }
@@ -59,10 +60,6 @@ func createFields(res Result, err int) (fields log.Fields) {
 func shouldLog(err int) (members []string) {
 	members = []string{"Name", "Namespace", "KubeType"}
 	switch err {
-	case ErrorCapabilitiesAdded:
-		members = append(members, "CapsAdded")
-	case ErrorCapabilitiesSomeDropped:
-		members = append(members, "CapsNotDropped")
 	case ErrorServiceAccountTokenDeprecated:
 		members = append(members, "DSA")
 		members = append(members, "SA")

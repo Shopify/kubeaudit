@@ -2,18 +2,16 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: cababilitiesAdded
-  namespace: fakeDeploymentSC
+  name: allow_run_as_root
+  namespace: fakeDeploymentRANR
 spec:
   template:
     metadata:
       labels:
         apps: fakeSecurityContext
+        kubeaudit.allow.runAsRoot: "Superuser privileges needed"
     spec:
       containers:
-      - name: fakeContainerSC
+      - name: fakeContainerRANR
         securityContext:
-          capabilities:
-            add:
-            - NET_ADMIN
-            - SYS_TIME
+            runAsNonRoot: false

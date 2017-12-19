@@ -10,15 +10,7 @@ func TestRecommendedCapabilitiesToBeDropped(t *testing.T) {
 	assert := assert.New(t)
 	capabilities, err := recommendedCapabilitiesToBeDropped()
 	assert.Nil(err)
-	assert.Equal([]Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}, capabilities, "")
-}
-
-func TestCapsNotDropped(t *testing.T) {
-	assert := assert.New(t)
-	caps := []Capability{"CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}
-	notDropped, err := capsNotDropped(caps)
-	assert.Nil(err)
-	assert.Equal([]Capability{"AUDIT_WRITE"}, notDropped, "")
+	assert.Equal(arrayToCapSet([]Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}), capabilities, "")
 }
 
 func TestSecurityContextNIL_SC(t *testing.T) {
@@ -30,13 +22,17 @@ func TestCapabilitiesNIL(t *testing.T) {
 }
 
 func TestCapabilitiesAdded(t *testing.T) {
-	runTest(t, "capabilities_added.yml", auditCapabilities, ErrorCapabilitiesAdded)
+	runTest(t, "capabilities_added.yml", auditCapabilities, ErrorCapabilityAdded)
 }
 
-func TestCapabilitiesNoneDropped(t *testing.T) {
-	runTest(t, "capabilities_none_dropped.yml", auditCapabilities, ErrorCapabilitiesNoneDropped)
+func TestCapabilitiesSomeAllowed(t *testing.T) {
+	runTest(t, "capabilities_some_allowed.yml", auditCapabilities, ErrorCapabilityAllowed)
 }
 
 func TestCapabilitiesSomeDropped(t *testing.T) {
-	runTest(t, "capabilities_some_dropped.yml", auditCapabilities, ErrorCapabilitiesSomeDropped)
+	runTest(t, "capabilities_some_dropped.yml", auditCapabilities, ErrorCapabilityNotDropped)
+}
+
+func TestCapabilitiesMisconfiguredAllow(t *testing.T) {
+	runTest(t, "capabilities_misconfigured_allow.yml", auditCapabilities, ErrorMisconfiguredKubeauditAllow)
 }

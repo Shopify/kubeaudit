@@ -7,3 +7,4 @@
 /vendor
 coverage.txt
 /dist
+*.swp

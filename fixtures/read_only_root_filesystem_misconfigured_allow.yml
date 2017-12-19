@@ -1,0 +1,17 @@
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: fakeStatefulSetRORF3
+  namespace: fakeStatefulSetRORF
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakeReadOnlyRootFilesystem
+        kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"
+    spec:
+      containers:
+      - name: fakeContainerRORF
+        securityContext:
+          readOnlyRootFilesystem: true

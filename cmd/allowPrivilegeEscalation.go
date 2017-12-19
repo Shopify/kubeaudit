@@ -7,20 +7,48 @@ import (
 
 func checkAllowPrivilegeEscalation(container Container, result *Result) {
 	if container.SecurityContext == nil {
-		occ := Occurrence{id: ErrorSecurityContextNIL, kind: Error, message: "SecurityContext not set, please set it!"}
+		occ := Occurrence{
+			id:      ErrorSecurityContextNIL,
+			kind:    Error,
+			message: "SecurityContext not set, please set it!",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
-	if container.SecurityContext.AllowPrivilegeEscalation == nil {
-		occ := Occurrence{id: ErrorAllowPrivilegeEscalationNIL, kind: Error, message: "AllowPrivilegeEscalation not set which allows privilege escalation, please set to false"}
+	if reason := result.Labels["kubeaudit.allow.privilegeEscalation"]; reason == "" {
+		if container.SecurityContext.AllowPrivilegeEscalation == nil {
+			occ := Occurrence{
+				id:      ErrorAllowPrivilegeEscalationNIL,
+				kind:    Error,
+				message: "AllowPrivilegeEscalation not set which allows privilege escalation, please set to false",
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		} else if *container.SecurityContext.AllowPrivilegeEscalation == true {
+			occ := Occurrence{
+				id:      ErrorAllowPrivilegeEscalationTrue,
+				kind:    Error,
+				message: "AllowPrivilegeEscalation set to true, please set to false",
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
+	} else if container.SecurityContext.AllowPrivilegeEscalation == nil || *container.SecurityContext.AllowPrivilegeEscalation == true {
+		occ := Occurrence{
+			id:       ErrorAllowPrivilegeEscalationTrueAllowed,
+			kind:     Warn,
+			message:  "Allowed AllowPrivilegeEscalation to be set as true",
+			metadata: Metadata{"Reason": prettifyReason(reason)},
+		}
 		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
-	if *container.SecurityContext.AllowPrivilegeEscalation {
-		occ := Occurrence{id: ErrorAllowPrivilegeEscalationTrue, kind: Error, message: "AllowPrivilegeEscalation set to true, please set to false"}
+	} else {
+		occ := Occurrence{
+			id:       ErrorMisconfiguredKubeauditAllow,
+			kind:     Warn,
+			message:  "Allowed setting AllowPrivilegeEscalation to true, but it is set to false",
+			metadata: Metadata{"Reason": prettifyReason(reason)},
+		}
 		result.Occurrences = append(result.Occurrences, occ)
-		return
 	}
+	return
 }
 
 func auditAllowPrivilegeEscalation(resource k8sRuntime.Object) (results []Result) {
