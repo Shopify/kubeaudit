@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
-	"reflect"
 	"runtime"
 	"sync"
 
@@ -95,81 +95,6 @@ type kubeAuditPods struct {
 
 type kubeAuditReplicationControllers struct {
 	list *ReplicationControllerList
-}
-
-type Result struct {
-	Err            int
-	Occurrences    []Occurrence
-	Namespace      string
-	Name           string
-	CapsAdded      []Capability
-	ImageName      string
-	CapsDropped    []Capability
-	CapsNotDropped []Capability
-	KubeType       string
-	DSA            string
-	SA             string
-	Token          *bool
-	ImageTag       string
-	CPULimitActual string
-	CPULimitMax    string
-	MEMLimitActual string
-	MEMLimitMax    string
-}
-
-func (res Result) Print() {
-	for _, occ := range res.Occurrences {
-		if occ.kind <= KubeauditLogLevels[rootConfig.verbose] {
-			logger := log.WithFields(createFields(res, occ.id))
-			switch occ.kind {
-			case Debug:
-				logger.Debug(occ.message)
-			case Info:
-				logger.Info(occ.message)
-			case Warn:
-				logger.Warn(occ.message)
-			case Error:
-				logger.Error(occ.message)
-			}
-		}
-	}
-}
-
-func createFields(res Result, err int) (fields log.Fields) {
-	fields = log.Fields{}
-	v := reflect.ValueOf(res)
-	for _, member := range shouldLog(err) {
-		value := v.FieldByName(member)
-		if value.IsValid() && value.Interface() != nil && value.Interface() != "" {
-			fields[member] = value.Interface()
-		}
-	}
-	return
-}
-
-func shouldLog(err int) (members []string) {
-	members = []string{"Name", "Namespace", "KubeType"}
-	switch err {
-	case ErrorCapabilitiesAdded:
-		members = append(members, "CapsAdded")
-	case ErrorCapabilitiesSomeDropped:
-		members = append(members, "CapsNotDropped")
-	case ErrorServiceAccountTokenDeprecated:
-		members = append(members, "DSA")
-		members = append(members, "SA")
-	case InfoImageCorrect:
-	case ErrorImageTagMissing:
-	case ErrorImageTagIncorrect:
-		members = append(members, "ImageTag")
-		members = append(members, "ImageName")
-	case ErrorResourcesLimitsCpuExceeded:
-		members = append(members, "CPULimitActual")
-		members = append(members, "CPULimitMax")
-	case ErrorResourcesLimitsMemoryExceeded:
-		members = append(members, "MEMLimitActual")
-		members = append(members, "MEMLimitMax")
-	}
-	return
 }
 
 type Items interface {
@@ -358,7 +283,7 @@ func getKubeResources(clientset *kubernetes.Clientset) (items []Items) {
 }
 
 func getKubeResourcesManifest(config string) (items []Items, err error) {
-	resources, read_err := readConfigFiles(config)
+	resources, read_err := readManifestFile(config)
 	if err != nil {
 		err = read_err
 		return
@@ -380,7 +305,7 @@ func getKubeResourcesManifest(config string) (items []Items, err error) {
 	return
 }
 
-func readConfigFiles(filename string) (decoded []k8sRuntime.Object, err error) {
+func readManifestFile(filename string) (decoded []k8sRuntime.Object, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -400,66 +325,83 @@ func readConfigFiles(filename string) (decoded []k8sRuntime.Object, err error) {
 	return
 }
 
-func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
-	return func(cmd *cobra.Command, args []string) {
-		switch auditFunc.(type) {
-		case (func(image imgFlags, item Items) (results []Result)):
-			if len(imgConfig.img) == 0 {
-				log.Error("Empty image name. Are you missing the image flag?")
-				return
-			}
-			imgConfig.splitImageString()
-			if len(imgConfig.tag) == 0 {
-				log.Error("Empty image tag. Are you missing the image tag?")
-				return
-			}
-		}
-
-		if rootConfig.json {
-			log.SetFormatter(&log.JSONFormatter{})
-		}
-		var resources []Items
-
-		if rootConfig.manifest != "" {
-			var err error
-			resources, err = getKubeResourcesManifest(rootConfig.manifest)
-			if err != nil {
-				log.Error(err)
-			}
-		} else {
-			kube, err := kubeClient(rootConfig.kubeConfig)
-			if err != nil {
-				log.Error(err)
-			}
+func getResources() (resources []Items, err error) {
+	if rootConfig.manifest != "" {
+		resources, err = getKubeResourcesManifest(rootConfig.manifest)
+	} else {
+		if kube, err := kubeClient(rootConfig.kubeConfig); err == nil {
 			resources = getKubeResources(kube)
 		}
+	}
+	return
+}
 
-		var wg sync.WaitGroup
-		wg.Add(len(resources))
+func setFormatter() {
+	if rootConfig.json {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
+}
 
-		resultsChannel := make(chan []Result, 1)
-		go func() { resultsChannel <- []Result{} }()
-		for _, resource := range resources {
-			results := <-resultsChannel
-			go func(item Items) {
-				switch f := auditFunc.(type) {
-				case func(item Items) (results []Result):
-					resultsChannel <- append(results, f(item)...)
-				case func(image imgFlags, item Items) (results []Result):
-					resultsChannel <- append(results, f(imgConfig, item)...)
-				case func(limits limitFlags, item Items) (results []Result):
-					resultsChannel <- append(results, f(limitConfig, item)...)
-				default:
-					log.Fatal("Invalid audit function provided")
-				}
-				wg.Done()
-			}(resource)
+func checkParams(auditFunc interface{}) (err error) {
+	switch auditFunc.(type) {
+	case (func(image imgFlags, item Items) (results []Result)):
+		if len(imgConfig.img) == 0 {
+			return errors.New("Empty image name. Are you missing the image flag?")
 		}
+		imgConfig.splitImageString()
+		if len(imgConfig.tag) == 0 {
+			return errors.New("Empty image tag. Are you missing the image tag?")
+		}
+	}
+	return nil
+}
 
-		wg.Wait()
-		close(resultsChannel)
+func getResults(resources []Items, auditFunc interface{}) []Result {
+	var wg sync.WaitGroup
+	wg.Add(len(resources))
+	resultsChannel := make(chan []Result, 1)
+	go func() { resultsChannel <- []Result{} }()
 
-		for _, result := range <-resultsChannel {
+	for _, resource := range resources {
+		results := <-resultsChannel
+		go func(item Items) {
+			switch f := auditFunc.(type) {
+			case func(item Items) (results []Result):
+				resultsChannel <- append(results, f(item)...)
+			case func(image imgFlags, item Items) (results []Result):
+				resultsChannel <- append(results, f(imgConfig, item)...)
+			case func(limits limitFlags, item Items) (results []Result):
+				resultsChannel <- append(results, f(limitConfig, item)...)
+			default:
+				log.Fatal("Invalid audit function provided")
+			}
+			wg.Done()
+		}(resource)
+	}
+
+	wg.Wait()
+	close(resultsChannel)
+
+	var results []Result
+	for _, result := range <-resultsChannel {
+		results = append(results, result)
+	}
+	return results
+}
+
+func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
+	return func(cmd *cobra.Command, args []string) {
+		if err := checkParams(auditFunc); err != nil {
+			log.Error(err)
+		}
+		setFormatter()
+		resources, err := getResources()
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		results := getResults(resources, auditFunc)
+		for _, result := range results {
 			result.Print()
 		}
 	}
