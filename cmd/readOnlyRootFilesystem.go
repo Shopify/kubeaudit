@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 func checkReadOnlyRootFS(container Container, result *Result) {
@@ -21,19 +23,14 @@ func checkReadOnlyRootFS(container Container, result *Result) {
 	}
 }
 
-func auditReadOnlyRootFS(items Items) (results []Result) {
-	for _, item := range items.Iter() {
-		containers, result := containerIter(item)
-		for _, container := range containers {
-			checkReadOnlyRootFS(container, result)
-			if result != nil && len(result.Occurrences) > 0 {
-				results = append(results, *result)
-				break
-			}
+func auditReadOnlyRootFS(resource k8sRuntime.Object) (results []Result) {
+	for _, container := range getContainers(resource) {
+		result := newResultFromResource(resource)
+		checkReadOnlyRootFS(container, &result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, result)
+			break
 		}
-	}
-	for _, result := range results {
-		result.Print()
 	}
 	return
 }

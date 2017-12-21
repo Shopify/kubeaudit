@@ -9,7 +9,7 @@ func TestDaemonSetInNamespace(t *testing.T) {
 }
 
 func TestDaemonSetNotInNamespace(t *testing.T) {
-	runTestInNamespace(t, "otherFakeDaemonSetPrivileged", "privileged_true.yml", auditPrivileged)
+	runTestInNamespace(t, "otherFakeDaemonSetPrivileged", "privileged_true.yml", auditPrivileged, ErrorPrivilegedTrue)
 }
 
 func TestDeploymentInNamespace(t *testing.T) {
@@ -17,7 +17,7 @@ func TestDeploymentInNamespace(t *testing.T) {
 }
 
 func TestDeploymentNotInNamespace(t *testing.T) {
-	runTestInNamespace(t, "otherFakeDeploymentSC", "capabilities_some_dropped.yml", auditCapabilities)
+	runTestInNamespace(t, "otherFakeDeploymentSC", "capabilities_some_dropped.yml", auditCapabilities, ErrorCapabilitiesSomeDropped)
 }
 
 func TestStatefulSetInNamespace(t *testing.T) {
@@ -25,7 +25,7 @@ func TestStatefulSetInNamespace(t *testing.T) {
 }
 
 func TestStatefulSetNotInNamespace(t *testing.T) {
-	runTestInNamespace(t, "otherFakeStatefulSetRORF", "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS)
+	runTestInNamespace(t, "otherFakeStatefulSetRORF", "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS, ErrorReadOnlyRootFilesystemNIL)
 }
 
 func TestReplicationControllerInNamespace(t *testing.T) {
@@ -33,5 +33,5 @@ func TestReplicationControllerInNamespace(t *testing.T) {
 }
 
 func TestReplicationControllerNotInNamespace(t *testing.T) {
-	runTestInNamespace(t, "otherFakeReplicationControllerASAT", "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken)
+	runTestInNamespace(t, "otherFakeReplicationControllerASAT", "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, ErrorServiceAccountTokenNILAndNoName)
 }

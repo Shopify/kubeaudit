@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 type capsDropList struct {
@@ -85,15 +86,13 @@ func checkCapabilities(container Container, result *Result) {
 	}
 }
 
-func auditCapabilities(items Items) (results []Result) {
-	for _, item := range items.Iter() {
-		containers, result := containerIter(item)
-		for _, container := range containers {
-			checkCapabilities(container, result)
-			if result != nil && len(result.Occurrences) > 0 {
-				results = append(results, *result)
-				break
-			}
+func auditCapabilities(resource k8sRuntime.Object) (results []Result) {
+	for _, container := range getContainers(resource) {
+		result := newResultFromResource(resource)
+		checkCapabilities(container, &result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, result)
+			break
 		}
 	}
 	return
