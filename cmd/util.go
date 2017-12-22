@@ -13,9 +13,19 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 )
+
+func newTrue() *bool {
+	b := true
+	return &b
+}
+
+func newFalse() *bool {
+	return new(bool)
+}
 
 func debugPrint() {
 	if rootConfig.verbose == "DEBUG" {
@@ -31,22 +41,6 @@ func isInRootConfigNamespace(meta metav1.ObjectMeta) (valid bool) {
 
 func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
-}
-
-func getContainers(resource k8sRuntime.Object) (container []Container) {
-	switch kubeType := resource.(type) {
-	case *DaemonSet:
-		container = kubeType.Spec.Template.Spec.Containers
-	case *Deployment:
-		container = kubeType.Spec.Template.Spec.Containers
-	case *Pod:
-		container = kubeType.Spec.Containers
-	case *ReplicationController:
-		container = kubeType.Spec.Template.Spec.Containers
-	case *StatefulSet:
-		container = kubeType.Spec.Template.Spec.Containers
-	}
-	return container
 }
 
 func newResultFromResource(resource k8sRuntime.Object) (result Result) {
@@ -136,6 +130,27 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.O
 	return
 }
 
+func writeManifestFile(filename string, decoded []k8sRuntime.Object) error {
+	for _, decode := range decoded {
+		info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
+		groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
+		encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
+		yaml, err := k8sRuntime.Encode(encoder, decode)
+		if err != nil {
+			log.Error("Encoding Error")
+			log.Error(err)
+			log.Errorf("%v", decode)
+			return err
+		}
+		err = ioutil.WriteFile(filename, yaml, 0644)
+		if err != nil {
+			log.Error("Write Error")
+			return err
+		}
+	}
+	return nil
+}
+
 func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
@@ -223,11 +238,13 @@ func getResults(resources []k8sRuntime.Object, auditFunc interface{}) []Result {
 func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		if err := checkParams(auditFunc); err != nil {
+			log.Error("Parameter check failed")
 			log.Error(err)
 		}
 		setFormatter()
 		resources, err := getResources()
 		if err != nil {
+			log.Error("getResources failed")
 			log.Error(err)
 			return
 		}

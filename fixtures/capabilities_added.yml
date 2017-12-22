@@ -1,17 +1,20 @@
----
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
+  creationTimestamp: null
   name: cababilitiesAdded
   namespace: fakeDeploymentSC
 spec:
+  strategy: {}
   template:
     metadata:
+      creationTimestamp: null
       labels:
         apps: fakeSecurityContext
     spec:
       containers:
       - name: fakeContainerSC
+        resources: {}
         securityContext:
           capabilities:
             add:
@@ -32,3 +35,4 @@ spec:
             - SETUID
             - SETPCAP
             - SYS_CHROOT
+status: {}

@@ -73,3 +73,27 @@ func runAuditTestInNamespace(t *testing.T, namespace string, file string, functi
 	runAuditTest(t, file, function, errCodes)
 	rootConfig.namespace = apiv1.NamespaceAll
 }
+
+func NewPod() *Pod {
+	return &Pod{
+		ObjectMeta: ObjectMeta{
+			Namespace: "namespace",
+			Name:      "name",
+			Labels: map[string]string{
+				"label": "label",
+			},
+			Annotations: map[string]string{
+				"annotation": "annotation",
+			},
+		},
+		Spec: PodSpec{
+			Containers: []Container{
+				{
+					Image:   "image",
+					Name:    "container",
+					Command: []string{"sh", "-c", "command"},
+				},
+			},
+		},
+	}
+}
