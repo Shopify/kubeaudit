@@ -1,15 +1,19 @@
----
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
+  creationTimestamp: null
   name: fakeDeploymentImg2
   namespace: fakeDeploymentImg
 spec:
+  strategy: {}
   template:
     metadata:
+      creationTimestamp: null
       labels:
         apps: fakeImage
     spec:
       containers:
-      - name: fakeContainerImg
-        image: fakeContainerImg:1.5
+      - image: fakeContainerImg:1.5
+        name: fakeContainerImg
+        resources: {}
+status: {}

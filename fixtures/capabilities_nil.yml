@@ -1,16 +1,19 @@
----
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
+  creationTimestamp: null
   name: fakeDeploymentSC2
   namespace: fakeDeploymentSC
 spec:
+  strategy: {}
   template:
     metadata:
+      creationTimestamp: null
       labels:
         apps: fakeSecurityContext
     spec:
       containers:
       - name: fakeContainerSC
-        securityContext:
-          capabilities: 
+        resources: {}
+        securityContext: {}
+status: {}

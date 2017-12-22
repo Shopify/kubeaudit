@@ -1,16 +1,22 @@
----
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
+  creationTimestamp: null
   name: fakeStatefulSetRORF3
   namespace: fakeStatefulSetRORF
 spec:
+  serviceName: ""
   template:
     metadata:
+      creationTimestamp: null
       labels:
         apps: fakeReadOnlyRootFilesystem
     spec:
       containers:
       - name: fakeContainerRORF
+        resources: {}
         securityContext:
           readOnlyRootFilesystem: false
+  updateStrategy: {}
+status:
+  replicas: 0
