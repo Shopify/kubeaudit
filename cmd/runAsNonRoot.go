@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 func checkRunAsNonRoot(container Container, result *Result) {
@@ -21,15 +23,13 @@ func checkRunAsNonRoot(container Container, result *Result) {
 	}
 }
 
-func auditRunAsNonRoot(items Items) (results []Result) {
-	for _, item := range items.Iter() {
-		containers, result := containerIter(item)
-		for _, container := range containers {
-			checkRunAsNonRoot(container, result)
-			if result != nil && len(result.Occurrences) > 0 {
-				results = append(results, *result)
-				break
-			}
+func auditRunAsNonRoot(resource k8sRuntime.Object) (results []Result) {
+	for _, container := range getContainers(resource) {
+		result := newResultFromResource(resource)
+		checkRunAsNonRoot(container, &result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, result)
+			break
 		}
 	}
 	return

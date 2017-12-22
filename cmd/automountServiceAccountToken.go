@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 func checkAutomountServiceAccountToken(result *Result) {
@@ -27,19 +28,15 @@ func checkAutomountServiceAccountToken(result *Result) {
 	}
 }
 
-func auditAutomountServiceAccountToken(items Items) (results []Result) {
-	for _, item := range items.Iter() {
-		result := ServiceAccountIter(item)
-		checkAutomountServiceAccountToken(result)
-
-		if result != nil && len(result.Occurrences) > 0 {
-			results = append(results, *result)
-		}
+func auditAutomountServiceAccountToken(resource k8sRuntime.Object) (results []Result) {
+	result := newResultFromResourceWithServiceAccountInfo(resource)
+	checkAutomountServiceAccountToken(&result)
+	if len(result.Occurrences) > 0 {
+		results = append(results, result)
 	}
 	return
 }
 
-// satCmd represents the sat command
 var satCmd = &cobra.Command{
 	Use:   "sat",
 	Short: "Audit automountServiceAccountToken = true pods against an empty (default) service account",

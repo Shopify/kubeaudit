@@ -32,280 +32,105 @@ func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
 }
 
-func convertDeploymentToDeploymentList(deployment Deployment) (deploymentList *DeploymentList) {
-	if isInRootConfigNamespace(deployment.ObjectMeta) {
-		deploymentList = &DeploymentList{Items: []Deployment{deployment}}
-	} else {
-		deploymentList = &DeploymentList{Items: []Deployment{}}
+func getContainers(resource k8sRuntime.Object) (container []Container) {
+	switch kubeType := resource.(type) {
+	case *DaemonSet:
+		container = kubeType.Spec.Template.Spec.Containers
+	case *Deployment:
+		container = kubeType.Spec.Template.Spec.Containers
+	case *Pod:
+		container = kubeType.Spec.Containers
+	case *ReplicationController:
+		container = kubeType.Spec.Template.Spec.Containers
+	case *StatefulSet:
+		container = kubeType.Spec.Template.Spec.Containers
+	}
+	return container
+}
+
+func newResultFromResource(resource k8sRuntime.Object) (result Result) {
+	switch kubeType := resource.(type) {
+	case *DaemonSet:
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+		result.KubeType = "daemonSet"
+	case *Deployment:
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+		result.KubeType = "deployment"
+	case *Pod:
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+		result.KubeType = "pod"
+	case *ReplicationController:
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+		result.KubeType = "replicationController"
+	case *StatefulSet:
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+		result.KubeType = "statefulSet"
 	}
 	return
 }
 
-func convertDaemonSetToDaemonSetList(daemonSet DaemonSet) (daemonSetList *DaemonSetList) {
-	if isInRootConfigNamespace(daemonSet.ObjectMeta) {
-		daemonSetList = &DaemonSetList{Items: []DaemonSet{daemonSet}}
-	} else {
-		daemonSetList = &DaemonSetList{Items: []DaemonSet{}}
+func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) Result {
+	result := newResultFromResource(resource)
+	switch kubeType := resource.(type) {
+	case *DaemonSet:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+	case *Deployment:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+	case *Pod:
+		result.DSA = kubeType.Spec.DeprecatedServiceAccount
+		result.Token = kubeType.Spec.AutomountServiceAccountToken
+		result.SA = kubeType.Spec.ServiceAccountName
+	case *ReplicationController:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+	case *StatefulSet:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 	}
-	return
+	return result
 }
 
-func convertPodToPodList(pod Pod) (podList *PodList) {
-	if isInRootConfigNamespace(pod.ObjectMeta) {
-		podList = &PodList{Items: []Pod{pod}}
-	} else {
-		podList = &PodList{Items: []Pod{}}
-	}
-	return
-}
-
-func convertStatefulSetToStatefulSetList(statefulSet StatefulSet) (statefulSetList *StatefulSetList) {
-	if isInRootConfigNamespace(statefulSet.ObjectMeta) {
-		statefulSetList = &StatefulSetList{Items: []StatefulSet{statefulSet}}
-	} else {
-		statefulSetList = &StatefulSetList{Items: []StatefulSet{}}
-	}
-	return
-}
-
-func convertReplicationControllerToReplicationList(replicationController ReplicationController) (replicationControllerList *ReplicationControllerList) {
-	if isInRootConfigNamespace(replicationController.ObjectMeta) {
-		replicationControllerList = &ReplicationControllerList{Items: []ReplicationController{replicationController}}
-	} else {
-		replicationControllerList = &ReplicationControllerList{Items: []ReplicationController{}}
-	}
-	return
-}
-
-type kubeAuditDeployments struct {
-	list *DeploymentList
-}
-
-type kubeAuditStatefulSets struct {
-	list *StatefulSetList
-}
-
-type kubeAuditDaemonSets struct {
-	list *DaemonSetList
-}
-
-type kubeAuditPods struct {
-	list *PodList
-}
-
-type kubeAuditReplicationControllers struct {
-	list *ReplicationControllerList
-}
-
-type Items interface {
-	Iter() []interface{}
-}
-
-func (deployments kubeAuditDeployments) Iter() (it []interface{}) {
-	for _, deployment := range deployments.list.Items {
-		it = append(it, deployment)
-	}
-	return
-}
-
-func (statefulSets kubeAuditStatefulSets) Iter() (it []interface{}) {
-	for _, statefulSet := range statefulSets.list.Items {
-		it = append(it, statefulSet)
-	}
-	return
-}
-
-func (daemonSets kubeAuditDaemonSets) Iter() (it []interface{}) {
-	for _, daemonSet := range daemonSets.list.Items {
-		it = append(it, daemonSet)
-	}
-	return
-}
-
-func (pods kubeAuditPods) Iter() (it []interface{}) {
-	count := 0
-	for _, pod := range pods.list.Items {
-		if rootConfig.allPods {
-			if pod.OwnerReferences == nil {
-				it = append(it, pod)
-				count = count + 1
-			}
-
-		} else {
-			if pod.OwnerReferences == nil && pod.Status.Phase == "Running" {
-				it = append(it, pod)
-				count = count + 1
-			}
+func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.Object) {
+	for _, resource := range getDaemonSets(clientset).Items {
+		if isInRootConfigNamespace(resource.ObjectMeta) {
+			resources = append(resources, resource.DeepCopyObject())
 		}
 	}
-	it = it[:count]
-	return
-}
-
-func (replicationControllers kubeAuditReplicationControllers) Iter() (it []interface{}) {
-	for _, replicationController := range replicationControllers.list.Items {
-		it = append(it, replicationController)
+	for _, resource := range getDeployments(clientset).Items {
+		if isInRootConfigNamespace(resource.ObjectMeta) {
+			resources = append(resources, resource.DeepCopyObject())
+		}
 	}
-	return
-}
-
-func containerIter(t interface{}) (containers []Container, result *Result) {
-	switch kubeType := t.(type) {
-	case Deployment:
-		containers = kubeType.Spec.Template.Spec.Containers
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			KubeType:  "deployment",
+	for _, resource := range getPods(clientset).Items {
+		if isInRootConfigNamespace(resource.ObjectMeta) {
+			resources = append(resources, resource.DeepCopyObject())
 		}
-		return
-
-	case StatefulSet:
-		containers = kubeType.Spec.Template.Spec.Containers
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			KubeType:  "statefulSet",
-		}
-		return
-
-	case DaemonSet:
-		containers = kubeType.Spec.Template.Spec.Containers
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			KubeType:  "daemonSet",
-		}
-		return
-
-	case Pod:
-		containers = kubeType.Spec.Containers
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			KubeType:  "pod",
-		}
-		return
-
-	case ReplicationController:
-		containers = kubeType.Spec.Template.Spec.Containers
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			KubeType:  "replicationController",
-		}
-		return
-
-	default:
-		return
 	}
-}
-
-func ServiceAccountIter(t interface{}) (result *Result) {
-	switch kubeType := t.(type) {
-	case Deployment:
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			DSA:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
-			Token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
-			SA:        kubeType.Spec.Template.Spec.ServiceAccountName,
-			KubeType:  "deployment",
+	for _, resource := range getReplicationControllers(clientset).Items {
+		if isInRootConfigNamespace(resource.ObjectMeta) {
+			resources = append(resources, resource.DeepCopyObject())
 		}
-		return
-
-	case StatefulSet:
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			DSA:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
-			Token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
-			SA:        kubeType.Spec.Template.Spec.ServiceAccountName,
-			KubeType:  "statefulSet",
-		}
-		return
-
-	case DaemonSet:
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			DSA:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
-			Token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
-			SA:        kubeType.Spec.Template.Spec.ServiceAccountName,
-			KubeType:  "daemonSet",
-		}
-		return
-
-	case Pod:
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			DSA:       kubeType.Spec.DeprecatedServiceAccount,
-			Token:     kubeType.Spec.AutomountServiceAccountToken,
-			SA:        kubeType.Spec.ServiceAccountName,
-			KubeType:  "pod",
-		}
-		return
-
-	case ReplicationController:
-		result = &Result{
-			Name:      kubeType.Name,
-			Namespace: kubeType.Namespace,
-			DSA:       kubeType.Spec.Template.Spec.DeprecatedServiceAccount,
-			Token:     kubeType.Spec.Template.Spec.AutomountServiceAccountToken,
-			SA:        kubeType.Spec.Template.Spec.ServiceAccountName,
-			KubeType:  "replicationController",
-		}
-		return
-
-	default:
-		return
-
 	}
-}
-
-func getKubeResources(clientset *kubernetes.Clientset) (items []Items) {
-	// fetch deployments, statefulsets, daemonsets
-	// and pods which do not belong to another abstraction
-	deployments := getDeployments(clientset)
-	statefulSets := getStatefulSets(clientset)
-	daemonSets := getDaemonSets(clientset)
-	pods := getPods(clientset)
-	replicationControllers := getReplicationControllers(clientset)
-
-	items = append(items, kubeAuditDeployments{deployments})
-	items = append(items, kubeAuditStatefulSets{statefulSets})
-	items = append(items, kubeAuditDaemonSets{daemonSets})
-	items = append(items, kubeAuditPods{pods})
-	items = append(items, kubeAuditReplicationControllers{replicationControllers})
-
-	return
-}
-
-func getKubeResourcesManifest(config string) (items []Items, err error) {
-	resources, read_err := readManifestFile(config)
-	if err != nil {
-		err = read_err
-		return
-	}
-	for _, resource := range resources {
-		switch resource := resource.(type) {
-		case *Deployment:
-			items = append(items, kubeAuditDeployments{list: convertDeploymentToDeploymentList(*resource)})
-		case *StatefulSet:
-			items = append(items, kubeAuditStatefulSets{list: convertStatefulSetToStatefulSetList(*resource)})
-		case *DaemonSet:
-			items = append(items, kubeAuditDaemonSets{list: convertDaemonSetToDaemonSetList(*resource)})
-		case *Pod:
-			items = append(items, kubeAuditPods{list: convertPodToPodList(*resource)})
-		case *ReplicationController:
-			items = append(items, kubeAuditReplicationControllers{list: convertReplicationControllerToReplicationList(*resource)})
+	for _, resource := range getStatefulSets(clientset).Items {
+		if isInRootConfigNamespace(resource.ObjectMeta) {
+			resources = append(resources, resource.DeepCopyObject())
 		}
 	}
 	return
 }
 
-func readManifestFile(filename string) (decoded []k8sRuntime.Object, err error) {
+func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -325,7 +150,7 @@ func readManifestFile(filename string) (decoded []k8sRuntime.Object, err error) 
 	return
 }
 
-func getResources() (resources []Items, err error) {
+func getResources() (resources []k8sRuntime.Object, err error) {
 	if rootConfig.manifest != "" {
 		resources, err = getKubeResourcesManifest(rootConfig.manifest)
 	} else {
@@ -344,7 +169,7 @@ func setFormatter() {
 
 func checkParams(auditFunc interface{}) (err error) {
 	switch auditFunc.(type) {
-	case (func(image imgFlags, item Items) (results []Result)):
+	case (func(image imgFlags, resource k8sRuntime.Object) (results []Result)):
 		if len(imgConfig.img) == 0 {
 			return errors.New("Empty image name. Are you missing the image flag?")
 		}
@@ -356,7 +181,7 @@ func checkParams(auditFunc interface{}) (err error) {
 	return nil
 }
 
-func getResults(resources []Items, auditFunc interface{}) []Result {
+func getResults(resources []k8sRuntime.Object, auditFunc interface{}) []Result {
 	var wg sync.WaitGroup
 	wg.Add(len(resources))
 	resultsChannel := make(chan []Result, 1)
@@ -364,14 +189,14 @@ func getResults(resources []Items, auditFunc interface{}) []Result {
 
 	for _, resource := range resources {
 		results := <-resultsChannel
-		go func(item Items) {
+		go func(resource k8sRuntime.Object) {
 			switch f := auditFunc.(type) {
-			case func(item Items) (results []Result):
-				resultsChannel <- append(results, f(item)...)
-			case func(image imgFlags, item Items) (results []Result):
-				resultsChannel <- append(results, f(imgConfig, item)...)
-			case func(limits limitFlags, item Items) (results []Result):
-				resultsChannel <- append(results, f(limitConfig, item)...)
+			case func(resource k8sRuntime.Object) (results []Result):
+				resultsChannel <- append(results, f(resource)...)
+			case func(image imgFlags, resource k8sRuntime.Object) (results []Result):
+				resultsChannel <- append(results, f(imgConfig, resource)...)
+			case func(limits limitFlags, resource k8sRuntime.Object) (results []Result):
+				resultsChannel <- append(results, f(limitConfig, resource)...)
 			default:
 				log.Fatal("Invalid audit function provided")
 			}

@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 var imgConfig imgFlags
@@ -50,15 +51,13 @@ func checkImage(container Container, image imgFlags, result *Result) {
 	}
 }
 
-func auditImages(image imgFlags, items Items) (results []Result) {
-	for _, item := range items.Iter() {
-		containers, result := containerIter(item)
-		for _, container := range containers {
-			checkImage(container, image, result)
-			if result != nil && len(result.Occurrences) > 0 {
-				results = append(results, *result)
-				break
-			}
+func auditImages(image imgFlags, resource k8sRuntime.Object) (results []Result) {
+	for _, container := range getContainers(resource) {
+		result := newResultFromResource(resource)
+		checkImage(container, image, &result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, result)
+			break
 		}
 	}
 	for _, result := range results {

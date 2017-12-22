@@ -15,12 +15,9 @@ import (
 
 func kubeClientConfig(kubeconfig string) (*rest.Config, error) {
 	if kubeconfig == "" && !rootConfig.localMode {
-		fmt.Println("Inside cluster. Not using kube config")
-		// creates the in-cluster config
+		fmt.Println("Running inside cluster, using the cluster config")
 		return rest.InClusterConfig()
 	}
-
-	// generate config from kubectl config current-context
 	return clientcmd.BuildConfigFromFlags("", kubeconfig)
 }
 

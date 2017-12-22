@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 func checkPrivileged(container Container, result *Result) {
@@ -23,15 +25,13 @@ func checkPrivileged(container Container, result *Result) {
 	}
 }
 
-func auditPrivileged(items Items) (results []Result) {
-	for _, item := range items.Iter() {
-		containers, result := containerIter(item)
-		for _, container := range containers {
-			checkPrivileged(container, result)
-			if result != nil && len(result.Occurrences) > 0 {
-				results = append(results, *result)
-				break
-			}
+func auditPrivileged(resource k8sRuntime.Object) (results []Result) {
+	for _, container := range getContainers(resource) {
+		result := newResultFromResource(resource)
+		checkPrivileged(container, &result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, result)
+			break
 		}
 	}
 	for _, result := range results {
