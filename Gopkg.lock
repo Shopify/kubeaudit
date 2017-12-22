@@ -62,6 +62,12 @@
   revision = "f3f9494671f93fcff853e3c6e9e948b3eb71e590"
 
 [[projects]]
+  name = "github.com/go-test/deep"
+  packages = ["."]
+  revision = "9898238679c264cfb10411539f14a0553dc8b295"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/gogo/protobuf"
   packages = ["proto","sortkeys"]
   revision = "342cbe0a04158f6dcb03ca0079991a51a4248c02"
@@ -262,6 +268,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "373e69515448e7aff2725117b3ca38bf005c4d156b5bc5de82368c7d8e00ced7"
+  inputs-digest = "5f16b7e1739c7ca9eb4037e66b484b3e70df0e04e7b27b0277365e7b6cb28476"
   solver-name = "gps-cdcl"
   solver-version = 1

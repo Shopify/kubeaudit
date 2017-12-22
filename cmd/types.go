@@ -14,6 +14,10 @@ type DaemonSet = extensionsv1beta1.DaemonSet
 type Deployment = v1beta1.Deployment
 type StatefulSet = v1beta1.StatefulSet
 type NetworkPolicy = networking.NetworkPolicy
+type SecurityContext = apiv1.SecurityContext
+
+type ObjectMeta = metav1.ObjectMeta
+type PodSpec = apiv1.PodSpec
 
 type PodList = apiv1.PodList
 type ReplicationControllerList = apiv1.ReplicationControllerList
@@ -24,6 +28,7 @@ type NamespaceList = apiv1.NamespaceList
 type NetworkPolicyList = networking.NetworkPolicyList
 
 type Capability = apiv1.Capability
+type Capabilities = apiv1.Capabilities
 type Container = apiv1.Container
 type ListOptions = metav1.ListOptions
 

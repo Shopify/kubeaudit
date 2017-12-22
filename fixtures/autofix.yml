@@ -2,19 +2,17 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: run_as_non_root_false
-  namespace: fakeDeploymentRANR
+  name: cababilitiesAdded
+  namespace: fakeDeploymentSC
 spec:
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        apps: fakeRunAsNonRoot
+        apps: fakeSecurityContext
     spec:
       containers:
-      - name: fakeContainerRANR
+      - name: fakeContainerSC
         resources: {}
-        securityContext:
-          runAsNonRoot: false
 status: {}

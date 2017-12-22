@@ -7,17 +7,8 @@ import (
 )
 
 func checkRunAsNonRoot(container Container, result *Result) {
-	if container.SecurityContext == nil {
-		occ := Occurrence{
-			id:      ErrorSecurityContextNIL,
-			kind:    Error,
-			message: "SecurityContext not set, please set it!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
 	if reason := result.Labels["kubeaudit.allow.runAsRoot"]; reason != "" {
-		if container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
+		if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{
 				id:       ErrorRunAsNonRootFalseAllowed,
 				kind:     Warn,
@@ -34,18 +25,14 @@ func checkRunAsNonRoot(container Container, result *Result) {
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
-		return
-	}
-	if container.SecurityContext.RunAsNonRoot == nil {
+	} else if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil {
 		occ := Occurrence{
 			id:      ErrorRunAsNonRootNIL,
 			kind:    Error,
 			message: "RunAsNonRoot is not set, which results in root user being allowed!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
-	if *container.SecurityContext.RunAsNonRoot == false {
+	} else if *container.SecurityContext.RunAsNonRoot == false {
 		occ := Occurrence{
 			id:      ErrorRunAsNonRootFalse,
 			kind:    Error,
@@ -53,6 +40,7 @@ func checkRunAsNonRoot(container Container, result *Result) {
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}
+	return
 }
 
 func auditRunAsNonRoot(resource k8sRuntime.Object) (results []Result) {

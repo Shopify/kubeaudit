@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"reflect"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -74,6 +75,16 @@ func shouldLog(err int) (members []string) {
 	case ErrorResourcesLimitsMemoryExceeded:
 		members = append(members, "MEMLimitActual")
 		members = append(members, "MEMLimitMax")
+	}
+	return
+}
+
+func (r *Result) allowedCaps() (allowed map[Capability]string) {
+	allowed = make(map[Capability]string)
+	for k, v := range r.Labels {
+		if strings.Contains(k, "kubeaudit.allow.capability.") {
+			allowed[Capability(strings.ToUpper(strings.TrimPrefix(k, "kubeaudit.allow.capability.")))] = v
+		}
 	}
 	return
 }
