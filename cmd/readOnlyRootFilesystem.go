@@ -14,18 +14,7 @@ func checkReadOnlyRootFS(container Container, result *Result) {
 			message: "SecurityContext not set, please set it!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
-	if container.SecurityContext.ReadOnlyRootFilesystem == nil {
-		occ := Occurrence{
-			id:      ErrorReadOnlyRootFilesystemNIL,
-			kind:    Error,
-			message: "ReadOnlyRootFilesystem not set which results in a writable rootFS, please set to true",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
-	if reason := result.Labels["kubeaudit.allow.readOnlyRootFilesystemFalse"]; reason != "" {
+	} else if reason := result.Labels["kubeaudit.allow.readOnlyRootFilesystemFalse"]; reason != "" {
 		if container.SecurityContext.ReadOnlyRootFilesystem == nil || *container.SecurityContext.ReadOnlyRootFilesystem == false {
 			occ := Occurrence{
 				id:       ErrorReadOnlyRootFilesystemFalseAllowed,
@@ -43,9 +32,14 @@ func checkReadOnlyRootFS(container Container, result *Result) {
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
-		return
-	}
-	if !*container.SecurityContext.ReadOnlyRootFilesystem {
+	} else if container.SecurityContext.ReadOnlyRootFilesystem == nil {
+		occ := Occurrence{
+			id:      ErrorReadOnlyRootFilesystemNIL,
+			kind:    Error,
+			message: "ReadOnlyRootFilesystem not set which results in a writable rootFS, please set to true",
+		}
+		result.Occurrences = append(result.Occurrences, occ)
+	} else if !*container.SecurityContext.ReadOnlyRootFilesystem {
 		occ := Occurrence{
 			id:      ErrorReadOnlyRootFilesystemFalse,
 			kind:    Error,
@@ -53,6 +47,7 @@ func checkReadOnlyRootFS(container Container, result *Result) {
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}
+	return
 }
 
 func auditReadOnlyRootFS(resource k8sRuntime.Object) (results []Result) {

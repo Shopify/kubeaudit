@@ -13,9 +13,7 @@ func checkAllowPrivilegeEscalation(container Container, result *Result) {
 			message: "SecurityContext not set, please set it!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
-	if reason := result.Labels["kubeaudit.allow.privilegeEscalation"]; reason == "" {
+	} else if reason := result.Labels["kubeaudit.allow.privilegeEscalation"]; reason == "" {
 		if container.SecurityContext.AllowPrivilegeEscalation == nil {
 			occ := Occurrence{
 				id:      ErrorAllowPrivilegeEscalationNIL,
