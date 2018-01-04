@@ -7,9 +7,17 @@ func TestServiceAccountTokenDeprecated(t *testing.T) {
 }
 
 func TestServiceAccountTokenTrueAndNoName(t *testing.T) {
-	runTest(t, "service_account_token_true_and_no_name.yml", auditAutomountServiceAccountToken, ErrorServiceAccountTokenTrueAndNoName)
+	runTest(t, "service_account_token_true_and_no_name.yml", auditAutomountServiceAccountToken, ErrorAutomountServiceAccountTokenTrueAndNoName)
 }
 
 func TestServiceAccountTokenNILAndNoName(t *testing.T) {
-	runTest(t, "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, ErrorServiceAccountTokenNILAndNoName)
+	runTest(t, "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, ErrorAutomountServiceAccountTokenNILAndNoName)
+}
+
+func TestServiceAccountTokenTrueAllowed(t *testing.T) {
+	runTest(t, "service_account_token_true_allowed.yml", auditAutomountServiceAccountToken, ErrorAutomountServiceAccountTokenTrueAllowed)
+}
+
+func TestServiceAccountTokenMisconfiguredAllow(t *testing.T) {
+	runTest(t, "service_account_token_misconfigured_allow.yml", auditAutomountServiceAccountToken, ErrorMisconfiguredKubeauditAllow)
 }

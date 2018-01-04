@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"runtime"
+	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -51,25 +52,30 @@ func getContainers(resource k8sRuntime.Object) (container []Container) {
 func newResultFromResource(resource k8sRuntime.Object) (result Result) {
 	switch kubeType := resource.(type) {
 	case *DaemonSet:
-		result.Name = kubeType.Name
-		result.Namespace = kubeType.Namespace
 		result.KubeType = "daemonSet"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	case *Deployment:
-		result.Name = kubeType.Name
-		result.Namespace = kubeType.Namespace
 		result.KubeType = "deployment"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	case *Pod:
-		result.Name = kubeType.Name
-		result.Namespace = kubeType.Namespace
 		result.KubeType = "pod"
+		result.Labels = kubeType.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	case *ReplicationController:
-		result.Name = kubeType.Name
-		result.Namespace = kubeType.Namespace
 		result.KubeType = "replicationController"
-	case *StatefulSet:
+		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
+	case *StatefulSet:
 		result.KubeType = "statefulSet"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	}
 	return
 }
@@ -79,24 +85,24 @@ func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) Res
 	switch kubeType := resource.(type) {
 	case *DaemonSet:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
-		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 	case *Deployment:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
-		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 	case *Pod:
 		result.DSA = kubeType.Spec.DeprecatedServiceAccount
-		result.Token = kubeType.Spec.AutomountServiceAccountToken
 		result.SA = kubeType.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.AutomountServiceAccountToken
 	case *ReplicationController:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
-		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 	case *StatefulSet:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
-		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 	}
 	return result
 }
@@ -230,4 +236,11 @@ func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 			result.Print()
 		}
 	}
+}
+
+func prettifyReason(reason string) string {
+	if strings.ToLower(reason) == "true" {
+		return "Unspecified"
+	}
+	return reason
 }

@@ -26,3 +26,5 @@ type NetworkPolicyList = networking.NetworkPolicyList
 type Capability = apiv1.Capability
 type Container = apiv1.Container
 type ListOptions = metav1.ListOptions
+
+type Metadata = map[string]string

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"io/ioutil"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -12,7 +13,9 @@ type capsDropList struct {
 	Drop []string `yaml:"capabilitiesToBeDropped"`
 }
 
-func recommendedCapabilitiesToBeDropped() (dropList []Capability, err error) {
+type CapSet map[Capability]bool
+
+func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 	yamlFile, err := ioutil.ReadFile("config/capabilities-drop-list.yml")
 	if err != nil {
 		return
@@ -22,26 +25,36 @@ func recommendedCapabilitiesToBeDropped() (dropList []Capability, err error) {
 	if err != nil {
 		return
 	}
+	dropCapSet = make(CapSet)
 	for _, drop := range caps.Drop {
-		dropList = append(dropList, Capability(drop))
+		dropCapSet[Capability(drop)] = true
 	}
 	return
 }
 
-func capsNotDropped(dropped []Capability) (notDropped []Capability, err error) {
-	toBeDropped, err := recommendedCapabilitiesToBeDropped()
-	if err != nil {
-		return
-	}
-	for _, toBeDroppedCap := range toBeDropped {
-		found := false
-		for _, droppedCap := range dropped {
-			if toBeDroppedCap == droppedCap {
-				found = true
-			}
+func allowedCaps(result *Result) (allowed map[Capability]string) {
+	allowed = make(map[Capability]string)
+	for k, v := range result.Labels {
+		if strings.Contains(k, "kubeaudit.allow.capability.") {
+			allowed[Capability(strings.ToUpper(strings.TrimPrefix(k, "kubeaudit.allow.capability.")))] = v
 		}
-		if found == false {
-			notDropped = append(notDropped, toBeDroppedCap)
+	}
+	return
+}
+
+func arrayToCapSet(array []Capability) (set CapSet) {
+	set = make(CapSet)
+	for _, cap := range array {
+		set[cap] = true
+	}
+	return
+}
+
+func mergeCapSets(sets ...CapSet) (merged CapSet) {
+	merged = make(CapSet)
+	for _, set := range sets {
+		for k, v := range set {
+			merged[k] = v
 		}
 	}
 	return
@@ -49,38 +62,81 @@ func capsNotDropped(dropped []Capability) (notDropped []Capability, err error) {
 
 func checkCapabilities(container Container, result *Result) {
 	if container.SecurityContext == nil {
-		occ := Occurrence{id: ErrorSecurityContextNIL, kind: Error, message: "SecurityContext not set, please set it!"}
+		occ := Occurrence{
+			id:      ErrorSecurityContextNIL,
+			kind:    Error,
+			message: "SecurityContext not set, please set it!",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
 	if container.SecurityContext.Capabilities == nil {
-		occ := Occurrence{id: ErrorCapabilitiesNIL, kind: Error, message: "Capabilities field not defined!"}
+		occ := Occurrence{
+			id:      ErrorCapabilitiesNIL,
+			kind:    Error,
+			message: "Capabilities field not defined!",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
-	if container.SecurityContext.Capabilities.Add != nil {
-		result.CapsAdded = container.SecurityContext.Capabilities.Add
-		occ := Occurrence{id: ErrorCapabilitiesAdded, kind: Error, message: "Capabilities were added!"}
-		result.Occurrences = append(result.Occurrences, occ)
+	added := arrayToCapSet(container.SecurityContext.Capabilities.Add)
+	dropped := arrayToCapSet(container.SecurityContext.Capabilities.Drop)
+	allowedMap := allowedCaps(result)
+	allowed := make(CapSet)
+	for k := range allowedMap {
+		allowed[k] = true
 	}
-
-	if container.SecurityContext.Capabilities.Drop == nil {
-		occ := Occurrence{id: ErrorCapabilitiesNoneDropped, kind: Error, message: "No capabilities were dropped!"}
-		result.Occurrences = append(result.Occurrences, occ)
-	}
-
-	if container.SecurityContext.Capabilities.Drop != nil {
-		capsNotDropped, err := capsNotDropped(container.SecurityContext.Capabilities.Drop)
-		if err != nil {
-			occ := Occurrence{id: KubeauditInternalError, kind: Error, message: "This should not have happened, if you are on kubeaudit master please consider to report: " + err.Error()}
-			result.Occurrences = append(result.Occurrences, occ)
-			return
+	toBeDropped, err := recommendedCapabilitiesToBeDropped()
+	if err != nil {
+		occ := Occurrence{
+			id:      KubeauditInternalError,
+			kind:    Error,
+			message: "This should not have happened, if you are on kubeaudit master please consider to report: " + err.Error(),
 		}
-		if len(capsNotDropped) > 0 {
-			result.CapsNotDropped = capsNotDropped
-			occ := Occurrence{id: ErrorCapabilitiesSomeDropped, kind: Error, message: "Not all of the recommended capabilities were dropped! Please drop the mentioned capabiliites."}
+		result.Occurrences = append(result.Occurrences, occ)
+		return
+	}
+
+	for cap := range mergeCapSets(toBeDropped, dropped, allowed, added) {
+		if !allowed[cap] && !dropped[cap] && toBeDropped[cap] {
+			occ := Occurrence{
+				id:       ErrorCapabilityNotDropped,
+				kind:     Error,
+				message:  "Capability not dropped",
+				metadata: Metadata{"CapName": string(cap)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		} else if !allowed[cap] && added[cap] {
+			occ := Occurrence{
+				id:       ErrorCapabilityAdded,
+				kind:     Error,
+				message:  "Capability added",
+				metadata: Metadata{"CapName": string(cap)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		} else if allowed[cap] && (toBeDropped[cap] && !dropped[cap] || added[cap]) {
+			occ := Occurrence{
+				id:      ErrorCapabilityAllowed,
+				kind:    Warn,
+				message: "Capability allowed",
+				metadata: Metadata{
+					"CapName": string(cap),
+					"Reason":  prettifyReason(allowedMap[cap]),
+				},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		} else if allowed[cap] && !(toBeDropped[cap] && !dropped[cap] || added[cap]) {
+			occ := Occurrence{
+				id:      ErrorMisconfiguredKubeauditAllow,
+				kind:    Warn,
+				message: "Capability allowed but not present",
+				metadata: Metadata{
+					"CapName": string(cap),
+					"Reason":  allowedMap[cap],
+				},
+			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
 	}

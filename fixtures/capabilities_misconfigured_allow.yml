@@ -2,21 +2,19 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: cababilitiesAdded
+  name: fakeDeploymentCapabilitiesAllowed
   namespace: fakeDeploymentSC
 spec:
   template:
     metadata:
       labels:
         apps: fakeSecurityContext
+        kubeaudit.allow.capability.sys_time: "Time is of the essence"
     spec:
       containers:
       - name: fakeContainerSC
         securityContext:
           capabilities:
-            add:
-            - NET_ADMIN
-            - SYS_TIME
             drop:
             - AUDIT_WRITE
             - CHOWN

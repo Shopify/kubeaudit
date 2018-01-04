@@ -15,3 +15,11 @@ func TestAllowPrivilegeEscalationNil(t *testing.T) {
 func TestAllowPrivilegeEscalationTrue(t *testing.T) {
 	runTest(t, "allow_privilege_escalation_true.yml", auditAllowPrivilegeEscalation, ErrorAllowPrivilegeEscalationTrue)
 }
+
+func TestAllowPrivilegeEscalationTrueAllowed(t *testing.T) {
+	runTest(t, "allow_privilege_escalation_true_allowed.yml", auditAllowPrivilegeEscalation, ErrorAllowPrivilegeEscalationTrueAllowed)
+}
+
+func TestAllowPrivilegeEscalationMisconfiguredAllow(t *testing.T) {
+	runTest(t, "allow_privilege_escalation_misconfigured_allow.yml", auditAllowPrivilegeEscalation, ErrorMisconfiguredKubeauditAllow)
+}

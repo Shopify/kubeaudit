@@ -13,3 +13,11 @@ func TestPrivilegedNIL(t *testing.T) {
 func TestPrivilegedTrue(t *testing.T) {
 	runTest(t, "privileged_true.yml", auditPrivileged, ErrorPrivilegedTrue)
 }
+
+func TestPrivilegedTrueAllowed(t *testing.T) {
+	runTest(t, "privileged_true_allowed.yml", auditPrivileged, ErrorPrivilegedTrueAllowed)
+}
+
+func TestPrivilegedMisconfiguredAllow(t *testing.T) {
+	runTest(t, "privileged_misconfigured_allow.yml", auditPrivileged, ErrorMisconfiguredKubeauditAllow)
+}

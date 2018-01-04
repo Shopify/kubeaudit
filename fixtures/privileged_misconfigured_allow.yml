@@ -1,0 +1,17 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: fakeDaemonSetPrivileged2
+  namespace: fakeDaemonSetPrivileged
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakePrivileged
+        kubeaudit.allow.privileged: "Privileged execution required"
+    spec:
+      containers:
+      - name: fakeContainerPrivileged
+        securityContext:
+            privileged: false

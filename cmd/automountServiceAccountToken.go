@@ -8,21 +8,54 @@ import (
 func checkAutomountServiceAccountToken(result *Result) {
 	// Check for use of deprecated service account name
 	if result.DSA != "" {
-		occ := Occurrence{id: ErrorServiceAccountTokenDeprecated, kind: Warn, message: "serviceAccount is a depreciated alias for ServiceAccountName, use that one instead"}
+		occ := Occurrence{
+			id:      ErrorServiceAccountTokenDeprecated,
+			kind:    Warn,
+			message: "serviceAccount is a deprecated alias for ServiceAccountName, use that one instead",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
+		return
+	}
+
+	if reason := result.Labels["kubeaudit.allow.automountServiceAccountToken"]; reason != "" {
+		if result.Token != nil && *result.Token {
+			occ := Occurrence{
+				id:       ErrorAutomountServiceAccountTokenTrueAllowed,
+				kind:     Warn,
+				message:  "Allowed setting automountServiceAccountToken to true",
+				metadata: Metadata{"Reason": prettifyReason(reason)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		} else {
+			occ := Occurrence{
+				id:       ErrorMisconfiguredKubeauditAllow,
+				kind:     Warn,
+				message:  "Allowed setting automountServiceAccountToken to true, but it is false or nil",
+				metadata: Metadata{"Reason": prettifyReason(reason)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
 		return
 	}
 
 	if result.Token != nil && *result.Token && result.SA == "" {
 		// automountServiceAccountToken = true, and serviceAccountName is blank (default: default)
-		occ := Occurrence{id: ErrorServiceAccountTokenTrueAndNoName, kind: Error, message: "Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false"}
+		occ := Occurrence{
+			id:      ErrorAutomountServiceAccountTokenTrueAndNoName,
+			kind:    Error,
+			message: "Default serviceAccount with token mounted. Please set automountServiceAccountToken to false",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
 	if result.Token == nil && result.SA == "" {
 		// automountServiceAccountToken = nil (default: true), and serviceAccountName is blank (default: default)
-		occ := Occurrence{id: ErrorServiceAccountTokenNILAndNoName, kind: Error, message: "Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false"}
+		occ := Occurrence{
+			id:      ErrorAutomountServiceAccountTokenNILAndNoName,
+			kind:    Error,
+			message: "Default serviceAccount with token mounted. Please set automountServiceAccountToken to false",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
