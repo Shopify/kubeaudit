@@ -7,14 +7,6 @@ import (
 )
 
 func checkRunAsNonRoot(container Container, result *Result) {
-	if container.SecurityContext == nil {
-		occ := Occurrence{
-			id:      ErrorSecurityContextNIL,
-			kind:    Error,
-			message: "SecurityContext not set, please set it!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-	}
 	if reason := result.Labels["kubeaudit.allow.runAsRoot"]; reason != "" {
 		if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{

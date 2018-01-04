@@ -17,6 +17,9 @@ spec:
         resources: {}
         securityContext:
           capabilities:
+            add:
+            - NET_ADMIN
+            - SYS_TIME
             drop:
             - SETUID
             - AUDIT_WRITE

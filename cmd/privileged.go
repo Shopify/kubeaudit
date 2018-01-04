@@ -7,14 +7,6 @@ import (
 )
 
 func checkPrivileged(container Container, result *Result) {
-	if container.SecurityContext == nil {
-		occ := Occurrence{
-			id:      ErrorSecurityContextNIL,
-			kind:    Error,
-			message: "SecurityContext not set, please set it!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-	}
 	if container.SecurityContext == nil || container.SecurityContext.Privileged == nil {
 		occ := Occurrence{
 			id:      ErrorPrivilegedNIL,

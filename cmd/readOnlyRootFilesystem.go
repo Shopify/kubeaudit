@@ -7,14 +7,6 @@ import (
 )
 
 func checkReadOnlyRootFS(container Container, result *Result) {
-	if container.SecurityContext == nil {
-		occ := Occurrence{
-			id:      ErrorSecurityContextNIL,
-			kind:    Error,
-			message: "SecurityContext not set, please set it!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-	}
 	if reason := result.Labels["kubeaudit.allow.readOnlyRootFilesystemFalse"]; reason != "" {
 		if container.SecurityContext == nil || container.SecurityContext.ReadOnlyRootFilesystem == nil || *container.SecurityContext.ReadOnlyRootFilesystem == false {
 			occ := Occurrence{
