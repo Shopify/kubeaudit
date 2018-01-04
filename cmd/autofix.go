@@ -93,8 +93,6 @@ func fixPotentialSecurityIssues(resource k8sRuntime.Object, result Result) k8sRu
 			resource = fixReadOnlyRootFilesystem(resource)
 		case ErrorRunAsNonRootFalse, ErrorRunAsNonRootNIL:
 			resource = fixRunAsNonRoot(resource)
-		case ErrorSecurityContextNIL:
-			resource = fixSecurityContextNIL(resource)
 		case ErrorServiceAccountTokenDeprecated:
 			resource = fixDeprecatedServiceAccount(resource)
 		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNILAndNoName:

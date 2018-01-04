@@ -29,7 +29,6 @@ const (
 	ErrorRunAsNonRootFalse
 	ErrorRunAsNonRootFalseAllowed
 	ErrorRunAsNonRootNIL
-	ErrorSecurityContextNIL
 	ErrorServiceAccountTokenDeprecated
 	ErrorServiceAccountTokenNoName
 	InfoImageCorrect

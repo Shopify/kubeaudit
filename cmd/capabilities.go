@@ -30,14 +30,6 @@ func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 }
 
 func checkCapabilities(container Container, result *Result) {
-	if container.SecurityContext == nil {
-		occ := Occurrence{
-			id:      ErrorSecurityContextNIL,
-			kind:    Error,
-			message: "SecurityContext not set, please set it!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-	}
 	added := CapSet{}
 	dropped := CapSet{}
 	if container.SecurityContext != nil && container.SecurityContext.Capabilities != nil {
