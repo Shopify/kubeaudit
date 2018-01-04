@@ -23,25 +23,22 @@ func runAllAudits(resource k8sRuntime.Object) (results []Result) {
 }
 
 func fixSecurityContextNIL(resource k8sRuntime.Object) k8sRuntime.Object {
+	fixes := []func(resource k8sRuntime.Object) k8sRuntime.Object{
+		fixPrivilegeEscalation, fixAllowPrivilegeEscalation, fixReadOnlyRootFilesystem,
+		fixRunAsNonRoot, fixServiceAccountToken, fixDeprecatedServiceAccount,
+	}
+
 	var containers []Container
 	for _, container := range getContainers(resource) {
-		container.SecurityContext = &SecurityContext{
-			Capabilities: &Capabilities{
-				Drop: []Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER",
-					"FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP",
-					"SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"},
-			},
-			Privileged: newFalse(),
-			// These two aren't handled yet because we don't have detection for them yet
-			//SELinuxOptions *SELinuxOptions
-			//RunAsUser *int64
-			RunAsNonRoot:             newTrue(),
-			ReadOnlyRootFilesystem:   newTrue(),
-			AllowPrivilegeEscalation: newFalse(),
-		}
+		container.SecurityContext = &SecurityContext{}
 		containers = append(containers, container)
 	}
-	return setContainers(resource, containers)
+	resource = setContainers(resource, containers)
+
+	for _, fix := range fixes {
+		resource = fix(resource)
+	}
+	return resource
 }
 
 func fixPrivilegeEscalation(resource k8sRuntime.Object) k8sRuntime.Object {
@@ -93,8 +90,6 @@ func fixPotentialSecurityIssues(resource k8sRuntime.Object, result Result) k8sRu
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNIL, ErrorAllowPrivilegeEscalationTrue:
 			resource = fixAllowPrivilegeEscalation(resource)
-		case ErrorCapabilitiesNIL:
-			resource = fixCapabilitiesNIL(resource)
 		case ErrorCapabilityNotDropped:
 			resource = fixCapabilityNotDropped(resource, occurrence)
 		case ErrorCapabilityAdded:

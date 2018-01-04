@@ -40,23 +40,19 @@ func checkCapabilities(container Container, result *Result) {
 		return
 	}
 
-	if container.SecurityContext.Capabilities == nil {
-		occ := Occurrence{
-			id:      ErrorCapabilitiesNIL,
-			kind:    Error,
-			message: "Capabilities field not defined!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-		return
+	added := CapSet{}
+	dropped := CapSet{}
+	if container.SecurityContext.Capabilities != nil {
+		added = NewCapSetFromArray(container.SecurityContext.Capabilities.Add)
+		dropped = NewCapSetFromArray(container.SecurityContext.Capabilities.Drop)
 	}
 
-	added := NewCapSetFromArray(container.SecurityContext.Capabilities.Add)
-	dropped := NewCapSetFromArray(container.SecurityContext.Capabilities.Drop)
 	allowedMap := result.allowedCaps()
 	allowed := make(CapSet)
 	for k := range allowedMap {
 		allowed[k] = true
 	}
+
 	toBeDropped, err := recommendedCapabilitiesToBeDropped()
 	if err != nil {
 		occ := Occurrence{
