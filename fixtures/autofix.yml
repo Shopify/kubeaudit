@@ -17,7 +17,19 @@ spec:
         resources: {}
         securityContext:
           capabilities:
-            add:
-            - NET_ADMIN
-            - SYS_TIME
+            drop:
+            - SETUID
+            - AUDIT_WRITE
+            - CHOWN
+            - DAC_OVERRIDE
+            - FOWNER
+            - FSETID
+            - NET_RAW
+            - NET_BIND_SERVICE
+            - SETGID
+            - SETFCAP
+            - KILL
+            - SETPCAP
+            - SYS_CHROOT
+            - MKNOD
 status: {}

@@ -37,12 +37,10 @@ func checkCapabilities(container Container, result *Result) {
 			message: "SecurityContext not set, please set it!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-		return
 	}
-
 	added := CapSet{}
 	dropped := CapSet{}
-	if container.SecurityContext.Capabilities != nil {
+	if container.SecurityContext != nil && container.SecurityContext.Capabilities != nil {
 		added = NewCapSetFromArray(container.SecurityContext.Capabilities.Add)
 		dropped = NewCapSetFromArray(container.SecurityContext.Capabilities.Drop)
 	}

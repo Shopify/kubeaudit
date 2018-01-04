@@ -14,7 +14,8 @@ func checkPrivileged(container Container, result *Result) {
 			message: "SecurityContext not set, please set it!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-	} else if container.SecurityContext.Privileged == nil {
+	}
+	if container.SecurityContext == nil || container.SecurityContext.Privileged == nil {
 		occ := Occurrence{
 			id:      ErrorPrivilegedNIL,
 			kind:    Warn,
