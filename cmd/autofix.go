@@ -44,21 +44,6 @@ func fixSecurityContextNIL(resource k8sRuntime.Object) k8sRuntime.Object {
 	return setContainers(resource, containers)
 }
 
-// TODO change the function so that it doesn't always hard dropps everything
-// after the label PR got merged
-func fixCapabilities(resource k8sRuntime.Object) k8sRuntime.Object {
-	var containers []Container
-	for _, container := range getContainers(resource) {
-		container.SecurityContext.Capabilities = &Capabilities{
-			Drop: []Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER",
-				"FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP",
-				"SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"},
-		}
-		containers = append(containers, container)
-	}
-	return setContainers(resource, containers)
-}
-
 func fixPrivilegeEscalation(resource k8sRuntime.Object) k8sRuntime.Object {
 	var containers []Container
 	for _, container := range getContainers(resource) {
@@ -108,9 +93,12 @@ func fixPotentialSecurityIssues(resource k8sRuntime.Object, result Result) k8sRu
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNIL, ErrorAllowPrivilegeEscalationTrue:
 			resource = fixAllowPrivilegeEscalation(resource)
-		case ErrorCapabilityAdded, ErrorCapabilitiesNIL,
-			ErrorCapabilitiesNoneDropped:
-			resource = fixCapabilities(resource)
+		case ErrorCapabilitiesNIL:
+			resource = fixCapabilitiesNIL(resource)
+		case ErrorCapabilityNotDropped:
+			resource = fixCapabilityNotDropped(resource, occurrence)
+		case ErrorCapabilityAdded:
+			resource = fixCapabilityAdded(resource, occurrence)
 		case ErrorPrivilegedNIL, ErrorPrivilegedTrue:
 			resource = fixPrivilegeEscalation(resource)
 		case ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNIL:
@@ -123,9 +111,19 @@ func fixPotentialSecurityIssues(resource k8sRuntime.Object, result Result) k8sRu
 			resource = fixDeprecatedServiceAccount(resource)
 		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNILAndNoName:
 			resource = fixServiceAccountToken(resource)
+		case ErrorAllowPrivilegeEscalationTrueAllowed,
+			ErrorAutomountServiceAccountTokenTrueAllowed, ErrorCapabilityAllowed,
+			ErrorMisconfiguredKubeauditAllow, ErrorPrivilegedTrueAllowed,
+			ErrorReadOnlyRootFilesystemFalseAllowed, ErrorRunAsNonRootFalseAllowed:
+			informAboutAllowed()
 		}
 	}
 	return resource
+}
+
+func informAboutAllowed() {
+	// TODO do we want to hae this
+	log.Info("something wasn't fixed because it wasn't broken")
 }
 
 func autofix(*cobra.Command, []string) {

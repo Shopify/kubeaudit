@@ -10,7 +10,7 @@ func TestRecommendedCapabilitiesToBeDropped(t *testing.T) {
 	assert := assert.New(t)
 	capabilities, err := recommendedCapabilitiesToBeDropped()
 	assert.Nil(err)
-	assert.Equal(arrayToCapSet([]Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}), capabilities, "")
+	assert.Equal(NewCapSetFromArray([]Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}), capabilities, "")
 }
 
 func TestSecurityContextNIL_SC(t *testing.T) {
