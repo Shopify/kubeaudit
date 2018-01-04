@@ -23,22 +23,14 @@ func runAllAudits(resource k8sRuntime.Object) (results []Result) {
 }
 
 func fixSecurityContextNIL(resource k8sRuntime.Object) k8sRuntime.Object {
-	fixes := []func(resource k8sRuntime.Object) k8sRuntime.Object{
-		fixPrivilegeEscalation, fixAllowPrivilegeEscalation, fixReadOnlyRootFilesystem,
-		fixRunAsNonRoot, fixServiceAccountToken, fixDeprecatedServiceAccount,
-	}
-
 	var containers []Container
 	for _, container := range getContainers(resource) {
-		container.SecurityContext = &SecurityContext{}
+		if container.SecurityContext == nil {
+			container.SecurityContext = &SecurityContext{Capabilities: &Capabilities{}}
+		}
 		containers = append(containers, container)
 	}
-	resource = setContainers(resource, containers)
-
-	for _, fix := range fixes {
-		resource = fix(resource)
-	}
-	return resource
+	return setContainers(resource, containers)
 }
 
 func fixPrivilegeEscalation(resource k8sRuntime.Object) k8sRuntime.Object {
@@ -86,6 +78,7 @@ func fixDeprecatedServiceAccount(resource k8sRuntime.Object) k8sRuntime.Object {
 }
 
 func fixPotentialSecurityIssues(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
+	resource = fixSecurityContextNIL(resource)
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNIL, ErrorAllowPrivilegeEscalationTrue:

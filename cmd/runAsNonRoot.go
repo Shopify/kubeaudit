@@ -14,8 +14,9 @@ func checkRunAsNonRoot(container Container, result *Result) {
 			message: "SecurityContext not set, please set it!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-	} else if reason := result.Labels["kubeaudit.allow.runAsRoot"]; reason != "" {
-		if container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
+	}
+	if reason := result.Labels["kubeaudit.allow.runAsRoot"]; reason != "" {
+		if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{
 				id:       ErrorRunAsNonRootFalseAllowed,
 				kind:     Warn,
@@ -32,7 +33,7 @@ func checkRunAsNonRoot(container Container, result *Result) {
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
-	} else if container.SecurityContext.RunAsNonRoot == nil {
+	} else if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil {
 		occ := Occurrence{
 			id:      ErrorRunAsNonRootNIL,
 			kind:    Error,
