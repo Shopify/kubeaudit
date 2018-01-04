@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"io/ioutil"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -12,8 +11,6 @@ import (
 type capsDropList struct {
 	Drop []string `yaml:"capabilitiesToBeDropped"`
 }
-
-type CapSet map[Capability]bool
 
 func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 	yamlFile, err := ioutil.ReadFile("config/capabilities-drop-list.yml")
@@ -28,34 +25,6 @@ func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 	dropCapSet = make(CapSet)
 	for _, drop := range caps.Drop {
 		dropCapSet[Capability(drop)] = true
-	}
-	return
-}
-
-func allowedCaps(result *Result) (allowed map[Capability]string) {
-	allowed = make(map[Capability]string)
-	for k, v := range result.Labels {
-		if strings.Contains(k, "kubeaudit.allow.capability.") {
-			allowed[Capability(strings.ToUpper(strings.TrimPrefix(k, "kubeaudit.allow.capability.")))] = v
-		}
-	}
-	return
-}
-
-func arrayToCapSet(array []Capability) (set CapSet) {
-	set = make(CapSet)
-	for _, cap := range array {
-		set[cap] = true
-	}
-	return
-}
-
-func mergeCapSets(sets ...CapSet) (merged CapSet) {
-	merged = make(CapSet)
-	for _, set := range sets {
-		for k, v := range set {
-			merged[k] = v
-		}
 	}
 	return
 }
@@ -81,9 +50,9 @@ func checkCapabilities(container Container, result *Result) {
 		return
 	}
 
-	added := arrayToCapSet(container.SecurityContext.Capabilities.Add)
-	dropped := arrayToCapSet(container.SecurityContext.Capabilities.Drop)
-	allowedMap := allowedCaps(result)
+	added := NewCapSetFromArray(container.SecurityContext.Capabilities.Add)
+	dropped := NewCapSetFromArray(container.SecurityContext.Capabilities.Drop)
+	allowedMap := result.allowedCaps()
 	allowed := make(CapSet)
 	for k := range allowedMap {
 		allowed[k] = true

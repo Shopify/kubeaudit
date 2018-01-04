@@ -10,7 +10,6 @@ const (
 	ErrorAutomountServiceAccountTokenTrueAllowed
 	ErrorAutomountServiceAccountTokenTrueAndNoName
 	ErrorCapabilitiesNIL
-	ErrorCapabilitiesNoneDropped
 	ErrorCapabilityAdded
 	ErrorCapabilityAllowed
 	ErrorCapabilityNotDropped
