@@ -14,25 +14,25 @@ func TestRecommendedCapabilitiesToBeDropped(t *testing.T) {
 }
 
 func TestSecurityContextNIL_SC(t *testing.T) {
-	runTest(t, "security_context_nil.yml", auditCapabilities, ErrorSecurityContextNIL)
+	runAuditTest(t, "security_context_nil.yml", auditCapabilities, []int{ErrorSecurityContextNIL})
 }
 
 func TestCapabilitiesNIL(t *testing.T) {
-	runTest(t, "capabilities_nil.yml", auditCapabilities, ErrorCapabilitiesNIL)
+	runAuditTest(t, "capabilities_nil.yml", auditCapabilities, []int{ErrorCapabilitiesNIL})
 }
 
 func TestCapabilitiesAdded(t *testing.T) {
-	runTest(t, "capabilities_added.yml", auditCapabilities, ErrorCapabilityAdded)
+	runAuditTest(t, "capabilities_added.yml", auditCapabilities, []int{ErrorCapabilityAdded})
 }
 
 func TestCapabilitiesSomeAllowed(t *testing.T) {
-	runTest(t, "capabilities_some_allowed.yml", auditCapabilities, ErrorCapabilityAllowed)
+	runAuditTest(t, "capabilities_some_allowed.yml", auditCapabilities, []int{ErrorCapabilityAllowed})
 }
 
 func TestCapabilitiesSomeDropped(t *testing.T) {
-	runTest(t, "capabilities_some_dropped.yml", auditCapabilities, ErrorCapabilityNotDropped)
+	runAuditTest(t, "capabilities_some_dropped.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 
 func TestCapabilitiesMisconfiguredAllow(t *testing.T) {
-	runTest(t, "capabilities_misconfigured_allow.yml", auditCapabilities, ErrorMisconfiguredKubeauditAllow)
+	runAuditTest(t, "capabilities_misconfigured_allow.yml", auditCapabilities, []int{ErrorMisconfiguredKubeauditAllow})
 }

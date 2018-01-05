@@ -12,7 +12,7 @@ import (
 
 var path = "../fixtures/"
 
-func runTest(t *testing.T, file string, function interface{}, errCode int, argStr ...string) (results []Result) {
+func runAuditTest(t *testing.T, file string, function interface{}, errCodes []int, argStr ...string) (results []Result) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)
 	var image imgFlags
@@ -54,21 +54,22 @@ func runTest(t *testing.T, file string, function interface{}, errCode int, argSt
 			results = append(results, currentResult)
 		}
 	}
-	var errors []int
+	errors := map[int]bool{}
 	for _, result := range results {
 		for _, occurrence := range result.Occurrences {
-			errors = append(errors, occurrence.id)
+			errors[occurrence.id] = true
 		}
 	}
 
-	if errCode != 0 {
-		assert.Contains(errors, errCode)
+	for _, errCode := range errCodes {
+		assert.True(errors[errCode])
 	}
+	assert.Equal(len(errors), len(errCodes))
 	return
 }
 
-func runTestInNamespace(t *testing.T, namespace string, file string, function interface{}, errCode int) {
+func runAuditTestInNamespace(t *testing.T, namespace string, file string, function interface{}, errCodes []int) {
 	rootConfig.namespace = namespace
-	runTest(t, file, function, errCode)
+	runAuditTest(t, file, function, errCodes)
 	rootConfig.namespace = apiv1.NamespaceAll
 }

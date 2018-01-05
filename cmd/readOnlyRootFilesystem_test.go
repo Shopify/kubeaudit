@@ -3,21 +3,21 @@ package cmd
 import "testing"
 
 func TestSecurityContextNIL_RORF(t *testing.T) {
-	runTest(t, "security_context_nil.yml", auditReadOnlyRootFS, ErrorSecurityContextNIL)
+	runAuditTest(t, "security_context_nil.yml", auditReadOnlyRootFS, []int{ErrorSecurityContextNIL})
 }
 
 func TestReadOnlyRootFilesystemNIL(t *testing.T) {
-	runTest(t, "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS, ErrorReadOnlyRootFilesystemNIL)
+	runAuditTest(t, "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemNIL})
 }
 
 func TestReadOnlyRootFilesystemFalse(t *testing.T) {
-	runTest(t, "read_only_root_filesystem_false.yml", auditReadOnlyRootFS, ErrorReadOnlyRootFilesystemFalse)
+	runAuditTest(t, "read_only_root_filesystem_false.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemFalse})
 }
 
 func TestReadOnlyRootFilesystemFalseAllowed(t *testing.T) {
-	runTest(t, "read_only_root_filesystem_false_allowed.yml", auditReadOnlyRootFS, ErrorReadOnlyRootFilesystemFalseAllowed)
+	runAuditTest(t, "read_only_root_filesystem_false_allowed.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemFalseAllowed})
 }
 
 func TestReadOnlyRootFilesystemMisconfiguredAllow(t *testing.T) {
-	runTest(t, "read_only_root_filesystem_misconfigured_allow.yml", auditReadOnlyRootFS, ErrorMisconfiguredKubeauditAllow)
+	runAuditTest(t, "read_only_root_filesystem_misconfigured_allow.yml", auditReadOnlyRootFS, []int{ErrorMisconfiguredKubeauditAllow})
 }
