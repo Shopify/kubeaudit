@@ -18,6 +18,9 @@ install:
 test:
 	./test.sh
 
+show-coverage: test
+	go tool cover -html=coverage.txt
+
 clean:
 	$(GOCLEAN)
 	rm -f $(BINARY_NAME)
