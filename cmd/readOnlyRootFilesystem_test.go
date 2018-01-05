@@ -3,7 +3,7 @@ package cmd
 import "testing"
 
 func TestSecurityContextNIL_RORF(t *testing.T) {
-	runTest(t, "security_context_nil.yml", auditReadOnlyRootFS, ErrorSecurityContextNIL)
+	runTest(t, "security_context_nil.yml", auditReadOnlyRootFS, ErrorReadOnlyRootFilesystemNIL)
 }
 
 func TestReadOnlyRootFilesystemNIL(t *testing.T) {

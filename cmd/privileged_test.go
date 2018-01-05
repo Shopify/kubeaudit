@@ -3,7 +3,7 @@ package cmd
 import "testing"
 
 func TestSecurityContextNIL_Privileged(t *testing.T) {
-	runTest(t, "security_context_nil.yml", auditPrivileged, ErrorSecurityContextNIL)
+	runTest(t, "security_context_nil.yml", auditPrivileged, ErrorPrivilegedNIL)
 }
 
 func TestPrivilegedNIL(t *testing.T) {

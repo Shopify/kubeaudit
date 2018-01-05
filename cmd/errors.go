@@ -32,4 +32,5 @@ const (
 	ErrorServiceAccountTokenDeprecated
 	ErrorServiceAccountTokenNoName
 	InfoImageCorrect
+	PlaceHolder
 )

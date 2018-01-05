@@ -5,7 +5,7 @@ import (
 )
 
 func TestSecurityContextNIL(t *testing.T) {
-	runTest(t, "security_context_nil.yml", auditRunAsNonRoot, ErrorSecurityContextNIL)
+	runTest(t, "security_context_nil.yml", auditRunAsNonRoot, ErrorRunAsNonRootNIL)
 }
 
 func TestRunAsNonRootNil(t *testing.T) {

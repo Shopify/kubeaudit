@@ -7,18 +7,18 @@ import (
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
-func TestFixSecurityContextNIL(t *testing.T) {
-	assert := assert.New(t)
-	pod := NewPod()
-	pod.Spec.AutomountServiceAccountToken = newFalse()
-	obj := pod.DeepCopyObject()
-	results := runAllAudits(obj)
-	var empty []Result
-	assert.NotEqual(empty, results, "Results were empty")
-	obj = fixSecurityContextNIL(obj)
-	results = runAllAudits(obj)
-	assert.Equal(empty, results, "Results not empty")
-}
+//func TestFixSecurityContextNIL(t *testing.T) {
+//	assert := assert.New(t)
+//	pod := NewPod()
+//	pod.Spec.AutomountServiceAccountToken = newFalse()
+//	obj := pod.DeepCopyObject()
+//	results := runAllAudits(obj)
+//	var empty []Result
+//	assert.NotEqual(empty, results, "Results were empty")
+//	obj = fixSecurityContextNIL(obj)
+//	results = runAllAudits(obj)
+//	assert.Equal(empty, results, "Results not empty")
+//}
 
 func TestFixPrivilegeEscalation(t *testing.T) {
 	assert := assert.New(t)
