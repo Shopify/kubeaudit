@@ -14,11 +14,11 @@ func TestRecommendedCapabilitiesToBeDropped(t *testing.T) {
 }
 
 func TestSecurityContextNIL_SC(t *testing.T) {
-	runAuditTest(t, "security_context_nil.yml", auditCapabilities, []int{ErrorSecurityContextNIL})
+	runAuditTest(t, "security_context_nil.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 
 func TestCapabilitiesNIL(t *testing.T) {
-	runAuditTest(t, "capabilities_nil.yml", auditCapabilities, []int{ErrorCapabilitiesNIL})
+	runAuditTest(t, "capabilities_nil.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 
 func TestCapabilitiesAdded(t *testing.T) {
