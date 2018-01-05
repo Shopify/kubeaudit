@@ -3,7 +3,7 @@ package cmd
 import "testing"
 
 func TestFixCapabilitiesNotDropped(t *testing.T) {
-	assert, resource := FixTestSetup(t, "capabilities_nil.yml", fixCapabilityNotDropped)
+	assert, resource := FixTestSetup(t, "capabilities_nil.yml", auditCapabilities, fixCapabilityNotDropped)
 	add := []Capability{}
 	drop := []Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}
 	for _, container := range getContainers(resource) {
@@ -15,7 +15,7 @@ func TestFixCapabilitiesNotDropped(t *testing.T) {
 }
 
 func TestFixCapabilityAdded(t *testing.T) {
-	assert, resource := FixTestSetup(t, "capabilities_some_allowed.yml", fixCapabilityAdded)
+	assert, resource := FixTestSetup(t, "capabilities_some_allowed.yml", auditCapabilities, fixCapabilityAdded)
 	add := []Capability{}
 	for _, container := range getContainers(resource) {
 		assert.Equal(add, container.SecurityContext.Capabilities.Add)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io/ioutil"
+	"reflect"
 	"runtime"
 	"strings"
 	"sync"
@@ -219,7 +220,8 @@ func getResults(resources []k8sRuntime.Object, auditFunc interface{}) []Result {
 			case func(limits limitFlags, resource k8sRuntime.Object) (results []Result):
 				resultsChannel <- append(results, f(limitConfig, resource)...)
 			default:
-				log.Fatal("Invalid audit function provided")
+				name := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
+				log.Fatal("Invalid audit function provided: ", name)
 			}
 			wg.Done()
 		}(resource)
