@@ -5,21 +5,21 @@ import (
 )
 
 func TestSecurityContextNIL_APE(t *testing.T) {
-	runTest(t, "security_context_nil.yml", auditAllowPrivilegeEscalation, ErrorSecurityContextNIL)
+	runAuditTest(t, "security_context_nil.yml", auditAllowPrivilegeEscalation, []int{ErrorSecurityContextNIL})
 }
 
 func TestAllowPrivilegeEscalationNil(t *testing.T) {
-	runTest(t, "allow_privilege_escalation_nil.yml", auditAllowPrivilegeEscalation, ErrorAllowPrivilegeEscalationNIL)
+	runAuditTest(t, "allow_privilege_escalation_nil.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationNIL})
 }
 
 func TestAllowPrivilegeEscalationTrue(t *testing.T) {
-	runTest(t, "allow_privilege_escalation_true.yml", auditAllowPrivilegeEscalation, ErrorAllowPrivilegeEscalationTrue)
+	runAuditTest(t, "allow_privilege_escalation_true.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrue})
 }
 
 func TestAllowPrivilegeEscalationTrueAllowed(t *testing.T) {
-	runTest(t, "allow_privilege_escalation_true_allowed.yml", auditAllowPrivilegeEscalation, ErrorAllowPrivilegeEscalationTrueAllowed)
+	runAuditTest(t, "allow_privilege_escalation_true_allowed.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
 }
 
 func TestAllowPrivilegeEscalationMisconfiguredAllow(t *testing.T) {
-	runTest(t, "allow_privilege_escalation_misconfigured_allow.yml", auditAllowPrivilegeEscalation, ErrorMisconfiguredKubeauditAllow)
+	runAuditTest(t, "allow_privilege_escalation_misconfigured_allow.yml", auditAllowPrivilegeEscalation, []int{ErrorMisconfiguredKubeauditAllow})
 }
