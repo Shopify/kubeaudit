@@ -8,15 +8,6 @@ func fixSecurityContextNIL(resource k8sRuntime.Object) k8sRuntime.Object {
 		if container.SecurityContext == nil {
 			container.SecurityContext = &SecurityContext{Capabilities: &Capabilities{Drop: []Capability{}, Add: []Capability{}}}
 		}
-		if container.SecurityContext.Capabilities == nil {
-			container.SecurityContext.Capabilities = &Capabilities{Drop: []Capability{}, Add: []Capability{}}
-		}
-		if container.SecurityContext.Capabilities.Drop == nil {
-			container.SecurityContext.Capabilities.Drop = []Capability{}
-		}
-		if container.SecurityContext.Capabilities.Add == nil {
-			container.SecurityContext.Capabilities.Add = []Capability{}
-		}
 		containers = append(containers, container)
 	}
 	return setContainers(resource, containers)

@@ -1,0 +1,40 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: cababilitiesAdded
+  namespace: fakeDeploymentSC
+spec:
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        apps: fakeSecurityContext
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: fakeContainerSC
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - SETGID
+            - SYS_CHROOT
+            - SETUID
+            - CHOWN
+            - FSETID
+            - NET_RAW
+            - FOWNER
+            - KILL
+            - SETPCAP
+            - SETFCAP
+            - NET_BIND_SERVICE
+            - AUDIT_WRITE
+            - MKNOD
+            - DAC_OVERRIDE
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+status: {}

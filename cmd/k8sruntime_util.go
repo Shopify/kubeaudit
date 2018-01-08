@@ -1,7 +1,11 @@
 package cmd
 
 import (
+	"io/ioutil"
+
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/kubernetes/scheme"
 )
 
 func setContainers(resource k8sRuntime.Object, containers []Container) k8sRuntime.Object {
@@ -87,4 +91,19 @@ func getContainers(resource k8sRuntime.Object) (container []Container) {
 		container = kubeType.Spec.Template.Spec.Containers
 	}
 	return container
+}
+
+func WriteToFile(decode k8sRuntime.Object, filename string) error {
+	info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
+	groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
+	encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
+	yaml, err := k8sRuntime.Encode(encoder, decode)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filename, yaml, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }

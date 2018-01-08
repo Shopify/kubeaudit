@@ -14,7 +14,6 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 )
@@ -131,22 +130,10 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.O
 	return
 }
 
-func writeManifestFile(filename string, decoded []k8sRuntime.Object) error {
+func writeManifestFile(decoded []k8sRuntime.Object, filename string) error {
 	for _, decode := range decoded {
-		info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
-		groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
-		encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
-		yaml, err := k8sRuntime.Encode(encoder, decode)
-		if err != nil {
-			log.Error("Encoding Error")
+		if err := WriteToFile(decode, filename); err != nil {
 			log.Error(err)
-			log.Errorf("%v", decode)
-			return err
-		}
-		err = ioutil.WriteFile(filename, yaml, 0644)
-		if err != nil {
-			log.Error("Write Error")
-			return err
 		}
 	}
 	return nil

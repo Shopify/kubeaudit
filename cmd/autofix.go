@@ -22,8 +22,9 @@ func runAllAudits(resource k8sRuntime.Object) (results []Result) {
 	return results
 }
 
-func fixPotentialSecurityIssues(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
+func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
 	resource = fixSecurityContextNIL(resource)
+	resource = fixCapabilitiesNIL(resource)
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNIL, ErrorAllowPrivilegeEscalationTrue:
@@ -42,19 +43,20 @@ func fixPotentialSecurityIssues(resource k8sRuntime.Object, result Result) k8sRu
 			resource = fixDeprecatedServiceAccount(resource)
 		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNILAndNoName:
 			resource = fixServiceAccountToken(resource)
-		case ErrorAllowPrivilegeEscalationTrueAllowed,
-			ErrorAutomountServiceAccountTokenTrueAllowed, ErrorCapabilityAllowed,
-			ErrorMisconfiguredKubeauditAllow, ErrorPrivilegedTrueAllowed,
-			ErrorReadOnlyRootFilesystemFalseAllowed, ErrorRunAsNonRootFalseAllowed:
-			informAboutAllowed()
 		}
 	}
 	return resource
 }
 
-func informAboutAllowed() {
-	// TODO do we want to hae this
-	log.Info("something wasn't fixed because it wasn't broken")
+func fix(resources []k8sRuntime.Object) (fixedResources []k8sRuntime.Object) {
+	for _, resource := range resources {
+		results := runAllAudits(resource)
+		for _, result := range results {
+			resource = fixPotentialSecurityIssue(resource, result)
+		}
+		fixedResources = append(fixedResources, resource)
+	}
+	return
 }
 
 func autofix(*cobra.Command, []string) {
@@ -62,14 +64,8 @@ func autofix(*cobra.Command, []string) {
 	if err != nil {
 		log.Error(err)
 	}
-	var fixedResources []k8sRuntime.Object
-	for _, resource := range resources {
-		results := runAllAudits(resource)
-		for _, result := range results {
-			fixedResources = append(fixedResources, fixPotentialSecurityIssues(resource, result))
-		}
-	}
-	err = writeManifestFile(rootConfig.manifest, fixedResources)
+	fixedResources := fix(resources)
+	err = writeManifestFile(fixedResources, rootConfig.manifest)
 	if err != nil {
 		return
 	}

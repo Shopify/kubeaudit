@@ -24,7 +24,7 @@ func FixTestSetup(t *testing.T, file string, auditFunction func(k8sRuntime.Objec
 	results := getResults(resources, auditFunction)
 	assert.Equal(1, len(results))
 	result := results[0]
-	return assert, fixPotentialSecurityIssues(resource, result)
+	return assert, fixPotentialSecurityIssue(resource, result)
 }
 
 func runAuditTest(t *testing.T, file string, function interface{}, errCodes []int, argStr ...string) (results []Result) {

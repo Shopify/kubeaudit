@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -74,6 +75,9 @@ func TestFixCapabilitiesMisconfiguredAllow(t *testing.T) {
 	assert, resource := FixTestSetup(t, "capabilities_misconfigured_allow.yml", auditCapabilities)
 	add := []Capability{}
 	for _, container := range getContainers(resource) {
+		if container.SecurityContext.Capabilities.Add == nil {
+			fmt.Println("it is nil!")
+		}
 		assert.Equal(add, container.SecurityContext.Capabilities.Add)
 		assertAllDropped(assert, container.SecurityContext.Capabilities.Drop)
 	}
