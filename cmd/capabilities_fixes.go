@@ -5,9 +5,6 @@ import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 func fixCapabilityNotDropped(resource k8sRuntime.Object, occurrence Occurrence) k8sRuntime.Object {
 	var containers []Container
 	for _, container := range getContainers(resource) {
-		if container.SecurityContext == nil {
-			container.SecurityContext = &SecurityContext{}
-		}
 		if container.SecurityContext.Capabilities == nil {
 			container.SecurityContext.Capabilities = &Capabilities{Drop: []Capability{}, Add: []Capability{}}
 		}

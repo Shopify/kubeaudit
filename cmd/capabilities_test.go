@@ -26,7 +26,7 @@ func TestCapabilitiesAdded(t *testing.T) {
 }
 
 func TestCapabilitiesSomeAllowed(t *testing.T) {
-	runAuditTest(t, "capabilities_some_allowed.yml", auditCapabilities, []int{ErrorCapabilityAllowed})
+	runAuditTest(t, "capabilities_some_allowed.yml", auditCapabilities, []int{ErrorCapabilityAllowed, ErrorCapabilityAllowed})
 }
 
 func TestCapabilitiesSomeDropped(t *testing.T) {

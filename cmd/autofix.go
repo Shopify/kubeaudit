@@ -22,61 +22,6 @@ func runAllAudits(resource k8sRuntime.Object) (results []Result) {
 	return results
 }
 
-func fixSecurityContextNIL(resource k8sRuntime.Object) k8sRuntime.Object {
-	var containers []Container
-	for _, container := range getContainers(resource) {
-		if container.SecurityContext == nil {
-			container.SecurityContext = &SecurityContext{Capabilities: &Capabilities{}}
-		}
-		containers = append(containers, container)
-	}
-	return setContainers(resource, containers)
-}
-
-func fixPrivilegeEscalation(resource k8sRuntime.Object) k8sRuntime.Object {
-	var containers []Container
-	for _, container := range getContainers(resource) {
-		container.SecurityContext.Privileged = newFalse()
-		containers = append(containers, container)
-	}
-	return setContainers(resource, containers)
-}
-
-func fixAllowPrivilegeEscalation(resource k8sRuntime.Object) k8sRuntime.Object {
-	var containers []Container
-	for _, container := range getContainers(resource) {
-		container.SecurityContext.AllowPrivilegeEscalation = newFalse()
-		containers = append(containers, container)
-	}
-	return setContainers(resource, containers)
-}
-
-func fixReadOnlyRootFilesystem(resource k8sRuntime.Object) k8sRuntime.Object {
-	var containers []Container
-	for _, container := range getContainers(resource) {
-		container.SecurityContext.ReadOnlyRootFilesystem = newTrue()
-		containers = append(containers, container)
-	}
-	return setContainers(resource, containers)
-}
-
-func fixRunAsNonRoot(resource k8sRuntime.Object) k8sRuntime.Object {
-	var containers []Container
-	for _, container := range getContainers(resource) {
-		container.SecurityContext.RunAsNonRoot = newTrue()
-		containers = append(containers, container)
-	}
-	return setContainers(resource, containers)
-}
-
-func fixServiceAccountToken(resource k8sRuntime.Object) k8sRuntime.Object {
-	return setASAT(resource, false)
-}
-
-func fixDeprecatedServiceAccount(resource k8sRuntime.Object) k8sRuntime.Object {
-	return disableDSA(resource)
-}
-
 func fixPotentialSecurityIssues(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
 	resource = fixSecurityContextNIL(resource)
 	for _, occurrence := range result.Occurrences {

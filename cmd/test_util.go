@@ -12,6 +12,27 @@ import (
 
 var path = "../fixtures/"
 
+func FixTestSetup(t *testing.T, file string, functionInterface interface{}) (*assert.Assertions, k8sRuntime.Object) {
+	assert := assert.New(t)
+	file = filepath.Join(path, file)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	assert.Equal(1, len(resources))
+	resource := resources[0]
+	results := getResults(resources, auditCapabilities)
+	assert.Equal(1, len(results))
+	result := results[0]
+	for _, occurrence := range result.Occurrences {
+		switch function := functionInterface.(type) {
+		case func(k8sRuntime.Object) k8sRuntime.Object:
+			resource = function(resource)
+		case func(k8sRuntime.Object, Occurrence) k8sRuntime.Object:
+			resource = function(resource, occurrence)
+		}
+	}
+	return assert, resource
+}
+
 func runAuditTest(t *testing.T, file string, function interface{}, errCodes []int, argStr ...string) (results []Result) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)
@@ -61,10 +82,10 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 		}
 	}
 
+	assert.Equal(len(errCodes), len(errors))
 	for _, errCode := range errCodes {
 		assert.True(errors[errCode])
 	}
-	assert.Equal(len(errors), len(errCodes))
 	return
 }
 
