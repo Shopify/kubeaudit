@@ -3,7 +3,7 @@ package cmd
 import "testing"
 
 func TestFixServiceAccountToken(t *testing.T) {
-	assert, resource := FixTestSetup(t, "service_account_token_true_and_no_name.yml", auditAutomountServiceAccountToken, fixServiceAccountToken)
+	assert, resource := FixTestSetup(t, "service_account_token_true_and_no_name.yml", auditAutomountServiceAccountToken)
 	switch typ := resource.(type) {
 	case *ReplicationController:
 		assert.Equal(false, *typ.Spec.Template.Spec.AutomountServiceAccountToken)
@@ -11,7 +11,7 @@ func TestFixServiceAccountToken(t *testing.T) {
 }
 
 func TestFixDeprecatedServiceAccount(t *testing.T) {
-	assert, resource := FixTestSetup(t, "service_account_token_deprecated.yml", auditAutomountServiceAccountToken, fixDeprecatedServiceAccount)
+	assert, resource := FixTestSetup(t, "service_account_token_deprecated.yml", auditAutomountServiceAccountToken)
 	switch typ := resource.(type) {
 	case *ReplicationController:
 		assert.Equal("", typ.Spec.Template.Spec.DeprecatedServiceAccount)
