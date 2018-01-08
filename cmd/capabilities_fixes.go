@@ -1,13 +1,8 @@
 package cmd
 
-import (
-	"fmt"
-
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
-)
+import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 
 func fixCapabilityNotDropped(resource k8sRuntime.Object, occurrence Occurrence) k8sRuntime.Object {
-	fmt.Println("here")
 	var containers []Container
 	for _, container := range getContainers(resource) {
 		container.SecurityContext.Capabilities.Drop = append(container.SecurityContext.Capabilities.Drop, Capability(occurrence.metadata["CapName"]))
