@@ -54,7 +54,7 @@ func checkCapabilities(container Container, result *Result) {
 		return
 	}
 
-	for cap := range mergeCapSets(toBeDropped, dropped, allowed, added) {
+	for _, cap := range sortCapSet(mergeCapSets(toBeDropped, dropped, allowed, added)) {
 		if !allowed[cap] && !dropped[cap] && toBeDropped[cap] {
 			occ := Occurrence{
 				id:       ErrorCapabilityNotDropped,

@@ -32,6 +32,12 @@
   version = "v2.4.0"
 
 [[projects]]
+  name = "github.com/go-test/deep"
+  packages = ["."]
+  revision = "9898238679c264cfb10411539f14a0553dc8b295"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/ghodss/yaml"
   packages = ["."]
   revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
