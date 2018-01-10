@@ -60,9 +60,6 @@ func auditImages(image imgFlags, resource k8sRuntime.Object) (results []Result) 
 			break
 		}
 	}
-	for _, result := range results {
-		result.Print()
-	}
 	return
 }
 

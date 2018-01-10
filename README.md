@@ -76,6 +76,7 @@ audits against pods in all the phases (default Running Phase)
 ## Audits
 
 `kubeaudit` has multiple checks:
+- [Audit all](#all)
 - [Audit security context](#sc)
   - [Audit readOnlyRootFilesystem](#rootfs)
   - [Audit runAsNonRoot](#root)
@@ -86,6 +87,19 @@ audits against pods in all the phases (default Running Phase)
 - [Audit Service Accounts](#sat)
 - [Audit network policies](#netpol)
 - [Audit resources](#resources)
+
+<a name="all" />
+
+### Audit all
+Runs all the above checks.
+
+```sh
+kubeaudit -l all
+ERRO[0000] RunAsNonRoot is not set, which results in root user being allowed!
+ERRO[0000] Default serviceAccount with token mounted. Please set automountServiceAccountToken to false
+WARN[0000] Privileged defaults to false, which results in non privileged, which is okay.
+ERRO[0000] Capability not dropped     CapName=AUDIT_WRITE
+```
 
 <a name="sc" />
 

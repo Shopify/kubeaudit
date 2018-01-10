@@ -244,6 +244,17 @@ func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 	}
 }
 
+func mergeAuditFunctions(auditFunctions []interface{}) func(resource k8sRuntime.Object) (results []Result) {
+	return func(resource k8sRuntime.Object) (results []Result) {
+		for _, function := range auditFunctions {
+			for _, result := range getResults([]k8sRuntime.Object{resource}, function) {
+				results = append(results, result)
+			}
+		}
+		return results
+	}
+}
+
 func prettifyReason(reason string) string {
 	if strings.ToLower(reason) == "true" {
 		return "Unspecified"
