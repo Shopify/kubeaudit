@@ -7,25 +7,14 @@ import (
 )
 
 func checkPrivileged(container Container, result *Result) {
-	if container.SecurityContext == nil {
-		occ := Occurrence{
-			id:      ErrorSecurityContextNIL,
-			kind:    Error,
-			message: "SecurityContext not set, please set it!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
-	if container.SecurityContext.Privileged == nil {
+	if container.SecurityContext == nil || container.SecurityContext.Privileged == nil {
 		occ := Occurrence{
 			id:      ErrorPrivilegedNIL,
 			kind:    Warn,
 			message: "Privileged defaults to false, which results in non privileged, which is okay.",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
-	if reason := result.Labels["kubeaudit.allow.privileged"]; reason != "" {
+	} else if reason := result.Labels["kubeaudit.allow.privileged"]; reason != "" {
 		if *container.SecurityContext.Privileged == true {
 			occ := Occurrence{
 				id:       ErrorPrivilegedTrueAllowed,
@@ -50,6 +39,7 @@ func checkPrivileged(container Container, result *Result) {
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}
+	return
 }
 
 func auditPrivileged(resource k8sRuntime.Object) (results []Result) {

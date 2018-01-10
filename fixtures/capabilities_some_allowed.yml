@@ -18,6 +18,7 @@ spec:
           capabilities:
             add:
             - SYS_TIME
+            - SYS_MODULE
             drop:
             - AUDIT_WRITE
             - DAC_OVERRIDE

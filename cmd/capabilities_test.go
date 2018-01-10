@@ -10,15 +10,15 @@ func TestRecommendedCapabilitiesToBeDropped(t *testing.T) {
 	assert := assert.New(t)
 	capabilities, err := recommendedCapabilitiesToBeDropped()
 	assert.Nil(err)
-	assert.Equal(arrayToCapSet([]Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}), capabilities, "")
+	assert.Equal(NewCapSetFromArray([]Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}), capabilities, "")
 }
 
 func TestSecurityContextNIL_SC(t *testing.T) {
-	runAuditTest(t, "security_context_nil.yml", auditCapabilities, []int{ErrorSecurityContextNIL})
+	runAuditTest(t, "security_context_nil.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 
 func TestCapabilitiesNIL(t *testing.T) {
-	runAuditTest(t, "capabilities_nil.yml", auditCapabilities, []int{ErrorCapabilitiesNIL})
+	runAuditTest(t, "capabilities_nil.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 
 func TestCapabilitiesAdded(t *testing.T) {
@@ -26,7 +26,7 @@ func TestCapabilitiesAdded(t *testing.T) {
 }
 
 func TestCapabilitiesSomeAllowed(t *testing.T) {
-	runAuditTest(t, "capabilities_some_allowed.yml", auditCapabilities, []int{ErrorCapabilityAllowed})
+	runAuditTest(t, "capabilities_some_allowed.yml", auditCapabilities, []int{ErrorCapabilityAllowed, ErrorCapabilityAllowed})
 }
 
 func TestCapabilitiesSomeDropped(t *testing.T) {

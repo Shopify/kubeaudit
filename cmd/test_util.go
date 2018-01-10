@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"path/filepath"
+	"reflect"
+	"runtime"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
@@ -11,6 +13,19 @@ import (
 )
 
 var path = "../fixtures/"
+
+func FixTestSetup(t *testing.T, file string, auditFunction func(k8sRuntime.Object) []Result) (*assert.Assertions, k8sRuntime.Object) {
+	assert := assert.New(t)
+	file = filepath.Join(path, file)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	assert.Equal(1, len(resources))
+	resource := resources[0]
+	results := getResults(resources, auditFunction)
+	assert.Equal(1, len(results))
+	result := results[0]
+	return assert, fixPotentialSecurityIssue(resource, result)
+}
 
 func runAuditTest(t *testing.T, file string, function interface{}, errCodes []int, argStr ...string) (results []Result) {
 	assert := assert.New(t)
@@ -48,7 +63,8 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 		case (func(limitFlags, k8sRuntime.Object) []Result):
 			currentResults = f(limits, resource)
 		default:
-			log.Fatal("Invalid function provided")
+			name := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
+			log.Fatal("Invalid audit function provided: ", name)
 		}
 		for _, currentResult := range currentResults {
 			results = append(results, currentResult)
@@ -61,10 +77,10 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 		}
 	}
 
+	assert.Equal(len(errCodes), len(errors))
 	for _, errCode := range errCodes {
 		assert.True(errors[errCode])
 	}
-	assert.Equal(len(errors), len(errCodes))
 	return
 }
 
@@ -72,4 +88,18 @@ func runAuditTestInNamespace(t *testing.T, namespace string, file string, functi
 	rootConfig.namespace = namespace
 	runAuditTest(t, file, function, errCodes)
 	rootConfig.namespace = apiv1.NamespaceAll
+}
+
+func NewPod() *Pod {
+	resources, err := getKubeResourcesManifest("../fixtures/pod.yml")
+	if err != nil {
+		return nil
+	}
+	for _, resource := range resources {
+		switch t := resource.(type) {
+		case *Pod:
+			return t
+		}
+	}
+	return nil
 }

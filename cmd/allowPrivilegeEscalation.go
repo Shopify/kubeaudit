@@ -6,17 +6,8 @@ import (
 )
 
 func checkAllowPrivilegeEscalation(container Container, result *Result) {
-	if container.SecurityContext == nil {
-		occ := Occurrence{
-			id:      ErrorSecurityContextNIL,
-			kind:    Error,
-			message: "SecurityContext not set, please set it!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
 	if reason := result.Labels["kubeaudit.allow.privilegeEscalation"]; reason == "" {
-		if container.SecurityContext.AllowPrivilegeEscalation == nil {
+		if container.SecurityContext == nil || container.SecurityContext.AllowPrivilegeEscalation == nil {
 			occ := Occurrence{
 				id:      ErrorAllowPrivilegeEscalationNIL,
 				kind:    Error,
@@ -31,7 +22,7 @@ func checkAllowPrivilegeEscalation(container Container, result *Result) {
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
-	} else if container.SecurityContext.AllowPrivilegeEscalation == nil || *container.SecurityContext.AllowPrivilegeEscalation == true {
+	} else if container.SecurityContext == nil || container.SecurityContext.AllowPrivilegeEscalation == nil || *container.SecurityContext.AllowPrivilegeEscalation == true {
 		occ := Occurrence{
 			id:       ErrorAllowPrivilegeEscalationTrueAllowed,
 			kind:     Warn,

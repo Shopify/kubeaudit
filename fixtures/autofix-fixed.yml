@@ -12,14 +12,13 @@ spec:
       labels:
         apps: fakeSecurityContext
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: fakeContainerSC
         resources: {}
         securityContext:
+          allowPrivilegeEscalation: false
           capabilities:
-            add:
-            - NET_ADMIN
-            - SYS_TIME
             drop:
             - AUDIT_WRITE
             - CHOWN
@@ -32,7 +31,10 @@ spec:
             - NET_RAW
             - SETFCAP
             - SETGID
-            - SETUID
             - SETPCAP
+            - SETUID
             - SYS_CHROOT
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
 status: {}

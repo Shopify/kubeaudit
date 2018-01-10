@@ -14,4 +14,4 @@ spec:
       containers:
       - name: fakeContainerAPE
         securityContext:
-            privileged: true
+            allowPrivilegeEscalation: true

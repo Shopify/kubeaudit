@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"io/ioutil"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -12,8 +11,6 @@ import (
 type capsDropList struct {
 	Drop []string `yaml:"capabilitiesToBeDropped"`
 }
-
-type CapSet map[Capability]bool
 
 func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 	yamlFile, err := ioutil.ReadFile("config/capabilities-drop-list.yml")
@@ -32,62 +29,20 @@ func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 	return
 }
 
-func allowedCaps(result *Result) (allowed map[Capability]string) {
-	allowed = make(map[Capability]string)
-	for k, v := range result.Labels {
-		if strings.Contains(k, "kubeaudit.allow.capability.") {
-			allowed[Capability(strings.ToUpper(strings.TrimPrefix(k, "kubeaudit.allow.capability.")))] = v
-		}
-	}
-	return
-}
-
-func arrayToCapSet(array []Capability) (set CapSet) {
-	set = make(CapSet)
-	for _, cap := range array {
-		set[cap] = true
-	}
-	return
-}
-
-func mergeCapSets(sets ...CapSet) (merged CapSet) {
-	merged = make(CapSet)
-	for _, set := range sets {
-		for k, v := range set {
-			merged[k] = v
-		}
-	}
-	return
-}
-
 func checkCapabilities(container Container, result *Result) {
-	if container.SecurityContext == nil {
-		occ := Occurrence{
-			id:      ErrorSecurityContextNIL,
-			kind:    Error,
-			message: "SecurityContext not set, please set it!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-		return
+	added := CapSet{}
+	dropped := CapSet{}
+	if container.SecurityContext != nil && container.SecurityContext.Capabilities != nil {
+		added = NewCapSetFromArray(container.SecurityContext.Capabilities.Add)
+		dropped = NewCapSetFromArray(container.SecurityContext.Capabilities.Drop)
 	}
 
-	if container.SecurityContext.Capabilities == nil {
-		occ := Occurrence{
-			id:      ErrorCapabilitiesNIL,
-			kind:    Error,
-			message: "Capabilities field not defined!",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-		return
-	}
-
-	added := arrayToCapSet(container.SecurityContext.Capabilities.Add)
-	dropped := arrayToCapSet(container.SecurityContext.Capabilities.Drop)
-	allowedMap := allowedCaps(result)
+	allowedMap := result.allowedCaps()
 	allowed := make(CapSet)
 	for k := range allowedMap {
 		allowed[k] = true
 	}
+
 	toBeDropped, err := recommendedCapabilitiesToBeDropped()
 	if err != nil {
 		occ := Occurrence{
@@ -99,7 +54,7 @@ func checkCapabilities(container Container, result *Result) {
 		return
 	}
 
-	for cap := range mergeCapSets(toBeDropped, dropped, allowed, added) {
+	for _, cap := range sortCapSet(mergeCapSets(toBeDropped, dropped, allowed, added)) {
 		if !allowed[cap] && !dropped[cap] && toBeDropped[cap] {
 			occ := Occurrence{
 				id:       ErrorCapabilityNotDropped,

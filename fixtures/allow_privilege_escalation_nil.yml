@@ -1,17 +1,21 @@
----
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
+  creationTimestamp: null
   name: fakeStatefulSetAPE
   namespace: fakeStatefulSetAPE
 spec:
+  serviceName: ""
   template:
     metadata:
+      creationTimestamp: null
       labels:
         apps: fakeAllowPrivilegeEscalation
     spec:
       containers:
       - name: fakeContainerAPE
-        securityContext:
-          drop:
-          - KILL
+        resources: {}
+        securityContext: {}
+  updateStrategy: {}
+status:
+  replicas: 0

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io/ioutil"
+	"reflect"
 	"runtime"
 	"strings"
 	"sync"
@@ -16,6 +17,15 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 )
+
+func newTrue() *bool {
+	b := true
+	return &b
+}
+
+func newFalse() *bool {
+	return new(bool)
+}
 
 func debugPrint() {
 	if rootConfig.verbose == "DEBUG" {
@@ -31,22 +41,6 @@ func isInRootConfigNamespace(meta metav1.ObjectMeta) (valid bool) {
 
 func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
-}
-
-func getContainers(resource k8sRuntime.Object) (container []Container) {
-	switch kubeType := resource.(type) {
-	case *DaemonSet:
-		container = kubeType.Spec.Template.Spec.Containers
-	case *Deployment:
-		container = kubeType.Spec.Template.Spec.Containers
-	case *Pod:
-		container = kubeType.Spec.Containers
-	case *ReplicationController:
-		container = kubeType.Spec.Template.Spec.Containers
-	case *StatefulSet:
-		container = kubeType.Spec.Template.Spec.Containers
-	}
-	return container
 }
 
 func newResultFromResource(resource k8sRuntime.Object) (result Result) {
@@ -136,6 +130,15 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.O
 	return
 }
 
+func writeManifestFile(decoded []k8sRuntime.Object, filename string) error {
+	for _, decode := range decoded {
+		if err := WriteToFile(decode, filename); err != nil {
+			log.Error(err)
+		}
+	}
+	return nil
+}
+
 func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
@@ -204,7 +207,8 @@ func getResults(resources []k8sRuntime.Object, auditFunc interface{}) []Result {
 			case func(limits limitFlags, resource k8sRuntime.Object) (results []Result):
 				resultsChannel <- append(results, f(limitConfig, resource)...)
 			default:
-				log.Fatal("Invalid audit function provided")
+				name := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
+				log.Fatal("Invalid audit function provided: ", name)
 			}
 			wg.Done()
 		}(resource)
@@ -223,11 +227,13 @@ func getResults(resources []k8sRuntime.Object, auditFunc interface{}) []Result {
 func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		if err := checkParams(auditFunc); err != nil {
+			log.Error("Parameter check failed")
 			log.Error(err)
 		}
 		setFormatter()
 		resources, err := getResources()
 		if err != nil {
+			log.Error("getResources failed")
 			log.Error(err)
 			return
 		}

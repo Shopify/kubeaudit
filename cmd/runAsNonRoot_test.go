@@ -5,7 +5,7 @@ import (
 )
 
 func TestSecurityContextNIL(t *testing.T) {
-	runAuditTest(t, "security_context_nil.yml", auditRunAsNonRoot, []int{ErrorSecurityContextNIL})
+	runAuditTest(t, "security_context_nil.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootNIL})
 }
 
 func TestRunAsNonRootNil(t *testing.T) {
@@ -16,10 +16,10 @@ func TestRunAsNonRootFalse(t *testing.T) {
 	runAuditTest(t, "run_as_non_root_false.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalse})
 }
 
-func TestAllowRunAsRootFalseAllowed(t *testing.T) {
+func TestRunAsRootFalseAllowed(t *testing.T) {
 	runAuditTest(t, "run_as_non_root_false_allowed.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalseAllowed})
 }
 
-func TestAllowRunAsNonRootMisconfiguredAllow(t *testing.T) {
+func TestRunAsNonRootMisconfiguredAllow(t *testing.T) {
 	runAuditTest(t, "run_as_non_root_misconfigured_allow.yml", auditRunAsNonRoot, []int{ErrorMisconfiguredKubeauditAllow})
 }
