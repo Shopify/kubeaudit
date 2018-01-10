@@ -13,6 +13,7 @@ privileged, ... You get the gist of it and more on that later. Just know:
 
 - [Installation](#installation)
 - [General instructions](#general)
+- [Autofix](#autofix)
 - [Audits](#audits)
 - [Override Labels](#labels)
 - [Contribute!](#contribute)
@@ -70,6 +71,16 @@ I need help! Run `kubeaudit help` every audit has its own help so you can run
 
 Last but not least before we look at the audits: `kubeaudit -a/--allPods`
 audits against pods in all the phases (default Running Phase)
+
+<a name="autofix" />
+
+## Autofix
+
+As humans we are lazy and `kubeaudit` knows that so it comes with the functionality to `autofix` workload manifests. Point it at your workload manifests and it will automagically fix everything so that manifests are as secure as it gets.
+
+`kubeaudit autofix -f path/to/manifest.yml`
+
+The manifest might end up a little too secure for the work it is supposed to do. If that is the case check out [labels](#labels) to opt out of certain checks.
 
 <a name="audits" />
 
