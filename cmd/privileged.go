@@ -54,10 +54,9 @@ func auditPrivileged(resource k8sRuntime.Object) (results []Result) {
 	return
 }
 
-// runAsNonRootCmd represents the runAsNonRoot command
 var privileged = &cobra.Command{
 	Use:   "priv",
-	Short: "Audit containers running as root",
+	Short: "Audit containers running as privileged",
 	Long: `This command determines which containers in a kubernetes cluster
 are running as privileged.
 
