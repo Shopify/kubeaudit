@@ -10,7 +10,7 @@ spec:
       creationTimestamp: null
       labels:
         apps: fakeSecurityContext
-        kubeaudit.allow.runAsRoot: "Superuser privileges needed"
+        audit.kubernetes.io/allow-run-as-root: "Superuser privileges needed"
     spec:
       containers:
       - name: fakeContainerRANR

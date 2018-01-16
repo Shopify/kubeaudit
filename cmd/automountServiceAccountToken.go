@@ -17,7 +17,7 @@ func checkAutomountServiceAccountToken(result *Result) {
 		return
 	}
 
-	if reason := result.Labels["kubeaudit.allow.automountServiceAccountToken"]; reason != "" {
+	if reason := result.Labels["audit.kubernetes.io/allow-automount-service-account-token"]; reason != "" {
 		if result.Token != nil && *result.Token {
 			occ := Occurrence{
 				id:       ErrorAutomountServiceAccountTokenTrueAllowed,

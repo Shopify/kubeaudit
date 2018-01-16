@@ -9,7 +9,7 @@ spec:
     metadata:
       labels:
         apps: fakeAllowPrivilegeEscalation
-        kubeaudit.allow.privilegeEscalation: "Superuser privileges needed"
+        audit.kubernetes.io/allow-privilege-escalation: "Superuser privileges needed"
     spec:
       containers:
       - name: fakeContainerAPE
