@@ -82,8 +82,9 @@ func shouldLog(err int) (members []string) {
 func (r *Result) allowedCaps() (allowed map[Capability]string) {
 	allowed = make(map[Capability]string)
 	for k, v := range r.Labels {
-		if strings.Contains(k, "kubeaudit.allow.capability.") {
-			allowed[Capability(strings.ToUpper(strings.TrimPrefix(k, "kubeaudit.allow.capability.")))] = v
+		if strings.Contains(k, "audit.kubernetes.io/allow-capability-") {
+			capName := strings.Replace(strings.ToUpper(strings.TrimPrefix(k, "audit.kubernetes.io/allow-capability-")), "-", "_", -1)
+			allowed[Capability(capName)] = v
 		}
 	}
 	return

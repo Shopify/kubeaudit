@@ -7,7 +7,7 @@ import (
 )
 
 func checkRunAsNonRoot(container Container, result *Result) {
-	if reason := result.Labels["kubeaudit.allow.runAsRoot"]; reason != "" {
+	if reason := result.Labels["audit.kubernetes.io/allow-run-as-root"]; reason != "" {
 		if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{
 				id:       ErrorRunAsNonRootFalseAllowed,

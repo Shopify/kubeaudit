@@ -9,8 +9,8 @@ spec:
     metadata:
       labels:
         apps: fakeSecurityContext
-        kubeaudit.allow.capability.chown: "True"
-        kubeaudit.allow.capability.sys_time: "Time is of the essence"
+        audit.kubernetes.io/allow-capability-chown: "True"
+        audit.kubernetes.io/allow-capability-sys-time: "Time is of the essence"
     spec:
       containers:
       - name: fakeContainerSC

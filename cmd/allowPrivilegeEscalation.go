@@ -6,7 +6,7 @@ import (
 )
 
 func checkAllowPrivilegeEscalation(container Container, result *Result) {
-	if reason := result.Labels["kubeaudit.allow.privilegeEscalation"]; reason == "" {
+	if reason := result.Labels["audit.kubernetes.io/allow-privilege-escalation"]; reason == "" {
 		if container.SecurityContext == nil || container.SecurityContext.AllowPrivilegeEscalation == nil {
 			occ := Occurrence{
 				id:      ErrorAllowPrivilegeEscalationNIL,
