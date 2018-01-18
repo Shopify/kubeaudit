@@ -13,15 +13,6 @@ func getAuditFunctions() []interface{} {
 	}
 }
 
-func runAllAudits(resource k8sRuntime.Object) (results []Result) {
-	for _, function := range getAuditFunctions() {
-		for _, result := range getResults([]k8sRuntime.Object{resource}, function) {
-			results = append(results, result)
-		}
-	}
-	return results
-}
-
 func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
 	resource = fixSecurityContextNIL(resource)
 	resource = fixCapabilitiesNIL(resource)
@@ -50,7 +41,7 @@ func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRun
 
 func fix(resources []k8sRuntime.Object) (fixedResources []k8sRuntime.Object) {
 	for _, resource := range resources {
-		results := runAllAudits(resource)
+		results := mergeAuditFunctions(getAuditFunctions())(resource)
 		for _, result := range results {
 			resource = fixPotentialSecurityIssue(resource, result)
 		}
