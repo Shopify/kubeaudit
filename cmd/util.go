@@ -135,6 +135,7 @@ func writeManifestFile(decoded []k8sRuntime.Object, filename string) error {
 	for _, decode := range decoded {
 		if err := WriteToFile(decode, filename, toAppend); err != nil {
 			log.Error(err)
+			return err
 		}
 		toAppend = true
 	}

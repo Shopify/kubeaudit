@@ -110,6 +110,7 @@ func WriteToFile(decode k8sRuntime.Object, filename string, toAppend bool) error
 		}
 	} else {
 		f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		defer f.Close()
 		if err != nil {
 			return err
 		}
@@ -117,8 +118,6 @@ func WriteToFile(decode k8sRuntime.Object, filename string, toAppend bool) error
 		if err != nil {
 			return err
 		}
-		f.Close()
 	}
-
 	return nil
 }
