@@ -131,10 +131,13 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.O
 }
 
 func writeManifestFile(decoded []k8sRuntime.Object, filename string) error {
+	var toAppend bool
 	for _, decode := range decoded {
-		if err := WriteToFile(decode, filename); err != nil {
+		if err := WriteToFile(decode, filename, toAppend); err != nil {
 			log.Error(err)
+			return err
 		}
+		toAppend = true
 	}
 	return nil
 }
