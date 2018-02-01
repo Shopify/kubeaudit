@@ -110,10 +110,10 @@ func WriteToFile(decode k8sRuntime.Object, filename string, toAppend bool) error
 		}
 	} else {
 		f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-		defer f.Close()
 		if err != nil {
 			return err
 		}
+		defer f.Close()
 		_, err = f.Write(yaml)
 		if err != nil {
 			return err
