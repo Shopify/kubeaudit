@@ -10,33 +10,37 @@ func checkReadOnlyRootFS(container Container, result *Result) {
 	if reason := result.Labels["audit.kubernetes.io/allow-read-only-root-filesystem-false"]; reason != "" {
 		if container.SecurityContext == nil || container.SecurityContext.ReadOnlyRootFilesystem == nil || *container.SecurityContext.ReadOnlyRootFilesystem == false {
 			occ := Occurrence{
-				id:       ErrorReadOnlyRootFilesystemFalseAllowed,
-				kind:     Warn,
-				message:  "Allowed setting readOnlyRootFilesystem to false",
-				metadata: Metadata{"Reason": prettifyReason(reason)},
+				container: container.Name,
+				id:        ErrorReadOnlyRootFilesystemFalseAllowed,
+				kind:      Warn,
+				message:   "Allowed setting readOnlyRootFilesystem to false",
+				metadata:  Metadata{"Reason": prettifyReason(reason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		} else {
 			occ := Occurrence{
-				id:       ErrorMisconfiguredKubeauditAllow,
-				kind:     Warn,
-				message:  "Allowed setting readOnlyRootFilesystem to false, but it is set to true",
-				metadata: Metadata{"Reason": prettifyReason(reason)},
+				container: container.Name,
+				id:        ErrorMisconfiguredKubeauditAllow,
+				kind:      Warn,
+				message:   "Allowed setting readOnlyRootFilesystem to false, but it is set to true",
+				metadata:  Metadata{"Reason": prettifyReason(reason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
 	} else if container.SecurityContext == nil || container.SecurityContext.ReadOnlyRootFilesystem == nil {
 		occ := Occurrence{
-			id:      ErrorReadOnlyRootFilesystemNIL,
-			kind:    Error,
-			message: "ReadOnlyRootFilesystem not set which results in a writable rootFS, please set to true",
+			container: container.Name,
+			id:        ErrorReadOnlyRootFilesystemNIL,
+			kind:      Error,
+			message:   "ReadOnlyRootFilesystem not set which results in a writable rootFS, please set to true",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	} else if !*container.SecurityContext.ReadOnlyRootFilesystem {
 		occ := Occurrence{
-			id:      ErrorReadOnlyRootFilesystemFalse,
-			kind:    Error,
-			message: "ReadOnlyRootFilesystem set to false, please set to true",
+			container: container.Name,
+			id:        ErrorReadOnlyRootFilesystemFalse,
+			kind:      Error,
+			message:   "ReadOnlyRootFilesystem set to false, please set to true",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}

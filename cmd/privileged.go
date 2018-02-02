@@ -9,33 +9,37 @@ import (
 func checkPrivileged(container Container, result *Result) {
 	if container.SecurityContext == nil || container.SecurityContext.Privileged == nil {
 		occ := Occurrence{
-			id:      ErrorPrivilegedNIL,
-			kind:    Warn,
-			message: "Privileged defaults to false, which results in non privileged, which is okay.",
+			container: container.Name,
+			id:        ErrorPrivilegedNIL,
+			kind:      Warn,
+			message:   "Privileged defaults to false, which results in non privileged, which is okay.",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	} else if reason := result.Labels["audit.kubernetes.io/allow-privileged"]; reason != "" {
 		if *container.SecurityContext.Privileged == true {
 			occ := Occurrence{
-				id:       ErrorPrivilegedTrueAllowed,
-				kind:     Warn,
-				message:  "Allowed setting privileged to true",
-				metadata: Metadata{"Reason": prettifyReason(reason)},
+				container: container.Name,
+				id:        ErrorPrivilegedTrueAllowed,
+				kind:      Warn,
+				message:   "Allowed setting privileged to true",
+				metadata:  Metadata{"Reason": prettifyReason(reason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		} else {
 			occ := Occurrence{
-				id:      ErrorMisconfiguredKubeauditAllow,
-				kind:    Warn,
-				message: "Allowed setting privileged to true, but privileged is false or nil",
+				container: container.Name,
+				id:        ErrorMisconfiguredKubeauditAllow,
+				kind:      Warn,
+				message:   "Allowed setting privileged to true, but privileged is false or nil",
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
 	} else if *container.SecurityContext.Privileged == true {
 		occ := Occurrence{
-			id:      ErrorPrivilegedTrue,
-			kind:    Error,
-			message: "Privileged set to true! Please change it to false!",
+			container: container.Name,
+			id:        ErrorPrivilegedTrue,
+			kind:      Error,
+			message:   "Privileged set to true! Please change it to false!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}

@@ -10,33 +10,37 @@ func checkRunAsNonRoot(container Container, result *Result) {
 	if reason := result.Labels["audit.kubernetes.io/allow-run-as-root"]; reason != "" {
 		if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{
-				id:       ErrorRunAsNonRootFalseAllowed,
-				kind:     Warn,
-				message:  "Allowed setting RunAsNonRoot to false",
-				metadata: Metadata{"Reason": prettifyReason(reason)},
+				container: container.Name,
+				id:        ErrorRunAsNonRootFalseAllowed,
+				kind:      Warn,
+				message:   "Allowed setting RunAsNonRoot to false",
+				metadata:  Metadata{"Reason": prettifyReason(reason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		} else {
 			occ := Occurrence{
-				id:       ErrorMisconfiguredKubeauditAllow,
-				kind:     Warn,
-				message:  "Allowed setting RunAsNonRoot to false, but it is set to true",
-				metadata: Metadata{"Reason": prettifyReason(reason)},
+				container: container.Name,
+				id:        ErrorMisconfiguredKubeauditAllow,
+				kind:      Warn,
+				message:   "Allowed setting RunAsNonRoot to false, but it is set to true",
+				metadata:  Metadata{"Reason": prettifyReason(reason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
 	} else if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil {
 		occ := Occurrence{
-			id:      ErrorRunAsNonRootNIL,
-			kind:    Error,
-			message: "RunAsNonRoot is not set, which results in root user being allowed!",
+			container: container.Name,
+			id:        ErrorRunAsNonRootNIL,
+			kind:      Error,
+			message:   "RunAsNonRoot is not set, which results in root user being allowed!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	} else if *container.SecurityContext.RunAsNonRoot == false {
 		occ := Occurrence{
-			id:      ErrorRunAsNonRootFalse,
-			kind:    Error,
-			message: "RunAsNonRoot is set to false (root user allowed), please set to true!",
+			container: container.Name,
+			id:        ErrorRunAsNonRootFalse,
+			kind:      Error,
+			message:   "RunAsNonRoot is set to false (root user allowed), please set to true!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}
