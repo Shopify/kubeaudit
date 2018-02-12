@@ -273,6 +273,18 @@ func mergeAuditFunctions(auditFunctions []interface{}) func(resource k8sRuntime.
 	}
 }
 
+func checkLabel(labelName string, container Container, result *Result) string {
+	if reason := result.Labels["audit.kubernetes.io/ignore/*"]; reason != "" {
+		return reason
+	} else if reason := result.Labels["audit.kubernetes.io/ignore/"+container.Name]; reason != "" {
+		return reason
+	} else if reason := result.Labels["audit.kubernetes.io/"+labelName+"/*"]; reason != "" {
+		return reason
+	} else {
+		return result.Labels["audit.kubernetes.io/"+labelName+"/"+container.Name]
+	}
+}
+
 func prettifyReason(reason string) string {
 	if strings.ToLower(reason) == "true" {
 		return "Unspecified"
