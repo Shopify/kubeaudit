@@ -19,17 +19,17 @@ func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRun
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNIL, ErrorAllowPrivilegeEscalationTrue:
-			resource = fixAllowPrivilegeEscalation(resource)
+			resource = fixAllowPrivilegeEscalation(resource, occurrence)
 		case ErrorCapabilityNotDropped:
 			resource = fixCapabilityNotDropped(resource, occurrence)
 		case ErrorCapabilityAdded:
 			resource = fixCapabilityAdded(resource, occurrence)
 		case ErrorPrivilegedNIL, ErrorPrivilegedTrue:
-			resource = fixPrivileged(resource)
+			resource = fixPrivileged(resource, occurrence)
 		case ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNIL:
-			resource = fixReadOnlyRootFilesystem(resource)
+			resource = fixReadOnlyRootFilesystem(resource, occurrence)
 		case ErrorRunAsNonRootFalse, ErrorRunAsNonRootNIL:
-			resource = fixRunAsNonRoot(resource)
+			resource = fixRunAsNonRoot(resource, occurrence)
 		case ErrorServiceAccountTokenDeprecated:
 			resource = fixDeprecatedServiceAccount(resource)
 		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNILAndNoName:

@@ -33,19 +33,34 @@ func checkImage(container Container, image imgFlags, result *Result) {
 	result.ImageTag = contImage.tag
 
 	if len(contImage.tag) == 0 {
-		occ := Occurrence{id: ErrorImageTagMissing, kind: Warn, message: "Image tag was missing"}
+		occ := Occurrence{
+			container: container.Name,
+			id:        ErrorImageTagMissing,
+			kind:      Warn,
+			message:   "Image tag was missing",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
 	if contImage.name == image.name && contImage.tag != image.tag {
-		occ := Occurrence{id: ErrorImageTagIncorrect, kind: Error, message: "Image tag was incorrect"}
+		occ := Occurrence{
+			container: container.Name,
+			id:        ErrorImageTagIncorrect,
+			kind:      Error,
+			message:   "Image tag was incorrect",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
 
 	if contImage.name == image.name && contImage.tag == image.tag {
-		occ := Occurrence{id: InfoImageCorrect, kind: Info, message: "Image tag was correct"}
+		occ := Occurrence{
+			container: container.Name,
+			id:        InfoImageCorrect,
+			kind:      Info,
+			message:   "Image tag was correct",
+		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}

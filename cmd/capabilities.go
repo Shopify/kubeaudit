@@ -46,9 +46,10 @@ func checkCapabilities(container Container, result *Result) {
 	toBeDropped, err := recommendedCapabilitiesToBeDropped()
 	if err != nil {
 		occ := Occurrence{
-			id:      KubeauditInternalError,
-			kind:    Error,
-			message: "This should not have happened, if you are on kubeaudit master please consider to report: " + err.Error(),
+			container: container.Name,
+			id:        KubeauditInternalError,
+			kind:      Error,
+			message:   "This should not have happened, if you are on kubeaudit master please consider to report: " + err.Error(),
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
@@ -57,25 +58,28 @@ func checkCapabilities(container Container, result *Result) {
 	for _, cap := range sortCapSet(mergeCapSets(toBeDropped, dropped, allowed, added)) {
 		if !allowed[cap] && !dropped[cap] && toBeDropped[cap] {
 			occ := Occurrence{
-				id:       ErrorCapabilityNotDropped,
-				kind:     Error,
-				message:  "Capability not dropped",
-				metadata: Metadata{"CapName": string(cap)},
+				container: container.Name,
+				id:        ErrorCapabilityNotDropped,
+				kind:      Error,
+				message:   "Capability not dropped",
+				metadata:  Metadata{"CapName": string(cap)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		} else if !allowed[cap] && added[cap] {
 			occ := Occurrence{
-				id:       ErrorCapabilityAdded,
-				kind:     Error,
-				message:  "Capability added",
-				metadata: Metadata{"CapName": string(cap)},
+				container: container.Name,
+				id:        ErrorCapabilityAdded,
+				kind:      Error,
+				message:   "Capability added",
+				metadata:  Metadata{"CapName": string(cap)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		} else if allowed[cap] && (toBeDropped[cap] && !dropped[cap] || added[cap]) {
 			occ := Occurrence{
-				id:      ErrorCapabilityAllowed,
-				kind:    Warn,
-				message: "Capability allowed",
+				container: container.Name,
+				id:        ErrorCapabilityAllowed,
+				kind:      Warn,
+				message:   "Capability allowed",
 				metadata: Metadata{
 					"CapName": string(cap),
 					"Reason":  prettifyReason(allowedMap[cap]),
@@ -84,9 +88,10 @@ func checkCapabilities(container Container, result *Result) {
 			result.Occurrences = append(result.Occurrences, occ)
 		} else if allowed[cap] && !(toBeDropped[cap] && !dropped[cap] || added[cap]) {
 			occ := Occurrence{
-				id:      ErrorMisconfiguredKubeauditAllow,
-				kind:    Warn,
-				message: "Capability allowed but not present",
+				container: container.Name,
+				id:        ErrorMisconfiguredKubeauditAllow,
+				kind:      Warn,
+				message:   "Capability allowed but not present",
 				metadata: Metadata{
 					"CapName": string(cap),
 					"Reason":  allowedMap[cap],
@@ -103,7 +108,6 @@ func auditCapabilities(resource k8sRuntime.Object) (results []Result) {
 		checkCapabilities(container, &result)
 		if len(result.Occurrences) > 0 {
 			results = append(results, result)
-			break
 		}
 	}
 	return
