@@ -15,14 +15,13 @@ func checkPrivileged(container Container, result *Result) {
 			message:   "Privileged defaults to false, which results in non privileged, which is okay.",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-	} else if reason := result.Labels["audit.kubernetes.io/allow-privileged"]; reason != "" {
+	} else if allowed("privileged", container.Name, result.Labels) {
 		if *container.SecurityContext.Privileged == true {
 			occ := Occurrence{
 				container: container.Name,
 				id:        ErrorPrivilegedTrueAllowed,
 				kind:      Warn,
 				message:   "Allowed setting privileged to true",
-				metadata:  Metadata{"Reason": prettifyReason(reason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		} else {

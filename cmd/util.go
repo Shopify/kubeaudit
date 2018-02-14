@@ -273,16 +273,15 @@ func mergeAuditFunctions(auditFunctions []interface{}) func(resource k8sRuntime.
 	}
 }
 
-func checkLabel(labelName string, container Container, result *Result) string {
-	if reason := result.Labels["audit.kubernetes.io/*/allow/*"]; reason != "" {
-		return reason
-	} else if reason := result.Labels["audit.kubernetes.io/"+"*/allow/"+labelName]; reason != "" {
-		return reason
-	} else if reason := result.Labels["audit.kubernetes.io/"+container.Name+"/allow/*"]; reason != "" {
-		return reason
-	} else {
-		return result.Labels["audit.kubernetes.io/"+labelName+"/allow/"+container.Name]
+func allowed(overrideName string, containerName string, labels map[string]string) bool {
+	s := labels["audit.allow.alpha.kubernetes.io"] + "," + labels["container.audit.allow.alpha.kubernetes.io/"+containerName]
+	labelsArr := strings.Split(s, ",")
+	for _, label := range labelsArr {
+		if label == overrideName {
+			return true
+		}
 	}
+	return false
 }
 
 func prettifyReason(reason string) string {

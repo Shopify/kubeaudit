@@ -295,86 +295,90 @@ WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125M
 ## Override Labels
 
 Override labels give you the ability to have `kubeaudit` allow certain audits to fail.
-For example, if you want `kubeaudit` to ignore the fact that `AllowPrivilegeEscalation` was set to `true`, you can add the following label:
-
+Overrides can be specified for an entire resource:
 ```sh
-spec:
-  template:
-    metadata:
-      labels:
-        apps: YourAppNameHere
-        kubeaudit.allow.privilegeEscalation: "YourReasonForOverrideHere"
+labels:
+  audit.allow.alpha.kubernetes.io: <override1>,<override2>...
 ```
 
-Any label with a non-nil reason string will prevent `kubeaudit` from throwing the corresponding error and issue a warning instead.
-Reasons matching `"true"` (not case sensitive) will be displayed as `Unspecified`.
+Or for a specfic container:
+```sh
+labels:
+  container.audit.allow.alpha.kubernetes.io/<container_name>: <override1>,<override2>...
+```
 
-`kubeaudit` supports many labels:
-- [kubeaudit.allow.privilegeEscalation](#allowpe_label)
-- [kubeaudit.allow.privileged](#priv_label)
-- [kubeaudit.allow.capability](#caps_label)
-- [kubeaudit.allow.runAsRoot](#nonroot_label)
-- [kubeaudit.allow.automountServiceAccountToken](#sat_label)
-- [kubeaudit.allow.readOnlyRootFilesystemFalse](#rootfs_label)
+Wildcards can also be used if you want kubeaudit to ignore all audits:
+```sh
+audit.allow.alpha.kuberentes.io: *
+container.allow.alpha.kubernetes.io: *
+```
+
+`kubeaudit` supports many overrides:
+- [privilegeEscalation](#allowpe_label)
+- [privileged](#priv_label)
+- [capability_<CAPNAME>](#caps_label)
+- [runAsRoot](#nonroot_label)
+- [automountServiceAccountToken](#sat_label)
+- [readOnlyRootFilesystemFalse](#rootfs_label)
 
 <a name="allowpe_label"/>
 
-### kubeaudit.allow.privilegeEscalation
+### privilegeEscalation
 
 Allows `allowPrivilegeEscalation` to be set to `true`.
 
 ```sh
-kubeaudit.allow.privilegeEscalation: "Superuser privileges needed"
+audit.allow.alpha.kubernetes.io: privilegeEscalation
 
-WARN[0000] Allowed setting AllowPrivilegeEscalation to true  Reason="Superuser privileges needed"
+WARN[0000] Allowed setting AllowPrivilegeEscalation to true
 ```
 
 <a name="priv_label"/>
 
-### kubeaudit.allow.privileged
+### privileged
 
 Allows `privileged` to be set to `true`.
 
 ```sh
-kubeaudit.allow.privileged: "Privileged execution required"
+audit.allow.alpha.kubernetes.io: privileged
 
-WARN[0000] Allowed setting privileged to true                Reason="Privileged execution required"
+WARN[0000] Allowed setting privileged to true
 ```
 
 <a name="caps_label"/>
 
-### kubeaudit.allow.capability
+### capability_<CAPNAME>
 
 Allows adding a capability or keeping one that would otherwise be dropped.
 
 ```sh
-kubeaudit.allow.capability.chown: "true"
+audit.allow.alpha.kuberntes.io: capability_CHOWN
 
-WARN[0000] Capability allowed                                CapName=CHOWN Reason=Unspecified
+WARN[0000] Capability allowed     CapName=CHOWN
 ```
 
 <a name="nonroot_label"/>
 
-### kubeaudit.allow.runAsRoot
+### runAsRoot
 
 Allows setting `runAsNonRoot` to `false`.
 
 ```sh
-kubeaudit.allow.runAsRoot: "Root privileges needed"
+audit.allow.alpha.kubernetes.io: runAsRoot
 
-WARN[0000] Allowed setting RunAsNonRoot to false             Reason="Root privileges needed"
+WARN[0000] Allowed setting RunAsNonRoot to false
 ```
 
 <a name="sat_label"/>
 
-### kubeaudit.automountServiceAccountToken
+### automountServiceAccountToken
 
 Allows setting `automountServiceAccountToken` to `true`.
 
 ```sh
-kubeaudit.allow.autmountServiceAccountToken: "True"
+audit.allow.alpha.kubernetes.io: autmountServiceAccountToken
 
-WARN[0000] Allowed setting automountServiceAccountToken to true  Reason=Unspecified
+WARN[0000] Allowed setting automountServiceAccountToken to true
 ```
 
 <a name="rootfs_label"/>
@@ -384,9 +388,9 @@ WARN[0000] Allowed setting automountServiceAccountToken to true  Reason=Unspecif
 Allows setting `readOnlyRootFilesystem` to `false`
 
 ```sh
-kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"
+audit.allow.alpha.kubernetes.io: readOnlyRootFilesystemFalse
 
-WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permissions needed"
+WARN[0000] Allowed setting readOnlyRootFilesystem to false
 ```
 
 <a name="contribute" />
