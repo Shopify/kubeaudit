@@ -11,6 +11,9 @@ import (
 
 func setContainers(resource k8sRuntime.Object, containers []Container) k8sRuntime.Object {
 	switch t := resource.(type) {
+	case *CronJob:
+		t.Spec.JobTemplate.Spec.Template.Spec.Containers = containers
+		return t.DeepCopyObject()
 	case *DaemonSet:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
@@ -32,6 +35,9 @@ func setContainers(resource k8sRuntime.Object, containers []Container) k8sRuntim
 
 func disableDSA(resource k8sRuntime.Object) k8sRuntime.Object {
 	switch t := resource.(type) {
+	case *CronJob:
+		t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount = ""
+		return t.DeepCopyObject()
 	case *DaemonSet:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
@@ -59,6 +65,9 @@ func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
 		boolean = newFalse()
 	}
 	switch t := resource.(type) {
+	case *CronJob:
+		t.Spec.JobTemplate.Spec.Template.Spec.AutomountServiceAccountToken = boolean
+		return t.DeepCopyObject()
 	case *DaemonSet:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
@@ -80,6 +89,8 @@ func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
 
 func getContainers(resource k8sRuntime.Object) (container []Container) {
 	switch kubeType := resource.(type) {
+	case *CronJob:
+		container = kubeType.Spec.JobTemplate.Spec.Template.Spec.Containers
 	case *DaemonSet:
 		container = kubeType.Spec.Template.Spec.Containers
 	case *Deployment:
