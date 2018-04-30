@@ -2,6 +2,7 @@ package cmd
 
 import (
 	v1beta1 "k8s.io/api/apps/v1beta1"
+	v1beta2 "k8s.io/api/apps/v1beta2"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
@@ -11,7 +12,6 @@ import (
 
 type CronJob = batchv1beta1.CronJob
 type DaemonSet = extensionsv1beta1.DaemonSet
-type Deployment = v1beta1.Deployment
 type NetworkPolicy = networking.NetworkPolicy
 type Pod = apiv1.Pod
 type ReplicationController = apiv1.ReplicationController
@@ -33,5 +33,9 @@ type Capabilities = apiv1.Capabilities
 type Capability = apiv1.Capability
 type Container = apiv1.Container
 type ListOptions = metav1.ListOptions
+
+type DeploymentV1Beta1 = v1beta1.Deployment
+type DeploymentV1Beta2 = v1beta2.Deployment
+type DeploymentExtensionsV1Beta1 = extensionsv1beta1.Deployment
 
 type Metadata = map[string]string
