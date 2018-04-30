@@ -47,6 +47,11 @@ func newResultFromResource(resource k8sRuntime.Object) (result *Result) {
 	result = &Result{}
 
 	switch kubeType := resource.(type) {
+	case *CronJob:
+		result.KubeType = "cronjob"
+		result.Labels = kubeType.Spec.JobTemplate.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	case *DaemonSet:
 		result.KubeType = "daemonSet"
 		result.Labels = kubeType.Spec.Template.Labels
@@ -91,6 +96,10 @@ func newResultFromResource(resource k8sRuntime.Object) (result *Result) {
 func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) *Result {
 	result := newResultFromResource(resource)
 	switch kubeType := resource.(type) {
+	case *CronJob:
+		result.DSA = kubeType.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount
+		result.SA = kubeType.Spec.JobTemplate.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.JobTemplate.Spec.Template.Spec.AutomountServiceAccountToken
 	case *DaemonSet:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
@@ -119,8 +128,6 @@ func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) *Re
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
-	default:
-		return nil
 	}
 	return result
 }
