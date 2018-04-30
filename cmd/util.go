@@ -52,7 +52,17 @@ func newResultFromResource(resource k8sRuntime.Object) (result *Result) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
-	case *Deployment:
+	case *DeploymentV1Beta1:
+		result.KubeType = "deployment"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+	case *DeploymentV1Beta2:
+		result.KubeType = "deployment"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+	case *DeploymentExtensionsV1Beta1:
 		result.KubeType = "deployment"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
@@ -85,7 +95,15 @@ func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) *Re
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
-	case *Deployment:
+	case *DeploymentV1Beta1:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	case *DeploymentV1Beta2:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	case *DeploymentExtensionsV1Beta1:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
