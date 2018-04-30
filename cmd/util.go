@@ -43,7 +43,9 @@ func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
 }
 
-func newResultFromResource(resource k8sRuntime.Object) (result Result) {
+func newResultFromResource(resource k8sRuntime.Object) (result *Result) {
+	result = &Result{}
+
 	switch kubeType := resource.(type) {
 	case *DaemonSet:
 		result.KubeType = "daemonSet"
@@ -70,11 +72,13 @@ func newResultFromResource(resource k8sRuntime.Object) (result Result) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
+	default:
+		return nil
 	}
 	return
 }
 
-func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) Result {
+func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) *Result {
 	result := newResultFromResource(resource)
 	switch kubeType := resource.(type) {
 	case *DaemonSet:
@@ -97,6 +101,8 @@ func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) Res
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	default:
+		return nil
 	}
 	return result
 }

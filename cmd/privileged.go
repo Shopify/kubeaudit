@@ -49,10 +49,12 @@ func checkPrivileged(container Container, result *Result) {
 func auditPrivileged(resource k8sRuntime.Object) (results []Result) {
 	for _, container := range getContainers(resource) {
 		result := newResultFromResource(resource)
-		checkPrivileged(container, &result)
-		if len(result.Occurrences) > 0 {
-			results = append(results, result)
-			break
+		if result != nil {
+			checkPrivileged(container, result)
+			if len(result.Occurrences) > 0 {
+				results = append(results, *result)
+				break
+			}
 		}
 	}
 	return

@@ -49,10 +49,12 @@ func checkAllowPrivilegeEscalation(container Container, result *Result) {
 func auditAllowPrivilegeEscalation(resource k8sRuntime.Object) (results []Result) {
 	for _, container := range getContainers(resource) {
 		result := newResultFromResource(resource)
-		checkAllowPrivilegeEscalation(container, &result)
-		if len(result.Occurrences) > 0 {
-			results = append(results, result)
-			break
+		if result != nil {
+			checkAllowPrivilegeEscalation(container, result)
+			if len(result.Occurrences) > 0 {
+				results = append(results, *result)
+				break
+			}
 		}
 	}
 	return

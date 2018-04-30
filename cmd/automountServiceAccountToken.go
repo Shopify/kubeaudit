@@ -63,9 +63,11 @@ func checkAutomountServiceAccountToken(result *Result) {
 
 func auditAutomountServiceAccountToken(resource k8sRuntime.Object) (results []Result) {
 	result := newResultFromResourceWithServiceAccountInfo(resource)
-	checkAutomountServiceAccountToken(&result)
-	if len(result.Occurrences) > 0 {
-		results = append(results, result)
+	if result != nil {
+		checkAutomountServiceAccountToken(result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, *result)
+		}
 	}
 	return
 }
