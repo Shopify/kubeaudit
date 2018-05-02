@@ -1,7 +1,5 @@
 package cmd
 
-import "errors"
-
 const (
 	_ = iota
 	KubeauditInternalError
@@ -35,8 +33,4 @@ const (
 	ErrorServiceAccountTokenNoName
 	InfoImageCorrect
 	PlaceHolder
-)
-
-var (
-	ErrResourceTypeNotSupported = errors.New("Resource type not supported")
 )

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
@@ -49,10 +50,9 @@ func checkPrivileged(container Container, result *Result) {
 func auditPrivileged(resource k8sRuntime.Object) (results []Result) {
 	for _, container := range getContainers(resource) {
 		result, err := newResultFromResource(resource)
-		if err == ErrResourceTypeNotSupported {
-			continue
-		} else if err != nil {
-			panic(err)
+		if err != nil {
+			log.Error(err)
+			return
 		}
 
 		checkPrivileged(container, result)

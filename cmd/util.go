@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"reflect"
 	"runtime"
@@ -88,7 +89,7 @@ func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
 	default:
-		return nil, ErrResourceTypeNotSupported
+		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind())
 	}
 	return result, nil
 }
@@ -203,6 +204,11 @@ func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err
 	for _, b := range buf_slice {
 		obj, _, err := decoder.Decode(b, nil, nil)
 		if err == nil && obj != nil {
+			if !IsSupportedResourceType(obj) {
+				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind())
+				continue
+			}
+
 			if !containerNamesUniq(obj) {
 				log.Error("Container names are not uniq")
 				return nil, errors.New("Container names are not uniq")
