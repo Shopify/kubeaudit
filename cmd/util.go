@@ -89,7 +89,7 @@ func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
 	default:
-		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind())
+		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
 	}
 	return result, nil
 }
@@ -205,7 +205,7 @@ func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err
 		obj, _, err := decoder.Decode(b, nil, nil)
 		if err == nil && obj != nil {
 			if !IsSupportedResourceType(obj) {
-				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind())
+				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind().GroupVersionKind())
 				continue
 			}
 
