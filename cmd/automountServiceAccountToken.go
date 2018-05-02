@@ -62,12 +62,16 @@ func checkAutomountServiceAccountToken(result *Result) {
 }
 
 func auditAutomountServiceAccountToken(resource k8sRuntime.Object) (results []Result) {
-	result := newResultFromResourceWithServiceAccountInfo(resource)
-	if result != nil {
-		checkAutomountServiceAccountToken(result)
-		if len(result.Occurrences) > 0 {
-			results = append(results, *result)
-		}
+	result, err := newResultFromResourceWithServiceAccountInfo(resource)
+	if err == ErrResourceTypeNotSupported {
+		return
+	} else if err != nil {
+		panic(err)
+	}
+
+	checkAutomountServiceAccountToken(result)
+	if len(result.Occurrences) > 0 {
+		results = append(results, *result)
 	}
 	return
 }

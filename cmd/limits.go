@@ -88,13 +88,17 @@ func auditLimits(limits limitFlags, resource k8sRuntime.Object) (results []Resul
 	limits.parseLimitFlags()
 
 	for _, container := range getContainers(resource) {
-		result := newResultFromResource(resource)
-		if result != nil {
-			checkLimits(container, limits, result)
-			if len(result.Occurrences) > 0 {
-				results = append(results, *result)
-				break
-			}
+		result, err := newResultFromResource(resource)
+		if err == ErrResourceTypeNotSupported {
+			continue
+		} else if err != nil {
+			panic(err)
+		}
+
+		checkLimits(container, limits, result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, *result)
+			break
 		}
 	}
 	return

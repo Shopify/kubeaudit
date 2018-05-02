@@ -104,12 +104,16 @@ func checkCapabilities(container Container, result *Result) {
 
 func auditCapabilities(resource k8sRuntime.Object) (results []Result) {
 	for _, container := range getContainers(resource) {
-		result := newResultFromResource(resource)
-		if result != nil {
-			checkCapabilities(container, result)
-			if len(result.Occurrences) > 0 {
-				results = append(results, *result)
-			}
+		result, err := newResultFromResource(resource)
+		if err == ErrResourceTypeNotSupported {
+			continue
+		} else if err != nil {
+			panic(err)
+		}
+
+		checkCapabilities(container, result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, *result)
 		}
 	}
 	return

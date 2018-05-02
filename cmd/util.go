@@ -43,8 +43,8 @@ func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
 }
 
-func newResultFromResource(resource k8sRuntime.Object) (result *Result) {
-	result = &Result{}
+func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
+	result := &Result{}
 
 	switch kubeType := resource.(type) {
 	case *CronJob:
@@ -88,13 +88,17 @@ func newResultFromResource(resource k8sRuntime.Object) (result *Result) {
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
 	default:
-		return nil
+		return nil, ErrResourceTypeNotSupported
 	}
-	return
+	return result, nil
 }
 
-func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) *Result {
-	result := newResultFromResource(resource)
+func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) (*Result, error) {
+	result, err := newResultFromResource(resource)
+	if err != nil {
+		return nil, err
+	}
+
 	switch kubeType := resource.(type) {
 	case *CronJob:
 		result.DSA = kubeType.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount
@@ -129,7 +133,8 @@ func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) *Re
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 	}
-	return result
+
+	return result, nil
 }
 
 func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.Object) {

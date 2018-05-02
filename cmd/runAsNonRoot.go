@@ -49,13 +49,17 @@ func checkRunAsNonRoot(container Container, result *Result) {
 
 func auditRunAsNonRoot(resource k8sRuntime.Object) (results []Result) {
 	for _, container := range getContainers(resource) {
-		result := newResultFromResource(resource)
-		if result != nil {
-			checkRunAsNonRoot(container, result)
-			if len(result.Occurrences) > 0 {
-				results = append(results, *result)
-				break
-			}
+		result, err := newResultFromResource(resource)
+		if err == ErrResourceTypeNotSupported {
+			continue
+		} else if err != nil {
+			panic(err)
+		}
+
+		checkRunAsNonRoot(container, result)
+		if len(result.Occurrences) > 0 {
+			results = append(results, *result)
+			break
 		}
 	}
 	return
