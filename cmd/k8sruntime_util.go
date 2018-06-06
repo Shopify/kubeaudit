@@ -17,7 +17,13 @@ func setContainers(resource k8sRuntime.Object, containers []Container) k8sRuntim
 	case *DaemonSet:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
-	case *Deployment:
+	case *DeploymentV1Beta1:
+		t.Spec.Template.Spec.Containers = containers
+		return t.DeepCopyObject()
+	case *DeploymentV1Beta2:
+		t.Spec.Template.Spec.Containers = containers
+		return t.DeepCopyObject()
+	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
 	case *Pod:
@@ -41,7 +47,13 @@ func disableDSA(resource k8sRuntime.Object) k8sRuntime.Object {
 	case *DaemonSet:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
-	case *Deployment:
+	case *DeploymentV1Beta1:
+		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
+		return t.DeepCopyObject()
+	case *DeploymentV1Beta2:
+		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
+		return t.DeepCopyObject()
+	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *Pod:
@@ -71,7 +83,13 @@ func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
 	case *DaemonSet:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
-	case *Deployment:
+	case *DeploymentV1Beta1:
+		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
+		return t.DeepCopyObject()
+	case *DeploymentV1Beta2:
+		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
+		return t.DeepCopyObject()
+	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
 	case *Pod:
@@ -93,7 +111,11 @@ func getContainers(resource k8sRuntime.Object) (container []Container) {
 		container = kubeType.Spec.JobTemplate.Spec.Template.Spec.Containers
 	case *DaemonSet:
 		container = kubeType.Spec.Template.Spec.Containers
-	case *Deployment:
+	case *DeploymentV1Beta1:
+		container = kubeType.Spec.Template.Spec.Containers
+	case *DeploymentV1Beta2:
+		container = kubeType.Spec.Template.Spec.Containers
+	case *DeploymentExtensionsV1Beta1:
 		container = kubeType.Spec.Template.Spec.Containers
 	case *Pod:
 		container = kubeType.Spec.Containers

@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"reflect"
 	"runtime"
@@ -43,14 +44,31 @@ func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
 }
 
-func newResultFromResource(resource k8sRuntime.Object) (result Result) {
+func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
+	result := &Result{}
+
 	switch kubeType := resource.(type) {
+	case *CronJob:
+		result.KubeType = "cronjob"
+		result.Labels = kubeType.Spec.JobTemplate.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	case *DaemonSet:
 		result.KubeType = "daemonSet"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
-	case *Deployment:
+	case *DeploymentV1Beta1:
+		result.KubeType = "deployment"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+	case *DeploymentV1Beta2:
+		result.KubeType = "deployment"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+	case *DeploymentExtensionsV1Beta1:
 		result.KubeType = "deployment"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
@@ -70,18 +88,36 @@ func newResultFromResource(resource k8sRuntime.Object) (result Result) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
+	default:
+		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
 	}
-	return
+	return result, nil
 }
 
-func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) Result {
-	result := newResultFromResource(resource)
+func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) (*Result, error) {
+	result, err := newResultFromResource(resource)
+	if err != nil {
+		return nil, err
+	}
+
 	switch kubeType := resource.(type) {
+	case *CronJob:
+		result.DSA = kubeType.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount
+		result.SA = kubeType.Spec.JobTemplate.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.JobTemplate.Spec.Template.Spec.AutomountServiceAccountToken
 	case *DaemonSet:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
-	case *Deployment:
+	case *DeploymentV1Beta1:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	case *DeploymentV1Beta2:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	case *DeploymentExtensionsV1Beta1:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
@@ -98,7 +134,8 @@ func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) Res
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
 	}
-	return result
+
+	return result, nil
 }
 
 func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.Object) {
@@ -167,6 +204,11 @@ func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err
 	for _, b := range buf_slice {
 		obj, _, err := decoder.Decode(b, nil, nil)
 		if err == nil && obj != nil {
+			if !IsSupportedResourceType(obj) {
+				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind().GroupVersionKind())
+				continue
+			}
+
 			if !containerNamesUniq(obj) {
 				log.Error("Container names are not uniq")
 				return nil, errors.New("Container names are not uniq")

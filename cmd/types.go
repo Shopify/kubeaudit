@@ -2,16 +2,17 @@ package cmd
 
 import (
 	v1beta1 "k8s.io/api/apps/v1beta1"
+	v1beta2 "k8s.io/api/apps/v1beta2"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	networking "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 type CronJob = batchv1beta1.CronJob
 type DaemonSet = extensionsv1beta1.DaemonSet
-type Deployment = v1beta1.Deployment
 type NetworkPolicy = networking.NetworkPolicy
 type Pod = apiv1.Pod
 type ReplicationController = apiv1.ReplicationController
@@ -34,4 +35,20 @@ type Capability = apiv1.Capability
 type Container = apiv1.Container
 type ListOptions = metav1.ListOptions
 
+type DeploymentV1Beta1 = v1beta1.Deployment
+type DeploymentV1Beta2 = v1beta2.Deployment
+type DeploymentExtensionsV1Beta1 = extensionsv1beta1.Deployment
+
 type Metadata = map[string]string
+
+func IsSupportedResourceType(obj runtime.Object) bool {
+	switch obj.(type) {
+	case *CronJob, *DaemonSet, *NetworkPolicy, *Pod, *ReplicationController, *StatefulSet,
+	*DaemonSetList, *DeploymentList, *NamespaceList, *NetworkPolicyList, *PodList, *ReplicationControllerList,
+	*StatefulSetList, *DeploymentV1Beta1, *DeploymentV1Beta2, *DeploymentExtensionsV1Beta1:
+		return true
+	default:
+		return false
+	}
+}
+

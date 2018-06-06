@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
@@ -49,10 +50,15 @@ func checkReadOnlyRootFS(container Container, result *Result) {
 
 func auditReadOnlyRootFS(resource k8sRuntime.Object) (results []Result) {
 	for _, container := range getContainers(resource) {
-		result := newResultFromResource(resource)
-		checkReadOnlyRootFS(container, &result)
+		result, err := newResultFromResource(resource)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		checkReadOnlyRootFS(container, result)
 		if len(result.Occurrences) > 0 {
-			results = append(results, result)
+			results = append(results, *result)
 			break
 		}
 	}

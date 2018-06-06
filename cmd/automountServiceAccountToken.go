@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
@@ -62,10 +63,15 @@ func checkAutomountServiceAccountToken(result *Result) {
 }
 
 func auditAutomountServiceAccountToken(resource k8sRuntime.Object) (results []Result) {
-	result := newResultFromResourceWithServiceAccountInfo(resource)
-	checkAutomountServiceAccountToken(&result)
+	result, err := newResultFromResourceWithServiceAccountInfo(resource)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	checkAutomountServiceAccountToken(result)
 	if len(result.Occurrences) > 0 {
-		results = append(results, result)
+		results = append(results, *result)
 	}
 	return
 }
