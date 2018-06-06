@@ -3,8 +3,6 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 func checkPrivileged(container Container, result *Result) {
@@ -47,7 +45,7 @@ func checkPrivileged(container Container, result *Result) {
 	return
 }
 
-func auditPrivileged(resource k8sRuntime.Object) (results []Result) {
+func auditPrivileged(resource Resource) (results []Result) {
 	for _, container := range getContainers(resource) {
 		result, err := newResultFromResource(resource)
 		if err != nil {

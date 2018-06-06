@@ -1,8 +1,6 @@
 package cmd
 
-import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
-
-func fixAllowPrivilegeEscalation(resource k8sRuntime.Object, occurrence Occurrence) k8sRuntime.Object {
+func fixAllowPrivilegeEscalation(resource Resource, occurrence Occurrence) Resource {
 	var containers []Container
 	for _, container := range getContainers(resource) {
 		if occurrence.container == container.Name {

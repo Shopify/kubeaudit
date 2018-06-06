@@ -14,7 +14,6 @@ import (
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 )
@@ -44,9 +43,8 @@ func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
 }
 
-func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
+func newResultFromResource(resource Resource) (*Result, error) {
 	result := &Result{}
-
 	switch kubeType := resource.(type) {
 	case *CronJob:
 		result.KubeType = "cronjob"
@@ -94,7 +92,7 @@ func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
 	return result, nil
 }
 
-func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) (*Result, error) {
+func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, error) {
 	result, err := newResultFromResource(resource)
 	if err != nil {
 		return nil, err
@@ -138,7 +136,7 @@ func newResultFromResourceWithServiceAccountInfo(resource k8sRuntime.Object) (*R
 	return result, nil
 }
 
-func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.Object) {
+func getKubeResources(clientset *kubernetes.Clientset) (resources []Resource) {
 	for _, resource := range getDaemonSets(clientset).Items {
 		if isInRootConfigNamespace(resource.ObjectMeta) {
 			resources = append(resources, resource.DeepCopyObject())
@@ -167,7 +165,7 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []k8sRuntime.O
 	return
 }
 
-func writeManifestFile(decoded []k8sRuntime.Object, filename string) error {
+func writeManifestFile(decoded []Resource, filename string) error {
 	var toAppend bool
 	for _, decode := range decoded {
 		if err := WriteToFile(decode, filename, toAppend); err != nil {
@@ -179,7 +177,7 @@ func writeManifestFile(decoded []k8sRuntime.Object, filename string) error {
 	return nil
 }
 
-func containerNamesUniq(resource k8sRuntime.Object) bool {
+func containerNamesUniq(resource Resource) bool {
 	names := make(map[string]bool)
 	for _, container := range getContainers(resource) {
 		if names[container.Name] {
@@ -190,7 +188,7 @@ func containerNamesUniq(resource k8sRuntime.Object) bool {
 	return true
 }
 
-func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err error) {
+func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -219,7 +217,7 @@ func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err
 	return
 }
 
-func getResources() (resources []k8sRuntime.Object, err error) {
+func getResources() (resources []Resource, err error) {
 	if rootConfig.manifest != "" {
 		resources, err = getKubeResourcesManifest(rootConfig.manifest)
 	} else {
@@ -238,7 +236,7 @@ func setFormatter() {
 
 func checkParams(auditFunc interface{}) (err error) {
 	switch auditFunc.(type) {
-	case (func(image imgFlags, resource k8sRuntime.Object) (results []Result)):
+	case (func(image imgFlags, resource Resource) (results []Result)):
 		if len(imgConfig.img) == 0 {
 			return errors.New("Empty image name. Are you missing the image flag?")
 		}
@@ -250,7 +248,7 @@ func checkParams(auditFunc interface{}) (err error) {
 	return nil
 }
 
-func getResults(resources []k8sRuntime.Object, auditFunc interface{}) []Result {
+func getResults(resources []Resource, auditFunc interface{}) []Result {
 	var wg sync.WaitGroup
 	wg.Add(len(resources))
 	resultsChannel := make(chan []Result, 1)
@@ -258,13 +256,13 @@ func getResults(resources []k8sRuntime.Object, auditFunc interface{}) []Result {
 
 	for _, resource := range resources {
 		results := <-resultsChannel
-		go func(resource k8sRuntime.Object) {
+		go func(resource Resource) {
 			switch f := auditFunc.(type) {
-			case func(resource k8sRuntime.Object) (results []Result):
+			case func(resource Resource) (results []Result):
 				resultsChannel <- append(results, f(resource)...)
-			case func(image imgFlags, resource k8sRuntime.Object) (results []Result):
+			case func(image imgFlags, resource Resource) (results []Result):
 				resultsChannel <- append(results, f(imgConfig, resource)...)
-			case func(limits limitFlags, resource k8sRuntime.Object) (results []Result):
+			case func(limits limitFlags, resource Resource) (results []Result):
 				resultsChannel <- append(results, f(limitConfig, resource)...)
 			default:
 				name := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
@@ -304,10 +302,10 @@ func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 	}
 }
 
-func mergeAuditFunctions(auditFunctions []interface{}) func(resource k8sRuntime.Object) (results []Result) {
-	return func(resource k8sRuntime.Object) (results []Result) {
+func mergeAuditFunctions(auditFunctions []interface{}) func(resource Resource) (results []Result) {
+	return func(resource Resource) (results []Result) {
 		for _, function := range auditFunctions {
-			for _, result := range getResults([]k8sRuntime.Object{resource}, function) {
+			for _, result := range getResults([]Resource{resource}, function) {
 				results = append(results, result)
 			}
 		}

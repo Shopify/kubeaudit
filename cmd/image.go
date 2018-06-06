@@ -5,7 +5,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 var imgConfig imgFlags
@@ -67,7 +66,7 @@ func checkImage(container Container, image imgFlags, result *Result) {
 	}
 }
 
-func auditImages(image imgFlags, resource k8sRuntime.Object) (results []Result) {
+func auditImages(image imgFlags, resource Resource) (results []Result) {
 	for _, container := range getContainers(resource) {
 		result, err := newResultFromResource(resource)
 		if err != nil {

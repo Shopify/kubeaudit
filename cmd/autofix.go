@@ -3,7 +3,6 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 func getAuditFunctions() []interface{} {
@@ -13,9 +12,9 @@ func getAuditFunctions() []interface{} {
 	}
 }
 
-func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
-	resource = fixSecurityContextNil(resource)
-	resource = fixCapabilitiesNil(resource)
+func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
+	resource = fixSecurityContextNIL(resource)
+	resource = fixCapabilitiesNIL(resource)
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue:
@@ -39,7 +38,7 @@ func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRun
 	return resource
 }
 
-func fix(resources []k8sRuntime.Object) (fixedResources []k8sRuntime.Object) {
+func fix(resources []Resource) (fixedResources []Resource) {
 	for _, resource := range resources {
 		results := mergeAuditFunctions(getAuditFunctions())(resource)
 		for _, result := range results {
