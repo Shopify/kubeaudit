@@ -9,7 +9,7 @@ import (
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 // CapabilitiesV1 is a type alias for the v1 version of the k8s API.
@@ -75,6 +75,8 @@ type ReplicationControllerListV1 = apiv1.ReplicationControllerList
 // ReplicationControllerV1 is a type alias for the v1 version of the k8s API.
 type ReplicationControllerV1 = apiv1.ReplicationController
 
+type Resource k8sRuntime.Object
+
 // SecurityContextV1 is a type alias for the v1 version of the k8s API.
 type SecurityContextV1 = apiv1.SecurityContext
 
@@ -91,7 +93,7 @@ type StatefulSetV1Beta1 = appsv1beta1.StatefulSet
 type Metadata = map[string]string
 
 // IsSupportedResourceType returns true if obj is a supported Kubernetes resource type
-func IsSupportedResourceType(obj runtime.Object) bool {
+func IsSupportedResourceType(obj Resource) bool {
 	switch obj.(type) {
 	case *CronJobV1Beta1,
 		*DaemonSetListV1, *DaemonSetV1, *DaemonSetV1Beta1,

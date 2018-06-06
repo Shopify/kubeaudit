@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 
 	k8sResource "k8s.io/apimachinery/pkg/api/resource"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 type limitFlags struct {
@@ -84,7 +83,7 @@ func checkMemoryLimit(container ContainerV1, limits limitFlags, result *Result) 
 	}
 }
 
-func auditLimits(limits limitFlags, resource k8sRuntime.Object) (results []Result) {
+func auditLimits(limits limitFlags, resource Resource) (results []Result) {
 	limits.parseLimitFlags()
 
 	for _, container := range getContainers(resource) {

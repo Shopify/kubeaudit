@@ -9,13 +9,12 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	apiv1 "k8s.io/api/core/v1"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 var path = "../fixtures/"
 
 // FixTestSetup allows kubeaudit to be used programmatically instead of via the shell. It is intended to be used for testing.
-func FixTestSetup(t *testing.T, file string, auditFunction func(k8sRuntime.Object) []Result) (*assert.Assertions, k8sRuntime.Object) {
+func FixTestSetup(t *testing.T, file string, auditFunction func(Resource) []Result) (*assert.Assertions, Resource) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)
 	resources, err := getKubeResourcesManifest(file)
@@ -34,13 +33,13 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 	var image imgFlags
 	var limits limitFlags
 	switch function.(type) {
-	case (func(imgFlags, k8sRuntime.Object) []Result):
+	case (func(imgFlags, Resource) []Result):
 		if len(argStr) != 1 {
 			log.Fatal("Incorrect number of images specified")
 		}
 		image = imgFlags{img: argStr[0]}
 		image.splitImageString()
-	case (func(limitFlags, k8sRuntime.Object) []Result):
+	case (func(limitFlags, Resource) []Result):
 		if len(argStr) == 2 {
 			limits = limitFlags{cpuArg: argStr[0], memoryArg: argStr[1]}
 		} else if len(argStr) == 0 {
@@ -57,11 +56,11 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 	for _, resource := range resources {
 		var currentResults []Result
 		switch f := function.(type) {
-		case (func(k8sRuntime.Object) []Result):
+		case (func(Resource) []Result):
 			currentResults = f(resource)
-		case (func(imgFlags, k8sRuntime.Object) []Result):
+		case (func(imgFlags, Resource) []Result):
 			currentResults = f(image, resource)
-		case (func(limitFlags, k8sRuntime.Object) []Result):
+		case (func(limitFlags, Resource) []Result):
 			currentResults = f(limits, resource)
 		default:
 			name := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
@@ -106,7 +105,7 @@ func NewPod() *PodV1 {
 	return nil
 }
 
-func assertEqualYaml(fileToFix string, fileFixed string, auditFunc func(resource k8sRuntime.Object) []Result, t *testing.T) {
+func assertEqualYaml(fileToFix string, fileFixed string, auditFunc func(resource Resource) []Result, t *testing.T) {
 	assert, fixedResource := FixTestSetup(t, fileToFix, auditFunc)
 	fileFixed = filepath.Join(path, fileFixed)
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
