@@ -243,13 +243,13 @@ ERRO[0000] Capability not dropped  CapName=AUDIT_WRITE
 
 It audits against the following scenarios:
 
-1.  A default serviceAccount mounted with a token:
+1. A default serviceAccount mounted with a token:
    ```sh
    kubeaudit -l sat
    ERRO[0000] Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false
    ```
 
-1.  A deprecated service account:
+1. A deprecated service account:
    ```sh
    kubeaudit -l sat
    WARN[0000] serviceAccount is a deprecated alias for ServiceAccountName, use that one instead  DSA=DeprecatedServiceAccount
