@@ -219,23 +219,23 @@ ERRO[0000] Capability not dropped  CapName=AUDIT_WRITE
 `kubeaudit` can check for image names and image tags:
 
 1. If the image tag is incorrect an ERROR will issued
-```sh
-kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
-ERRO[0000] Image tag was incorrect
-```
+   ```sh
+   kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
+   ERRO[0000] Image tag was incorrect
+   ```
 
 1. If the image doesn't have a tag but an image of the name was found a WARNING
    will be created:
-```sh
-kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
-WARN[0000] Image tag was missing
-```
+   ```sh
+   kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
+   WARN[0000] Image tag was missing
+   ```
 
 1. If the image was found with correct tag `kubeaudit` notifies with an INFO message:
-```sh
-kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
-INFO[0000] Image tag was correct
-```
+   ```sh
+   kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
+   INFO[0000] Image tag was correct
+   ```
 
 <a name="sat" />
 
@@ -243,17 +243,17 @@ INFO[0000] Image tag was correct
 
 It audits against the following scenarios:
 
-1.  A default serviceAccount mounted with a token:
-```sh
-kubeaudit -l sat
-ERRO[0000] Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false
-```
+1. A default serviceAccount mounted with a token:
+   ```sh
+   kubeaudit -l sat
+   ERRO[0000] Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false
+   ```
 
-1.  A deprecated service account:
-```sh
-kubeaudit -l sat
-WARN[0000] serviceAccount is a deprecated alias for ServiceAccountName, use that one instead  DSA=DeprecatedServiceAccount
-```
+1. A deprecated service account:
+   ```sh
+   kubeaudit -l sat
+   WARN[0000] serviceAccount is a deprecated alias for ServiceAccountName, use that one instead  DSA=DeprecatedServiceAccount
+   ```
 
 <a name="netpol" />
 
