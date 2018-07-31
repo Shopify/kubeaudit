@@ -11,13 +11,14 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	allPods    bool
-	json       bool
-	kubeConfig string
-	localMode  bool
-	manifest   string
-	namespace  string
-	verbose    string
+	allPods       bool
+	json          bool
+	kubeConfig    string
+	localMode     bool
+	manifest      string
+	namespace     string
+	verbose       string
+	dropCapConfig string
 }
 
 var RootCmd = &cobra.Command{
@@ -45,4 +46,5 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.dropCapConfig, "dropCapConfig", "d", "", "yaml configuration to audit")
 }

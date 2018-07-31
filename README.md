@@ -391,6 +391,32 @@ WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permiss
 
 <a name="contribute" />
 
+## Drop capabilities list
+
+Allows configuring the audit against drop capabilities. Sane defaults are as follows:
+
+```
+# SANE DEFAULTS:
+capabilitiesToBeDropped:
+  # https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
+  - SETPCAP #Modify process capabilities.
+  - MKNOD #Create special files using mknod(2).
+  - AUDIT_WRITE #Write records to kernel auditing log.
+  - CHOWN #Make arbitrary changes to file UIDs and GIDs (see chown(2)).
+  - NET_RAW #Use RAW and PACKET sockets.
+  - DAC_OVERRIDE #Bypass file read, write, and execute permission checks.
+  - FOWNER #Bypass permission checks on operations that normally require the file system UID of the process to match the UID of the file.
+  - FSETID #Don’t clear set-user-ID and set-group-ID permission bits when a file is modified.
+  - KILL #Bypass permission checks for sending signals.
+  - SETGID #Make arbitrary manipulations of process GIDs and supplementary GID list.
+  - SETUID #Make arbitrary manipulations of process UIDs.
+  - NET_BIND_SERVICE #Bind a socket to internet domain privileged ports (port numbers less than 1024).
+  - SYS_CHROOT #Use chroot(2), change root directory.
+  - SETFCAP #Set file capabilities.
+```
+
+This can be overridden by using `-d` flag and providing your own defaults in the yaml format as shown above.
+
 ## Contributing
 
 If you'd like to fix a bug, contribute a feature or just correct a typo, please feel free to do so as long as you follow our [Code of Conduct](https://github.com/Shopify/kubeaudit/blob/master/CODE_OF_CONDUCT.md).

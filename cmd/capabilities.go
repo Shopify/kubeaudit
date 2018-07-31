@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"io/ioutil"
+	"os"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -13,10 +14,36 @@ type capsDropList struct {
 	Drop []string `yaml:"capabilitiesToBeDropped"`
 }
 
+const defaultDropCapConfig = `
+# SANE DEFAULTS:
+capabilitiesToBeDropped:
+  # https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
+  - SETPCAP #Modify process capabilities.
+  - MKNOD #Create special files using mknod(2).
+  - AUDIT_WRITE #Write records to kernel auditing log.
+  - CHOWN #Make arbitrary changes to file UIDs and GIDs (see chown(2)).
+  - NET_RAW #Use RAW and PACKET sockets.
+  - DAC_OVERRIDE #Bypass file read, write, and execute permission checks.
+  - FOWNER #Bypass permission checks on operations that normally require the file system UID of the process to match the UID of the file.
+  - FSETID #Don’t clear set-user-ID and set-group-ID permission bits when a file is modified.
+  - KILL #Bypass permission checks for sending signals.
+  - SETGID #Make arbitrary manipulations of process GIDs and supplementary GID list.
+  - SETUID #Make arbitrary manipulations of process UIDs.
+  - NET_BIND_SERVICE #Bind a socket to internet domain privileged ports (port numbers less than 1024).
+  - SYS_CHROOT #Use chroot(2), change root directory.
+  - SETFCAP #Set file capabilities.
+`
+
 func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
-	yamlFile, err := ioutil.ReadFile("config/capabilities-drop-list.yml")
-	if err != nil {
-		return
+	yamlFile := []byte(defaultDropCapConfig)
+	if rootConfig.dropCapConfig != "" {
+		if _, err = os.Stat(rootConfig.dropCapConfig); err != nil {
+			return
+		}
+		yamlFile, err = ioutil.ReadFile(rootConfig.dropCapConfig)
+		if err != nil {
+			return
+		}
 	}
 	caps := capsDropList{}
 	err = yaml.Unmarshal(yamlFile, &caps)
