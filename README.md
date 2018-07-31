@@ -303,23 +303,23 @@ spec:
     metadata:
       labels:
         apps: YourAppNameHere
-        kubeaudit.allow.privilegeEscalation: "YourReasonForOverrideHere"
+        audit.kubernetes.io/allow-privilege-escalation: "YourReasonForOverrideHere"
 ```
 
 Any label with a non-nil reason string will prevent `kubeaudit` from throwing the corresponding error and issue a warning instead.
 Reasons matching `"true"` (not case sensitive) will be displayed as `Unspecified`.
 
 `kubeaudit` supports many labels:
-- [kubeaudit.allow.privilegeEscalation](#allowpe_label)
-- [kubeaudit.allow.privileged](#priv_label)
-- [kubeaudit.allow.capability](#caps_label)
-- [kubeaudit.allow.runAsRoot](#nonroot_label)
-- [kubeaudit.allow.automountServiceAccountToken](#sat_label)
-- [kubeaudit.allow.readOnlyRootFilesystemFalse](#rootfs_label)
+- [audit.kubernetes.io/allow-privilege-escalation](#allowpe_label)
+- [audit.kubernetes.io/allow-privileged](#priv_label)
+- [audit.kubernetes.io/allow-capability](#caps_label)
+- [audit.kubernetes.io/allow-run-as-root](#nonroot_label)
+- [audit.kubernetes.io/allow-automount-service-account-token](#sat_label)
+- [audit.kubernetes.io/allow-read-only-root-filesystem-false](#rootfs_label)
 
 <a name="allowpe_label"/>
 
-### kubeaudit.allow.privilegeEscalation
+### audit.kubernetes.io/allow-privilege-escalation
 
 Allows `allowPrivilegeEscalation` to be set to `true`.
 
@@ -331,7 +331,7 @@ WARN[0000] Allowed setting AllowPrivilegeEscalation to true  Reason="Superuser p
 
 <a name="priv_label"/>
 
-### kubeaudit.allow.privileged
+### audit.kubernetes.io/allow-privileged
 
 Allows `privileged` to be set to `true`.
 
@@ -343,7 +343,7 @@ WARN[0000] Allowed setting privileged to true                Reason="Privileged 
 
 <a name="caps_label"/>
 
-### kubeaudit.allow.capability
+### audit.kubernetes.io/allow-capability
 
 Allows adding a capability or keeping one that would otherwise be dropped.
 
@@ -355,7 +355,7 @@ WARN[0000] Capability allowed                                CapName=CHOWN Reaso
 
 <a name="nonroot_label"/>
 
-### kubeaudit.allow.runAsRoot
+### audit.kubernetes.io/allow-run-as-root
 
 Allows setting `runAsNonRoot` to `false`.
 
@@ -367,7 +367,7 @@ WARN[0000] Allowed setting RunAsNonRoot to false             Reason="Root privil
 
 <a name="sat_label"/>
 
-### kubeaudit.automountServiceAccountToken
+### audit.kubernetes.io/allow-automount-service-account-token
 
 Allows setting `automountServiceAccountToken` to `true`.
 
@@ -379,7 +379,7 @@ WARN[0000] Allowed setting automountServiceAccountToken to true  Reason=Unspecif
 
 <a name="rootfs_label"/>
 
-### kubeaudit.readOnlyRootFilesystemFalse
+### audit.kubernetes.io/allow-read-only-root-filesystem-false
 
 Allows setting `readOnlyRootFilesystem` to `false`
 
