@@ -11,6 +11,7 @@ func init() {
 	RootCmd.AddCommand(versionCmd)
 }
 
+// Version is the semantic versioning number for kubeaudit.
 const Version = "0.1.0"
 
 var versionCmd = &cobra.Command{

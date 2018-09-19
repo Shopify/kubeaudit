@@ -197,11 +197,11 @@ func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err
 		log.Error("File not found")
 		return
 	}
-	buf_slice := bytes.Split(buf, []byte("---"))
+	bufSlice := bytes.Split(buf, []byte("---"))
 
 	decoder := scheme.Codecs.UniversalDeserializer()
 
-	for _, b := range buf_slice {
+	for _, b := range bufSlice {
 		obj, _, err := decoder.Decode(b, nil, nil)
 		if err == nil && obj != nil {
 			if !IsSupportedResourceType(obj) {

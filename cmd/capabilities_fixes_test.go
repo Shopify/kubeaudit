@@ -8,13 +8,13 @@ import (
 )
 
 func assertAllDropped(assert *assert.Assertions, dropped []Capability, allowed ...[]Capability) {
-	to_be_dropped := []Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}
-	for _, cap := range to_be_dropped {
+	toBeDropped := []Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}
+	for _, cap := range toBeDropped {
 		skip := false
 		if allowed != nil {
 			assert.Equal(1, len(allowed))
-			for _, allowed_cap := range allowed[0] {
-				if allowed_cap == cap {
+			for _, allowedCap := range allowed[0] {
+				if allowedCap == cap {
 					skip = true
 				}
 			}

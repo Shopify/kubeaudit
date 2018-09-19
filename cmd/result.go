@@ -7,6 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Result stores information about a Kubernetes resource, including all audit results
+// (Occurrences) related to that resource.
 type Result struct {
 	CPULimitActual string
 	CPULimitMax    string
@@ -25,6 +27,7 @@ type Result struct {
 	Token          *bool
 }
 
+// Print logs all audit results to their respective log levels.
 func (res Result) Print() {
 	for _, occ := range res.Occurrences {
 		if occ.kind <= KubeauditLogLevels[rootConfig.verbose] {
@@ -69,7 +72,7 @@ func shouldLog(err int) (members []string) {
 	case ErrorImageTagIncorrect:
 		members = append(members, "ImageTag")
 		members = append(members, "ImageName")
-	case ErrorResourcesLimitsCpuExceeded:
+	case ErrorResourcesLimitsCPUExceeded:
 		members = append(members, "CPULimitActual")
 		members = append(members, "CPULimitMax")
 	case ErrorResourcesLimitsMemoryExceeded:
@@ -79,9 +82,9 @@ func shouldLog(err int) (members []string) {
 	return
 }
 
-func (r *Result) allowedCaps() (allowed map[Capability]string) {
+func (res *Result) allowedCaps() (allowed map[Capability]string) {
 	allowed = make(map[Capability]string)
-	for k, v := range r.Labels {
+	for k, v := range res.Labels {
 		if strings.Contains(k, "audit.kubernetes.io/allow-capability-") {
 			capName := strings.Replace(strings.ToUpper(strings.TrimPrefix(k, "audit.kubernetes.io/allow-capability-")), "-", "_", -1)
 			allowed[Capability(capName)] = v
