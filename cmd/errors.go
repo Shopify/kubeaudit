@@ -68,8 +68,6 @@ const (
 	// ErrorServiceAccountTokenDeprecated occurs when serviceAccount is used. ServiceAccount
 	// is a deprecated alias for ServiceAccountName.
 	ErrorServiceAccountTokenDeprecated
-	ErrorServiceAccountTokenNoName
 	// InfoImageCorrect occurs when an image tag is correct.
 	InfoImageCorrect
-	PlaceHolder
 )
