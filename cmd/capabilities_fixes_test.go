@@ -44,7 +44,7 @@ func TestFixCapabilitySomeAllowed(t *testing.T) {
 	}
 }
 
-func TestFixCapabilitiesNIL(t *testing.T) {
+func TestFixCapabilitiesNil(t *testing.T) {
 	assert, resource := FixTestSetup(t, "capabilities_nil.yml", auditCapabilities)
 	add := []Capability{}
 	for _, container := range getContainers(resource) {

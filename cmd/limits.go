@@ -41,7 +41,7 @@ func (limit *limitFlags) parseLimitFlags() {
 
 func checkLimits(container Container, limits limitFlags, result *Result) {
 	if container.Resources.Limits == nil {
-		occ := Occurrence{id: ErrorResourcesLimitsNIL, kind: Warn, message: "Resource limit not set, please set it!"}
+		occ := Occurrence{id: ErrorResourcesLimitsNil, kind: Warn, message: "Resource limit not set, please set it!"}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
@@ -53,7 +53,7 @@ func checkLimits(container Container, limits limitFlags, result *Result) {
 func checkCPULimit(container Container, limits limitFlags, result *Result) {
 	cpu := container.Resources.Limits.Cpu()
 	if cpu == nil || cpu.IsZero() {
-		occ := Occurrence{id: ErrorResourcesLimitsCPUNIL, kind: Warn, message: "CPU limit not set, please set it!"}
+		occ := Occurrence{id: ErrorResourcesLimitsCPUNil, kind: Warn, message: "CPU limit not set, please set it!"}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
@@ -70,7 +70,7 @@ func checkCPULimit(container Container, limits limitFlags, result *Result) {
 func checkMemoryLimit(container Container, limits limitFlags, result *Result) {
 	memory := container.Resources.Limits.Memory()
 	if memory == nil || memory.IsZero() {
-		occ := Occurrence{id: ErrorResourcesLimitsMemoryNIL, kind: Warn, message: "Memory limit not set, please set it!"}
+		occ := Occurrence{id: ErrorResourcesLimitsMemoryNil, kind: Warn, message: "Memory limit not set, please set it!"}
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}

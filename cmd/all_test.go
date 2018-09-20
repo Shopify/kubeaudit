@@ -6,8 +6,8 @@ import (
 
 func TestAuditAll(t *testing.T) {
 	requiredErrors := []int{
-		ErrorAllowPrivilegeEscalationNIL, ErrorAutomountServiceAccountTokenNILAndNoName, ErrorCapabilityNotDropped, ErrorImageTagMissing,
-		ErrorPrivilegedNIL, ErrorReadOnlyRootFilesystemNIL, ErrorResourcesLimitsNIL, ErrorRunAsNonRootNIL,
+		ErrorAllowPrivilegeEscalationNil, ErrorAutomountServiceAccountTokenNilAndNoName, ErrorCapabilityNotDropped, ErrorImageTagMissing,
+		ErrorPrivilegedNil, ErrorReadOnlyRootFilesystemNil, ErrorResourcesLimitsNil, ErrorRunAsNonRootNil,
 	}
 	runAuditTest(t, "audit_all.yml", mergeAuditFunctions(allAuditFunctions), requiredErrors)
 }

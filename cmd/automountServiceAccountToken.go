@@ -53,7 +53,7 @@ func checkAutomountServiceAccountToken(result *Result) {
 	if result.Token == nil && result.SA == "" {
 		// automountServiceAccountToken = nil (default: true), and serviceAccountName is blank (default: default)
 		occ := Occurrence{
-			id:      ErrorAutomountServiceAccountTokenNILAndNoName,
+			id:      ErrorAutomountServiceAccountTokenNilAndNoName,
 			kind:    Error,
 			message: "Default serviceAccount with token mounted. Please set automountServiceAccountToken to false",
 		}

@@ -4,12 +4,12 @@ import (
 	"testing"
 )
 
-func TestSecurityContextNIL(t *testing.T) {
-	runAuditTest(t, "security_context_nil.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootNIL})
+func TestSecurityContextNil(t *testing.T) {
+	runAuditTest(t, "security_context_nil.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootNil})
 }
 
 func TestRunAsNonRootNil(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_nil.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootNIL})
+	runAuditTest(t, "run_as_non_root_nil.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootNil})
 }
 
 func TestRunAsNonRootFalse(t *testing.T) {

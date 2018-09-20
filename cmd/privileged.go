@@ -11,7 +11,7 @@ func checkPrivileged(container Container, result *Result) {
 	if container.SecurityContext == nil || container.SecurityContext.Privileged == nil {
 		occ := Occurrence{
 			container: container.Name,
-			id:        ErrorPrivilegedNIL,
+			id:        ErrorPrivilegedNil,
 			kind:      Warn,
 			message:   "Privileged defaults to false, which results in non privileged, which is okay.",
 		}

@@ -14,25 +14,25 @@ func getAuditFunctions() []interface{} {
 }
 
 func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
-	resource = fixSecurityContextNIL(resource)
-	resource = fixCapabilitiesNIL(resource)
+	resource = fixSecurityContextNil(resource)
+	resource = fixCapabilitiesNil(resource)
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
-		case ErrorAllowPrivilegeEscalationNIL, ErrorAllowPrivilegeEscalationTrue:
+		case ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue:
 			resource = fixAllowPrivilegeEscalation(resource, occurrence)
 		case ErrorCapabilityNotDropped:
 			resource = fixCapabilityNotDropped(resource, occurrence)
 		case ErrorCapabilityAdded:
 			resource = fixCapabilityAdded(resource, occurrence)
-		case ErrorPrivilegedNIL, ErrorPrivilegedTrue:
+		case ErrorPrivilegedNil, ErrorPrivilegedTrue:
 			resource = fixPrivileged(resource, occurrence)
-		case ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNIL:
+		case ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil:
 			resource = fixReadOnlyRootFilesystem(resource, occurrence)
-		case ErrorRunAsNonRootFalse, ErrorRunAsNonRootNIL:
+		case ErrorRunAsNonRootFalse, ErrorRunAsNonRootNil:
 			resource = fixRunAsNonRoot(resource, occurrence)
 		case ErrorServiceAccountTokenDeprecated:
 			resource = fixDeprecatedServiceAccount(resource)
-		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNILAndNoName:
+		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNilAndNoName:
 			resource = fixServiceAccountToken(resource)
 		}
 	}

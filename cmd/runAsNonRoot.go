@@ -31,7 +31,7 @@ func checkRunAsNonRoot(container Container, result *Result) {
 	} else if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil {
 		occ := Occurrence{
 			container: container.Name,
-			id:        ErrorRunAsNonRootNIL,
+			id:        ErrorRunAsNonRootNil,
 			kind:      Error,
 			message:   "RunAsNonRoot is not set, which results in root user being allowed!",
 		}

@@ -31,7 +31,7 @@ func checkReadOnlyRootFS(container Container, result *Result) {
 	} else if container.SecurityContext == nil || container.SecurityContext.ReadOnlyRootFilesystem == nil {
 		occ := Occurrence{
 			container: container.Name,
-			id:        ErrorReadOnlyRootFilesystemNIL,
+			id:        ErrorReadOnlyRootFilesystemNil,
 			kind:      Error,
 			message:   "ReadOnlyRootFilesystem not set which results in a writable rootFS, please set to true",
 		}

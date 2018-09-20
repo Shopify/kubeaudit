@@ -18,7 +18,7 @@ func TestFixServiceAccountTokenTrueAndNoName(t *testing.T) {
 	}
 }
 
-func TestFixServiceAccountTokenNILAndNoName(t *testing.T) {
+func TestFixServiceAccountTokenNilAndNoName(t *testing.T) {
 	assert, resource := FixTestSetup(t, "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken)
 	switch typ := resource.(type) {
 	case *ReplicationController:
