@@ -7,8 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Result stores information about a Kubernetes resource, including all audit results
-// (Occurrences) related to that resource.
+// Result stores information about a Kubernetes resource, including all audit results (Occurrences) related to that
+// resource.
 type Result struct {
 	CPULimitActual string
 	CPULimitMax    string

@@ -14,8 +14,7 @@ import (
 
 var path = "../fixtures/"
 
-// FixTestSetup allows kubeaudit to be used programmatically instead of via the shell. It is
-// intended to be used for testing.
+// FixTestSetup allows kubeaudit to be used programmatically instead of via the shell. It is intended to be used for testing.
 func FixTestSetup(t *testing.T, file string, auditFunction func(k8sRuntime.Object) []Result) (*assert.Assertions, k8sRuntime.Object) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)

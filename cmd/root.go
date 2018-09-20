@@ -32,8 +32,7 @@ otherwise it will attempt to create an in-cluster client.
 #patcheswelcome`,
 }
 
-// Execute is a wrapper for the RootCmd.Execute method which will exit the program if
-// there is an error.
+// Execute is a wrapper for the RootCmd.Execute method which will exit the program if there is an error.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
