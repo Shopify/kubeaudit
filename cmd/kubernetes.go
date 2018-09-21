@@ -8,7 +8,7 @@ import (
 	networking "k8s.io/api/networking/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/version"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // auth for GKE clusters
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"  // auth for GKE clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc" // auth for OIDC
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
