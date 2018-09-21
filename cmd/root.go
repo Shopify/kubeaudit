@@ -21,7 +21,7 @@ type rootFlags struct {
 	dropCapConfig string
 }
 
-// RootCmd defines the shell command useage for kubeaudit.
+// RootCmd defines the shell command usage for kubeaudit.
 var RootCmd = &cobra.Command{
 	Use:   "kubeaudit",
 	Short: "A Kubernetes security auditor",
