@@ -2,7 +2,7 @@ package cmd
 
 import "testing"
 
-func TestSecurityContextNil_RORF(t *testing.T) {
+func TestSecurityContextNilRORF(t *testing.T) {
 	runAuditTest(t, "security_context_nil.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemNil})
 }
 
