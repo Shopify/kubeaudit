@@ -2,7 +2,7 @@ package cmd
 
 import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 
-func fixCapabilitiesNIL(resource k8sRuntime.Object) k8sRuntime.Object {
+func fixCapabilitiesNil(resource k8sRuntime.Object) k8sRuntime.Object {
 	var containers []Container
 	for _, container := range getContainers(resource) {
 		if container.SecurityContext.Capabilities == nil {

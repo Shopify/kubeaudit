@@ -2,7 +2,7 @@ package cmd
 
 import "testing"
 
-func TestFixReadOnlyRootFilesystemNIL(t *testing.T) {
+func TestFixReadOnlyRootFilesystemNil(t *testing.T) {
 	assert, resource := FixTestSetup(t, "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS)
 	for _, container := range getContainers(resource) {
 		assert.True(*container.SecurityContext.ReadOnlyRootFilesystem)

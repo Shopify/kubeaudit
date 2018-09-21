@@ -4,12 +4,12 @@ import (
 	"testing"
 )
 
-func TestSecurityContextNIL_APE(t *testing.T) {
-	runAuditTest(t, "security_context_nil.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationNIL})
+func TestSecurityContextNil_APE(t *testing.T) {
+	runAuditTest(t, "security_context_nil.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationNil})
 }
 
 func TestAllowPrivilegeEscalationNil(t *testing.T) {
-	runAuditTest(t, "allow_privilege_escalation_nil.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationNIL})
+	runAuditTest(t, "allow_privilege_escalation_nil.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationNil})
 }
 
 func TestAllowPrivilegeEscalationTrue(t *testing.T) {

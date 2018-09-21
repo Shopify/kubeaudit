@@ -21,17 +21,17 @@ func TestDeploymentNotInNamespace(t *testing.T) {
 }
 
 func TestStatefulSetInNamespace(t *testing.T) {
-	runAuditTestInNamespace(t, "fakeStatefulSetRORF", "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemNIL})
+	runAuditTestInNamespace(t, "fakeStatefulSetRORF", "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemNil})
 }
 
 func TestStatefulSetNotInNamespace(t *testing.T) {
-	runAuditTestInNamespace(t, "otherFakeStatefulSetRORF", "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemNIL})
+	runAuditTestInNamespace(t, "otherFakeStatefulSetRORF", "read_only_root_filesystem_nil.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemNil})
 }
 
 func TestReplicationControllerInNamespace(t *testing.T) {
-	runAuditTestInNamespace(t, "fakeReplicationControllerASAT", "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenNILAndNoName})
+	runAuditTestInNamespace(t, "fakeReplicationControllerASAT", "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenNilAndNoName})
 }
 
 func TestReplicationControllerNotInNamespace(t *testing.T) {
-	runAuditTestInNamespace(t, "otherFakeReplicationControllerASAT", "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenNILAndNoName})
+	runAuditTestInNamespace(t, "otherFakeReplicationControllerASAT", "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenNilAndNoName})
 }

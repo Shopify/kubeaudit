@@ -2,8 +2,10 @@ package cmd
 
 import "sort"
 
+// CapSet represents a set of capabilities.
 type CapSet map[Capability]bool
 
+// NewCapSetFromArray converts an array of capabilities into a CapSet.
 func NewCapSetFromArray(array []Capability) (set CapSet) {
 	set = make(CapSet)
 	for _, cap := range array {

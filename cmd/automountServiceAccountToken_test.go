@@ -10,8 +10,8 @@ func TestServiceAccountTokenTrueAndNoName(t *testing.T) {
 	runAuditTest(t, "service_account_token_true_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenTrueAndNoName})
 }
 
-func TestServiceAccountTokenNILAndNoName(t *testing.T) {
-	runAuditTest(t, "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenNILAndNoName})
+func TestServiceAccountTokenNilAndNoName(t *testing.T) {
+	runAuditTest(t, "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenNilAndNoName})
 }
 
 func TestServiceAccountTokenTrueAllowed(t *testing.T) {

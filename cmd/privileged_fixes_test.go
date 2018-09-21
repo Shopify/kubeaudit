@@ -9,7 +9,7 @@ func TestFixPrivilegeEscalation(t *testing.T) {
 	}
 }
 
-func TestFixPrivilegedNIL(t *testing.T) {
+func TestFixPrivilegedNil(t *testing.T) {
 	assert, resource := FixTestSetup(t, "privileged_nil.yml", auditPrivileged)
 	for _, container := range getContainers(resource) {
 		assert.False(*container.SecurityContext.Privileged)

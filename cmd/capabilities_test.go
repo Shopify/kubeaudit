@@ -13,11 +13,11 @@ func TestRecommendedCapabilitiesToBeDropped(t *testing.T) {
 	assert.Equal(NewCapSetFromArray([]Capability{"AUDIT_WRITE", "CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "MKNOD", "NET_BIND_SERVICE", "NET_RAW", "SETFCAP", "SETGID", "SETUID", "SETPCAP", "SYS_CHROOT"}), capabilities, "")
 }
 
-func TestSecurityContextNIL_SC(t *testing.T) {
+func TestSecurityContextNil_SC(t *testing.T) {
 	runAuditTest(t, "security_context_nil.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 
-func TestCapabilitiesNIL(t *testing.T) {
+func TestCapabilitiesNil(t *testing.T) {
 	runAuditTest(t, "capabilities_nil.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 

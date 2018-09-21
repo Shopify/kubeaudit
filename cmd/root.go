@@ -21,6 +21,7 @@ type rootFlags struct {
 	dropCapConfig string
 }
 
+// RootCmd defines the shell command useage for kubeaudit.
 var RootCmd = &cobra.Command{
 	Use:   "kubeaudit",
 	Short: "A Kubernetes security auditor",
@@ -31,6 +32,7 @@ otherwise it will attempt to create an in-cluster client.
 #patcheswelcome`,
 }
 
+// Execute is a wrapper for the RootCmd.Execute method which will exit the program if there is an error.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)

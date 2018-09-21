@@ -14,6 +14,7 @@ import (
 
 var path = "../fixtures/"
 
+// FixTestSetup allows kubeaudit to be used programmatically instead of via the shell. It is intended to be used for testing.
 func FixTestSetup(t *testing.T, file string, auditFunction func(k8sRuntime.Object) []Result) (*assert.Assertions, k8sRuntime.Object) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)
@@ -90,6 +91,7 @@ func runAuditTestInNamespace(t *testing.T, namespace string, file string, functi
 	rootConfig.namespace = apiv1.NamespaceAll
 }
 
+// NewPod returns a simple Pod resource
 func NewPod() *Pod {
 	resources, err := getKubeResourcesManifest("../fixtures/pod.yml")
 	if err != nil {
