@@ -36,3 +36,7 @@ func TestCapabilitiesSomeDropped(t *testing.T) {
 func TestCapabilitiesMisconfiguredAllow(t *testing.T) {
 	runAuditTest(t, "capabilities_misconfigured_allow.yml", auditCapabilities, []int{ErrorMisconfiguredKubeauditAllow})
 }
+
+func TestCapabilitiesDroppedAll(t *testing.T) {
+	runAuditTest(t, "capabilities_dropped_all.yml", auditCapabilities, []int{})
+}

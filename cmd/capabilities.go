@@ -3,6 +3,7 @@ package cmd
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -60,9 +61,15 @@ func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 func checkCapabilities(container Container, result *Result) {
 	added := CapSet{}
 	dropped := CapSet{}
+	allCapsDrop := false
 	if container.SecurityContext != nil && container.SecurityContext.Capabilities != nil {
 		added = NewCapSetFromArray(container.SecurityContext.Capabilities.Add)
-		dropped = NewCapSetFromArray(container.SecurityContext.Capabilities.Drop)
+		if len(container.SecurityContext.Capabilities.Drop) != 0 &&
+			strings.ToLower(string(container.SecurityContext.Capabilities.Drop[0])) == "all" {
+			allCapsDrop = true
+		} else {
+			dropped = NewCapSetFromArray(container.SecurityContext.Capabilities.Drop)
+		}
 	}
 
 	allowedMap := result.allowedCaps()
@@ -82,7 +89,9 @@ func checkCapabilities(container Container, result *Result) {
 		result.Occurrences = append(result.Occurrences, occ)
 		return
 	}
-
+	if allCapsDrop {
+		dropped = toBeDropped
+	}
 	for _, cap := range sortCapSet(mergeCapSets(toBeDropped, dropped, allowed, added)) {
 		if !allowed[cap] && !dropped[cap] && toBeDropped[cap] {
 			occ := Occurrence{
