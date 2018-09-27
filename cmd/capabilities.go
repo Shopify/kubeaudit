@@ -3,6 +3,7 @@ package cmd
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -63,7 +64,8 @@ func checkCapabilities(container Container, result *Result) {
 	allCapsDrop := false
 	if container.SecurityContext != nil && container.SecurityContext.Capabilities != nil {
 		added = NewCapSetFromArray(container.SecurityContext.Capabilities.Add)
-		if len(container.SecurityContext.Capabilities.Drop) != 0 && string(container.SecurityContext.Capabilities.Drop[0]) == "all" {
+		if len(container.SecurityContext.Capabilities.Drop) != 0 &&
+			strings.ToLower(string(container.SecurityContext.Capabilities.Drop[0])) == "all" {
 			allCapsDrop = true
 		} else {
 			dropped = NewCapSetFromArray(container.SecurityContext.Capabilities.Drop)
