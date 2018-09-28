@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	log "github.com/sirupsen/logrus"
 	networking "k8s.io/api/networking/v1"
@@ -23,16 +22,6 @@ func kubeClientConfig(kubeconfig string) (*rest.Config, error) {
 }
 
 func kubeClient(kubeconfig string) (*kubernetes.Clientset, error) {
-	if rootConfig.localMode {
-		kubeconfig = os.Getenv("HOME") + "/.kube/config"
-	}
-	if rootConfig.verbose == "DEBUG" {
-		log.SetLevel(log.DebugLevel)
-		log.AddHook(NewDebugHook())
-	}
-	if rootConfig.json {
-		log.SetFormatter(&log.JSONFormatter{})
-	}
 	config, err := kubeClientConfig(kubeconfig)
 	if err != nil {
 		log.Error(err)

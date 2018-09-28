@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
 )
@@ -41,6 +42,7 @@ func Execute() {
 }
 
 func init() {
+	cobra.OnInitialize(processFlags)
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "config file (default is $HOME/.kube/config")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.verbose, "verbose", "v", "INFO", "Set the debug level")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.localMode, "local", "l", false, "Local mode, uses ~/.kube/config as configuration")
@@ -49,4 +51,14 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.dropCapConfig, "dropCapConfig", "d", "", "yaml configuration to audit")
+}
+
+func processFlags() {
+	if rootConfig.verbose == "DEBUG" {
+		log.SetLevel(log.DebugLevel)
+		log.AddHook(NewDebugHook())
+	}
+	if rootConfig.json {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
 }
