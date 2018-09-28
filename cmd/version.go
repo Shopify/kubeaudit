@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 func init() {
@@ -28,15 +29,10 @@ var versionCmd = &cobra.Command{
 			"Version": ver,
 		}).Info("Kubeaudit")
 
-		kubeconfig := rootConfig.kubeConfig
-		if rootConfig.localMode {
-			kubeconfig = os.Getenv("HOME") + "/.kube/config"
-		}
-
-		kube, err := kubeClient(kubeconfig)
+		kube, err := kubeClient()
 		if err != nil {
-			log.Error(err)
-			os.Exit(1)
+			log.Warn("Could not get kubernetes server version.")
+			return
 		}
 		printKubernetesVersion(kube)
 	},
