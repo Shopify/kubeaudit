@@ -74,7 +74,7 @@ A PASS is given when a container runs in a non-privileged mode
 A FAIL is generated when a container runs in a privileged mode
 
 Example usage:
-kubeaudit privileged`,
+kubeaudit priv`,
 	Run: runAudit(auditPrivileged),
 }
 

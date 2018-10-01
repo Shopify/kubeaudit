@@ -76,7 +76,7 @@ A PASS is given when a container runs as a uid greater than 0
 A FAIL is generated when a container runs as root
 
 Example usage:
-kubeaudit runAsNonRoot`,
+kubeaudit nonroot`,
 	Run: runAudit(auditRunAsNonRoot),
 }
 

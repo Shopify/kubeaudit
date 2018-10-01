@@ -75,7 +75,7 @@ A PASS is given when a container has a read only root filesystem
 A FAIL is given when a container does not have a read only root filesystem
 
 Example usage:
-kubeaudit runAsNonRoot`,
+kubeaudit rootfs`,
 	Run: runAudit(auditReadOnlyRootFS),
 }
 
