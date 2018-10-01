@@ -90,7 +90,7 @@ A WARN log is generated when a pod is found using Pod.Spec.DeprecatedServiceAcco
 Fix this by updating serviceAccount to serviceAccountName in your .yamls
 
 Example usage:
-kubeaudit rbac sat`,
+kubeaudit sat`,
 	Run: runAudit(auditAutomountServiceAccountToken),
 }
 
