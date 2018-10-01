@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -158,7 +159,19 @@ func auditCapabilities(resource k8sRuntime.Object) (results []Result) {
 var capabilitiesCmd = &cobra.Command{
 	Use:   "caps",
 	Short: "Audit container for capabilities",
-	Run:   runAudit(auditCapabilities),
+	Long: fmt.Sprintf(`This command determines which pods have capabilities which they should not according to
+the drop list. If no drop list is provided the following default is used:
+
+%s
+
+An ERROR log is generated when a pod has a capability which is on the drop list.
+
+A WARN log is generated when a pod has a capability allowed which is on the drop list.
+
+Example usage:
+kubeaudit caps
+kubeaudit caps -d drop.yml`, defaultDropCapConfig),
+	Run: runAudit(auditCapabilities),
 }
 
 func init() {
