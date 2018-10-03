@@ -8,7 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	networking "k8s.io/api/networking/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/version"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"  // auth for GKE clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc" // auth for OIDC
 	"k8s.io/client-go/rest"
@@ -138,11 +137,4 @@ func printKubernetesVersion(clientset *kubernetes.Clientset) {
 		"Minor":    serverInfo.Minor,
 		"Platform": serverInfo.Platform,
 	}).Info("Kubernetes server version")
-
-	clientInfo := version.Get()
-	log.WithFields(log.Fields{
-		"Major":    clientInfo.Major,
-		"Minor":    clientInfo.Minor,
-		"Platform": clientInfo.Platform,
-	}).Info("Kubernetes client version")
 }

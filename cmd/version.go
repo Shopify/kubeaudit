@@ -22,7 +22,7 @@ func init() {
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of kubeaudit",
-	Long:  `This just prints the version of kubeaudit`,
+	Long:  `This prints the version numbers of kubeaudit and the kubernetes server.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_, err := version.NewVersion(Version + "+" + Commit)
 		if err != nil {
