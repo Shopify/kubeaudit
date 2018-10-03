@@ -6,6 +6,7 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 BINARY_NAME=kubeaudit
 BINARY_UNIX=$(BINARY_NAME)_unix
+LDFLAGS=$(shell build/ldflags.sh)
 
 # kubernetes client won't build with go<1.10
 GOVERSION:=$(shell go version | awk '{print $$3}')
@@ -18,7 +19,7 @@ endif
 all: setup test build
 
 build:
-	$(GOBUILD) -o $(BINARY_NAME) -v
+	$(GOBUILD) -o $(BINARY_NAME) -v -ldflags=all="$(LDFLAGS)"
 
 install:
 	cp $(BINARY_NAME) $(GOPATH)/bin/kubeaudit
