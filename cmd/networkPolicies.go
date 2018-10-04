@@ -36,7 +36,7 @@ An ERROR log is given when a namespace does not have NetworkPolicy isolation
 Example usage:
 kubeaudit np`,
 	Run: func(cmd *cobra.Command, args []string) {
-		kube, err := kubeClient(rootConfig.kubeConfig)
+		kube, err := kubeClient()
 		if err != nil {
 			log.Error(err)
 		}

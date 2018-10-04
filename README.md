@@ -46,17 +46,24 @@ Now you can just call `kubeaudit` with one of commands from [here](#audits)
 ## General instructions
 
 `kubeaudit` has three different modes for its audits:
-1. `kubeaudit cmd` will attempt to create an in-cluster client and audit.
-1. `kubeaudit -l/--local cmd` will use your kubeconfig (`~/.kube/config` or if
-   you need different path use `-c /config/path`
-1. `kubeaudit -f/--manifest /path/to/manifest.yml` will audit the manifest
+1. Cluster mode
+  If kubeaudit detects that it's running in a container, `kubeaudit cmd` will
+  attempt to audit the cluster it's running in.
+1. Local config mode
+  If kubeaudit is not running in a container, `kubeaudit cmd` will audit the
+  resources specified by your local kubeconfig (`$HOME/.kube/config`) file.
+  You can force kubeaudit to use a specific local config file with the switch
+  `-c/--kubeconfig /config/path`
+1. Manifest mode
+  If you wish to audit a manifest file, use the command
+  `kubeaudit -f/--manifest /path/to/manifest.yml`
 
-`kubeaudit` supports to different output types:
+`kubeaudit` supports two different output types:
 1. just running `kubeaudit` will log human readable output
 1. if run with `-j/--json` it will log output json formatted so that its output
    can be used by other programs easily
 
-`kubeaudit` has 4 different log levels `INFO, WARN, ERROR` controlled by
+`kubeaudit` has four different log levels `INFO, WARN, ERROR` controlled by
 `-v/--verbose LEVEL` and for those who counted and want to work on `kubeaudit`
 `DEBUG`
 1. by default the debug level is set to `ERROR` and will log `INFO`, `WARN` and
@@ -105,7 +112,7 @@ The manifest might end up a little too secure for the work it is supposed to do.
 Runs all the above checks.
 
 ```sh
-kubeaudit -l all
+kubeaudit all
 ERRO[0000] RunAsNonRoot is not set, which results in root user being allowed!
 ERRO[0000] Default serviceAccount with token mounted. Please set automountServiceAccountToken to false
 WARN[0000] Privileged defaults to false, which results in non privileged, which is okay.
@@ -120,7 +127,7 @@ The security context holds a couple of different security related
 configurations. For convenience, `kubeaudit` will always log the following
 information when it creates a log:
 ```sh
-kubeaudit -l command
+kubeaudit command
 LOG[0000] KubeType=deployment Name=THEdeployment Namespace=deploymentNS
 ```
 And for brevity, the information will not be shown in the commands below.
@@ -134,7 +141,7 @@ Currently, `kubeaudit` is able to check for the following fields in the security
 `kubeaudit` will detect whether `readOnlyRootFilesystem` is either not set `nil` or explicitly set to `false`
 
 ```sh
-kubeaudit -l rootfs
+kubeaudit rootfs
 ERRO[0000] ReadOnlyRootFilesystem not set which results in a writable rootFS, please set to true
 ERRO[0000] ReadOnlyRootFilesystem set to false, please set to true
 ```
@@ -146,7 +153,7 @@ ERRO[0000] ReadOnlyRootFilesystem set to false, please set to true
 `kubeaudit` will detect whether the container is to be run as root:
 
 ```sh
-kubeaudit -l nonroot
+kubeaudit nonroot
 ERRO[0000] RunAsNonRoot is set to false (root user allowed), please set to true!
 ERRO[0000] RunAsNonRoot is not set, which results in root user being allowed!
 ```
@@ -158,7 +165,7 @@ ERRO[0000] RunAsNonRoot is not set, which results in root user being allowed!
 `kubeaudit` will detect whether `allowPrivilegeEscalation` is either set to `nil` or explicitly set to `false`
 
 ```sh
-kubeaudit -l allowpe
+kubeaudit allowpe
 ERRO[0000] AllowPrivilegeEscalation set to true, please set to false
 ERRO[0000] AllowPrivilegeEscalation not set which allows privilege escalation, please set to false
 ```
@@ -170,14 +177,14 @@ ERRO[0000] AllowPrivilegeEscalation not set which allows privilege escalation, p
 `kubeaudit` will detect whether the container is to be run privileged:
 
 ```sh
-kubeaudit -l priv
+kubeaudit priv
 ERRO[0000] Privileged set to true! Please change it to false!
 ```
 
 Since we want to make sure everything is intentionally configured correctly `kubeaudit` warns about `privileged` not being set:
 
 ```sh
-kubeaudit -l priv
+kubeaudit priv
 WARN[0000] Privileged defaults to false, which results in non privileged, which is okay.
 ```
 
@@ -191,14 +198,14 @@ therefore should be dropped. `kubeaudit` will also complain about added capabili
 If the capabilities field doesn't exist within the security context:
 
 ```sh
-kubeaudiit -l caps
+kubeaudit caps
 ERRO[0000] Capabilities field not defined!
 ```
 
 When capabilities were added:
 
 ```sh
-kubeaudiit -l caps
+kubeaudit caps
 ERRO[0000] Capability added  CapName=NET_ADMIN
 ```
 
@@ -208,7 +215,7 @@ want to keep some of the capabilities otherwise `kubeaudit` will complain about
 them not being dropped:
 
 ```sh
-kubeaudiit -l caps
+kubeaudit caps
 ERRO[0000] Capability not dropped  CapName=AUDIT_WRITE
 ```
 
@@ -220,20 +227,20 @@ ERRO[0000] Capability not dropped  CapName=AUDIT_WRITE
 
 1. If the image tag is incorrect an ERROR will issued
    ```sh
-   kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
+   kubeaudit image -i gcr.io/google_containers/echoserver:1.7
    ERRO[0000] Image tag was incorrect
    ```
 
 1. If the image doesn't have a tag but an image of the name was found a WARNING
    will be created:
    ```sh
-   kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
+   kubeaudit image -i gcr.io/google_containers/echoserver:1.7
    WARN[0000] Image tag was missing
    ```
 
 1. If the image was found with correct tag `kubeaudit` notifies with an INFO message:
    ```sh
-   kubeaudit -l image -i gcr.io/google_containers/echoserver:1.7
+   kubeaudit image -i gcr.io/google_containers/echoserver:1.7
    INFO[0000] Image tag was correct
    ```
 
@@ -245,13 +252,13 @@ It audits against the following scenarios:
 
 1. A default serviceAccount mounted with a token:
    ```sh
-   kubeaudit -l sat
+   kubeaudit sat
    ERRO[0000] Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false
    ```
 
 1. A deprecated service account:
    ```sh
-   kubeaudit -l sat
+   kubeaudit sat
    WARN[0000] serviceAccount is a deprecated alias for ServiceAccountName, use that one instead  DSA=DeprecatedServiceAccount
    ```
 
@@ -264,7 +271,6 @@ installed. See [Kubernetes Network Policies](https://Kubernetes.io/docs/concepts
 for more information:
 
 ```sh
-# don't specify -l or -c to run inside the cluster
 kubeaudit np
 WARN[0000] Default allow mode on test/testing
 ```
@@ -277,7 +283,7 @@ It checks that every resource has a CPU and memory limit. See [Kubernetes Resour
 for more information:
 
 ```sh
-kubeaudit -l limits
+kubeaudit limits
 WARN[0000] CPU limit not set, please set it!
 WARN[0000] Memory limit not set, please set it!
 ```
@@ -285,7 +291,7 @@ WARN[0000] Memory limit not set, please set it!
 With the `--cpu` and `--memory` parameters, `kubeaudit` can check the limits not to be exceeded.
 
 ```sh
-kubeaudit -l limits --cpu 500m --memory 125Mi
+kubeaudit limits --cpu 500m --memory 125Mi
 WARN[0000] CPU limit exceeded, it is set to 1 but it must not exceed 500m. Please adjust it! !
 WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125Mi. Please adjust it!
 ```

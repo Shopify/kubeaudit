@@ -223,7 +223,7 @@ func getResources() (resources []k8sRuntime.Object, err error) {
 	if rootConfig.manifest != "" {
 		resources, err = getKubeResourcesManifest(rootConfig.manifest)
 	} else {
-		if kube, err := kubeClient(rootConfig.kubeConfig); err == nil {
+		if kube, err := kubeClient(); err == nil {
 			resources = getKubeResources(kube)
 		}
 	}

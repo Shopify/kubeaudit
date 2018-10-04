@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
 )
@@ -25,10 +27,7 @@ type rootFlags struct {
 var RootCmd = &cobra.Command{
 	Use:   "kubeaudit",
 	Short: "A Kubernetes security auditor",
-	Long: `kubeaudit is a program that will help you audit
-your Kubernetes clusters. Specify -l to run kubeaudit using ~/.kube/config
-otherwise it will attempt to create an in-cluster client.
-
+	Long: `kubeaudit is a program that checks security settings on your Kubernetes clusters.
 #patcheswelcome`,
 }
 
@@ -41,12 +40,38 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "config file (default is $HOME/.kube/config")
+	cobra.OnInitialize(processFlags)
+	RootCmd.PersistentFlags().BoolVarP(&rootConfig.localMode, "local", "l", false, "[DEPRECATED] Local mode, uses $HOME/.kube/config as configuration")
+	RootCmd.Flags().MarkHidden("local")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Specify local config file (default is $HOME/.kube/config")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.verbose, "verbose", "v", "INFO", "Set the debug level")
-	RootCmd.PersistentFlags().BoolVarP(&rootConfig.localMode, "local", "l", false, "Local mode, uses ~/.kube/config as configuration")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Enable json logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.dropCapConfig, "dropCapConfig", "d", "", "yaml configuration to audit")
+}
+
+func processFlags() {
+	if rootConfig.verbose == "DEBUG" {
+		log.SetLevel(log.DebugLevel)
+		log.AddHook(NewDebugHook())
+	}
+	if rootConfig.json {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
+
+	if rootConfig.localMode == true {
+		log.Warn("-l/-local is deprecated! kubeaudit will default to local mode if it's not running in a cluster. ")
+		if rootConfig.kubeConfig != "" {
+			return
+		}
+
+		log.Warn("To use a local kubeconfig file from inside a cluster specify '-c $HOME/.kube/config'.")
+		home, ok := os.LookupEnv("HOME")
+		if !ok {
+			log.Fatal("Local mode selected but $HOME not set.")
+		}
+		rootConfig.kubeConfig = filepath.Join(home, ".kube", "config")
+	}
 }
