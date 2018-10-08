@@ -126,6 +126,15 @@ func getNetworkPolicies(clientset *kubernetes.Clientset) *NetworkPolicyListV1 {
 	return netPols
 }
 
+func getNamespaces(clientset *kubernetes.Clientset) *NamespaceList {
+	namespaceClient := clientset.CoreV1().Namespaces()
+	namespaces, err := namespaceClient.List(ListOptions{})
+	if err != nil {
+		log.Error(err)
+	}
+	return namespaces
+}
+
 func getKubernetesVersion(clientset kubernetes.Interface) (*version.Info, error) {
 	discoveryClient := clientset.Discovery()
 	return discoveryClient.ServerVersion()
