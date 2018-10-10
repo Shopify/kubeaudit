@@ -11,6 +11,10 @@ spec:
       creationTimestamp: null
       labels:
         apps: fakeSecurityContext
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+        container.apparmor.security.beta.kubernetes.io/fakeContainerSC1: runtime/default
+        container.apparmor.security.beta.kubernetes.io/fakeContainerSC2: runtime/default
     spec:
       automountServiceAccountToken: false
       containers:

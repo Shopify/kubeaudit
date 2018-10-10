@@ -309,6 +309,71 @@ WARN[0000] CPU limit exceeded, it is set to 1 but it must not exceed 500m. Pleas
 WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125Mi. Please adjust it!
 ```
 
+## Audit AppArmor
+
+It checks that AppArmor is enabled for all containers by making sure the following annotation exists on the pod. 
+There must be an annotation for each container in the pod:
+
+```
+container.apparmor.security.beta.kubernetes.io/<container name>: <profile>
+```
+
+where profile can be "runtime/default" or start with "localhost/" to be considered valid.
+
+If the AppArmor annotation is missing:
+
+```sh
+kubeaudit apparmor
+ERRO[0000] AppArmor annotation missing. Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace
+```
+
+When AppArmor annotations are misconfigured:
+
+```sh
+kubeaudit apparmor
+ERRO[0000] AppArmor disabled. Annotation=container.apparmor.security.beta.kubernetes.io/myContainer
+  Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace Reason=badval
+```
+
+## Audit Seccomp
+
+It checks that Seccomp is enabled for all containers by making sure one or both of the following annotations exists 
+on the pod. If no pod annotation is used, then there must be an annotation for each container. Container annotations 
+override the pod annotation:
+
+```
+# pod annotation
+seccomp.security.alpha.kubernetes.io/pod: <profile>
+
+# container annotation
+container.seccomp.security.alpha.kubernetes.io/<container name>: <profile>
+```
+
+where profile can be "runtime/default" or start with "localhost/" to be considered valid. "docker/default" is 
+deprecated and will show a warning. It should be replaced with "runtime/default".
+
+If the Seccomp annotation is missing:
+
+```sh
+kubeaudit seccomp
+ERRO[0000] Seccomp annotation missing. Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace
+```
+
+When Seccomp annotations are misconfigured for a container:
+
+```sh
+kubeaudit seccomp
+ERRO[0000] Seccomp disabled for container. Annotation=container.seccomp.security.alpha.kubernetes.io/myContainer
+  Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace Reason=badval
+```
+
+When Seccomp annotations are misconfigured for a pod:
+```sh
+kubeaudit seccomp
+ERRO[0000] Seccomp disabled for pod. Annotation=seccomp.security.alpha.kubernetes.io/pod Container= KubeType=pod
+  Name=myPod Namespace=myNamespace Reason=unconfined
+```
+
 <a name="labels" />
 
 ## Override Labels

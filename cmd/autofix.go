@@ -10,12 +10,12 @@ func getAuditFunctions() []interface{} {
 	return []interface{}{
 		auditAllowPrivilegeEscalation, auditReadOnlyRootFS, auditRunAsNonRoot,
 		auditAutomountServiceAccountToken, auditPrivileged, auditCapabilities,
+		auditAppArmor, auditSeccomp,
 	}
 }
 
 func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
-	resource = fixSecurityContextNil(resource)
-	resource = fixCapabilitiesNil(resource)
+	resource = prepareResourceForFix(resource, result)
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue:
@@ -34,8 +34,44 @@ func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRun
 			resource = fixDeprecatedServiceAccount(resource)
 		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNilAndNoName:
 			resource = fixServiceAccountToken(resource)
+		case ErrorAppArmorAnnotationMissing, ErrorAppArmorDisabled:
+			resource = fixAppArmor(resource)
+		case ErrorSeccompAnnotationMissing, ErrorSeccompDeprecated, ErrorSeccompDeprecatedPod, ErrorSeccompDisabled,
+			ErrorSeccompDisabledPod:
+			resource = fixSeccomp(resource)
 		}
 	}
+	return resource
+}
+
+func prepareResourceForFix(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
+	needSecurityContextDefined := []int{ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue,
+		ErrorPrivilegedNil, ErrorPrivilegedTrue, ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil,
+		ErrorRunAsNonRootFalse, ErrorRunAsNonRootNil, ErrorServiceAccountTokenDeprecated,
+		ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNilAndNoName,
+		ErrorCapabilityNotDropped, ErrorCapabilityAdded, ErrorMisconfiguredKubeauditAllow}
+	needCapabilitiesDefined := []int{ErrorCapabilityNotDropped, ErrorCapabilityAdded, ErrorMisconfiguredKubeauditAllow}
+
+	// Set of errors to fix
+	errors := make(map[int]bool)
+	for _, occurrence := range result.Occurrences {
+		errors[occurrence.id] = true
+	}
+
+	for _, err := range needSecurityContextDefined {
+		if _, ok := errors[err]; ok {
+			resource = fixSecurityContextNil(resource)
+			break
+		}
+	}
+
+	for _, err := range needCapabilitiesDefined {
+		if _, ok := errors[err]; ok {
+			resource = fixCapabilitiesNil(resource)
+			break
+		}
+	}
+
 	return resource
 }
 

@@ -6,6 +6,10 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          annotations:
+            seccomp.security.alpha.kubernetes.io/pod: runtime/default
+            container.apparmor.security.beta.kubernetes.io/hello: runtime/default
         spec:
           automountServiceAccountToken: false
           containers:

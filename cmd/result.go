@@ -58,6 +58,7 @@ func createFields(res Result, occ Occurrence) (fields log.Fields) {
 	for k, v := range occ.metadata {
 		fields[k] = v
 	}
+	fields["Container"] = occ.container
 	return
 }
 

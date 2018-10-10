@@ -105,6 +105,36 @@ func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
 	return resource
 }
 
+func setPodAnnotations(resource k8sRuntime.Object, annotations map[string]string) k8sRuntime.Object {
+	switch kubeType := resource.(type) {
+	case *CronJob:
+		kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *DaemonSet:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *DeploymentV1Beta1:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *DeploymentV1Beta2:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *DeploymentExtensionsV1Beta1:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *Pod:
+		kubeType.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *ReplicationController:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *StatefulSet:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	}
+	return resource
+}
+
 func getContainers(resource k8sRuntime.Object) (container []Container) {
 	switch kubeType := resource.(type) {
 	case *CronJob:
@@ -125,6 +155,28 @@ func getContainers(resource k8sRuntime.Object) (container []Container) {
 		container = kubeType.Spec.Template.Spec.Containers
 	}
 	return container
+}
+
+func getPodAnnotations(resource k8sRuntime.Object) (annotations map[string]string) {
+	switch kubeType := resource.(type) {
+	case *CronJob:
+		annotations = kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.GetAnnotations()
+	case *DaemonSet:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *DeploymentV1Beta1:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *DeploymentV1Beta2:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *DeploymentExtensionsV1Beta1:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *Pod:
+		annotations = kubeType.ObjectMeta.GetAnnotations()
+	case *ReplicationController:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *StatefulSet:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	}
+	return
 }
 
 // WriteToFile writes and then appends incoming resource
