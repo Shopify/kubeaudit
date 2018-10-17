@@ -3,9 +3,11 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	networking "k8s.io/api/networking/v1"
 )
 
 func getNamespacesMap(namespaceList *NamespaceListV1) map[string]bool {
+	// TODO filter namespaces based on annotations
 	nsMap := map[string]bool{}
 
 	for _, ns := range namespaceList.Items {
@@ -15,47 +17,68 @@ func getNamespacesMap(namespaceList *NamespaceListV1) map[string]bool {
 	return nsMap
 }
 
-func checkNamespaceNetworkPolicies(namespaceList *NamespaceListV1, netPols *NetworkPolicyListV1) {
-	badNetPols := []NetworkPolicy{}
+func printResult(auditedNamspaces map[string]bool) {
+	for ns, hasDefaultDenyNetPol := range auditedNamspaces {
+		if hasDefaultDenyNetPol {
+			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Info("Has default deny NeworkPolicy isolation")
+		} else {
+			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Error("Missing default deny NeworkPolicy isolation")
+		}
+	}
+}
+
+// Currently only checks ingress rules
+func checkIfDefaultDenyPolicy(netpol networking.NetworkPolicy) bool {
+	// No PodSelector is set via MatchLabels -> Catch all pods
+	if len(netpol.Spec.PodSelector.MatchLabels) > 0 {
+		return false
+	}
+
+	// No PodSelector is set via MatchExpressions -> catch all Pods
+	if len(netpol.Spec.PodSelector.MatchExpressions) > 0 {
+		return false
+	}
+
+	// No Ingress rule is defined -> denie all ingress traffic
+	if len(netpol.Spec.Ingress) > 0 {
+		return false
+	}
+
+	// TODO check if ingress or egress rule? if netpol.Spec.PolicyTypes
+	// TODO evalute also egress?
+	return true
+}
+
+func checkNamespaceNetworkPolicies(namespaceList *NamespaceListV1, netPols *NetworkPolicyListV1) map[string]bool {
 	nsMap := getNamespacesMap(namespaceList)
 
 	for _, netPol := range netPols.Items {
-		// namespace has a networkPolicy
-		// TODO check is default deny Policy is included
-		nsMap[netPol.Namespace] = true
-		log.Info(netPol)
+		// If not set check if default deny policy
+		if !nsMap[netPol.Namespace] {
+			nsMap[netPol.Namespace] = checkIfDefaultDenyPolicy(netPol)
+		}
+
 		for _, ingress := range netPol.Spec.Ingress {
 			if (len(ingress.From)) == 0 {
 				log.WithField("KubeType", "netpol").
-					Warn("Default allow mode on ", netPol.Namespace, "/", netPol.Name)
+					WithField("Namespace", netPol.Namespace).
+					Warn("Has allow all Networkpolicy: ", netPol.Namespace, "/", netPol.Name)
 			}
 		}
 	}
 
-	for ns, hasNetPol := range nsMap {
-		if hasNetPol {
-			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Info("Has NeworkPolicy isolation")
-		} else {
-			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Error("Missing NeworkPolicy isolation")
-		}
-	}
-
-	// TODO do we need this? badNetPols is never set
-	if len(badNetPols) != 0 {
-		for _, netPol := range badNetPols {
-			log.WithField("KubeType", "netpol").Error(netPol.Name)
-		}
-	}
+	return nsMap
 }
 
 var npCmd = &cobra.Command{
 	Use:   "np",
 	Short: "Audit namespace network policies",
-	Long: `This command determines whether or not a namespace contains
-a NetworkPolicy isolation.
+	Long: `This command determines whether or not a namespace has
+a default deny NetworkPolicy.
 
-An INFO log is given when a namespace has NetworkPolicy isolation
-An ERROR log is given when a namespace does not have NetworkPolicy isolation
+An INFO log is given when a namespace has a default deny NetworkPolicy
+An WARN log is given whan a namespace contains a default allow NetworkPolicy
+An ERROR log is given when a namespace does not have a default deny NetworkPolicy
 
 Example usage:
 kubeaudit np`,
@@ -70,7 +93,7 @@ kubeaudit np`,
 		}
 		netPols := getNetworkPolicies(kube)
 		namespaces := getNamespaces(kube)
-		checkNamespaceNetworkPolicies(namespaces, netPols)
+		printResult(checkNamespaceNetworkPolicies(namespaces, netPols))
 	},
 }
 
