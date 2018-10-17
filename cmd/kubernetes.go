@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -128,7 +129,16 @@ func getNetworkPolicies(clientset *kubernetes.Clientset) *NetworkPolicyListV1 {
 
 func getNamespaces(clientset *kubernetes.Clientset) *NamespaceList {
 	namespaceClient := clientset.CoreV1().Namespaces()
-	namespaces, err := namespaceClient.List(ListOptions{})
+	listOptions := ListOptions{}
+
+	if rootConfig.namespace != "" {
+		// Select only the specified namespace
+		listOptions = ListOptions{
+			FieldSelector: fmt.Sprintf("metadata.name=%s", rootConfig.namespace),
+		}
+	}
+
+	namespaces, err := namespaceClient.List(listOptions)
 	if err != nil {
 		log.Error(err)
 	}
