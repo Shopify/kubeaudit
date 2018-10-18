@@ -220,8 +220,16 @@ func getKubeResourcesManifest(filename string) (decoded []k8sRuntime.Object, err
 }
 
 func getResources() (resources []k8sRuntime.Object, err error) {
-	if rootConfig.manifest != "" {
-		resources, err = getKubeResourcesManifest(rootConfig.manifest)
+	if len(rootConfig.manifests) > 0 {
+		for _, manifest := range rootConfig.manifests {
+			resource, err := getKubeResourcesManifest(manifest)
+			if err != nil {
+				return resources, err
+			}
+			for _, r := range resource {
+				resources = append(resources, r)
+			}
+		}
 	} else {
 		if kube, err := kubeClient(); err == nil {
 			resources = getKubeResources(kube)
