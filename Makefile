@@ -15,6 +15,9 @@ build:
 install:
 	cp $(BINARY_NAME) $(GOPATH)/bin/kubeaudit
 
+plugin:
+	cp $(BINARY_NAME) $(GOPATH)/bin/kubectl-audit
+
 test:
 	./test.sh
 
