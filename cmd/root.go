@@ -17,7 +17,7 @@ type rootFlags struct {
 	json          bool
 	kubeConfig    string
 	localMode     bool
-	manifest      string
+	manifests     []string
 	namespace     string
 	verbose       string
 	dropCapConfig string
@@ -48,7 +48,7 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Enable json logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
+	RootCmd.PersistentFlags().StringSliceVarP(&rootConfig.manifests, "manifest", "f", make([]string, 0), "yaml configuration to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.dropCapConfig, "dropCapConfig", "d", "", "yaml configuration to audit")
 }
 
