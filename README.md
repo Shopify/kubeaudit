@@ -41,6 +41,19 @@ make install
 
 Now you can just call `kubeaudit` with one of commands from [here](#audits)
 
+#### Kubectl Plugin
+
+Prerequisite: kubectl v1.12.0 or later
+
+With kubectl v1.12.0 introducing [easy pluggability](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) of external functions, kubeaudit can be invoked as `kubectl audit` just by
+- running `make plugin` and having $GOPATH/bin available in your path.
+
+or
+
+- renaming the binary to `kubectl-audit` and having it available in your path.
+
+
+
 <a name="general" />
 
 ## General instructions
