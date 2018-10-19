@@ -78,9 +78,9 @@ func TestCheckNamespaceNetworkPolicies(t *testing.T) {
 	}
 
 	expected := map[string]bool{
-		namespaceWithDenyAllNetPol.ObjectMeta.Name:  true,
-		namespaceWithAllowAllNetPol.ObjectMeta.Name: false,
-		namespaceWithoutNetPol.ObjectMeta.Name:      false,
+		namespaceWithDenyAllNetPol.ObjectMeta.Name:  false,
+		namespaceWithAllowAllNetPol.ObjectMeta.Name: true,
+		namespaceWithoutNetPol.ObjectMeta.Name:      true,
 	}
 
 	result := checkNamespaceNetworkPolicies(namespaceList, netPolList)

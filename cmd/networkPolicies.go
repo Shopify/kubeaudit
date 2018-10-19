@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	networking "k8s.io/api/networking/v1"
@@ -11,18 +13,18 @@ func getNamespacesMap(namespaceList *NamespaceListV1) map[string]bool {
 	nsMap := map[string]bool{}
 
 	for _, ns := range namespaceList.Items {
-		nsMap[ns.Name] = false
+		nsMap[ns.Name] = true
 	}
 
 	return nsMap
 }
 
 func printResult(auditedNamspaces map[string]bool) {
-	for ns, hasDefaultDenyNetPol := range auditedNamspaces {
-		if hasDefaultDenyNetPol {
-			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Info("Has default deny NeworkPolicy isolation")
-		} else {
+	for ns, missingDefaultDenyNetPol := range auditedNamspaces {
+		if missingDefaultDenyNetPol {
 			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Error("Missing default deny NeworkPolicy isolation")
+		} else {
+			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Info("Has default deny NeworkPolicy isolation")
 		}
 	}
 }
@@ -54,8 +56,10 @@ func checkNamespaceNetworkPolicies(namespaceList *NamespaceListV1, netPols *Netw
 
 	for _, netPol := range netPols.Items {
 		// If not set check if default deny policy
-		if !nsMap[netPol.Namespace] {
-			nsMap[netPol.Namespace] = checkIfDefaultDenyPolicy(netPol)
+		if nsMap[netPol.Namespace] {
+			if checkIfDefaultDenyPolicy(netPol) {
+				nsMap[netPol.Namespace] = false
+			}
 		}
 
 		for _, ingress := range netPol.Spec.Ingress {
@@ -92,7 +96,11 @@ kubeaudit np`,
 			log.SetFormatter(&log.JSONFormatter{})
 		}
 		netPols := getNetworkPolicies(kube)
-		namespaces := getNamespaces(kube)
+		namespaces, err := getNamespaces(kube)
+		if err != nil {
+			log.Error(err)
+			os.Exit(1)
+		}
 		printResult(checkNamespaceNetworkPolicies(namespaces, netPols))
 	},
 }
