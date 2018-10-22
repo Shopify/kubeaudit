@@ -90,7 +90,7 @@ Fix this by updating serviceAccount to serviceAccountName in your .yamls
 
 Example usage:
 kubeaudit sat`,
-	Run: runAudit(auditAutomountServiceAccountToken),
+	Run: runAudit(auditAutomountServiceAccountToken, getResources),
 }
 
 func init() {

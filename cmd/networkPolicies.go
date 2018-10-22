@@ -1,33 +1,11 @@
 package cmd
 
 import (
-	"os"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	networking "k8s.io/api/networking/v1"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
-
-func getNamespacesMap(namespaceList *NamespaceListV1) map[string]bool {
-	// TODO filter namespaces based on annotations
-	nsMap := map[string]bool{}
-
-	for _, ns := range namespaceList.Items {
-		nsMap[ns.Name] = true
-	}
-
-	return nsMap
-}
-
-func printResult(auditedNamspaces map[string]bool) {
-	for ns, missingDefaultDenyNetPol := range auditedNamspaces {
-		if missingDefaultDenyNetPol {
-			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Error("Missing default deny NeworkPolicy isolation")
-		} else {
-			log.WithField("KubeType", "netpol").WithField("Namespace", ns).Info("Has default deny NeworkPolicy isolation")
-		}
-	}
-}
 
 // Currently only checks ingress rules
 func checkIfDefaultDenyPolicy(netpol networking.NetworkPolicy) bool {
@@ -51,19 +29,33 @@ func checkIfDefaultDenyPolicy(netpol networking.NetworkPolicy) bool {
 	return true
 }
 
-func checkNamespaceNetworkPolicies(namespaceList *NamespaceListV1, netPols *NetworkPolicyListV1) map[string]bool {
-	nsMap := getNamespacesMap(namespaceList)
+func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result) {
+	// TODO check if any netpol is default Policy
+	hasDefaultDeny := false
+	if len(netPols.Items) == 0 {
+		// TODO error no defaultPolicy
+
+		return
+	}
 
 	for _, netPol := range netPols.Items {
 		// If not set check if default deny policy
-		if nsMap[netPol.Namespace] {
-			if checkIfDefaultDenyPolicy(netPol) {
-				nsMap[netPol.Namespace] = false
-			}
+		if !hasDefaultDeny {
+			hasDefaultDeny = checkIfDefaultDenyPolicy(netPol)
 		}
 
 		for _, ingress := range netPol.Spec.Ingress {
 			if (len(ingress.From)) == 0 {
+				/*
+					occ := Occurrence{
+						container: container.Name,
+						id:        ErrorRunAsNonRootFalse,
+						kind:      Error,
+						message:   "RunAsNonRoot is set to false (root user allowed), please set to true!",
+					}
+					result.Occurrences = append(result.Occurrences, occ)
+				*/
+
 				log.WithField("KubeType", "netpol").
 					WithField("Namespace", netPol.Namespace).
 					Warn("Has allow all Networkpolicy: ", netPol.Namespace, "/", netPol.Name)
@@ -71,7 +63,63 @@ func checkNamespaceNetworkPolicies(namespaceList *NamespaceListV1, netPols *Netw
 		}
 	}
 
-	return nsMap
+	if !hasDefaultDeny {
+		//TODO
+	}
+
+	return
+}
+
+func getNamespaceResources() (resources []k8sRuntime.Object, err error) {
+	kube, err := kubeClient()
+	if err != nil {
+		return
+	}
+
+	nsList, err := getNamespaces(kube)
+	if err != nil {
+		return
+	}
+	for _, resource := range nsList.Items {
+		resources = append(resources, resource.DeepCopyObject())
+	}
+	return
+}
+
+//TODO can we set/get only specific resources?
+func auditNetworkPolicies(resource k8sRuntime.Object) (results []Result) {
+	/*kube, err := kubeClient()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	/*if rootConfig.json {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
+	netPols := getNetworkPolicies(kube)
+	namespaces, err := getNamespaces(kube)
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
+	}*/
+
+	//TODO fetch network policies
+	// iterate over namespaces not net pol --> actually an namespace check not an netpol check
+	log.Info(resource)
+
+	result, err := newResultFromResource(resource)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	checkNamespaceNetworkPolicies(nil, result)
+	if len(result.Occurrences) > 0 {
+		results = append(results, *result)
+	}
+
+	return
 }
 
 var npCmd = &cobra.Command{
@@ -86,23 +134,7 @@ An ERROR log is given when a namespace does not have a default deny NetworkPolic
 
 Example usage:
 kubeaudit np`,
-	Run: func(cmd *cobra.Command, args []string) {
-		kube, err := kubeClient()
-		if err != nil {
-			log.Error(err)
-		}
-
-		if rootConfig.json {
-			log.SetFormatter(&log.JSONFormatter{})
-		}
-		netPols := getNetworkPolicies(kube)
-		namespaces, err := getNamespaces(kube)
-		if err != nil {
-			log.Error(err)
-			os.Exit(1)
-		}
-		printResult(checkNamespaceNetworkPolicies(namespaces, netPols))
-	},
+	Run: runAudit(auditNetworkPolicies, getNamespaceResources),
 }
 
 func init() {

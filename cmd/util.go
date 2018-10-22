@@ -101,6 +101,11 @@ func newResultFromResource(resource Resource) (*Result, error) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
+	case *Namespace:
+		result.KubeType = "namespace"
+		result.Labels = kubeType.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	default:
 		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
 	}
@@ -309,14 +314,14 @@ func getResults(resources []Resource, auditFunc interface{}) []Result {
 	return results
 }
 
-func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
+func runAudit(auditFunc interface{}, getResourcesFunc func() (resources []k8sRuntime.Object, err error)) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		if err := checkParams(auditFunc); err != nil {
 			log.Error("Parameter check failed")
 			log.Error(err)
 		}
 		setFormatter()
-		resources, err := getResources()
+		resources, err := getResourcesFunc()
 		if err != nil {
 			log.Error("getResources failed")
 			log.Error(err)

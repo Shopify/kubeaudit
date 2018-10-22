@@ -17,7 +17,7 @@ var auditAllCmd = &cobra.Command{
 
 Example usage:
 kubeaudit all -f /path/to/yaml`,
-	Run: runAudit(mergeAuditFunctions(allAuditFunctions)),
+	Run: runAudit(mergeAuditFunctions(allAuditFunctions), getResources),
 }
 
 func init() {

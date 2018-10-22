@@ -8,8 +8,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// TODO test default deny
-// TODO test default allow rule
 func TestCheckNamespaceNetworkPolicies(t *testing.T) {
 	namespaceWithoutNetPol := apiv1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{

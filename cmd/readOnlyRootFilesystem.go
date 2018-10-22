@@ -74,7 +74,7 @@ A FAIL is given when a container does not have a read only root filesystem
 
 Example usage:
 kubeaudit rootfs`,
-	Run: runAudit(auditReadOnlyRootFS),
+	Run: runAudit(auditReadOnlyRootFS, getResources),
 }
 
 func init() {
