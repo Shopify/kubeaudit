@@ -7,7 +7,7 @@ import (
 var allAuditFunctions = []interface{}{
 	auditAllowPrivilegeEscalation, auditReadOnlyRootFS, auditRunAsNonRoot,
 	auditAutomountServiceAccountToken, auditPrivileged, auditCapabilities,
-	auditLimits, auditImages,
+	auditLimits, auditImages, auditAppArmor, auditSeccomp,
 }
 
 var auditAllCmd = &cobra.Command{

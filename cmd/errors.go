@@ -65,6 +65,20 @@ const (
 	// ErrorServiceAccountTokenDeprecated occurs when serviceAccount is used. ServiceAccount is a deprecated alias
 	// for ServiceAccountName.
 	ErrorServiceAccountTokenDeprecated
+	// ErrorAppArmorDisabled occurs when the AppArmor annotation is set to a bad value.
+	ErrorAppArmorDisabled
+	// ErrorAppArmorAnnotationMissing occurs when there is no annotation enabling AppArmor on the pod.
+	ErrorAppArmorAnnotationMissing
+	// ErrorSeccompDisabledPod occurs when the Seccomp annotation is set to a bad value.
+	ErrorSeccompDisabledPod
+	// ErrorSeccompDisabled occurs when the Seccomp annotation is set to a bad value.
+	ErrorSeccompDisabled
+	// ErrorSeccompAnnotationMissing occurs when there is no annotation enabling Seccomp on the pod.
+	ErrorSeccompAnnotationMissing
+	// ErrorSeccompDeprecatedPod occurs when the Seccomp annotation is set to a deprecated value.
+	ErrorSeccompDeprecatedPod
+	// ErrorSeccompDeprecated occurs when the Seccomp annotation is set to a deprecated value.
+	ErrorSeccompDeprecated
 	// InfoImageCorrect occurs when an image tag is correct.
 	InfoImageCorrect
 )

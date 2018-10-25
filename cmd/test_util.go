@@ -105,3 +105,11 @@ func NewPod() *Pod {
 	}
 	return nil
 }
+
+func assertEqualYaml(fileToFix string, fileFixed string, auditFunc func(resource k8sRuntime.Object) []Result, t *testing.T) {
+	assert, fixedResource := FixTestSetup(t, fileToFix, auditFunc)
+	fileFixed = filepath.Join(path, fileFixed)
+	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
+	assert.Nil(err)
+	assert.Equal(correctlyFixedResources[0], fixedResource)
+}
