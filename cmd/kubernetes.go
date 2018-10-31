@@ -15,22 +15,48 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// Client abstracts the API to allow testing.
+type Client interface {
+	InClusterConfig() (*rest.Config, error)
+}
+
+// K8sClient wraps kubernetes client-go so it can be mocked.
+type K8sClient struct{}
+
+// InClusterConfig wraps the client-go method with the same name.
+func (kc K8sClient) InClusterConfig() (*rest.Config, error) {
+	return rest.InClusterConfig()
+}
+
 // ErrNoReadableKubeConfig represents any error that prevents the client from opening a kubeconfig file.
 var ErrNoReadableKubeConfig = errors.New("unable to open kubeconfig file")
 
-func kubeClientConfig() (*rest.Config, error) {
+func kubeClient() (*kubernetes.Clientset, error) {
+	return kubeClientType(K8sClient{})
+}
+
+func kubeClientType(kc Client) (*kubernetes.Clientset, error) {
+	config, err := kubeClientConfig(kc)
+	if err != nil {
+		return nil, err
+	}
+	kube, err := kubernetes.NewForConfig(config)
+	return kube, err
+}
+
+func kubeClientConfig(kc Client) (*rest.Config, error) {
 	if rootConfig.kubeConfig != "" {
 		return kubeClientConfigLocal()
 	}
 
-	if config, err := rest.InClusterConfig(); err == nil {
+	if config, err := kc.InClusterConfig(); err == nil {
 		log.Info("Running inside cluster, using the cluster config")
 		return config, nil
 	}
 
 	log.Info("Not running inside cluster, using local config")
 	home, ok := os.LookupEnv("HOME")
-	if !ok {
+	if !ok || home == "" {
 		log.Error("Unable to load kubeconfig. No config file specified and $HOME not found.")
 		return nil, ErrNoReadableKubeConfig
 	}
@@ -45,15 +71,6 @@ func kubeClientConfigLocal() (*rest.Config, error) {
 		return nil, ErrNoReadableKubeConfig
 	}
 	return clientcmd.BuildConfigFromFlags("", rootConfig.kubeConfig)
-}
-
-func kubeClient() (*kubernetes.Clientset, error) {
-	config, err := kubeClientConfig()
-	if err != nil {
-		return nil, err
-	}
-	kube, err := kubernetes.NewForConfig(config)
-	return kube, err
 }
 
 func getDeployments(clientset *kubernetes.Clientset) *DeploymentList {
