@@ -33,13 +33,26 @@ var versionCmd = &cobra.Command{
 			"BuildDate": BuildDate,
 			"Commit":    Commit,
 			"Version":   Version,
-		}).Info("Kubeaudit")
+		}).Info("Kubeaudit version")
 
-		kube, err := kubeClient()
-		if err != nil {
-			log.Warn("Could not get kubernetes server version.")
-			return
-		}
-		printKubernetesVersion(kube)
+		printServerVersion()
 	},
+}
+
+func printServerVersion() {
+	kube, err := kubeClient()
+	if err != nil {
+		return
+	}
+
+	v, err := getKubernetesVersion(kube)
+	if err != nil {
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"Major":    v.Major,
+		"Minor":    v.Minor,
+		"Platform": v.Platform,
+	}).Info("Kubernetes server version")
 }

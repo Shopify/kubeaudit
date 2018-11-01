@@ -8,6 +8,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"k8s.io/apimachinery/pkg/version"
+	fakediscovery "k8s.io/client-go/discovery/fake"
+	fakeclientset "k8s.io/client-go/kubernetes/fake"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"k8s.io/client-go/rest"
@@ -110,4 +113,23 @@ func TestKubeClientConfigLocal(t *testing.T) {
 	_, err := kubeClientConfigLocal()
 	assert.Equal(t, ErrNoReadableKubeConfig, err,
 		"kubeClientConfigLocal did not return expected error when kubeconfig file doesn't exist")
+}
+
+func TestGetKubernetesVersion(t *testing.T) {
+	client := fakeclientset.NewSimpleClientset()
+	fakeDiscovery, ok := client.Discovery().(*fakediscovery.FakeDiscovery)
+	if !ok {
+		t.Fatalf("couldn't mock server version")
+	}
+
+	fakeDiscovery.FakedServerVersion = &version.Info{
+		Major:     "0",
+		Minor:     "0",
+		GitCommit: "0000",
+		Platform:  "ACME 8-bit",
+	}
+
+	r, err := getKubernetesVersion(client)
+	assert.Nil(t, err)
+	assert.EqualValues(t, *fakeDiscovery.FakedServerVersion, *r)
 }

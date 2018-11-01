@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	networking "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"  // auth for GKE clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc" // auth for OIDC
@@ -126,15 +127,7 @@ func getNetworkPolicies(clientset *kubernetes.Clientset) *networking.NetworkPoli
 	return netPols
 }
 
-func printKubernetesVersion(clientset *kubernetes.Clientset) {
+func getKubernetesVersion(clientset kubernetes.Interface) (*version.Info, error) {
 	discoveryClient := clientset.Discovery()
-	serverInfo, err := discoveryClient.ServerVersion()
-	if err != nil {
-		log.Error(err)
-	}
-	log.WithFields(log.Fields{
-		"Major":    serverInfo.Major,
-		"Minor":    serverInfo.Minor,
-		"Platform": serverInfo.Platform,
-	}).Info("Kubernetes server version")
+	return discoveryClient.ServerVersion()
 }
