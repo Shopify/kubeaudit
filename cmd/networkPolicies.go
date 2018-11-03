@@ -32,11 +32,6 @@ func checkIfDefaultDenyPolicy(netpol networking.NetworkPolicy) bool {
 func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result) {
 	// TODO check if any netpol is default Policy
 	hasDefaultDeny := false
-	if len(netPols.Items) == 0 {
-		// TODO error no defaultPolicy
-
-		return
-	}
 
 	for _, netPol := range netPols.Items {
 		// If not set check if default deny policy
@@ -45,76 +40,131 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 		}
 
 		for _, ingress := range netPol.Spec.Ingress {
+			// Allow all ingress traffic
 			if (len(ingress.From)) == 0 {
-				/*
-					occ := Occurrence{
-						container: container.Name,
-						id:        ErrorRunAsNonRootFalse,
-						kind:      Error,
-						message:   "RunAsNonRoot is set to false (root user allowed), please set to true!",
-					}
-					result.Occurrences = append(result.Occurrences, occ)
-				*/
-
-				log.WithField("KubeType", "netpol").
-					WithField("Namespace", netPol.Namespace).
-					Warn("Has allow all Networkpolicy: ", netPol.Namespace, "/", netPol.Name)
+				occ := Occurrence{
+					container: "",
+					id:        ErrorRunAsNonRootFalse,
+					kind:      Warn,
+					message:   "Found allow all ingres traffic NetworkPolicy",
+					metadata: Metadata{
+						"PolicyName": netPol.ObjectMeta.Name,
+					},
+				}
+				result.Occurrences = append(result.Occurrences, occ)
 			}
 		}
+
+		// TODO check egress policy
 	}
 
 	if !hasDefaultDeny {
-		//TODO
+		occ := Occurrence{
+			container: "",
+			id:        ErrorMissingDefaultDenyNetworkPolicy,
+			kind:      Error,
+			message:   "Namespace is missing a default deny NetworkPolicy",
+		}
+		result.Occurrences = append(result.Occurrences, occ)
+	} else {
+		occ := Occurrence{
+			container: "",
+			id:        ErrorMissingDefaultDenyNetworkPolicy,
+			kind:      Info,
+			message:   "Namespace has a default deny NetworkPolicy",
+		}
+		result.Occurrences = append(result.Occurrences, occ)
 	}
 
 	return
 }
 
+// How to generalize?
 func getNamespaceResources() (resources []k8sRuntime.Object, err error) {
+	if rootConfig.manifest != "" {
+		return getKubeResourcesManifest(rootConfig.manifest)
+	} else {
+		kube, err := kubeClient()
+		if err != nil {
+			return resources, err
+		}
+
+		nsList, err := getNamespaces(kube)
+		if err != nil {
+			return resources, err
+		}
+		for _, resource := range nsList.Items {
+			resources = append(resources, resource.DeepCopyObject())
+		}
+		return resources, err
+	}
+}
+
+func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyList, err error) {
+	// Prevent the return of a nil value
+	netPolList = &NetworkPolicyList{}
+	if rootConfig.manifest != "" {
+		resources, err := getKubeResourcesManifest(rootConfig.manifest)
+		if err != nil {
+			return netPolList, nil
+		}
+
+		for _, resource := range resources {
+			switch kubeType := resource.(type) {
+			case *NetworkPolicy:
+				netPolList.Items = append(netPolList.Items, *kubeType)
+			}
+		}
+
+		return netPolList, nil
+	}
+
+	currentRootNamespace := rootConfig.namespace
 	kube, err := kubeClient()
 	if err != nil {
-		return
+		return netPolList, err
 	}
 
-	nsList, err := getNamespaces(kube)
-	if err != nil {
-		return
+	if namespace != "" {
+		rootConfig.namespace = namespace
 	}
-	for _, resource := range nsList.Items {
-		resources = append(resources, resource.DeepCopyObject())
-	}
-	return
+
+	netPolList = getNetworkPolicies(kube)
+
+	rootConfig.namespace = currentRootNamespace
+	return netPolList, err
 }
 
-//TODO can we set/get only specific resources?
+func getNamespaceName(resource k8sRuntime.Object) (ns string) {
+	switch kubeType := resource.(type) {
+	case *Namespace:
+		ns = kubeType.ObjectMeta.Name
+	}
+
+	return ns
+}
+
 func auditNetworkPolicies(resource k8sRuntime.Object) (results []Result) {
-	/*kube, err := kubeClient()
-	if err != nil {
-		log.Error(err)
+	nsName := getNamespaceName(resource)
+	if nsName == "" {
 		return
 	}
 
-	/*if rootConfig.json {
-		log.SetFormatter(&log.JSONFormatter{})
-	}
-	netPols := getNetworkPolicies(kube)
-	namespaces, err := getNamespaces(kube)
-	if err != nil {
-		log.Error(err)
-		os.Exit(1)
-	}*/
-
-	//TODO fetch network policies
 	// iterate over namespaces not net pol --> actually an namespace check not an netpol check
-	log.Info(resource)
-
 	result, err := newResultFromResource(resource)
 	if err != nil {
 		log.Error(err)
 		return
 	}
 
-	checkNamespaceNetworkPolicies(nil, result)
+	// Fetch NetworkPolicies for the current namespace
+	netPols, err := getNetworkPoliciesResources(nsName)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	checkNamespaceNetworkPolicies(netPols, result)
 	if len(result.Occurrences) > 0 {
 		results = append(results, *result)
 	}

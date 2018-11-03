@@ -98,6 +98,7 @@ func IsSupportedResourceType(obj Resource) bool {
 	case *CronJobV1Beta1,
 		*DaemonSetListV1, *DaemonSetV1, *DaemonSetV1Beta1,
 		*DeploymentExtensionsV1Beta1, *DeploymentV1, *DeploymentV1Beta1, *DeploymentV1Beta2, *DeploymentListV1,
+		*NamespaceListV1,
 		*NetworkPolicyListV1, *NetworkPolicyV1,
 		*PodListV1, *PodV1,
 		*ReplicationControllerListV1, *ReplicationControllerV1,
