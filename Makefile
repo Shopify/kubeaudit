@@ -7,6 +7,14 @@ GOTEST=$(GOCMD) test
 BINARY_NAME=kubeaudit
 BINARY_UNIX=$(BINARY_NAME)_unix
 
+# kubernetes client won't build with go<1.10
+GOVERSION:=$(shell go version | awk '{print $$3}')
+GOVERSION_MIN:=go1.10
+GOVERSION_CHECK=$(shell echo "$(GOVERSION)\n$(GOVERSION_MIN)" | sort -V | head -n 1)
+ifneq ($(GOVERSION_MIN), $(GOVERSION_CHECK))
+$(error Detected Go version $(GOVERSION) < required version $(GOVERSION_MIN))
+endif
+
 all: setup test build
 
 build:
