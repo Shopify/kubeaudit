@@ -7,6 +7,14 @@ GOTEST=$(GOCMD) test
 BINARY_NAME=kubeaudit
 BINARY_UNIX=$(BINARY_NAME)_unix
 
+# kubernetes client won't build with go<1.10
+GOVERSION:=$(shell go version | awk '{print $$3}')
+GOVERSION_MIN:=go1.10
+GOVERSION_CHECK=$(shell echo "$(GOVERSION)\n$(GOVERSION_MIN)" | sort -V | head -n 1)
+ifneq ($(GOVERSION_MIN), $(GOVERSION_CHECK))
+$(error Detected Go version $(GOVERSION) < required version $(GOVERSION_MIN))
+endif
+
 all: setup test build
 
 build:
@@ -42,6 +50,6 @@ build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_UNIX) -v
 
 docker-build:
-	docker run --rm -it -v "$(GOPATH)":/go -w /go/src/github.com/Shopify/kubeaudit golang:1.9 go build -o "$(BINARY_UNIX)" -v
+	docker run --rm -it -v "$(GOPATH)":/go -w /go/src/github.com/Shopify/kubeaudit golang:1.11 go build -o "$(BINARY_UNIX)" -v
 
 .PHONY: build clean test check_version build-linux docker-build
