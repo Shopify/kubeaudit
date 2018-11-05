@@ -8,32 +8,51 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Placeholder values will be overridden by goreleaser or makefile.
+var (
+	Version   = "0.0.0"
+	Commit    = "ffffffff"
+	BuildDate = "2006-01-02T15:04:05Z07:00"
+)
+
 func init() {
 	RootCmd.AddCommand(versionCmd)
 }
 
-// Version is the semantic versioning number for kubeaudit.
-const Version = "0.1.0"
-
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of kubeaudit",
-	Long:  `This just prints the version of kubeaudit`,
+	Long:  `This prints the version numbers of kubeaudit and the kubernetes server.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		ver, err := version.NewVersion(Version)
+		_, err := version.NewVersion(Version + "+" + Commit)
 		if err != nil {
 			log.Error(err)
 			os.Exit(1)
 		}
 		log.WithFields(log.Fields{
-			"Version": ver,
-		}).Info("Kubeaudit")
+			"BuildDate": BuildDate,
+			"Commit":    Commit,
+			"Version":   Version,
+		}).Info("Kubeaudit version")
 
-		kube, err := kubeClient()
-		if err != nil {
-			log.Warn("Could not get kubernetes server version.")
-			return
-		}
-		printKubernetesVersion(kube)
+		printServerVersion()
 	},
+}
+
+func printServerVersion() {
+	kube, err := kubeClient()
+	if err != nil {
+		return
+	}
+
+	v, err := getKubernetesVersion(kube)
+	if err != nil {
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"Major":    v.Major,
+		"Minor":    v.Minor,
+		"Platform": v.Platform,
+	}).Info("Kubernetes server version")
 }

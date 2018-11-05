@@ -43,7 +43,7 @@ func init() {
 	cobra.OnInitialize(processFlags)
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.localMode, "local", "l", false, "[DEPRECATED] Local mode, uses $HOME/.kube/config as configuration")
 	RootCmd.Flags().MarkHidden("local")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Specify local config file (default is $HOME/.kube/config")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Specify local config file (default is $HOME/.kube/config)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.verbose, "verbose", "v", "INFO", "Set the debug level")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Enable json logging")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
