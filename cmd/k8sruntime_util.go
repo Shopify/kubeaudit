@@ -140,6 +140,12 @@ func setPodAnnotations(resource k8sRuntime.Object, annotations map[string]string
 	case *DaemonSet:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
+	case *DaemonSetV1:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *DeploymentV1:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
 	case *DeploymentV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
@@ -156,6 +162,9 @@ func setPodAnnotations(resource k8sRuntime.Object, annotations map[string]string
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
 	case *StatefulSet:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
+	case *StatefulSetV1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
 	}
@@ -196,6 +205,10 @@ func getPodAnnotations(resource k8sRuntime.Object) (annotations map[string]strin
 		annotations = kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.GetAnnotations()
 	case *DaemonSet:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *DaemonSetV1:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *DeploymentV1:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	case *DeploymentV1Beta1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	case *DeploymentV1Beta2:
@@ -207,6 +220,8 @@ func getPodAnnotations(resource k8sRuntime.Object) (annotations map[string]strin
 	case *ReplicationController:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	case *StatefulSet:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *StatefulSetV1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	}
 	return
