@@ -1,0 +1,17 @@
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: fakeStatefulSetAPE
+  namespace: fakeStatefulSetAPE
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakeAllowPrivilegeEscalation
+        audit.kubernetes.io/allow-privilege-escalation: "Superuser privileges needed"
+    spec:
+      containers:
+      - name: fakeContainerAPE
+        securityContext:
+            allowPrivilegeEscalation: true
