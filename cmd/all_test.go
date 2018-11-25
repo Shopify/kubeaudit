@@ -13,7 +13,7 @@ func TestAuditAll(t *testing.T) {
 	runAuditTest(t, "audit_all.yml", mergeAuditFunctions(allAuditFunctions), requiredErrors)
 }
 
-func TestAuditAllV1BETA1(t *testing.T) {
+func TestAuditAllV1beta1(t *testing.T) {
 	requiredErrors := []int{
 		ErrorAllowPrivilegeEscalationNil, ErrorAutomountServiceAccountTokenNilAndNoName, ErrorCapabilityNotDropped,
 		ErrorImageTagMissing, ErrorPrivilegedNil, ErrorReadOnlyRootFilesystemNil, ErrorResourcesLimitsNil,
