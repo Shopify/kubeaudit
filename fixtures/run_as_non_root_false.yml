@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
@@ -6,6 +6,9 @@ metadata:
   namespace: fakeDeploymentRANR
 spec:
   strategy: {}
+  selector:
+    matchLabels:
+      apps: fakeRunAsNonRoot
   template:
     metadata:
       creationTimestamp: null

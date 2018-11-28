@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   creationTimestamp: null
@@ -15,8 +15,7 @@ spec:
       containers:
       - name: fakeContainerAPE
         resources: {}
-        securityContext:
-          allowPrivilegeEscalation: true
+        securityContext: {}
   updateStrategy: {}
 status:
   replicas: 0

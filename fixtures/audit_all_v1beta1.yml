@@ -1,8 +1,8 @@
-apiVersion: apps/v1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: allAudits 
+  name: allAudits
   namespace: fakeDeploymentSC
 spec:
   strategy: {}

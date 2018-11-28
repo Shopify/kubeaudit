@@ -1,18 +1,18 @@
-apiVersion: apps/v1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: allAudits 
-  namespace: fakeDeploymentSC
+  name: security_context_nil
+  namespace: fakeDeploymentRANR
 spec:
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        apps: fakeSecurityContext
+        apps: fakeRunAsNonRoot
     spec:
       containers:
-      - name: fakeContainerSC
+      - name: fakeContainerRANR
         resources: {}
 status: {}
