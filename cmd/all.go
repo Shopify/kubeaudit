@@ -7,7 +7,7 @@ import (
 var allAuditFunctions = []interface{}{
 	auditAllowPrivilegeEscalation, auditReadOnlyRootFS, auditRunAsNonRoot,
 	auditAutomountServiceAccountToken, auditPrivileged, auditCapabilities,
-	auditLimits, auditImages, auditAppArmor, auditSeccomp,
+	auditLimits, auditImages, auditAppArmor, auditSeccomp, auditNetworkPolicies,
 }
 
 var auditAllCmd = &cobra.Command{
@@ -17,7 +17,7 @@ var auditAllCmd = &cobra.Command{
 
 Example usage:
 kubeaudit all -f /path/to/yaml`,
-	Run: runAudit(mergeAuditFunctions(allAuditFunctions), getResources),
+	Run: runAudit(mergeAuditFunctions(allAuditFunctions)),
 }
 
 func init() {

@@ -85,7 +85,7 @@ A FAIL is generated when a container has AppArmor disabled or misconfigured.
 
 Example usage:
 kubeaudit apparmor`,
-	Run: runAudit(auditAppArmor, getResources),
+	Run: runAudit(auditAppArmor),
 }
 
 func init() {

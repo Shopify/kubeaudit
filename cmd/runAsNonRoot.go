@@ -75,7 +75,7 @@ A FAIL is generated when a container runs as root
 
 Example usage:
 kubeaudit nonroot`,
-	Run: runAudit(auditRunAsNonRoot, getResources),
+	Run: runAudit(auditRunAsNonRoot),
 }
 
 func init() {

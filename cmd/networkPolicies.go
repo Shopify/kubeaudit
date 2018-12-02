@@ -24,8 +24,11 @@ func checkIfDefaultDenyPolicy(netpol networking.NetworkPolicy) bool {
 		return false
 	}
 
-	// TODO check if ingress or egress rule? if netpol.Spec.PolicyTypes
-	// TODO evalute also egress?
+	//  No Egress rule is defined -> deny all egress traffic
+	if len(netpol.Spec.Egress) > 0 {
+		return false
+	}
+
 	return true
 }
 
@@ -46,7 +49,7 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 					container: "",
 					id:        WarningAllowAllIngressNetworkPolicyExists,
 					kind:      Warn,
-					message:   "Found allow all ingres traffic NetworkPolicy",
+					message:   "Found allow all ingress traffic NetworkPolicy",
 					metadata: Metadata{
 						"PolicyName": netPol.ObjectMeta.Name,
 					},
@@ -55,7 +58,21 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 			}
 		}
 
-		// TODO check egress policy
+		for _, egress := range netPol.Spec.Egress {
+			// Allow all egress traffic
+			if (len(egress.To)) == 0 {
+				occ := Occurrence{
+					container: "",
+					id:        WarningAllowAllEgressNetworkPolicyExists,
+					kind:      Warn,
+					message:   "Found allow all egress traffic NetworkPolicy",
+					metadata: Metadata{
+						"PolicyName": netPol.ObjectMeta.Name,
+					},
+				}
+				result.Occurrences = append(result.Occurrences, occ)
+			}
+		}
 	}
 
 	if !hasDefaultDeny {
@@ -77,27 +94,6 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 	}
 
 	return
-}
-
-// How to generalize?
-func getNamespaceResources() (resources []k8sRuntime.Object, err error) {
-	if rootConfig.manifest != "" {
-		return getKubeResourcesManifest(rootConfig.manifest)
-	} else {
-		kube, err := kubeClient()
-		if err != nil {
-			return resources, err
-		}
-
-		nsList, err := getNamespaces(kube)
-		if err != nil {
-			return resources, err
-		}
-		for _, resource := range nsList.Items {
-			resources = append(resources, resource.DeepCopyObject())
-		}
-		return resources, err
-	}
 }
 
 func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyList, err error) {
@@ -146,11 +142,12 @@ func getNamespaceName(resource k8sRuntime.Object) (ns string) {
 
 func auditNetworkPolicies(resource k8sRuntime.Object) (results []Result) {
 	nsName := getNamespaceName(resource)
+	// We found no namespace
 	if nsName == "" {
 		return
 	}
 
-	// iterate over namespaces not net pol --> actually an namespace check not an netpol check
+	// iterate over namespaces not netpol --> actually an namespace check not an netpol check
 	result, err := newResultFromResource(resource)
 	if err != nil {
 		log.Error(err)
@@ -184,7 +181,7 @@ An ERROR log is given when a namespace does not have a default deny NetworkPolic
 
 Example usage:
 kubeaudit np`,
-	Run: runAudit(auditNetworkPolicies, getNamespaceResources),
+	Run: runAudit(auditNetworkPolicies),
 }
 
 func init() {

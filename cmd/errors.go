@@ -85,6 +85,8 @@ const (
 	ErrorMissingDefaultDenyNetworkPolicy
 	// InfoDefaultDenyNetworkPolicyExists occurs when a namespace has a default deny NetworkPolicy
 	InfoDefaultDenyNetworkPolicyExists
-	// WarningAllowAllIngressNetworkPolicyExists occurs when a namespace has a allow all NetworkPolicy
+	// WarningAllowAllIngressNetworkPolicyExists occurs when a namespace has an allow all ingress NetworkPolicy
 	WarningAllowAllIngressNetworkPolicyExists
+	// WarningAllowAllEgressNetworkPolicyExists occurs when a namespace has an allow all egress NetworkPolicy
+	WarningAllowAllEgressNetworkPolicyExists
 )

@@ -163,6 +163,9 @@ func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, er
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	case *Namespace:
+		// We need to set this here so the audit function will ignore the namespace
+		result.Token = newFalse()
 	}
 
 	return result, nil
@@ -194,6 +197,12 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []Resource) {
 			resources = append(resources, resource.DeepCopyObject())
 		}
 	}
+	for _, resource := range getNamespaces(clientset).Items {
+		if isInRootConfigNamespace(resource.ObjectMeta) {
+			resources = append(resources, resource.DeepCopyObject())
+		}
+	}
+
 	return
 }
 
@@ -314,14 +323,14 @@ func getResults(resources []Resource, auditFunc interface{}) []Result {
 	return results
 }
 
-func runAudit(auditFunc interface{}, getResourcesFunc func() (resources []k8sRuntime.Object, err error)) func(cmd *cobra.Command, args []string) {
+func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		if err := checkParams(auditFunc); err != nil {
 			log.Error("Parameter check failed")
 			log.Error(err)
 		}
 		setFormatter()
-		resources, err := getResourcesFunc()
+		resources, err := getResources()
 		if err != nil {
 			log.Error("getResources failed")
 			log.Error(err)

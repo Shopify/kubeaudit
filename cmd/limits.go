@@ -113,7 +113,7 @@ A FAIL is given when a container does not have cpu and memory limits
 Example usage:
 kubeaudit limits
 kubeaudit limits --cpu 500m --memory 256Mi`,
-	Run: runAudit(auditLimits, getResources),
+	Run: runAudit(auditLimits),
 }
 
 func init() {

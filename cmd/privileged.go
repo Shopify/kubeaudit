@@ -73,7 +73,7 @@ A FAIL is generated when a container runs in a privileged mode
 
 Example usage:
 kubeaudit priv`,
-	Run: runAudit(auditPrivileged, getResources),
+	Run: runAudit(auditPrivileged),
 }
 
 func init() {

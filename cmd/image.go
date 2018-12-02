@@ -93,7 +93,7 @@ This command is also a root command, check kubeaudit sc --help
 Example usage:
 kubeaudit image --image gcr.io/google_containers/echoserver:1.7
 kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
-	Run: runAudit(auditImages, getResources),
+	Run: runAudit(auditImages),
 }
 
 func init() {

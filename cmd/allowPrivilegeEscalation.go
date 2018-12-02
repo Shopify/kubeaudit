@@ -73,7 +73,7 @@ A FAIL is generated when a container allows privilege escalation
 
 Example usage:
 kubeaudit allowpe`,
-	Run: runAudit(auditAllowPrivilegeEscalation, getResources),
+	Run: runAudit(auditAllowPrivilegeEscalation),
 }
 
 func init() {

@@ -1,4 +1,4 @@
 apiVersion: v1
-Kind: Namespace
+kind: Namespace
 metadata:
   name: "default"
