@@ -19,7 +19,7 @@ func checkIfDefaultDenyPolicy(netpol networking.NetworkPolicy) bool {
 		return false
 	}
 
-	// No Ingress rule is defined -> denie all ingress traffic
+	// No Ingress rule is defined -> deny all ingress traffic
 	if len(netpol.Spec.Ingress) > 0 {
 		return false
 	}
@@ -44,7 +44,7 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 			if (len(ingress.From)) == 0 {
 				occ := Occurrence{
 					container: "",
-					id:        ErrorRunAsNonRootFalse,
+					id:        WarningAllowAllIngressNetworkPolicyExists,
 					kind:      Warn,
 					message:   "Found allow all ingres traffic NetworkPolicy",
 					metadata: Metadata{
@@ -69,7 +69,7 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 	} else {
 		occ := Occurrence{
 			container: "",
-			id:        ErrorMissingDefaultDenyNetworkPolicy,
+			id:        InfoDefaultDenyNetworkPolicyExists,
 			kind:      Info,
 			message:   "Namespace has a default deny NetworkPolicy",
 		}
