@@ -132,7 +132,7 @@ A FAIL is generated when a container has Seccomp disabled or misconfigured.
 
 Example usage:
 kubeaudit seccomp`,
-	Run: runAudit(auditSeccomp),
+	Run: runAudit(auditSeccomp, getResources),
 }
 
 func init() {
