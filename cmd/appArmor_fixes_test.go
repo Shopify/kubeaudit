@@ -2,12 +2,12 @@ package cmd
 
 import "testing"
 
-func TestFixAppArmorDisabled(t *testing.T) {
-	testFixAppArmor(t, "apparmor_disabled.yml")
+func TestFixAppArmorDisabledV1(t *testing.T) {
+	testFixAppArmor(t, "apparmor_disabled_v1.yml")
 }
 
-func TestFixAppArmorAnnotationMissing(t *testing.T) {
-	testFixAppArmor(t, "apparmor_annotation_missing.yml")
+func TestFixAppArmorAnnotationMissingV1(t *testing.T) {
+	testFixAppArmor(t, "apparmor_annotation_missing_v1.yml")
 }
 
 func testFixAppArmor(t *testing.T, configFile string) {

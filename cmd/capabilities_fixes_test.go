@@ -26,8 +26,8 @@ func assertAllDropped(assert *assert.Assertions, dropped []CapabilityV1, allowed
 	}
 }
 
-func TestFixCapabilitiesNotDropped(t *testing.T) {
-	assert, resource := FixTestSetup(t, "capabilities_nil.yml", auditCapabilities)
+func TestFixCapabilitiesNotDroppedV1Beta2(t *testing.T) {
+	assert, resource := FixTestSetup(t, "capabilities_nil_v1beta2.yml", auditCapabilities)
 	add := []CapabilityV1{}
 	for _, container := range getContainers(resource) {
 		assert.Equal(add, container.SecurityContext.Capabilities.Add)
@@ -35,8 +35,8 @@ func TestFixCapabilitiesNotDropped(t *testing.T) {
 	}
 }
 
-func TestFixCapabilitySomeAllowed(t *testing.T) {
-	assert, resource := FixTestSetup(t, "capabilities_some_allowed.yml", auditCapabilities)
+func TestFixCapabilitySomeAllowedV1Beta2(t *testing.T) {
+	assert, resource := FixTestSetup(t, "capabilities_some_allowed_v1beta2.yml", auditCapabilities)
 	add := []CapabilityV1{"SYS_TIME"}
 	for _, container := range getContainers(resource) {
 		assert.Equal(add, container.SecurityContext.Capabilities.Add)
@@ -44,8 +44,8 @@ func TestFixCapabilitySomeAllowed(t *testing.T) {
 	}
 }
 
-func TestFixCapabilitiesNil(t *testing.T) {
-	assert, resource := FixTestSetup(t, "capabilities_nil.yml", auditCapabilities)
+func TestFixCapabilitiesNilV1Beta2(t *testing.T) {
+	assert, resource := FixTestSetup(t, "capabilities_nil_v1beta2.yml", auditCapabilities)
 	add := []CapabilityV1{}
 	for _, container := range getContainers(resource) {
 		assert.Equal(add, container.SecurityContext.Capabilities.Add)
@@ -53,8 +53,8 @@ func TestFixCapabilitiesNil(t *testing.T) {
 	}
 }
 
-func TestFixCapabilitiesAdded(t *testing.T) {
-	assert, resource := FixTestSetup(t, "capabilities_added.yml", auditCapabilities)
+func TestFixCapabilitiesAddedV1Beta2(t *testing.T) {
+	assert, resource := FixTestSetup(t, "capabilities_added_v1beta2.yml", auditCapabilities)
 	add := []CapabilityV1{}
 	for _, container := range getContainers(resource) {
 		assert.Equal(add, container.SecurityContext.Capabilities.Add)
@@ -62,8 +62,8 @@ func TestFixCapabilitiesAdded(t *testing.T) {
 	}
 }
 
-func TestFixCapabilitiesSomeDropped(t *testing.T) {
-	assert, resource := FixTestSetup(t, "capabilities_some_dropped.yml", auditCapabilities)
+func TestFixCapabilitiesSomeDroppedV1Beta2(t *testing.T) {
+	assert, resource := FixTestSetup(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities)
 	add := []CapabilityV1{}
 	for _, container := range getContainers(resource) {
 		assert.Equal(add, container.SecurityContext.Capabilities.Add)
@@ -71,8 +71,8 @@ func TestFixCapabilitiesSomeDropped(t *testing.T) {
 	}
 }
 
-func TestFixCapabilitiesMisconfiguredAllow(t *testing.T) {
-	assert, resource := FixTestSetup(t, "capabilities_misconfigured_allow.yml", auditCapabilities)
+func TestFixCapabilitiesMisconfiguredAllowV1Beta2(t *testing.T) {
+	assert, resource := FixTestSetup(t, "capabilities_misconfigured_allow_v1beta2.yml", auditCapabilities)
 	add := []CapabilityV1{}
 	for _, container := range getContainers(resource) {
 		if container.SecurityContext.Capabilities.Add == nil {

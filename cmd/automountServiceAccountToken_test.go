@@ -2,22 +2,22 @@ package cmd
 
 import "testing"
 
-func TestServiceAccountTokenDeprecated(t *testing.T) {
-	runAuditTest(t, "service_account_token_deprecated.yml", auditAutomountServiceAccountToken, []int{ErrorServiceAccountTokenDeprecated})
+func TestServiceAccountTokenDeprecatedV1(t *testing.T) {
+	runAuditTest(t, "service_account_token_deprecated_v1.yml", auditAutomountServiceAccountToken, []int{ErrorServiceAccountTokenDeprecated})
 }
 
-func TestServiceAccountTokenTrueAndNoName(t *testing.T) {
-	runAuditTest(t, "service_account_token_true_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenTrueAndNoName})
+func TestServiceAccountTokenTrueAndNoNameV1(t *testing.T) {
+	runAuditTest(t, "service_account_token_true_and_no_name_v1.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenTrueAndNoName})
 }
 
-func TestServiceAccountTokenNilAndNoName(t *testing.T) {
-	runAuditTest(t, "service_account_token_nil_and_no_name.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenNilAndNoName})
+func TestServiceAccountTokenNilAndNoNameV1(t *testing.T) {
+	runAuditTest(t, "service_account_token_nil_and_no_name_v1.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenNilAndNoName})
 }
 
-func TestServiceAccountTokenTrueAllowed(t *testing.T) {
-	runAuditTest(t, "service_account_token_true_allowed.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenTrueAllowed})
+func TestServiceAccountTokenTrueAllowedV1(t *testing.T) {
+	runAuditTest(t, "service_account_token_true_allowed_v1.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenTrueAllowed})
 }
 
-func TestServiceAccountTokenMisconfiguredAllow(t *testing.T) {
-	runAuditTest(t, "service_account_token_misconfigured_allow.yml", auditAutomountServiceAccountToken, []int{ErrorMisconfiguredKubeauditAllow})
+func TestServiceAccountTokenMisconfiguredAllowV1(t *testing.T) {
+	runAuditTest(t, "service_account_token_misconfigured_allow_v1.yml", auditAutomountServiceAccountToken, []int{ErrorMisconfiguredKubeauditAllow})
 }

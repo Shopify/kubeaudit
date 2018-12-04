@@ -170,7 +170,7 @@ A WARN log is generated when a pod has a capability allowed which is on the drop
 
 Example usage:
 kubeaudit caps
-kubeaudit caps -d drop.yml`, defaultDropCapConfig),
+kubeaudit caps -d drop_v1.yml`, defaultDropCapConfig),
 	Run: runAudit(auditCapabilities),
 }
 

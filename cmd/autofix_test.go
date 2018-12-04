@@ -8,9 +8,9 @@ import (
 	"github.com/go-test/deep"
 )
 
-func TestFix(t *testing.T) {
-	file := "../fixtures/autofix.yml"
-	fileFixed := "../fixtures/autofix-fixed.yml"
+func TestFixV1(t *testing.T) {
+	file := "../fixtures/autofix_v1.yml"
+	fileFixed := "../fixtures/autofix-fixed_v1.yml"
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)

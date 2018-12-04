@@ -93,7 +93,7 @@ func runAuditTestInNamespace(t *testing.T, namespace string, file string, functi
 
 // NewPod returns a simple Pod resource
 func NewPod() *PodV1 {
-	resources, err := getKubeResourcesManifest("../fixtures/pod.yml")
+	resources, err := getKubeResourcesManifest("../fixtures/pod_v1.yml")
 	if err != nil {
 		return nil
 	}

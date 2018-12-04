@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewCapSetFromArray(t *testing.T) {
+func TestNewCapSetFromArrayV1(t *testing.T) {
 	assert := assert.New(t)
 	capArray := []CapabilityV1{"AUDIT_WRITE", "CHOWN"}
 	capSet := CapSet{"AUDIT_WRITE": true, "CHOWN": true}
@@ -21,7 +21,7 @@ func TestMergeCapSets(t *testing.T) {
 	assert.Equal(mergeCapSets(set1, set2), set3)
 }
 
-func TestSortCapSet(t *testing.T) {
+func TestSortCapSetV1(t *testing.T) {
 	assert := assert.New(t)
 	sorted := sortCapSet(CapSet{"DAC_OVVERRIDE": true, "AUDIT_WRITE": true, "CHOWN": true})
 	assert.Equal([]CapabilityV1{"AUDIT_WRITE", "CHOWN", "DAC_OVVERRIDE"}, sorted)

@@ -6,15 +6,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDoubleName(t *testing.T) {
-	file := "../fixtures/double-name.yml"
+func TestDoubleNameV1(t *testing.T) {
+	file := "../fixtures/double-name_v1.yml"
 	assert := assert.New(t)
 	_, err := getKubeResourcesManifest(file)
 	assert.NotNil(err)
 }
 
-func TestUnknownResource(t *testing.T) {
-	file := "../fixtures/unknown_type.yml"
+func TestUnknownResourceV1(t *testing.T) {
+	file := "../fixtures/unknown_type_v1.yml"
 	assert := assert.New(t)
 	objects, err := getKubeResourcesManifest(file)
 
