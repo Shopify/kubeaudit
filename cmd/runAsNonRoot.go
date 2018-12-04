@@ -7,7 +7,7 @@ import (
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
-func checkRunAsNonRoot(container Container, result *Result) {
+func checkRunAsNonRoot(container ContainerV1, result *Result) {
 	if reason := result.Labels["audit.kubernetes.io/allow-run-as-root"]; reason != "" {
 		if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{

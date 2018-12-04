@@ -92,14 +92,14 @@ func runAuditTestInNamespace(t *testing.T, namespace string, file string, functi
 }
 
 // NewPod returns a simple Pod resource
-func NewPod() *Pod {
+func NewPod() *PodV1 {
 	resources, err := getKubeResourcesManifest("../fixtures/pod.yml")
 	if err != nil {
 		return nil
 	}
 	for _, resource := range resources {
 		switch t := resource.(type) {
-		case *Pod:
+		case *PodV1:
 			return t
 		}
 	}

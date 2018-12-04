@@ -7,7 +7,7 @@ import (
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
-func checkReadOnlyRootFS(container Container, result *Result) {
+func checkReadOnlyRootFS(container ContainerV1, result *Result) {
 	if reason := result.Labels["audit.kubernetes.io/allow-read-only-root-filesystem-false"]; reason != "" {
 		if container.SecurityContext == nil || container.SecurityContext.ReadOnlyRootFilesystem == nil || *container.SecurityContext.ReadOnlyRootFilesystem == false {
 			occ := Occurrence{

@@ -9,12 +9,12 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
-func setContainers(resource k8sRuntime.Object, containers []Container) k8sRuntime.Object {
+func setContainers(resource k8sRuntime.Object, containers []ContainerV1) k8sRuntime.Object {
 	switch t := resource.(type) {
-	case *CronJob:
+	case *CronJobV1Beta1:
 		t.Spec.JobTemplate.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
-	case *DaemonSet:
+	case *DaemonSetV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
 	case *DaemonSetV1:
@@ -32,13 +32,13 @@ func setContainers(resource k8sRuntime.Object, containers []Container) k8sRuntim
 	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
-	case *Pod:
+	case *PodV1:
 		t.Spec.Containers = containers
 		return t.DeepCopyObject()
-	case *ReplicationController:
+	case *ReplicationControllerV1:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
-	case *StatefulSet:
+	case *StatefulSetV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
 	case *StatefulSetV1:
@@ -50,10 +50,10 @@ func setContainers(resource k8sRuntime.Object, containers []Container) k8sRuntim
 
 func disableDSA(resource k8sRuntime.Object) k8sRuntime.Object {
 	switch t := resource.(type) {
-	case *CronJob:
+	case *CronJobV1Beta1:
 		t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
-	case *DaemonSet:
+	case *DaemonSetV1Beta1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *DaemonSetV1:
@@ -71,13 +71,13 @@ func disableDSA(resource k8sRuntime.Object) k8sRuntime.Object {
 	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
-	case *Pod:
+	case *PodV1:
 		t.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
-	case *ReplicationController:
+	case *ReplicationControllerV1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
-	case *StatefulSet:
+	case *StatefulSetV1Beta1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *StatefulSetV1:
@@ -95,10 +95,10 @@ func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
 		boolean = newFalse()
 	}
 	switch t := resource.(type) {
-	case *CronJob:
+	case *CronJobV1Beta1:
 		t.Spec.JobTemplate.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
-	case *DaemonSet:
+	case *DaemonSetV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
 	case *DaemonSetV1:
@@ -116,13 +116,13 @@ func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
 	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
-	case *Pod:
+	case *PodV1:
 		t.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
-	case *ReplicationController:
+	case *ReplicationControllerV1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
-	case *StatefulSet:
+	case *StatefulSetV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
 	case *StatefulSetV1:
@@ -134,10 +134,10 @@ func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
 
 func setPodAnnotations(resource k8sRuntime.Object, annotations map[string]string) k8sRuntime.Object {
 	switch kubeType := resource.(type) {
-	case *CronJob:
+	case *CronJobV1Beta1:
 		kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
-	case *DaemonSet:
+	case *DaemonSetV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
 	case *DaemonSetV1:
@@ -155,13 +155,13 @@ func setPodAnnotations(resource k8sRuntime.Object, annotations map[string]string
 	case *DeploymentExtensionsV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
-	case *Pod:
+	case *PodV1:
 		kubeType.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
-	case *ReplicationController:
+	case *ReplicationControllerV1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
-	case *StatefulSet:
+	case *StatefulSetV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
 	case *StatefulSetV1:
@@ -171,11 +171,11 @@ func setPodAnnotations(resource k8sRuntime.Object, annotations map[string]string
 	return resource
 }
 
-func getContainers(resource k8sRuntime.Object) (container []Container) {
+func getContainers(resource k8sRuntime.Object) (container []ContainerV1) {
 	switch kubeType := resource.(type) {
-	case *CronJob:
+	case *CronJobV1Beta1:
 		container = kubeType.Spec.JobTemplate.Spec.Template.Spec.Containers
-	case *DaemonSet:
+	case *DaemonSetV1Beta1:
 		container = kubeType.Spec.Template.Spec.Containers
 	case *DaemonSetV1:
 		container = kubeType.Spec.Template.Spec.Containers
@@ -187,11 +187,11 @@ func getContainers(resource k8sRuntime.Object) (container []Container) {
 		container = kubeType.Spec.Template.Spec.Containers
 	case *DeploymentExtensionsV1Beta1:
 		container = kubeType.Spec.Template.Spec.Containers
-	case *Pod:
+	case *PodV1:
 		container = kubeType.Spec.Containers
-	case *ReplicationController:
+	case *ReplicationControllerV1:
 		container = kubeType.Spec.Template.Spec.Containers
-	case *StatefulSet:
+	case *StatefulSetV1Beta1:
 		container = kubeType.Spec.Template.Spec.Containers
 	case *StatefulSetV1:
 		container = kubeType.Spec.Template.Spec.Containers
@@ -201,9 +201,9 @@ func getContainers(resource k8sRuntime.Object) (container []Container) {
 
 func getPodAnnotations(resource k8sRuntime.Object) (annotations map[string]string) {
 	switch kubeType := resource.(type) {
-	case *CronJob:
+	case *CronJobV1Beta1:
 		annotations = kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.GetAnnotations()
-	case *DaemonSet:
+	case *DaemonSetV1Beta1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	case *DaemonSetV1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
@@ -215,11 +215,11 @@ func getPodAnnotations(resource k8sRuntime.Object) (annotations map[string]strin
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	case *DeploymentExtensionsV1Beta1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
-	case *Pod:
+	case *PodV1:
 		annotations = kubeType.ObjectMeta.GetAnnotations()
-	case *ReplicationController:
+	case *ReplicationControllerV1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
-	case *StatefulSet:
+	case *StatefulSetV1Beta1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	case *StatefulSetV1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()

@@ -54,12 +54,12 @@ func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 	}
 	dropCapSet = make(CapSet)
 	for _, drop := range caps.Drop {
-		dropCapSet[Capability(drop)] = true
+		dropCapSet[CapabilityV1(drop)] = true
 	}
 	return
 }
 
-func checkCapabilities(container Container, result *Result) {
+func checkCapabilities(container ContainerV1, result *Result) {
 	added := CapSet{}
 	dropped := CapSet{}
 	allCapsDrop := false

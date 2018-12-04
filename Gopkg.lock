@@ -548,6 +548,7 @@
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/assert",
     "gopkg.in/yaml.v2",
+    "k8s.io/api/apps/v1",
     "k8s.io/api/apps/v1beta1",
     "k8s.io/api/apps/v1beta2",
     "k8s.io/api/batch/v1beta1",
