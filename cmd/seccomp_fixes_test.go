@@ -5,24 +5,24 @@ import (
 	"testing"
 )
 
-func TestFixSeccompDisabled(t *testing.T) {
-	fileToFix := "seccomp_disabled.yml"
-	fileFixed := "seccomp_disabled-fixed.yml"
+func TestFixSeccompDisabledV1(t *testing.T) {
+	fileToFix := "seccomp_disabled_v1.yml"
+	fileFixed := "seccomp_disabled_v1-fixed.yml"
 	assertEqualYaml(fileToFix, fileFixed, auditSeccomp, t)
 }
 
 func TestFixSeccompDisabled2(t *testing.T) {
-	fileToFix := "seccomp_disabled_2.yml"
-	fileFixed := "seccomp_disabled_2-fixed.yml"
+	fileToFix := "seccomp_disabled_2_v1.yml"
+	fileFixed := "seccomp_disabled_2_v1-fixed.yml"
 	assertEqualYaml(fileToFix, fileFixed, auditSeccomp, t)
 }
 
-func TestFixSeccompDisabledPod(t *testing.T) {
-	testFixSeccomp(t, "seccomp_disabled_pod.yml")
+func TestFixSeccompDisabledPodV1(t *testing.T) {
+	testFixSeccomp(t, "seccomp_disabled_pod_v1.yml")
 }
 
-func TestFixSeccompAnnotationMissing(t *testing.T) {
-	testFixSeccomp(t, "seccomp_annotation_missing.yml")
+func TestFixSeccompAnnotationMissingV1(t *testing.T) {
+	testFixSeccomp(t, "seccomp_annotation_missing_v1.yml")
 }
 
 func testFixSeccomp(t *testing.T, configFile string) {

@@ -3,16 +3,16 @@ package cmd
 import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 
 func fixCapabilitiesNil(resource k8sRuntime.Object) k8sRuntime.Object {
-	var containers []Container
+	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
 		if container.SecurityContext.Capabilities == nil {
-			container.SecurityContext.Capabilities = &Capabilities{}
+			container.SecurityContext.Capabilities = &CapabilitiesV1{}
 		}
 		if container.SecurityContext.Capabilities.Drop == nil {
-			container.SecurityContext.Capabilities.Drop = []Capability{}
+			container.SecurityContext.Capabilities.Drop = []CapabilityV1{}
 		}
 		if container.SecurityContext.Capabilities.Add == nil {
-			container.SecurityContext.Capabilities.Add = []Capability{}
+			container.SecurityContext.Capabilities.Add = []CapabilityV1{}
 		}
 		containers = append(containers, container)
 	}
@@ -20,10 +20,10 @@ func fixCapabilitiesNil(resource k8sRuntime.Object) k8sRuntime.Object {
 }
 
 func fixCapabilityNotDropped(resource k8sRuntime.Object, occurrence Occurrence) k8sRuntime.Object {
-	var containers []Container
+	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
 		if occurrence.container == container.Name {
-			container.SecurityContext.Capabilities.Drop = append(container.SecurityContext.Capabilities.Drop, Capability(occurrence.metadata["CapName"]))
+			container.SecurityContext.Capabilities.Drop = append(container.SecurityContext.Capabilities.Drop, CapabilityV1(occurrence.metadata["CapName"]))
 		}
 		containers = append(containers, container)
 	}
@@ -31,10 +31,10 @@ func fixCapabilityNotDropped(resource k8sRuntime.Object, occurrence Occurrence) 
 }
 
 func fixCapabilityAdded(resource k8sRuntime.Object, occurrence Occurrence) k8sRuntime.Object {
-	var containers []Container
+	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
 		if occurrence.container == container.Name {
-			add := []Capability{}
+			add := []CapabilityV1{}
 			for _, cap := range container.SecurityContext.Capabilities.Add {
 				if string(cap) != occurrence.metadata["CapName"] {
 					add = append(add, cap)

@@ -2,36 +2,36 @@ package cmd
 
 import "testing"
 
-func TestFixPrivilegeEscalation(t *testing.T) {
-	assert, resource := FixTestSetup(t, "privileged_nil.yml", auditPrivileged)
+func TestFixPrivilegeEscalationV1(t *testing.T) {
+	assert, resource := FixTestSetup(t, "privileged_nil_v1.yml", auditPrivileged)
 	for _, container := range getContainers(resource) {
 		assert.False(*container.SecurityContext.Privileged)
 	}
 }
 
-func TestFixPrivilegedNil(t *testing.T) {
-	assert, resource := FixTestSetup(t, "privileged_nil.yml", auditPrivileged)
+func TestFixPrivilegedNilV1(t *testing.T) {
+	assert, resource := FixTestSetup(t, "privileged_nil_v1.yml", auditPrivileged)
 	for _, container := range getContainers(resource) {
 		assert.False(*container.SecurityContext.Privileged)
 	}
 }
 
-func TestFixPrivilegedTrue(t *testing.T) {
-	assert, resource := FixTestSetup(t, "privileged_true.yml", auditPrivileged)
+func TestFixPrivilegedTrueV1(t *testing.T) {
+	assert, resource := FixTestSetup(t, "privileged_true_v1.yml", auditPrivileged)
 	for _, container := range getContainers(resource) {
 		assert.False(*container.SecurityContext.Privileged)
 	}
 }
 
-func TestFixPrivilegedTrueAllowed(t *testing.T) {
-	assert, resource := FixTestSetup(t, "privileged_true_allowed.yml", auditPrivileged)
+func TestFixPrivilegedTrueAllowedV1(t *testing.T) {
+	assert, resource := FixTestSetup(t, "privileged_true_allowed_v1.yml", auditPrivileged)
 	for _, container := range getContainers(resource) {
 		assert.True(*container.SecurityContext.Privileged)
 	}
 }
 
-func TestFixPrivilegedMisconfiguredAllow(t *testing.T) {
-	assert, resource := FixTestSetup(t, "privileged_misconfigured_allow.yml", auditPrivileged)
+func TestFixPrivilegedMisconfiguredAllowV1(t *testing.T) {
+	assert, resource := FixTestSetup(t, "privileged_misconfigured_allow_v1.yml", auditPrivileged)
 	for _, container := range getContainers(resource) {
 		assert.False(*container.SecurityContext.Privileged)
 	}

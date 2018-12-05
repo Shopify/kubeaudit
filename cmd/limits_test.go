@@ -2,21 +2,21 @@ package cmd
 
 import "testing"
 
-func TestResourcesLimitsNil(t *testing.T) {
-	runAuditTest(t, "resources_limit_nil.yml", auditLimits, []int{ErrorResourcesLimitsNil})
+func TestResourcesLimitsNilV1Beta1(t *testing.T) {
+	runAuditTest(t, "resources_limit_nil_v1beta1.yml", auditLimits, []int{ErrorResourcesLimitsNil})
 }
 
-func TestResourcesNoCPULimit(t *testing.T) {
-	runAuditTest(t, "resources_limit_no_cpu.yml", auditLimits, []int{ErrorResourcesLimitsCPUNil})
+func TestResourcesNoCPULimitV1Beta1(t *testing.T) {
+	runAuditTest(t, "resources_limit_no_cpu_v1beta1.yml", auditLimits, []int{ErrorResourcesLimitsCPUNil})
 }
 
-func TestResourcesNoMemoryLimit(t *testing.T) {
-	runAuditTest(t, "resources_limit_no_memory.yml", auditLimits, []int{ErrorResourcesLimitsMemoryNil})
+func TestResourcesNoMemoryLimitV1Beta1(t *testing.T) {
+	runAuditTest(t, "resources_limit_no_memory_v1beta1.yml", auditLimits, []int{ErrorResourcesLimitsMemoryNil})
 }
-func TestResourcesCPULimitExceeded(t *testing.T) {
-	runAuditTest(t, "resources_limit.yml", auditLimits, []int{ErrorResourcesLimitsCPUExceeded}, "600m", "")
+func TestResourcesCPULimitExceededV1Beta1(t *testing.T) {
+	runAuditTest(t, "resources_limit_v1beta1.yml", auditLimits, []int{ErrorResourcesLimitsCPUExceeded}, "600m", "")
 }
 
-func TestResourcesMemoryLimitExceeded(t *testing.T) {
-	runAuditTest(t, "resources_limit.yml", auditLimits, []int{ErrorResourcesLimitsMemoryExceeded}, "", "384")
+func TestResourcesMemoryLimitExceededV1Beta1(t *testing.T) {
+	runAuditTest(t, "resources_limit_v1beta1.yml", auditLimits, []int{ErrorResourcesLimitsMemoryExceeded}, "", "384")
 }

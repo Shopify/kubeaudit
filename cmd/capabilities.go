@@ -54,12 +54,12 @@ func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 	}
 	dropCapSet = make(CapSet)
 	for _, drop := range caps.Drop {
-		dropCapSet[Capability(drop)] = true
+		dropCapSet[CapabilityV1(drop)] = true
 	}
 	return
 }
 
-func checkCapabilities(container Container, result *Result) {
+func checkCapabilities(container ContainerV1, result *Result) {
 	added := CapSet{}
 	dropped := CapSet{}
 	allCapsDrop := false
@@ -170,7 +170,7 @@ A WARN log is generated when a pod has a capability allowed which is on the drop
 
 Example usage:
 kubeaudit caps
-kubeaudit caps -d drop.yml`, defaultDropCapConfig),
+kubeaudit caps -d drop_v1.yml`, defaultDropCapConfig),
 	Run: runAudit(auditCapabilities),
 }
 

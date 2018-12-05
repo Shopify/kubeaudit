@@ -73,45 +73,45 @@ func kubeClientConfigLocal() (*rest.Config, error) {
 	return clientcmd.BuildConfigFromFlags("", rootConfig.kubeConfig)
 }
 
-func getDeployments(clientset *kubernetes.Clientset) *DeploymentList {
+func getDeployments(clientset *kubernetes.Clientset) *DeploymentListV1Beta1 {
 	deploymentClient := clientset.AppsV1beta1().Deployments(rootConfig.namespace)
-	deployments, err := deploymentClient.List(ListOptions{})
+	deployments, err := deploymentClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
 	return deployments
 }
 
-func getStatefulSets(clientset *kubernetes.Clientset) *StatefulSetList {
+func getStatefulSets(clientset *kubernetes.Clientset) *StatefulSetListV1Beta1 {
 	statefulSetClient := clientset.AppsV1beta1().StatefulSets(rootConfig.namespace)
-	statefulSets, err := statefulSetClient.List(ListOptions{})
+	statefulSets, err := statefulSetClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
 	return statefulSets
 }
 
-func getDaemonSets(clientset *kubernetes.Clientset) *DaemonSetList {
+func getDaemonSets(clientset *kubernetes.Clientset) *DaemonSetListV1Beta1 {
 	daemonSetClient := clientset.ExtensionsV1beta1().DaemonSets(rootConfig.namespace)
-	daemonSets, err := daemonSetClient.List(ListOptions{})
+	daemonSets, err := daemonSetClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
 	return daemonSets
 }
 
-func getPods(clientset *kubernetes.Clientset) *PodList {
+func getPods(clientset *kubernetes.Clientset) *PodListV1 {
 	podClient := clientset.CoreV1().Pods(rootConfig.namespace)
-	pods, err := podClient.List(ListOptions{})
+	pods, err := podClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
 	return pods
 }
 
-func getReplicationControllers(clientset *kubernetes.Clientset) *ReplicationControllerList {
+func getReplicationControllers(clientset *kubernetes.Clientset) *ReplicationControllerListV1 {
 	replicationControllerClient := clientset.CoreV1().ReplicationControllers(rootConfig.namespace)
-	replicationControllers, err := replicationControllerClient.List(ListOptions{})
+	replicationControllers, err := replicationControllerClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -120,7 +120,7 @@ func getReplicationControllers(clientset *kubernetes.Clientset) *ReplicationCont
 
 func getNetworkPolicies(clientset *kubernetes.Clientset) *networking.NetworkPolicyList {
 	netPolClient := clientset.NetworkingV1().NetworkPolicies(rootConfig.namespace)
-	netPols, err := netPolClient.List(ListOptions{})
+	netPols, err := netPolClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}

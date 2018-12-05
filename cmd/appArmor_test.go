@@ -4,14 +4,14 @@ import (
 	"testing"
 )
 
-func TestAppArmorEnabled(t *testing.T) {
-	runAuditTest(t, "apparmor_enabled.yml", auditAppArmor, []int{})
+func TestAppArmorEnabledV1(t *testing.T) {
+	runAuditTest(t, "apparmor_enabled_v1.yml", auditAppArmor, []int{})
 }
 
-func TestAppArmorAnnotationMissing(t *testing.T) {
-	runAuditTest(t, "apparmor_annotation_missing.yml", auditAppArmor, []int{ErrorAppArmorAnnotationMissing})
+func TestAppArmorAnnotationMissingV1(t *testing.T) {
+	runAuditTest(t, "apparmor_annotation_missing_v1.yml", auditAppArmor, []int{ErrorAppArmorAnnotationMissing})
 }
 
-func TestAppArmorBadValue(t *testing.T) {
-	runAuditTest(t, "apparmor_disabled.yml", auditAppArmor, []int{ErrorAppArmorDisabled})
+func TestAppArmorBadValueV1(t *testing.T) {
+	runAuditTest(t, "apparmor_disabled_v1.yml", auditAppArmor, []int{ErrorAppArmorDisabled})
 }

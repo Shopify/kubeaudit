@@ -83,12 +83,12 @@ func shouldLog(err int) (members []string) {
 	return
 }
 
-func (res *Result) allowedCaps() (allowed map[Capability]string) {
-	allowed = make(map[Capability]string)
+func (res *Result) allowedCaps() (allowed map[CapabilityV1]string) {
+	allowed = make(map[CapabilityV1]string)
 	for k, v := range res.Labels {
 		if strings.Contains(k, "audit.kubernetes.io/allow-capability-") {
 			capName := strings.Replace(strings.ToUpper(strings.TrimPrefix(k, "audit.kubernetes.io/allow-capability-")), "-", "_", -1)
-			allowed[Capability(capName)] = v
+			allowed[CapabilityV1(capName)] = v
 		}
 	}
 	return

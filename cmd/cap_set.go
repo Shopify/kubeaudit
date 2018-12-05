@@ -3,10 +3,10 @@ package cmd
 import "sort"
 
 // CapSet represents a set of capabilities.
-type CapSet map[Capability]bool
+type CapSet map[CapabilityV1]bool
 
 // NewCapSetFromArray converts an array of capabilities into a CapSet.
-func NewCapSetFromArray(array []Capability) (set CapSet) {
+func NewCapSetFromArray(array []CapabilityV1) (set CapSet) {
 	set = make(CapSet)
 	for _, cap := range array {
 		set[cap] = true
@@ -24,7 +24,7 @@ func mergeCapSets(sets ...CapSet) (merged CapSet) {
 	return
 }
 
-func sortCapSet(capSet CapSet) (sorted []Capability) {
+func sortCapSet(capSet CapSet) (sorted []CapabilityV1) {
 	keys := []string{}
 	for key := range capSet {
 		keys = append(keys, string(key))
@@ -32,7 +32,7 @@ func sortCapSet(capSet CapSet) (sorted []Capability) {
 	sort.Strings(keys)
 
 	for _, key := range keys {
-		sorted = append(sorted, Capability(key))
+		sorted = append(sorted, CapabilityV1(key))
 	}
 	return
 }

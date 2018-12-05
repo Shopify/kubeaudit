@@ -6,7 +6,7 @@ import (
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
-func checkAllowPrivilegeEscalation(container Container, result *Result) {
+func checkAllowPrivilegeEscalation(container ContainerV1, result *Result) {
 	if reason := result.Labels["audit.kubernetes.io/allow-privilege-escalation"]; reason == "" {
 		if container.SecurityContext == nil || container.SecurityContext.AllowPrivilegeEscalation == nil {
 			occ := Occurrence{

@@ -4,30 +4,30 @@ import (
 	"testing"
 )
 
-func TestSeccompEnabledPod(t *testing.T) {
-	runAuditTest(t, "seccomp_enabled_pod.yml", auditSeccomp, []int{})
+func TestSeccompEnabledPodV1(t *testing.T) {
+	runAuditTest(t, "seccomp_enabled_pod_v1.yml", auditSeccomp, []int{})
 }
 
-func TestSeccompEnabled(t *testing.T) {
-	runAuditTest(t, "seccomp_enabled.yml", auditSeccomp, []int{})
+func TestSeccompEnabledV1(t *testing.T) {
+	runAuditTest(t, "seccomp_enabled_v1.yml", auditSeccomp, []int{})
 }
 
-func TestSeccompAnnotationMissing(t *testing.T) {
-	runAuditTest(t, "seccomp_annotation_missing.yml", auditSeccomp, []int{ErrorSeccompAnnotationMissing})
+func TestSeccompAnnotationMissingV1(t *testing.T) {
+	runAuditTest(t, "seccomp_annotation_missing_v1.yml", auditSeccomp, []int{ErrorSeccompAnnotationMissing})
 }
 
-func TestSeccompBadValuePod(t *testing.T) {
-	runAuditTest(t, "seccomp_disabled_pod.yml", auditSeccomp, []int{ErrorSeccompDisabledPod})
+func TestSeccompBadValuePodV1(t *testing.T) {
+	runAuditTest(t, "seccomp_disabled_pod_v1.yml", auditSeccomp, []int{ErrorSeccompDisabledPod})
 }
 
-func TestSeccompBadValue(t *testing.T) {
-	runAuditTest(t, "seccomp_disabled.yml", auditSeccomp, []int{ErrorSeccompDisabled})
+func TestSeccompBadValueV1(t *testing.T) {
+	runAuditTest(t, "seccomp_disabled_v1.yml", auditSeccomp, []int{ErrorSeccompDisabled})
 }
 
-func TestSeccompDeprecatedValuePod(t *testing.T) {
-	runAuditTest(t, "seccomp_deprecated_pod.yml", auditSeccomp, []int{ErrorSeccompDeprecatedPod})
+func TestSeccompDeprecatedValuePodV1(t *testing.T) {
+	runAuditTest(t, "seccomp_deprecated_pod_v1.yml", auditSeccomp, []int{ErrorSeccompDeprecatedPod})
 }
 
-func TestSeccompDeprecatedValue(t *testing.T) {
-	runAuditTest(t, "seccomp_deprecated.yml", auditSeccomp, []int{ErrorSeccompDeprecated})
+func TestSeccompDeprecatedValueV1(t *testing.T) {
+	runAuditTest(t, "seccomp_deprecated_v1.yml", auditSeccomp, []int{ErrorSeccompDeprecated})
 }

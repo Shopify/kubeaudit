@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSetContainers(t *testing.T) {
+func TestSetContainersV1(t *testing.T) {
 	assert := assert.New(t)
 	obj := NewPod().DeepCopyObject()
 	containers := getContainers(obj)
@@ -18,7 +18,7 @@ func TestSetContainers(t *testing.T) {
 	}
 }
 
-func TestGetContainers(t *testing.T) {
+func TestGetContainersV1(t *testing.T) {
 	assert := assert.New(t)
 	obj := NewPod().DeepCopyObject()
 	for _, container := range getContainers(obj) {
@@ -26,9 +26,9 @@ func TestGetContainers(t *testing.T) {
 	}
 }
 
-func TestWriteToFile(t *testing.T) {
-	file := "../fixtures/read_only_root_filesystem_false.yml"
-	fileout := "out.yml"
+func TestWriteToFileV1(t *testing.T) {
+	file := "../fixtures/read_only_root_filesystem_false_v1.yml"
+	fileout := "out_v1.yml"
 	assert := assert.New(t)
 	resource, err := getKubeResourcesManifest(file)
 	assert.Equal(1, len(resource))

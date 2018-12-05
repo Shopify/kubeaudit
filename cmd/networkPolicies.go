@@ -5,8 +5,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func checkNamespaceNetworkPolicies(netPols *NetworkPolicyList) {
-	badNetPols := []NetworkPolicy{}
+func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1) {
+	badNetPols := []NetworkPolicyV1{}
 
 	for _, netPol := range netPols.Items {
 		for _, ingress := range netPol.Spec.Ingress {

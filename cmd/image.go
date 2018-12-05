@@ -26,7 +26,7 @@ func (image *imgFlags) splitImageString() {
 	}
 }
 
-func checkImage(container Container, image imgFlags, result *Result) {
+func checkImage(container ContainerV1, image imgFlags, result *Result) {
 	image.splitImageString()
 	contImage := imgFlags{img: container.Image}
 	contImage.splitImageString()

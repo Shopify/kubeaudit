@@ -7,7 +7,7 @@ import (
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
-func checkPrivileged(container Container, result *Result) {
+func checkPrivileged(container ContainerV1, result *Result) {
 	if container.SecurityContext == nil || container.SecurityContext.Privileged == nil {
 		occ := Occurrence{
 			container: container.Name,
