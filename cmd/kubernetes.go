@@ -127,13 +127,13 @@ func getNetworkPolicies(clientset *kubernetes.Clientset) *NetworkPolicyListV1 {
 	return netPols
 }
 
-func getNamespaces(clientset *kubernetes.Clientset) *NamespaceList {
+func getNamespaces(clientset *kubernetes.Clientset) *NamespaceListV1 {
 	namespaceClient := clientset.CoreV1().Namespaces()
-	listOptions := ListOptions{}
+	listOptions := ListOptionsV1{}
 
 	if rootConfig.namespace != "" {
 		// Select only the specified namespace
-		listOptions = ListOptions{
+		listOptions = ListOptionsV1{
 			FieldSelector: fmt.Sprintf("metadata.name=%s", rootConfig.namespace),
 		}
 	}
