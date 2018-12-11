@@ -53,22 +53,17 @@ func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
 		result.Labels = kubeType.Spec.JobTemplate.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
-	case *DaemonSetV1Beta1:
-		result.KubeType = "daemonSet"
-		result.Labels = kubeType.Spec.Template.Labels
-		result.Name = kubeType.Name
-		result.Namespace = kubeType.Namespace
 	case *DaemonSetV1:
 		result.KubeType = "daemonSet"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
-	case *DeploymentV1Beta1:
-		result.KubeType = "deployment"
+	case *DaemonSetV1Beta1:
+		result.KubeType = "daemonSet"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
-	case *DeploymentV1Beta2:
+	case *DeploymentExtensionsV1Beta1:
 		result.KubeType = "deployment"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
@@ -78,7 +73,12 @@ func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
-	case *DeploymentExtensionsV1Beta1:
+	case *DeploymentV1Beta1:
+		result.KubeType = "deployment"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
+	case *DeploymentV1Beta2:
 		result.KubeType = "deployment"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
@@ -93,12 +93,12 @@ func newResultFromResource(resource k8sRuntime.Object) (*Result, error) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
-	case *StatefulSetV1Beta1:
+	case *StatefulSetV1:
 		result.KubeType = "statefulSet"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
-	case *StatefulSetV1:
+	case *StatefulSetV1Beta1:
 		result.KubeType = "statefulSet"
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
