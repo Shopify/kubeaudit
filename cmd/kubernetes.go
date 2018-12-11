@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
-	networking "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"  // auth for GKE clusters
@@ -73,8 +72,8 @@ func kubeClientConfigLocal() (*rest.Config, error) {
 	return clientcmd.BuildConfigFromFlags("", rootConfig.kubeConfig)
 }
 
-func getDeployments(clientset *kubernetes.Clientset) *DeploymentListV1Beta1 {
-	deploymentClient := clientset.AppsV1beta1().Deployments(rootConfig.namespace)
+func getDeployments(clientset *kubernetes.Clientset) *DeploymentListV1 {
+	deploymentClient := clientset.AppsV1().Deployments(rootConfig.namespace)
 	deployments, err := deploymentClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
@@ -82,8 +81,8 @@ func getDeployments(clientset *kubernetes.Clientset) *DeploymentListV1Beta1 {
 	return deployments
 }
 
-func getStatefulSets(clientset *kubernetes.Clientset) *StatefulSetListV1Beta1 {
-	statefulSetClient := clientset.AppsV1beta1().StatefulSets(rootConfig.namespace)
+func getStatefulSets(clientset *kubernetes.Clientset) *StatefulSetListV1 {
+	statefulSetClient := clientset.AppsV1().StatefulSets(rootConfig.namespace)
 	statefulSets, err := statefulSetClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
@@ -91,8 +90,8 @@ func getStatefulSets(clientset *kubernetes.Clientset) *StatefulSetListV1Beta1 {
 	return statefulSets
 }
 
-func getDaemonSets(clientset *kubernetes.Clientset) *DaemonSetListV1Beta1 {
-	daemonSetClient := clientset.ExtensionsV1beta1().DaemonSets(rootConfig.namespace)
+func getDaemonSets(clientset *kubernetes.Clientset) *DaemonSetListV1 {
+	daemonSetClient := clientset.AppsV1().DaemonSets(rootConfig.namespace)
 	daemonSets, err := daemonSetClient.List(ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
@@ -118,7 +117,7 @@ func getReplicationControllers(clientset *kubernetes.Clientset) *ReplicationCont
 	return replicationControllers
 }
 
-func getNetworkPolicies(clientset *kubernetes.Clientset) *networking.NetworkPolicyList {
+func getNetworkPolicies(clientset *kubernetes.Clientset) *NetworkPolicyListV1 {
 	netPolClient := clientset.NetworkingV1().NetworkPolicies(rootConfig.namespace)
 	netPols, err := netPolClient.List(ListOptionsV1{})
 	if err != nil {
