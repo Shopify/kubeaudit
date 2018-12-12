@@ -27,9 +27,6 @@ type CronJobV1Beta1 = batchv1beta1.CronJob
 // DaemonSetListV1 is a type alias for the v1 version of the k8s apps API.
 type DaemonSetListV1 = appsv1.DaemonSetList
 
-// DaemonSetListV1Beta1 is a type alias for the v1beta1 version of the k8s extensions API.
-type DaemonSetListV1Beta1 = extensionsv1beta1.DaemonSetList
-
 // DaemonSetV1 is a type alias for the v1 version of the k8s API.
 type DaemonSetV1 = appsv1.DaemonSet
 
@@ -42,9 +39,6 @@ type DeploymentExtensionsV1Beta1 = extensionsv1beta1.Deployment
 // DeploymentListV1 is a type alias for the v1 version of the k8s apps API.
 type DeploymentListV1 = appsv1.DeploymentList
 
-// DeploymentListV1Beta1 is a type alias for the v1beta1 version of the k8s apps API.
-type DeploymentListV1Beta1 = appsv1beta1.DeploymentList
-
 // DeploymentV1 is a type alias for the v1 version of the k8s apps API.
 type DeploymentV1 = appsv1.Deployment
 
@@ -56,9 +50,6 @@ type DeploymentV1Beta2 = appsv1beta2.Deployment
 
 // ListOptionsV1 is a type alias for the v1 version of the k8s meta API.
 type ListOptionsV1 = metav1.ListOptions
-
-// NamespaceListV1 is a type alias for the v1 version of the k8s API.
-type NamespaceListV1 = apiv1.NamespaceList
 
 // NetworkPolicyListV1 is a type alias for the v1 version of the k8s networking API.
 type NetworkPolicyListV1 = networkingv1.NetworkPolicyList
@@ -90,9 +81,6 @@ type SecurityContextV1 = apiv1.SecurityContext
 // StatefulSetListV1 is a type alias for the v1 version of the k8s apps API.
 type StatefulSetListV1 = appsv1.StatefulSetList
 
-// StatefulSetListV1Beta1 is a type alias for the v1beta1 version of the k8s apps API.
-type StatefulSetListV1Beta1 = appsv1beta1.StatefulSetList
-
 // StatefulSetV1 is a type alias for the v1 version of the k8s apps API.
 type StatefulSetV1 = appsv1.StatefulSet
 
@@ -105,10 +93,13 @@ type Metadata = map[string]string
 // IsSupportedResourceType returns true if obj is a supported Kubernetes resource type
 func IsSupportedResourceType(obj runtime.Object) bool {
 	switch obj.(type) {
-	case *CronJobV1Beta1, *DaemonSetV1Beta1, *NetworkPolicyV1, *PodV1, *ReplicationControllerV1, *StatefulSetV1Beta1,
-		*DaemonSetListV1Beta1, *DeploymentListV1Beta1, *NamespaceListV1, *NetworkPolicyListV1, *PodListV1, *ReplicationControllerListV1,
-		*StatefulSetListV1Beta1, *DeploymentV1Beta1, *DeploymentV1Beta2, *DeploymentExtensionsV1Beta1,
-		*DeploymentListV1, *DeploymentV1, *DaemonSetV1, *StatefulSetListV1, *DaemonSetListV1, *StatefulSetV1:
+	case *CronJobV1Beta1,
+		*DaemonSetListV1, *DaemonSetV1, *DaemonSetV1Beta1,
+		*DeploymentExtensionsV1Beta1, *DeploymentV1, *DeploymentV1Beta1, *DeploymentV1Beta2, *DeploymentListV1,
+		*NetworkPolicyListV1, *NetworkPolicyV1,
+		*PodListV1, *PodV1,
+		*ReplicationControllerListV1, *ReplicationControllerV1,
+		*StatefulSetListV1, *StatefulSetV1, *StatefulSetV1Beta1:
 		return true
 	default:
 		return false
