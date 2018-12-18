@@ -10,6 +10,14 @@
   version = "v0.34.0"
 
 [[projects]]
+  branch = "v2"
+  digest = "1:a22c067c8f28ce5708d48dd0c608a7e391caebc675b024f03dd55e341be85b68"
+  name = "github.com/Shopify/yaml"
+  packages = ["."]
+  pruneopts = ""
+  revision = "7421e5c313a16420b93d25084e09d083c320f06f"
+
+[[projects]]
   digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -545,12 +553,12 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/Shopify/yaml",
     "github.com/go-test/deep",
     "github.com/hashicorp/go-version",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/assert",
-    "gopkg.in/yaml.v2",
     "k8s.io/api/apps/v1",
     "k8s.io/api/apps/v1beta1",
     "k8s.io/api/apps/v1beta2",
