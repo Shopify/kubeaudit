@@ -237,9 +237,18 @@ func findItemInSequence(sequenceKey string, val yaml.SequenceItem, slice []yaml.
 	return -1
 }
 
-// In order to determine whether list items match (and should be merged) we determine the "identifying key" for the
-// list item, and if both list items have the same key-value pair for the "identifying key" then they are a match.
-func sequenceItemMatch(listKey string, item1, item2 yaml.SequenceItem) bool {
+var identifyingKey = map[string]string{
+	"containers":    "name",          // Container
+	"hostAliases":   "ip",            // HostAlias
+	"env":           "name",          // EnvVar
+	"ports":         "containerPort", // ContainerPort
+	"volumeDevices": "name",          // VolumeDevice
+	"volumeMounts":  "name",          // VolumeMount
+}
+
+// In order to determine whether sequence items match (and should be merged) we determine the "identifying key" for the
+// sequence item, and if both sequence items have the same key-value pair for the "identifying key" then they are a match.
+func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool {
 	if val1, ok := item1.Value.(string); ok {
 		if val2, ok := item2.Value.(string); ok {
 			return val1 == val2
@@ -255,25 +264,25 @@ func sequenceItemMatch(listKey string, item1, item2 yaml.SequenceItem) bool {
 		return false
 	}
 
-	switch listKey {
-	// Container
-	case "containers":
-		return mapPairMatch("name", val1, val2)
-	// HostAlias
-	case "hostAliases":
-		return mapPairMatch("ip", val1, val2)
-	// EnvVar
-	case "env":
-		return mapPairMatch("name", val1, val2)
+	switch sequenceKey {
 	// EnvFromSource
 	case "envFrom":
-		if mapPairMatch("configMapRef", val1, val2) {
-			return true
+		map1 := item1.Value.(yaml.MapSlice)
+		map2 := item2.Value.(yaml.MapSlice)
+		if index1 := findKeyInMapSlice("configMapRef", map1); index1 != -1 {
+			if index2 := findKeyInMapSlice("configMapRef", map2); index2 != -1 {
+				return mapPairMatch("name", map1, map2)
+			}
 		}
-		return mapPairMatch("secretRef", val1, val2)
+		if index1 := findKeyInMapSlice("secretRef", map1); index1 != -1 {
+			if index2 := findKeyInMapSlice("secretRef", map2); index2 != -1 {
+				return mapPairMatch("name", map1, map2)
+			}
+		}
+		return false
 	}
 
-	return false
+	return mapPairMatch(identifyingKey[sequenceKey], val1, val2)
 }
 
 // Returns true if map1 and map2 have the same key-value pair for the given key
