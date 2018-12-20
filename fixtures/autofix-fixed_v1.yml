@@ -1,30 +1,38 @@
-apiVersion: apps/v1
+# This is a test yaml file
+# to be autofixed
+
+%YAML   1.1
+%TAG    !   !foo
+%TAG    !yaml!  tag:yaml.org,2002:
+
+---
+
+apiVersion: apps/v1 # The latest api version for Deployment
+# This is a deployment
 kind: Deployment
 metadata:
-  creationTimestamp: null
-  name: cababilitiesAdded
+  creationTimestamp: null # This is autopopulated
+  name: cababilitiesAdded # capabilitiesAdded comment
   namespace: fakeDeploymentSC
 spec:
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
+      creationTimestamp: null # This is also autopopulated
       labels:
         apps: fakeSecurityContext
       annotations:
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
         container.apparmor.security.beta.kubernetes.io/fakeContainerSC1: runtime/default
         container.apparmor.security.beta.kubernetes.io/fakeContainerSC2: runtime/default
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
-      automountServiceAccountToken: false
       containers:
-      - name: fakeContainerSC1
-        resources: {}
+      - name: fakeContainerSC1 # map list item comment
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-            - AUDIT_WRITE
+            - AUDIT_WRITE # string list item comment
             - CHOWN
             - DAC_OVERRIDE
             - FOWNER
@@ -41,6 +49,7 @@ spec:
           privileged: false
           readOnlyRootFilesystem: true
           runAsNonRoot: true
+        resources: {}
       - name: fakeContainerSC2
         resources: {}
         securityContext:
@@ -61,7 +70,7 @@ spec:
             - SETPCAP
             - SETUID
             - SYS_CHROOT
-          privileged: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
+      automountServiceAccountToken: false
+  selector: null
 status: {}
+# Post doc comment

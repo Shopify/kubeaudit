@@ -1,22 +1,34 @@
-apiVersion: apps/v1
+# This is a test yaml file
+# to be autofixed
+
+%YAML   1.1
+%TAG    !   !foo
+%TAG    !yaml!  tag:yaml.org,2002:
+
+---
+
+apiVersion: apps/v1 # The latest api version for Deployment
+# This is a deployment
 kind: Deployment
 metadata:
-  creationTimestamp: null
-  name: cababilitiesAdded
+  creationTimestamp: null # This is autopopulated
+  name: cababilitiesAdded # capabilitiesAdded comment
   namespace: fakeDeploymentSC
 spec:
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
+      creationTimestamp: null # This is also autopopulated
       labels:
         apps: fakeSecurityContext
     spec:
       containers:
-      - name: fakeContainerSC1
+      - name: fakeContainerSC1  # map list item comment
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-            - AUDIT_WRITE
+            - AUDIT_WRITE # string list item comment
       - name: fakeContainerSC2
+
+# Post doc comment
