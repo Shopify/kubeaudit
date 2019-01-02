@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -33,25 +34,27 @@ func TestFixV1Beta1(t *testing.T) {
 }
 
 func TestPreserveComments(t *testing.T) {
-	origFile := "../fixtures/autofix_v1.yml"
-	expectedFile := "../fixtures/autofix-fixed_v1.yml"
+	origFilename := "../fixtures/autofix_v1.yml"
+	expectedFilename := "../fixtures/autofix-fixed_v1.yml"
 	assert := assert.New(t)
 
-	rootConfig.manifest = origFile
-
-	resources, err := getKubeResourcesManifest(rootConfig.manifest)
-	assert.Nil(err)
-	fixedResources := fix(resources)
-
-	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix")
+	// Copy original yaml to a temp file because autofix modifies the input file
+	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix_test")
 	assert.Nil(err)
 	defer os.Remove(tmpFile.Name())
+	origFile, err := os.Open(origFilename)
+	assert.Nil(err)
+	_, err = io.Copy(tmpFile, origFile)
+	assert.Nil(err)
+	tmpFile.Close()
+	origFile.Close()
 
-	err = writeManifestFile(fixedResources, tmpFile.Name())
+	rootConfig.manifest = tmpFile.Name()
+	autofix(nil, nil)
+
+	expectedYaml, err := ioutil.ReadFile(expectedFilename)
 	assert.Nil(err)
-	fixedYaml, err := mergeYAML(rootConfig.manifest, tmpFile.Name())
-	assert.Nil(err)
-	expectedYaml, err := ioutil.ReadFile(expectedFile)
+	fixedYaml, err := ioutil.ReadFile(tmpFile.Name())
 	assert.Nil(err)
 
 	assert.Equal(string(fixedYaml), string(expectedYaml))
