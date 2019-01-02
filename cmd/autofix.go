@@ -135,53 +135,50 @@ func mergeYAML(origFile, fixedFile string) ([]byte, error) {
 	return data, nil
 }
 
-// Recursively merge fixedSlice into origSlice.
-// Keys which exist in origSlice but not fixedSlice are removed from origSlice.
-// Keys which exist in fixedSlice but not origSlice are added to origSlice.
-// If keys exist in both fixedSlice and origSlice then the value in origSlice is either replaced with the value
-// in fixedSlice (if the value is simple) or, if the values are MapSlices, they are merged recursively.
+// Recursively merge fixedSlice and origSlice.
+// Keys which exist in origSlice but not fixedSlice are excluded.
+// Keys which exist in fixedSlice but not origSlice are included.
+// If keys exist in both fixedSlice and origSlice then the value from fixedSlice is used unless both values are complex
+// (MapSlices or SequenceItem arrays), in which case they are merged recursively.
 func mergeMapSlices(origSlice, fixedSlice yaml.MapSlice) yaml.MapSlice {
-	// Remove items from the original which are not present in the fixed yaml
-	for i := 0; i < len(origSlice); i++ {
-		item := origSlice[i]
-		if _, ok := item.Key.(yaml.PreDoc); item.Key == nil || ok {
+	var mergedSlice yaml.MapSlice
+
+	// Keep comments, and items which are present in both the original and fixed yaml
+	for _, item := range origSlice {
+		if _, ok := item.Key.(yaml.PreDoc); item.Key == nil || ok || findKeyInMapSlice(item.Key, fixedSlice) != -1 {
+			mergedSlice = append(mergedSlice, item)
 			continue
-		}
-		if findKeyInMapSlice(item.Key, fixedSlice) == -1 {
-			origSlice = append(origSlice[:i], origSlice[i+1:]...)
-			i--
 		}
 	}
 
 	// Update or add items from the fixed yaml which are not in the original
-	for i := 0; i < len(fixedSlice); i++ {
-		fixedItem := fixedSlice[i]
-		origItemIndex := findKeyInMapSlice(fixedItem.Key, origSlice)
-		if origItemIndex == -1 {
-			origSlice = append(origSlice, fixedItem)
+	for _, fixedItem := range fixedSlice {
+		mergedItemIndex := findKeyInMapSlice(fixedItem.Key, mergedSlice)
+		if mergedItemIndex == -1 {
+			mergedSlice = append(mergedSlice, fixedItem)
 			continue
 		}
 
-		origItem := &origSlice[origItemIndex]
+		mergedItem := &mergedSlice[mergedItemIndex]
 		if _, ok := fixedItem.Value.(yaml.MapSlice); ok {
-			if _, ok = origItem.Value.(yaml.MapSlice); ok {
-				origItem.Value = mergeMapSlices(origItem.Value.(yaml.MapSlice), fixedItem.Value.(yaml.MapSlice))
+			if _, ok = mergedItem.Value.(yaml.MapSlice); ok {
+				mergedItem.Value = mergeMapSlices(mergedItem.Value.(yaml.MapSlice), fixedItem.Value.(yaml.MapSlice))
 				continue
 			}
 		}
 		if _, ok := fixedItem.Value.([]yaml.SequenceItem); ok {
-			if _, ok = origItem.Value.([]yaml.SequenceItem); ok {
-				sequenceKey := origItem.Key.(string)
+			if _, ok = mergedItem.Value.([]yaml.SequenceItem); ok {
+				sequenceKey := mergedItem.Key.(string)
 				fixedSeq := fixedItem.Value.([]yaml.SequenceItem)
-				origSeq := origItem.Value.([]yaml.SequenceItem)
-				origItem.Value = mergeSequences(sequenceKey, origSeq, fixedSeq)
+				origSeq := mergedItem.Value.([]yaml.SequenceItem)
+				mergedItem.Value = mergeSequences(sequenceKey, origSeq, fixedSeq)
 				continue
 			}
 		}
-		origItem.Value = fixedItem.Value
+		mergedItem.Value = fixedItem.Value
 	}
 
-	return origSlice
+	return mergedSlice
 }
 
 // Returns the index of the MapItem in MapSlice which has the given key
@@ -194,37 +191,40 @@ func findKeyInMapSlice(key interface{}, slice yaml.MapSlice) int {
 	return -1
 }
 
-// Returns a slice which has only the values in keepSlice but retaining the comments from slice
+// Recursively merge fixedSlice and origSlice.
+// Values which exist in origSlice but not fixedSlice are excluded.
+// Values which exist in fixedSlice but not origSlice are included.
+// If values exist in both fixedSlice and origSlice then the value from fixedSlice is used unless both values are
+// complex (MapSlices or SequenceItem arrays), in which case they are merged recursively.
 func mergeSequences(sequenceKey string, origSlice, fixedSlice []yaml.SequenceItem) []yaml.SequenceItem {
-	// Remove items from the original which are not present in the fixed yaml
-	for i := 0; i < len(origSlice); i++ {
-		item := origSlice[i]
-		if findItemInSequence(sequenceKey, item, fixedSlice) == -1 {
-			origSlice = append(origSlice[:i], origSlice[i+1:]...)
-			i--
+	var mergedSlice []yaml.SequenceItem
+
+	// Keep comments, and items which are present in both the original and fixed yaml
+	for _, item := range origSlice {
+		if (item.Value == nil && len(item.Comment) > 0) || findItemInSequence(sequenceKey, item, fixedSlice) != -1 {
+			mergedSlice = append(mergedSlice, item)
 		}
 	}
 
 	// Update or add items from the fixed yaml which are not in the original
-	for i := 0; i < len(fixedSlice); i++ {
-		fixedItem := fixedSlice[i]
-		origItemIndex := findItemInSequence(sequenceKey, fixedItem, origSlice)
-		if origItemIndex == -1 {
-			origSlice = append(origSlice, fixedItem)
+	for _, fixedItem := range fixedSlice {
+		mergedItemIndex := findItemInSequence(sequenceKey, fixedItem, mergedSlice)
+		if mergedItemIndex == -1 {
+			mergedSlice = append(mergedSlice, fixedItem)
 			continue
 		}
 
-		origItem := &origSlice[origItemIndex]
+		mergedItem := &mergedSlice[mergedItemIndex]
 		if _, ok := fixedItem.Value.(yaml.MapSlice); ok {
-			if _, ok = origItem.Value.(yaml.MapSlice); ok {
-				origItem.Value = mergeMapSlices(origItem.Value.(yaml.MapSlice), fixedItem.Value.(yaml.MapSlice))
+			if _, ok = mergedItem.Value.(yaml.MapSlice); ok {
+				mergedItem.Value = mergeMapSlices(mergedItem.Value.(yaml.MapSlice), fixedItem.Value.(yaml.MapSlice))
 				continue
 			}
 		}
-		origItem.Value = fixedItem.Value
+		mergedItem.Value = fixedItem.Value
 	}
 
-	return origSlice
+	return mergedSlice
 }
 
 // Returns the index of the item in slice which "matches" val. See sequenceItemMatch for what is considered a "match".
@@ -269,15 +269,11 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	case "envFrom":
 		map1 := item1.Value.(yaml.MapSlice)
 		map2 := item2.Value.(yaml.MapSlice)
-		if index1 := findKeyInMapSlice("configMapRef", map1); index1 != -1 {
-			if index2 := findKeyInMapSlice("configMapRef", map2); index2 != -1 {
-				return mapPairMatch("name", map1, map2)
-			}
+		if findKeyInMapSlice("configMapRef", map1) != -1 && findKeyInMapSlice("configMapRef", map2) != -1 {
+			return mapPairMatch("name", map1, map2)
 		}
-		if index1 := findKeyInMapSlice("secretRef", map1); index1 != -1 {
-			if index2 := findKeyInMapSlice("secretRef", map2); index2 != -1 {
-				return mapPairMatch("name", map1, map2)
-			}
+		if findKeyInMapSlice("secretRef", map1) != -1 && findKeyInMapSlice("secretRef", map2) != -1 {
+			return mapPairMatch("name", map1, map2)
 		}
 		return false
 	}
@@ -312,7 +308,6 @@ func autofix(*cobra.Command, []string) {
 	fixedResources := fix(resources)
 
 	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix")
-	// tmpFile, err := os.Create("tmp.yaml")
 	if err != nil {
 		log.Error(err)
 	}
@@ -328,7 +323,6 @@ func autofix(*cobra.Command, []string) {
 		log.Error(err)
 	}
 
-	// err = ioutil.WriteFile("fixed.yaml", fixedYaml, 0644)
 	err = ioutil.WriteFile(rootConfig.manifest, fixedYaml, 0644)
 	if err != nil {
 		log.Error(err)
