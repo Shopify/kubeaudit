@@ -1,11 +1,9 @@
 package cmd
 
-import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
-
-func fixServiceAccountToken(resource k8sRuntime.Object) k8sRuntime.Object {
+func fixServiceAccountToken(resource Resource) Resource {
 	return setASAT(resource, false)
 }
 
-func fixDeprecatedServiceAccount(resource k8sRuntime.Object) k8sRuntime.Object {
+func fixDeprecatedServiceAccount(resource Resource) Resource {
 	return disableDSA(resource)
 }

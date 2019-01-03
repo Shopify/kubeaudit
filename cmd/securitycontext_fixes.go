@@ -1,8 +1,6 @@
 package cmd
 
-import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
-
-func fixSecurityContextNil(resource k8sRuntime.Object) k8sRuntime.Object {
+func fixSecurityContextNil(resource Resource) Resource {
 	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
 		if container.SecurityContext == nil {

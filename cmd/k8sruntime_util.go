@@ -9,7 +9,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
-func setContainers(resource k8sRuntime.Object, containers []ContainerV1) k8sRuntime.Object {
+func setContainers(resource Resource, containers []ContainerV1) Resource {
 	switch t := resource.(type) {
 	case *CronJobV1Beta1:
 		t.Spec.JobTemplate.Spec.Template.Spec.Containers = containers
@@ -48,7 +48,7 @@ func setContainers(resource k8sRuntime.Object, containers []ContainerV1) k8sRunt
 	return resource
 }
 
-func disableDSA(resource k8sRuntime.Object) k8sRuntime.Object {
+func disableDSA(resource Resource) Resource {
 	switch t := resource.(type) {
 	case *CronJobV1Beta1:
 		t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount = ""
@@ -87,7 +87,7 @@ func disableDSA(resource k8sRuntime.Object) k8sRuntime.Object {
 	return resource
 }
 
-func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
+func setASAT(resource Resource, b bool) Resource {
 	var boolean *bool
 	if b {
 		boolean = newTrue()
@@ -132,7 +132,7 @@ func setASAT(resource k8sRuntime.Object, b bool) k8sRuntime.Object {
 	return resource
 }
 
-func setPodAnnotations(resource k8sRuntime.Object, annotations map[string]string) k8sRuntime.Object {
+func setPodAnnotations(resource Resource, annotations map[string]string) Resource {
 	switch kubeType := resource.(type) {
 	case *CronJobV1Beta1:
 		kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.SetAnnotations(annotations)
@@ -171,7 +171,7 @@ func setPodAnnotations(resource k8sRuntime.Object, annotations map[string]string
 	return resource
 }
 
-func getContainers(resource k8sRuntime.Object) (container []ContainerV1) {
+func getContainers(resource Resource) (container []ContainerV1) {
 	switch kubeType := resource.(type) {
 	case *CronJobV1Beta1:
 		container = kubeType.Spec.JobTemplate.Spec.Template.Spec.Containers
@@ -199,7 +199,7 @@ func getContainers(resource k8sRuntime.Object) (container []ContainerV1) {
 	return container
 }
 
-func getPodAnnotations(resource k8sRuntime.Object) (annotations map[string]string) {
+func getPodAnnotations(resource Resource) (annotations map[string]string) {
 	switch kubeType := resource.(type) {
 	case *CronJobV1Beta1:
 		annotations = kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.GetAnnotations()
@@ -228,7 +228,7 @@ func getPodAnnotations(resource k8sRuntime.Object) (annotations map[string]strin
 }
 
 // WriteToFile writes and then appends incoming resource
-func WriteToFile(decode k8sRuntime.Object, filename string, toAppend bool) error {
+func WriteToFile(decode Resource, filename string, toAppend bool) error {
 	info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
 	groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
 	encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)

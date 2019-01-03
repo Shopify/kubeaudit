@@ -1,8 +1,6 @@
 package cmd
 
-import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
-
-func fixCapabilitiesNil(resource k8sRuntime.Object) k8sRuntime.Object {
+func fixCapabilitiesNil(resource Resource) Resource {
 	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
 		if container.SecurityContext.Capabilities == nil {
@@ -19,7 +17,7 @@ func fixCapabilitiesNil(resource k8sRuntime.Object) k8sRuntime.Object {
 	return setContainers(resource, containers)
 }
 
-func fixCapabilityNotDropped(resource k8sRuntime.Object, occurrence Occurrence) k8sRuntime.Object {
+func fixCapabilityNotDropped(resource Resource, occurrence Occurrence) Resource {
 	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
 		if occurrence.container == container.Name {
@@ -30,7 +28,7 @@ func fixCapabilityNotDropped(resource k8sRuntime.Object, occurrence Occurrence) 
 	return setContainers(resource, containers)
 }
 
-func fixCapabilityAdded(resource k8sRuntime.Object, occurrence Occurrence) k8sRuntime.Object {
+func fixCapabilityAdded(resource Resource, occurrence Occurrence) Resource {
 	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
 		if occurrence.container == container.Name {

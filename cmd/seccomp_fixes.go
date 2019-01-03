@@ -2,10 +2,9 @@ package cmd
 
 import (
 	apiv1 "k8s.io/api/core/v1"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
-func fixSeccomp(resource k8sRuntime.Object) k8sRuntime.Object {
+func fixSeccomp(resource Resource) Resource {
 	annotations := getPodAnnotations(resource)
 
 	if annotations == nil {

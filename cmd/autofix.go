@@ -3,7 +3,6 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 func getAuditFunctions() []interface{} {
@@ -14,7 +13,7 @@ func getAuditFunctions() []interface{} {
 	}
 }
 
-func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
+func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 	resource = prepareResourceForFix(resource, result)
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
@@ -44,7 +43,7 @@ func fixPotentialSecurityIssue(resource k8sRuntime.Object, result Result) k8sRun
 	return resource
 }
 
-func prepareResourceForFix(resource k8sRuntime.Object, result Result) k8sRuntime.Object {
+func prepareResourceForFix(resource Resource, result Result) Resource {
 	needSecurityContextDefined := []int{ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue,
 		ErrorPrivilegedNil, ErrorPrivilegedTrue, ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil,
 		ErrorRunAsNonRootFalse, ErrorRunAsNonRootNil, ErrorServiceAccountTokenDeprecated,
@@ -75,7 +74,7 @@ func prepareResourceForFix(resource k8sRuntime.Object, result Result) k8sRuntime
 	return resource
 }
 
-func fix(resources []k8sRuntime.Object) (fixedResources []k8sRuntime.Object) {
+func fix(resources []Resource) (fixedResources []Resource) {
 	for _, resource := range resources {
 		results := mergeAuditFunctions(getAuditFunctions())(resource)
 		for _, result := range results {

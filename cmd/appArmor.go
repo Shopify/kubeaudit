@@ -6,8 +6,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 // As of Oct 1, 2018 these constants are not in the K8s API package, but once they are they should be replaced
@@ -22,7 +20,7 @@ const (
 	ProfileNamePrefix = "localhost/"
 )
 
-func checkAppArmor(resource k8sRuntime.Object, result *Result) {
+func checkAppArmor(resource Resource, result *Result) {
 	annotations := getPodAnnotations(resource)
 
 	for _, container := range getContainers(resource) {
@@ -60,7 +58,7 @@ func badAppArmorProfileName(profileName string) bool {
 	return profileName != ProfileRuntimeDefault && !strings.HasPrefix(profileName, ProfileNamePrefix)
 }
 
-func auditAppArmor(resource k8sRuntime.Object) (results []Result) {
+func auditAppArmor(resource Resource) (results []Result) {
 	result, err := newResultFromResource(resource)
 	if err != nil {
 		log.Error(err)
