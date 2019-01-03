@@ -7,39 +7,61 @@ import (
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
-// Currently only checks ingress rules
-func checkIfDefaultDenyPolicy(netpol networking.NetworkPolicy) bool {
+// isNetworkPolicyType checks if the NetworkPolicy is from the provided type e.g. egress
+func isNetworkPolicyType(netPol networking.NetworkPolicy, netPolType string) bool {
+	for _, polType := range netPol.Spec.PolicyTypes {
+		if string(polType) == netPolType {
+			return true
+		}
+	}
+	return false
+}
+
+// checkIfDefaultDenyPolicy checks if the policy contains a deny all ingress / egress rules
+func checkIfDefaultDenyPolicy(netPol networking.NetworkPolicy) (bool, bool) {
+	hasDenyAllIngressRule, hasDenyAllEgressRule := false, false
+
 	// No PodSelector is set via MatchLabels -> Catch all pods
-	if len(netpol.Spec.PodSelector.MatchLabels) > 0 {
-		return false
+	if len(netPol.Spec.PodSelector.MatchLabels) > 0 {
+		return hasDenyAllIngressRule, hasDenyAllEgressRule
 	}
 
-	// No PodSelector is set via MatchExpressions -> catch all Pods
-	if len(netpol.Spec.PodSelector.MatchExpressions) > 0 {
-		return false
+	// No PodSelector is set via MatchExpressions -> Catch all Pods
+	if len(netPol.Spec.PodSelector.MatchExpressions) > 0 {
+		return hasDenyAllIngressRule, hasDenyAllEgressRule
 	}
 
-	// No Ingress rule is defined -> deny all ingress traffic
-	if len(netpol.Spec.Ingress) > 0 {
-		return false
+	// No ingress is defined -> Deny all ingress traffic
+	if len(netPol.Spec.Ingress) == 0 && isNetworkPolicyType(netPol, "Ingress") {
+		hasDenyAllIngressRule = true
 	}
 
-	//  No Egress rule is defined -> deny all egress traffic
-	if len(netpol.Spec.Egress) > 0 {
-		return false
+	// No Egress rule is defined -> Deny all egress traffic
+	if len(netPol.Spec.Egress) == 0 && isNetworkPolicyType(netPol, "Egress") {
+		hasDenyAllEgressRule = true
 	}
 
-	return true
+	return hasDenyAllIngressRule, hasDenyAllEgressRule
 }
 
 func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result) {
-	// TODO check if any netpol is default Policy
-	hasDefaultDeny := false
+	hasDenyAllIngressRule, hasDenyAllEgressRule := false, false
 
 	for _, netPol := range netPols.Items {
 		// If not set check if default deny policy
-		if !hasDefaultDeny {
-			hasDefaultDeny = checkIfDefaultDenyPolicy(netPol)
+		if !hasDenyAllIngressRule || !hasDenyAllEgressRule {
+			resDenyAllIngress, resDenyAllEgress := checkIfDefaultDenyPolicy(netPol)
+			// If hasDenyAllIngressRule is not already set use the result from above
+			// We need this extra step because the policies could be splitted over
+			// two network policies
+			if !hasDenyAllIngressRule {
+				hasDenyAllIngressRule = resDenyAllIngress
+			}
+
+			// Same as for hasDenyAllIngressRule
+			if !hasDenyAllEgressRule {
+				hasDenyAllEgressRule = resDenyAllEgress
+			}
 		}
 
 		for _, ingress := range netPol.Spec.Ingress {
@@ -75,15 +97,28 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 		}
 	}
 
-	if !hasDefaultDeny {
+	if !hasDenyAllIngressRule {
 		occ := Occurrence{
 			container: "",
-			id:        ErrorMissingDefaultDenyNetworkPolicy,
+			id:        ErrorMissingDefaultDenyIngressNetworkPolicy,
 			kind:      Error,
-			message:   "Namespace is missing a default deny NetworkPolicy",
+			message:   "Namespace is missing a default deny egress NetworkPolicy",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-	} else {
+	}
+
+	if !hasDenyAllEgressRule {
+		occ := Occurrence{
+			container: "",
+			id:        ErrorMissingDefaultDenyEgressNetworkPolicy,
+			kind:      Error,
+			message:   "Namespace is missing a default deny ingress NetworkPolicy",
+		}
+		result.Occurrences = append(result.Occurrences, occ)
+
+	}
+
+	if hasDenyAllIngressRule && hasDenyAllEgressRule {
 		occ := Occurrence{
 			container: "",
 			id:        InfoDefaultDenyNetworkPolicyExists,
@@ -102,7 +137,7 @@ func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyLis
 	if rootConfig.manifest != "" {
 		resources, err := getKubeResourcesManifest(rootConfig.manifest)
 		if err != nil {
-			return netPolList, nil
+			return netPolList, err
 		}
 
 		for _, resource := range resources {
@@ -128,20 +163,21 @@ func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyLis
 	netPolList = getNetworkPolicies(kube)
 
 	rootConfig.namespace = currentRootNamespace
-	return netPolList, err
+	return netPolList, nil
 }
 
-func getNamespaceName(resource k8sRuntime.Object) (ns string) {
-	switch kubeType := resource.(type) {
-	case *NamespaceV1:
-		ns = kubeType.ObjectMeta.Name
+func getNamespaceName(resource k8sRuntime.Object) string {
+	name := ""
+	ns, ok := resource.(*NamespaceV1)
+	if ok {
+		name = ns.ObjectMeta.Name
 	}
-
-	return ns
+	return name
 }
 
 func auditNetworkPolicies(resource k8sRuntime.Object) (results []Result) {
 	nsName := getNamespaceName(resource)
+
 	// We found no namespace
 	if nsName == "" {
 		return
