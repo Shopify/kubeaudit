@@ -8,10 +8,9 @@ import (
 	"github.com/spf13/cobra"
 
 	apiv1 "k8s.io/api/core/v1"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
-func checkSeccomp(resource k8sRuntime.Object, result *Result) {
+func checkSeccomp(resource Resource, result *Result) {
 	annotations := getPodAnnotations(resource)
 	podAnnotation := apiv1.SeccompPodAnnotationKey
 	podProfile, podOk := annotations[podAnnotation]
@@ -106,7 +105,7 @@ func badSeccompProfileName(profileName string) bool {
 	}
 }
 
-func auditSeccomp(resource k8sRuntime.Object) (results []Result) {
+func auditSeccomp(resource Resource) (results []Result) {
 	result, err := newResultFromResource(resource)
 	if err != nil {
 		log.Error(err)

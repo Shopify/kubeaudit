@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	apiv1 "k8s.io/api/core/v1"
 	"testing"
+
+	apiv1 "k8s.io/api/core/v1"
 )
 
 func TestFixSeccompDisabledV1(t *testing.T) {

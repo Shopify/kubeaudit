@@ -1,8 +1,6 @@
 package cmd
 
-import k8sRuntime "k8s.io/apimachinery/pkg/runtime"
-
-func fixAppArmor(resource k8sRuntime.Object) k8sRuntime.Object {
+func fixAppArmor(resource Resource) Resource {
 	annotations := getPodAnnotations(resource)
 
 	if annotations == nil {
