@@ -4,7 +4,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	networking "k8s.io/api/networking/v1"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 )
 
 // isNetworkPolicyType checks if the NetworkPolicy is from the provided type e.g. egress
@@ -166,7 +165,7 @@ func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyLis
 	return netPolList, nil
 }
 
-func getNamespaceName(resource k8sRuntime.Object) string {
+func getNamespaceName(resource Resource) string {
 	name := ""
 	ns, ok := resource.(*NamespaceV1)
 	if ok {
@@ -175,7 +174,7 @@ func getNamespaceName(resource k8sRuntime.Object) string {
 	return name
 }
 
-func auditNetworkPolicies(resource k8sRuntime.Object) (results []Result) {
+func auditNetworkPolicies(resource Resource) (results []Result) {
 	nsName := getNamespaceName(resource)
 
 	// We found no namespace
