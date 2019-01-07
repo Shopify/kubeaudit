@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bufio"
-	"bytes"
+	"fmt"
 	"os"
 	"testing"
 
@@ -25,7 +25,10 @@ func compareFiles(file1, file2 string) bool {
 
 	for s1.Scan() {
 		s2.Scan()
-		if !bytes.Equal(s1.Bytes(), s2.Bytes()) {
+		text1 := s1.Text()
+		text2 := s2.Text()
+		if text1 != text2 {
+			fmt.Printf("Files don't match here:\n%v\n%v\n\n", text1, text2)
 			return false
 		}
 	}
@@ -33,15 +36,13 @@ func compareFiles(file1, file2 string) bool {
 }
 
 func assertEqualWorkloads(assert *assert.Assertions, resource1, resource2 []Resource) {
-	file1 := "/tmp/dat1"
-	file2 := "/tmp/dat2"
-	err := WriteToFile(resource1[0], file1, false)
+	tmpfile1, err := WriteToTmpFile(resource1[0])
 	assert.Nil(err)
-	err = WriteToFile(resource2[0], file2, false)
+	defer os.Remove(tmpfile1)
+	tmpfile2, err := WriteToTmpFile(resource2[0])
 	assert.Nil(err)
-	assert.True(compareFiles(file1, file2))
-	os.Remove(file1)
-	os.Remove(file2)
+	defer os.Remove(tmpfile2)
+	assert.True(compareFiles(tmpfile1, tmpfile2))
 }
 
 func TestFixV1(t *testing.T) {

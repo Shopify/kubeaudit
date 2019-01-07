@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io/ioutil"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -9,6 +10,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	apiv1 "k8s.io/api/core/v1"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/kubernetes/scheme"
 )
 
 var path = "../fixtures/"
@@ -111,4 +115,30 @@ func assertEqualYaml(fileToFix string, fileFixed string, auditFunc func(resource
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
 	assert.Equal(correctlyFixedResources[0], fixedResource)
+}
+
+// WriteToTmpFile writes a single resource to a tmpfile, you are responsible
+// for closing the file afterwards, that's why the function returns the file
+// name.
+func WriteToTmpFile(decode Resource) (string, error) {
+	info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
+	groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
+	encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
+	yaml, err := k8sRuntime.Encode(encoder, decode)
+	if err != nil {
+		return "", err
+	}
+	tmpfile, err := ioutil.TempFile("", "kubeaudit-test-yaml")
+	if err != nil {
+		return "", err
+	}
+	_, err = tmpfile.Write(yaml)
+	if err != nil {
+		return "", err
+	}
+	err = tmpfile.Close()
+	if err != nil {
+		return "", err
+	}
+	return tmpfile.Name(), nil
 }
