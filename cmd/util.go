@@ -101,6 +101,11 @@ func newResultFromResource(resource Resource) (*Result, error) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
+	case *NamespaceV1:
+		result.KubeType = "namespace"
+		result.Labels = kubeType.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	default:
 		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
 	}
@@ -158,6 +163,9 @@ func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, er
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	case *NamespaceV1:
+		// We need to set this here so the audit function will ignore the namespace
+		result.Token = newFalse()
 	}
 
 	return result, nil
@@ -189,6 +197,12 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []Resource) {
 			resources = append(resources, resource.DeepCopyObject())
 		}
 	}
+	for _, resource := range getNamespaces(clientset).Items {
+		if isInRootConfigNamespace(resource.ObjectMeta) {
+			resources = append(resources, resource.DeepCopyObject())
+		}
+	}
+
 	return
 }
 

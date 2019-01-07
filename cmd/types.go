@@ -51,6 +51,12 @@ type DeploymentV1Beta2 = appsv1beta2.Deployment
 // ListOptionsV1 is a type alias for the v1 version of the k8s meta API.
 type ListOptionsV1 = metav1.ListOptions
 
+// NamespaceV1 is a type alias for the v1 version of the k8s API.
+type NamespaceV1 = apiv1.Namespace
+
+// NamespaceListV1 is a type alias for the v1 version of the k8s API.
+type NamespaceListV1 = apiv1.NamespaceList
+
 // NetworkPolicyListV1 is a type alias for the v1 version of the k8s networking API.
 type NetworkPolicyListV1 = networkingv1.NetworkPolicyList
 
@@ -98,6 +104,7 @@ func IsSupportedResourceType(obj Resource) bool {
 	case *CronJobV1Beta1,
 		*DaemonSetListV1, *DaemonSetV1, *DaemonSetV1Beta1,
 		*DeploymentExtensionsV1Beta1, *DeploymentV1, *DeploymentV1Beta1, *DeploymentV1Beta2, *DeploymentListV1,
+		*NamespaceListV1, *NamespaceV1,
 		*NetworkPolicyListV1, *NetworkPolicyV1,
 		*PodListV1, *PodV1,
 		*ReplicationControllerListV1, *ReplicationControllerV1,

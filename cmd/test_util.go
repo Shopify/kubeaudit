@@ -52,6 +52,8 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
+	// Set manifest for test run
+	rootConfig.manifest = file
 
 	for _, resource := range resources {
 		var currentResults []Result
