@@ -146,7 +146,7 @@ func WriteToTmpFile(decode Resource) (string, error) {
 	return tmpfile.Name(), nil
 }
 
-func compareFiles(file1, file2 string) bool {
+func compareTextFiles(file1, file2 string) bool {
 	f1, err := os.Open(file1)
 	if err != nil {
 		return false
@@ -179,5 +179,5 @@ func assertEqualWorkloads(assert *assert.Assertions, resource1, resource2 []Reso
 	tmpfile2, err := WriteToTmpFile(resource2[0])
 	assert.Nil(err)
 	defer os.Remove(tmpfile2)
-	assert.True(compareFiles(tmpfile1, tmpfile2))
+	assert.True(compareTextFiles(tmpfile1, tmpfile2))
 }
