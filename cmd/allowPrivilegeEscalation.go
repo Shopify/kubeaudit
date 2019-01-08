@@ -57,7 +57,6 @@ func auditAllowPrivilegeEscalation(resource Resource) (results []Result) {
 		checkAllowPrivilegeEscalation(container, result)
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)
-			break
 		}
 	}
 	return

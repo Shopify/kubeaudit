@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"bufio"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -9,6 +13,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	apiv1 "k8s.io/api/core/v1"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/kubernetes/scheme"
 )
 
 var path = "../fixtures/"
@@ -113,4 +120,66 @@ func assertEqualYaml(fileToFix string, fileFixed string, auditFunc func(resource
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
 	assert.Equal(correctlyFixedResources[0], fixedResource)
+}
+
+// WriteToTmpFile writes a single resource to a tmpfile, you are responsible
+// for deleting the file afterwards, that's why the function returns the file
+// name.
+func WriteToTmpFile(decode Resource) (string, error) {
+	info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
+	groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
+	encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
+	yaml, err := k8sRuntime.Encode(encoder, decode)
+	if err != nil {
+		return "", err
+	}
+	tmpfile, err := ioutil.TempFile("", "kubeaudit-test-yaml")
+	if err != nil {
+		return "", err
+	}
+	_, err = tmpfile.Write(yaml)
+	if err != nil {
+		return "", err
+	}
+	err = tmpfile.Close()
+	if err != nil {
+		return "", err
+	}
+	return tmpfile.Name(), nil
+}
+
+func compareTextFiles(file1, file2 string) bool {
+	f1, err := os.Open(file1)
+	if err != nil {
+		return false
+	}
+
+	f2, err := os.Open(file2)
+	if err != nil {
+		return false
+	}
+
+	s1 := bufio.NewScanner(f1)
+	s2 := bufio.NewScanner(f2)
+
+	for s1.Scan() {
+		s2.Scan()
+		text1 := s1.Text()
+		text2 := s2.Text()
+		if text1 != text2 {
+			fmt.Printf("Files don't match here:\n%v\n%v\n\n", text1, text2)
+			return false
+		}
+	}
+	return true
+}
+
+func assertEqualWorkloads(assert *assert.Assertions, resource1, resource2 []Resource) {
+	tmpfile1, err := WriteToTmpFile(resource1[0])
+	assert.Nil(err)
+	defer os.Remove(tmpfile1)
+	tmpfile2, err := WriteToTmpFile(resource2[0])
+	assert.Nil(err)
+	defer os.Remove(tmpfile2)
+	assert.True(compareTextFiles(tmpfile1, tmpfile2))
 }

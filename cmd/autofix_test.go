@@ -4,8 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/go-test/deep"
 )
 
 func TestFixV1(t *testing.T) {
@@ -17,7 +15,7 @@ func TestFixV1(t *testing.T) {
 	fixedResources := fix(resources)
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
-	assert.Nil(deep.Equal(correctlyFixedResources, fixedResources))
+	assertEqualWorkloads(assert, correctlyFixedResources, fixedResources)
 }
 
 func TestFixV1Beta1(t *testing.T) {
@@ -29,5 +27,5 @@ func TestFixV1Beta1(t *testing.T) {
 	fixedResources := fix(resources)
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
-	assert.Nil(deep.Equal(correctlyFixedResources, fixedResources))
+	assertEqualWorkloads(assert, correctlyFixedResources, fixedResources)
 }

@@ -57,7 +57,6 @@ func auditRunAsNonRoot(resource Resource) (results []Result) {
 		checkRunAsNonRoot(container, result)
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)
-			break
 		}
 	}
 	return

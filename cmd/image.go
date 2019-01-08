@@ -77,7 +77,6 @@ func auditImages(image imgFlags, resource Resource) (results []Result) {
 		checkImage(container, image, result)
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)
-			break
 		}
 	}
 	return

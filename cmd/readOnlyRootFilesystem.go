@@ -57,7 +57,6 @@ func auditReadOnlyRootFS(resource Resource) (results []Result) {
 		checkReadOnlyRootFS(container, result)
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)
-			break
 		}
 	}
 	return
