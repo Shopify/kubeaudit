@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Shopify/yaml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,4 +59,274 @@ func TestPreserveComments(t *testing.T) {
 	assert.Nil(err)
 
 	assert.Equal(string(fixedYaml), string(expectedYaml))
+}
+
+var testData = []struct {
+	orig   yaml.MapSlice
+	fixed  yaml.MapSlice
+	merged yaml.MapSlice
+}{
+	// update
+	{
+		yaml.MapSlice{{Key: "k", Value: "v", Comment: "Comment"}},
+		yaml.MapSlice{{Key: "k", Value: "v2"}},
+		yaml.MapSlice{{Key: "k", Value: "v2", Comment: "Comment"}},
+	},
+	// add
+	{
+		yaml.MapSlice{{Key: "k", Value: "v", Comment: "Comment"}},
+		yaml.MapSlice{{Key: "k", Value: "v"}, {Key: "k2", Value: "v2"}},
+		yaml.MapSlice{{Key: "k", Value: "v", Comment: "Comment"}, {Key: "k2", Value: "v2"}},
+	},
+	// remove
+	{
+		yaml.MapSlice{{Key: "k", Value: "v", Comment: "Comment 1"}, {Key: "k2", Value: "v2", Comment: "Comment 2"}},
+		yaml.MapSlice{{Key: "k2", Value: "v2"}},
+		yaml.MapSlice{{Key: "k2", Value: "v2", Comment: "Comment 2"}},
+	},
+	// preserve order
+	{
+		yaml.MapSlice{
+			{Comment: "Comment 1"},
+			{Comment: "Comment 2"},
+			{Key: "k", Value: "v", Comment: "EOL Comment 1"},
+			{Comment: "Comment 3"},
+			{Key: "k2", Value: "v2", Comment: "EOL Comment 2"},
+			{Comment: "Comment 4"},
+		},
+		yaml.MapSlice{
+			{Key: "knew", Value: "vnew"},
+			{Key: "k2", Value: "v2new"},
+			{Key: "k", Value: "vnew"},
+		},
+		yaml.MapSlice{
+			{Comment: "Comment 1"},
+			{Comment: "Comment 2"},
+			{Key: "k", Value: "vnew", Comment: "EOL Comment 1"},
+			{Comment: "Comment 3"},
+			{Key: "k2", Value: "v2new", Comment: "EOL Comment 2"},
+			{Comment: "Comment 4"},
+			{Key: "knew", Value: "vnew"},
+		},
+	},
+	// sequence of strings
+	{
+		yaml.MapSlice{{Key: "values", Value: []yaml.SequenceItem{
+			{Value: "v1", Comment: "EOL Comment 1"},
+			{Comment: "Comment 1"},
+			{Value: "v2", Comment: "EOL Comment 2"},
+			{Value: "v3", Comment: "EOL Comment 3"},
+		}}},
+		yaml.MapSlice{{Key: "values", Value: []yaml.SequenceItem{
+			{Value: "v3"},
+			{Value: "v4"},
+			{Value: "v1"},
+		}}},
+		yaml.MapSlice{{Key: "values", Value: []yaml.SequenceItem{
+			{Value: "v1", Comment: "EOL Comment 1"},
+			{Comment: "Comment 1"},
+			{Value: "v3", Comment: "EOL Comment 3"},
+			{Value: "v4"},
+		}}},
+	},
+	// complex mapslice (nested sequences and mapslices)
+	{
+		yaml.MapSlice{
+			{Key: "containers", Value: []yaml.SequenceItem{
+				{Value: yaml.MapSlice{
+					{Key: "name", Value: "container1", Comment: "Container 1"},
+					{Key: "image", Value: "image1", Comment: "Image 1"},
+				}},
+				{Value: yaml.MapSlice{
+					{Key: "name", Value: "container2", Comment: "Container 2"},
+					{Key: "ports", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "port1"},
+							{Key: "protocol", Value: "TCP"},
+							{Key: "containerPort", Value: "3000", Comment: "Port 3000"},
+						}},
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "port2"},
+							{Comment: "Comment"},
+							{Key: "protocol", Value: "UDP"},
+							{Key: "containerPort", Value: "6000", Comment: "Port 6000"},
+						}},
+					}},
+				}},
+			}},
+		},
+		yaml.MapSlice{
+			{Key: "containers", Value: []yaml.SequenceItem{
+				{Value: yaml.MapSlice{
+					{Key: "name", Value: "container3"},
+					{Key: "image", Value: "image1"},
+				}},
+				{Value: yaml.MapSlice{
+					{Key: "name", Value: "container2"},
+					{Key: "ports", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "port1"},
+							{Key: "containerPort", Value: "6000"},
+							{Key: "protocol", Value: "TCP"},
+						}},
+					}},
+				}},
+			}},
+		},
+		yaml.MapSlice{
+			{Key: "containers", Value: []yaml.SequenceItem{
+				{Value: yaml.MapSlice{
+					{Key: "name", Value: "container2", Comment: "Container 2"},
+					{Key: "ports", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "port1"},
+							{Comment: "Comment"},
+							{Key: "protocol", Value: "TCP"},
+							{Key: "containerPort", Value: "6000", Comment: "Port 6000"},
+						}},
+					}},
+				}},
+				{Value: yaml.MapSlice{
+					{Key: "name", Value: "container3"},
+					{Key: "image", Value: "image1"},
+				}},
+			}},
+		},
+	},
+}
+
+func TestMergeYAML(t *testing.T) {
+	assert := assert.New(t)
+
+	for _, test := range testData {
+		assert.Equal(test.merged, mergeMapSlices(test.orig, test.fixed))
+	}
+}
+
+func TestFindItemInSequence(t *testing.T) {
+	assert := assert.New(t)
+
+	// same string
+	s := []yaml.SequenceItem{
+		{Comment: "Comment"},
+		{Value: "v"},
+		{Value: "v2", Comment: "Comment 2"},
+	}
+	i := yaml.SequenceItem{Value: "v2"}
+	assert.Equal(2, findItemInSequence("", i, s))
+
+	// different string
+	s = []yaml.SequenceItem{
+		{Comment: "Comment"},
+		{Value: "v"},
+		{Value: "v2", Comment: "Comment 2"},
+	}
+	i = yaml.SequenceItem{Value: "v3"}
+	assert.Equal(-1, findItemInSequence("", i, s))
+
+	// matching mapslice
+	s = []yaml.SequenceItem{
+		{Value: yaml.MapSlice{
+			{Key: "name", Value: "port1"},
+			{Key: "protocol", Value: "TCP"},
+			{Key: "containerPort", Value: "3000"},
+		}},
+		{Value: yaml.MapSlice{
+			{Key: "name", Value: "port2"},
+			{Comment: "Comment"},
+			{Key: "protocol", Value: "UDP"},
+			{Key: "containerPort", Value: "6000", Comment: "Comment 2"},
+		}},
+	}
+	i = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Key: "name", Value: "port1"},
+		{Key: "protocol", Value: "TCP"},
+		{Key: "containerPort", Value: "6000"},
+	}}
+	assert.Equal(1, findItemInSequence("ports", i, s))
+}
+
+func TestFindKeyInMapSlice(t *testing.T) {
+	assert := assert.New(t)
+
+	// key present
+	m := yaml.MapSlice{
+		{Comment: "Comment"},
+		{Key: "k", Value: "v", Comment: "Comment 2"},
+		{Key: "k2", Value: "v2"},
+	}
+	assert.Equal(2, findKeyInMapSlice("k2", m))
+
+	// key not present
+	m = yaml.MapSlice{
+		{Comment: "Comment"},
+	}
+	assert.Equal(-1, findKeyInMapSlice("k2", m))
+}
+
+func TestMapPairMatch(t *testing.T) {
+	assert := assert.New(t)
+
+	// same string
+	m1 := yaml.MapSlice{{Key: "k2", Value: "v2", Comment: "Comment 2"}}
+	m2 := yaml.MapSlice{
+		{Key: "k", Value: "v"},
+		{Key: "k2", Value: "v2"},
+	}
+	assert.True(mapPairMatch("k2", m1, m2))
+
+	// different string
+	m1 = yaml.MapSlice{{Key: "k", Value: "v"}}
+	m2 = yaml.MapSlice{{Key: "k", Value: "v2"}}
+	assert.False(mapPairMatch("k2", m1, m2))
+
+	// string and number
+	m1 = yaml.MapSlice{{Key: "k", Value: "2"}}
+	m2 = yaml.MapSlice{{Key: "k", Value: 2}}
+	assert.False(mapPairMatch("k", m1, m2))
+}
+
+func TestSequenceItemMatch(t *testing.T) {
+	assert := assert.New(t)
+
+	// same strings
+	item1 := yaml.SequenceItem{Value: "v2", Comment: "Comment"}
+	item2 := yaml.SequenceItem{Value: "v2"}
+	assert.True(sequenceItemMatch("", item1, item2))
+
+	// different strings
+	item1 = yaml.SequenceItem{Value: "v", Comment: "Comment"}
+	item2 = yaml.SequenceItem{Value: "v2", Comment: "Comment"}
+	assert.False(sequenceItemMatch("", item1, item2))
+
+	// string and mapslice
+	item1 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Comment: "Comment"},
+	}, Comment: "Comment"}
+	item2 = yaml.SequenceItem{Value: "v2"}
+	assert.False(sequenceItemMatch("", item1, item2))
+
+	// mapslices with same value for identifying key
+	item1 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Comment: "Comment"},
+		{Key: "name", Value: "containername", Comment: "Comment 2"},
+		{Key: "image", Value: "image1"},
+	}, Comment: "Comment"}
+	item2 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Key: "image", Value: "image2"},
+		{Key: "name", Value: "containername"},
+		{Key: "imagePullPolicy", Value: "IfNotPresent"},
+	}}
+	assert.True(sequenceItemMatch("containers", item1, item2))
+
+	// mapslices with different value for identifying key
+	item1 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Key: "name", Value: "containername"},
+		{Key: "image", Value: "image1"},
+	}, Comment: "Comment"}
+	item2 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Key: "name", Value: "containername2"},
+		{Key: "image", Value: "image1"},
+	}}
+	assert.False(sequenceItemMatch("containers", item1, item2))
 }
