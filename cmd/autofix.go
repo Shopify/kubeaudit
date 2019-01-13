@@ -135,7 +135,7 @@ func mergeYAML(origFile, fixedFile string) ([]byte, error) {
 	return data, nil
 }
 
-// Recursively merge fixedSlice and origSlice.
+// mergeMapSlices recursively merges fixedSlice and origSlice.
 // Keys which exist in origSlice but not fixedSlice are excluded.
 // Keys which exist in fixedSlice but not origSlice are included.
 // If keys exist in both fixedSlice and origSlice then the value from fixedSlice is used unless both values are complex
@@ -178,7 +178,7 @@ func mergeMapSlices(origSlice, fixedSlice yaml.MapSlice) yaml.MapSlice {
 	return mergedSlice
 }
 
-// Recursively merge fixedSlice and origSlice.
+// mergeSequences recursively merges fixedSlice and origSlice.
 // Values which exist in origSlice but not fixedSlice are excluded.
 // Values which exist in fixedSlice but not origSlice are included.
 // If values exist in both fixedSlice and origSlice then the value from fixedSlice is used unless both values are
@@ -214,7 +214,7 @@ func mergeSequences(sequenceKey string, origSlice, fixedSlice []yaml.SequenceIte
 	return mergedSlice
 }
 
-// Returns the item in the MapSlice with the given key, and its index
+// findItemInMapSlice returns the item in the MapSlice with the given key, and its index
 func findItemInMapSlice(key interface{}, slice yaml.MapSlice) (yaml.MapItem, int) {
 	for i, item := range slice {
 		if item.Key != nil && deepEqual(item.Key, key) {
@@ -224,7 +224,8 @@ func findItemInMapSlice(key interface{}, slice yaml.MapSlice) (yaml.MapItem, int
 	return yaml.MapItem{}, -1
 }
 
-// Returns the item in slice which "matches" val and its index. See sequenceItemMatch for what is considered a "match".
+// findItemInSequence returns the item in slice which "matches" val and its index. See sequenceItemMatch for what
+// is considered a "match".
 func findItemInSequence(sequenceKey string, val yaml.SequenceItem, slice []yaml.SequenceItem) (yaml.SequenceItem, int) {
 	for i, item := range slice {
 		if item.Value != nil && sequenceItemMatch(sequenceKey, val, item) {
@@ -245,11 +246,11 @@ var identifyingKey = map[string]string{
 	"env":                  "name",             // Container.env : EnvVar.name
 	"hostAliases":          "ip",               // PodSpec.hostAliases : HostAlias.ip
 	// Assumes it is not possible to add multiple values for the same header, ie.
-	//    httpHeaders:
-	//        - name: header1
-	//          value: value1
-	//        - name: header1
-	//          value: value2
+	//     httpHeaders:
+	//         - name: header1
+	//           value: value1
+	//         - name: header1
+	//           value: value2
 	// This restriction is not documented so the assumption may be incorrect
 	// See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#httpheader-v1-core
 	"httpHeaders": "name", // HTTPGetAction.httpHeaders : HTTPHeader.name
@@ -283,8 +284,13 @@ var identifyingKey = map[string]string{
 	"volumes":       "name",       // PodSpec.volumes : Volume.name
 }
 
-// In order to determine whether sequence items match (and should be merged) we determine the "identifying key" for the
-// sequence item, and if both sequence items have the same key-value pair for the "identifying key" then they are a match.
+// sequenceItemMatch returns true if item1 and item2 are a match, false otherwise. In order to determine whether
+// sequence items match (and should be merged) we determine the "identifying key" for the sequence item, and if both
+// sequence items have the same key-value pair for the "identifying key" then they are a match. The sequenceKey
+// is the key for which the array items are the value. ie:
+//     sequenceKey:
+//     - item1
+//     - item2
 func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool {
 	switch item1.Value.(type) {
 	case string, int, bool:
@@ -456,7 +462,7 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	return deepEqual(map1, map2)
 }
 
-// Returns true if map1 and map2 have the same key-value pair for the given key
+// mapPairMatch returns true if map1 and map2 have the same key-value pair for the given key
 func mapPairMatch(key string, map1, map2 yaml.MapSlice) bool {
 	if item1, index1 := findItemInMapSlice(key, map1); index1 != -1 {
 		if item2, index2 := findItemInMapSlice(key, map2); index2 != -1 {
@@ -466,7 +472,18 @@ func mapPairMatch(key string, map1, map2 yaml.MapSlice) bool {
 	return false
 }
 
-// DeepEqual but ignoring mapslice order and comments
+// deepEqual recursively compares two values but ignores mapslice order and comments. For example the following values
+// are considered to be equal:
+//
+//     []yaml.SequenceItem{{Value: yaml.MapSlice{
+// 	       {Key: "k", Value: "v", Comment: "c"},
+// 	       {Key: "k2", Value: "v2", Comment: "c2"},
+//     }}}
+//
+//     []yaml.SequenceItem{{Value: yaml.MapSlice{
+//          {Key: "k2", Value: "v2"},
+// 	        {Key: "k", Value: "v"},
+//      }}}
 func deepEqual(val1, val2 interface{}) bool {
 	// MapItem
 	if mapItem1, ok := val1.(yaml.MapItem); ok {
@@ -542,6 +559,7 @@ func deepEqual(val1, val2 interface{}) bool {
 	return val1 == val2
 }
 
+// isComment returns true if the value is a standalone comment (ie. not an end-of-line comment)
 func isComment(val interface{}) bool {
 	// MapItem
 	if m, ok := val.(yaml.MapItem); ok {
@@ -560,7 +578,7 @@ func isComment(val interface{}) bool {
 // The fix function does not preserve comments (because kubernetes resources do not support comments) so we convert
 // both the original manifest file and the fixed manifest file into MapSlices (an array representation of a map which
 // preserves the order of the keys) using the Shopify/yaml fork of go-yaml/yaml (the fork adds comment support) and
-// then merge the fixed MapSlice back into the original MapSlice so that we get the comments back.
+// then merge the fixed MapSlice back into the original MapSlice so that we get the comments and original order back.
 func autofix(*cobra.Command, []string) {
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
 	if err != nil {
