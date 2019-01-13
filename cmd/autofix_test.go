@@ -154,6 +154,26 @@ var testData = []struct {
 					}},
 				}},
 			}},
+			{Key: "subsets", Value: []yaml.SequenceItem{
+				{Value: yaml.MapSlice{
+					{Key: "addresses", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "hostname", Value: "hname", Comment: "Comment 1"},
+							{Key: "ip", Value: "10.0.0.1"},
+						}},
+					}},
+					{Key: "ports", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "pname", Comment: "Comment 2"},
+							{Key: "port", Value: "3000"},
+						}},
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "pname2", Comment: "Comment 3"},
+							{Key: "port", Value: "8000"},
+						}},
+					}},
+				}},
+			}},
 		},
 		yaml.MapSlice{
 			{Key: "containers", Value: []yaml.SequenceItem{
@@ -168,6 +188,26 @@ var testData = []struct {
 							{Key: "name", Value: "port1"},
 							{Key: "containerPort", Value: "6000"},
 							{Key: "protocol", Value: "TCP"},
+						}},
+					}},
+				}},
+			}},
+			{Key: "subsets", Value: []yaml.SequenceItem{
+				{Value: yaml.MapSlice{
+					{Key: "addresses", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "hostname", Value: "hname"},
+							{Key: "ip", Value: "10.0.0.1"},
+						}},
+					}},
+					{Key: "ports", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "pname"},
+							{Key: "port", Value: "6000"},
+						}},
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "newname"},
+							{Key: "port", Value: "8000"},
 						}},
 					}},
 				}},
@@ -191,6 +231,26 @@ var testData = []struct {
 					{Key: "image", Value: "image1"},
 				}},
 			}},
+			{Key: "subsets", Value: []yaml.SequenceItem{
+				{Value: yaml.MapSlice{
+					{Key: "addresses", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "hostname", Value: "hname", Comment: "Comment 1"},
+							{Key: "ip", Value: "10.0.0.1"},
+						}},
+					}},
+					{Key: "ports", Value: []yaml.SequenceItem{
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "newname", Comment: "Comment 3"},
+							{Key: "port", Value: "8000"},
+						}},
+						{Value: yaml.MapSlice{
+							{Key: "name", Value: "pname"},
+							{Key: "port", Value: "6000"},
+						}},
+					}},
+				}},
+			}},
 		},
 	},
 }
@@ -207,25 +267,28 @@ func TestFindItemInSequence(t *testing.T) {
 	assert := assert.New(t)
 
 	// same string
-	s := []yaml.SequenceItem{
+	seq := []yaml.SequenceItem{
 		{Comment: "Comment"},
 		{Value: "v"},
 		{Value: "v2", Comment: "Comment 2"},
 	}
-	i := yaml.SequenceItem{Value: "v2"}
-	assert.Equal(2, findItemInSequence("", i, s))
+	item := yaml.SequenceItem{Value: "v2"}
+	seqItem, index := findItemInSequence("", item, seq)
+	assert.Equal(2, index)
+	assert.True(deepEqual(seq[2], seqItem))
 
 	// different string
-	s = []yaml.SequenceItem{
+	seq = []yaml.SequenceItem{
 		{Comment: "Comment"},
 		{Value: "v"},
 		{Value: "v2", Comment: "Comment 2"},
 	}
-	i = yaml.SequenceItem{Value: "v3"}
-	assert.Equal(-1, findItemInSequence("", i, s))
+	item = yaml.SequenceItem{Value: "v3"}
+	_, index = findItemInSequence("", item, seq)
+	assert.Equal(-1, index)
 
 	// matching mapslice
-	s = []yaml.SequenceItem{
+	seq = []yaml.SequenceItem{
 		{Value: yaml.MapSlice{
 			{Key: "name", Value: "port1"},
 			{Key: "protocol", Value: "TCP"},
@@ -238,15 +301,17 @@ func TestFindItemInSequence(t *testing.T) {
 			{Key: "containerPort", Value: "6000", Comment: "Comment 2"},
 		}},
 	}
-	i = yaml.SequenceItem{Value: yaml.MapSlice{
+	item = yaml.SequenceItem{Value: yaml.MapSlice{
 		{Key: "name", Value: "port1"},
 		{Key: "protocol", Value: "TCP"},
 		{Key: "containerPort", Value: "6000"},
 	}}
-	assert.Equal(1, findItemInSequence("ports", i, s))
+	seqItem, index = findItemInSequence("ports", item, seq)
+	assert.Equal(1, index)
+	assert.True(deepEqual(seq[1], seqItem))
 }
 
-func TestFindKeyInMapSlice(t *testing.T) {
+func TestFindItemInMapSlice(t *testing.T) {
 	assert := assert.New(t)
 
 	// key present
@@ -255,13 +320,16 @@ func TestFindKeyInMapSlice(t *testing.T) {
 		{Key: "k", Value: "v", Comment: "Comment 2"},
 		{Key: "k2", Value: "v2"},
 	}
-	assert.Equal(2, findKeyInMapSlice("k2", m))
+	item, index := findItemInMapSlice("k2", m)
+	assert.Equal(2, index)
+	assert.True(deepEqual(m[2], item))
 
 	// key not present
 	m = yaml.MapSlice{
 		{Comment: "Comment"},
 	}
-	assert.Equal(-1, findKeyInMapSlice("k2", m))
+	item, index = findItemInMapSlice("k2", m)
+	assert.Equal(-1, index)
 }
 
 func TestMapPairMatch(t *testing.T) {
@@ -329,4 +397,87 @@ func TestSequenceItemMatch(t *testing.T) {
 		{Key: "image", Value: "image1"},
 	}}
 	assert.False(sequenceItemMatch("containers", item1, item2))
+
+	// Container.envFrom
+	item1 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Key: "configMapRef", Value: yaml.MapSlice{
+			{Key: "name", Value: "n"},
+			{Key: "optional", Value: true},
+		}},
+	}}
+	item2 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Key: "configMapRef", Value: yaml.MapSlice{
+			{Key: "name", Value: "n"},
+			{Key: "optional", Value: false},
+		}},
+		{Key: "prefix", Value: "pre"},
+	}}
+	assert.True(sequenceItemMatch("envFrom", item1, item2))
+	item1 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Key: "configMapRef", Value: yaml.MapSlice{{Key: "name", Value: "n"}}},
+	}}
+	item2 = yaml.SequenceItem{Value: yaml.MapSlice{
+		{Key: "secretRef", Value: yaml.MapSlice{{Key: "name", Value: "n"}}},
+	}}
+	assert.False(sequenceItemMatch("envFrom", item1, item2))
+
+}
+
+func TestDeepEqual(t *testing.T) {
+	assert := assert.New(t)
+
+	var v1 interface{}
+	var v2 interface{}
+
+	v1 = yaml.MapSlice{{Key: "k", Value: "v", Comment: "comment"}}
+	v2 = yaml.MapSlice{{Key: "k", Value: "v"}}
+	assert.True(deepEqual(v1, v2))
+
+	v1 = []yaml.SequenceItem{{Value: "v", Comment: "comment"}}
+	v2 = []yaml.SequenceItem{{Value: "v"}}
+	assert.True(deepEqual(v1, v2))
+
+	v1 = yaml.MapSlice{{Key: "matchExpressions", Value: []yaml.SequenceItem{
+		{Value: yaml.MapSlice{
+			{Key: "key", Value: "labelkey"},
+			{Key: "operator", Value: "In"},
+			{Key: "values", Value: []yaml.SequenceItem{
+				{Value: "value1", Comment: "Comment 1"},
+				{Value: "value2"},
+			}},
+		}},
+	}}}
+	v2 = yaml.MapSlice{{Key: "matchExpressions", Value: []yaml.SequenceItem{
+		{Value: yaml.MapSlice{
+			{Key: "key", Value: "labelkey"},
+			{Key: "operator", Value: "In"},
+			{Key: "values", Value: []yaml.SequenceItem{
+				{Value: "value1", Comment: "Comment 1"},
+				{Value: "value2"},
+			}},
+		}},
+	}}}
+	assert.True(deepEqual(v1, v2))
+
+	v1 = yaml.MapSlice{{Key: "matchExpressions", Value: []yaml.SequenceItem{
+		{Value: yaml.MapSlice{
+			{Key: "key", Value: "labelkey"},
+			{Key: "operator", Value: "In"},
+			{Key: "values", Value: []yaml.SequenceItem{
+				{Value: "value1", Comment: "Comment 1"},
+				{Value: "value2"},
+			}},
+		}},
+	}}}
+	v2 = yaml.MapSlice{{Key: "matchExpressions", Value: []yaml.SequenceItem{
+		{Value: yaml.MapSlice{
+			{Key: "key", Value: "labelkey"},
+			{Key: "operator", Value: "In"},
+			{Key: "values", Value: []yaml.SequenceItem{
+				{Value: "value1"},
+				{Value: "newvalue"},
+			}},
+		}},
+	}}}
+	assert.False(deepEqual(v1, v2))
 }

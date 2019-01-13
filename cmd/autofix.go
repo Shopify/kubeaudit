@@ -145,7 +145,7 @@ func mergeMapSlices(origSlice, fixedSlice yaml.MapSlice) yaml.MapSlice {
 
 	// Keep comments, and items which are present in both the original and fixed yaml
 	for _, item := range origSlice {
-		if _, ok := item.Key.(yaml.PreDoc); item.Key == nil || ok || findKeyInMapSlice(item.Key, fixedSlice) != -1 {
+		if _, index := findItemInMapSlice(item.Key, fixedSlice); index != -1 || isComment(item) {
 			mergedSlice = append(mergedSlice, item)
 			continue
 		}
@@ -153,25 +153,22 @@ func mergeMapSlices(origSlice, fixedSlice yaml.MapSlice) yaml.MapSlice {
 
 	// Update or add items from the fixed yaml which are not in the original
 	for _, fixedItem := range fixedSlice {
-		mergedItemIndex := findKeyInMapSlice(fixedItem.Key, mergedSlice)
+		_, mergedItemIndex := findItemInMapSlice(fixedItem.Key, mergedSlice)
 		if mergedItemIndex == -1 {
 			mergedSlice = append(mergedSlice, fixedItem)
 			continue
 		}
 
 		mergedItem := &mergedSlice[mergedItemIndex]
-		if _, ok := fixedItem.Value.(yaml.MapSlice); ok {
-			if _, ok = mergedItem.Value.(yaml.MapSlice); ok {
-				mergedItem.Value = mergeMapSlices(mergedItem.Value.(yaml.MapSlice), fixedItem.Value.(yaml.MapSlice))
+		if fixedMap, ok := fixedItem.Value.(yaml.MapSlice); ok {
+			if origMap, ok := mergedItem.Value.(yaml.MapSlice); ok {
+				mergedItem.Value = mergeMapSlices(origMap, fixedMap)
 				continue
 			}
 		}
-		if _, ok := fixedItem.Value.([]yaml.SequenceItem); ok {
-			if _, ok = mergedItem.Value.([]yaml.SequenceItem); ok {
-				sequenceKey := mergedItem.Key.(string)
-				fixedSeq := fixedItem.Value.([]yaml.SequenceItem)
-				origSeq := mergedItem.Value.([]yaml.SequenceItem)
-				mergedItem.Value = mergeSequences(sequenceKey, origSeq, fixedSeq)
+		if fixedSeq, ok := fixedItem.Value.([]yaml.SequenceItem); ok {
+			if origSeq, ok := mergedItem.Value.([]yaml.SequenceItem); ok {
+				mergedItem.Value = mergeSequences(mergedItem.Key.(string), origSeq, fixedSeq)
 				continue
 			}
 		}
@@ -179,16 +176,6 @@ func mergeMapSlices(origSlice, fixedSlice yaml.MapSlice) yaml.MapSlice {
 	}
 
 	return mergedSlice
-}
-
-// Returns the index of the MapItem in MapSlice which has the given key
-func findKeyInMapSlice(key interface{}, slice yaml.MapSlice) int {
-	for i, item := range slice {
-		if item.Key != nil && item.Key == key {
-			return i
-		}
-	}
-	return -1
 }
 
 // Recursively merge fixedSlice and origSlice.
@@ -201,14 +188,14 @@ func mergeSequences(sequenceKey string, origSlice, fixedSlice []yaml.SequenceIte
 
 	// Keep comments, and items which are present in both the original and fixed yaml
 	for _, item := range origSlice {
-		if (item.Value == nil && len(item.Comment) > 0) || findItemInSequence(sequenceKey, item, fixedSlice) != -1 {
+		if _, index := findItemInSequence(sequenceKey, item, fixedSlice); index != -1 || isComment(item) {
 			mergedSlice = append(mergedSlice, item)
 		}
 	}
 
 	// Update or add items from the fixed yaml which are not in the original
 	for _, fixedItem := range fixedSlice {
-		mergedItemIndex := findItemInSequence(sequenceKey, fixedItem, mergedSlice)
+		_, mergedItemIndex := findItemInSequence(sequenceKey, fixedItem, mergedSlice)
 		if mergedItemIndex == -1 {
 			mergedSlice = append(mergedSlice, fixedItem)
 			continue
@@ -227,72 +214,347 @@ func mergeSequences(sequenceKey string, origSlice, fixedSlice []yaml.SequenceIte
 	return mergedSlice
 }
 
-// Returns the index of the item in slice which "matches" val. See sequenceItemMatch for what is considered a "match".
-func findItemInSequence(sequenceKey string, val yaml.SequenceItem, slice []yaml.SequenceItem) int {
+// Returns the item in the MapSlice with the given key, and its index
+func findItemInMapSlice(key interface{}, slice yaml.MapSlice) (yaml.MapItem, int) {
 	for i, item := range slice {
-		if item.Value != nil && sequenceItemMatch(sequenceKey, val, item) {
-			return i
+		if item.Key != nil && deepEqual(item.Key, key) {
+			return item, i
 		}
 	}
-	return -1
+	return yaml.MapItem{}, -1
+}
+
+// Returns the item in slice which "matches" val and its index. See sequenceItemMatch for what is considered a "match".
+func findItemInSequence(sequenceKey string, val yaml.SequenceItem, slice []yaml.SequenceItem) (yaml.SequenceItem, int) {
+	for i, item := range slice {
+		if item.Value != nil && sequenceItemMatch(sequenceKey, val, item) {
+			return item, i
+		}
+	}
+	return yaml.SequenceItem{}, -1
 }
 
 var identifyingKey = map[string]string{
-	"containers":    "name",          // Container
-	"hostAliases":   "ip",            // HostAlias
-	"env":           "name",          // EnvVar
-	"ports":         "containerPort", // ContainerPort
-	"volumeDevices": "name",          // VolumeDevice
-	"volumeMounts":  "name",          // VolumeMount
+	"allowedFlexVolumes": "driver",     // PodSecurityPolicySpec.allowedFlexVolumes : AllowedFlexVolume.driver
+	"allowedHostPaths":   "pathPrefix", // PodSecurityPolicySpec.allowedHostPaths : AllowedHostPath.pathPrefix
+	// StorageClass.allowedTopologies : TopologySelectorTerm.matchLabelExpressions
+	"allowedTopologies":    "matchLabelExpressions",
+	"clusterRoleSelectors": "matchExpressions", // AggregationRule.clusterRoleSelectors : LabelSelector.matchExpressions
+	"containers":           "name",             // PodSpec.contaienrs : Container.name
+	"egress":               "ports",            // NetworkPolicySpec.egress : NetworkPolicyEgressRule.ports
+	"env":                  "name",             // Container.env : EnvVar.name
+	"hostAliases":          "ip",               // PodSpec.hostAliases : HostAlias.ip
+	// Assumes it is not possible to add multiple values for the same header, ie.
+	//    httpHeaders:
+	//        - name: header1
+	//          value: value1
+	//        - name: header1
+	//          value: value2
+	// This restriction is not documented so the assumption may be incorrect
+	// See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#httpheader-v1-core
+	"httpHeaders": "name", // HTTPGetAction.httpHeaders : HTTPHeader.name
+	// PodSpec.imagePullSecrets : LocalObjectReference.name
+	// ServiceAccount.imagePullSecrets : LocalObjectReference.name
+	"imagePullSecrets": "name",
+	"ingress":          "ports", // NetworkPolicySpec.ingress : NetworkPolicyIngressRule.ports
+	"initContainers":   "name",  // PodSpec.initContainers : Container.name
+	// LabelSelector.matchExpressions : LabelSelectorRequirement.key
+	// NodeSelectorTerm.matchExpressions : NodeSelectorRequirement.key
+	"matchExpressions": "key",
+	"matchFields":      "key",  // NodeSelectorTerm.matchFields : NodeSelectorRequirement.key
+	"options":          "name", // PodDNSConfig.options : PodDNSConfigOption.name
+	// TopologySelectorTerm.matchLabelExpressions : TopologySelectorLabelRequirement.key
+	"matchLabelExpressions": "key",
+	"paths":                 "path",          // HTTPIngressRuleValue.paths : HTTPIngressPath.path
+	"pending":               "name",          // Initializers.pending : Initializer.name
+	"readinessGates":        "conditionType", // PodSpec.readinessGates : PodReadinessGate.conditionType
+	// PodAffinity.requiredDuringSchedulingIgnoredDuringExecution : PodAffinityTerm.labelSelector
+	// PodAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution : PodAffinityTerm.labelSelector
+	"requiredDuringSchedulingIgnoredDuringExecution": "labelSelector",
+	"secrets": "name", // ServiceAccount.secrets : ObjectReference.name
+	// ClusterRoleBinding.subjects : Subject.name
+	// RoleBinding.subjects : Subject.name
+	"subjects":      "name",
+	"subsets":       "addresses",  // Endpoints.subsets : EndpointSubset.addresses
+	"sysctls":       "name",       // PodSecurityContext.sysctls : Sysctl.name
+	"taints":        "key",        // NodeSpec.taints : Taint.key
+	"volumeDevices": "devicePath", // Container.volumeDevices : VolumeDevice.devicePath
+	"volumeMounts":  "mountPath",  // Container.volumeMounts : VolumeMount.mountPath
+	"volumes":       "name",       // PodSpec.volumes : Volume.name
 }
 
 // In order to determine whether sequence items match (and should be merged) we determine the "identifying key" for the
 // sequence item, and if both sequence items have the same key-value pair for the "identifying key" then they are a match.
 func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool {
-	if val1, ok := item1.Value.(string); ok {
-		if val2, ok := item2.Value.(string); ok {
-			return val1 == val2
-		}
-		return false
+	switch item1.Value.(type) {
+	case string, int, bool:
+		return item1.Value == item2.Value
 	}
-	val1, ok := item1.Value.(yaml.MapSlice)
-	if !ok {
-		return false
-	}
-	val2, ok := item2.Value.(yaml.MapSlice)
-	if !ok {
+	map1, ok1 := item1.Value.(yaml.MapSlice)
+	map2, ok2 := item2.Value.(yaml.MapSlice)
+	if !ok1 || !ok2 {
 		return false
 	}
 
 	switch sequenceKey {
-	// EnvFromSource
-	case "envFrom":
-		map1 := item1.Value.(yaml.MapSlice)
-		map2 := item2.Value.(yaml.MapSlice)
-		if findKeyInMapSlice("configMapRef", map1) != -1 && findKeyInMapSlice("configMapRef", map2) != -1 {
-			return mapPairMatch("name", map1, map2)
+	// EndpointSubset.addresses : EndpointAddress.[hostname OR ip]
+	// EndpointSubset.notReadyAddresses : EndpointAddress.[hostname OR ip]
+	case "addresses", "notReadyAddresses":
+		if mapPairMatch("hostname", map1, map2) {
+			return true
 		}
-		if findKeyInMapSlice("secretRef", map1) != -1 && findKeyInMapSlice("secretRef", map2) != -1 {
-			return mapPairMatch("name", map1, map2)
+		return mapPairMatch("ip", map1, map2)
+
+	// Container.envFrom : EnvFromSource.[configMapRef OR secretRef].name
+	case "envFrom":
+		if val1, index1 := findItemInMapSlice("configMapRef", map1); index1 != -1 {
+			if val2, index2 := findItemInMapSlice("configMapRef", map2); index2 != -1 {
+				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+			}
+		}
+		if val1, index1 := findItemInMapSlice("secretRef", map1); index1 != -1 {
+			if val2, index2 := findItemInMapSlice("secretRef", map2); index2 != -1 {
+				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+			}
+		}
+		return false
+
+	// ConfigMapProjection.items : KeyToPath.key
+	// ConfigMapVolumeSource.items : KeyToPath.key
+	// DownwardAPIVolumeSource.items : DownwardAPIVolumeFile.path
+	// SecretSecretProjection.items : KeyToPath.key
+	// SecretVolumeSource.items : KeyToPath.key
+	case "items":
+		// ConfigMapVolumeSource.items : KeyToPath.key
+		// SecretVolumeSource.items : KeyToPath.key
+		if mapPairMatch("key", map1, map2) {
+			return true
+		}
+		// DownwardAPIVolumeSource.items : DownwardAPIVolumeFile.path
+		return mapPairMatch("path", map1, map2)
+
+	// NodeSelector.nodeSelectorTerms : NodeSelectorTerm.[matchExpressions OR matchFields]
+	case "nodeSelectorTerms":
+		// This is a bit of a complicated case.
+		// See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#nodeselector-v1-core
+		// For now, only match if there is an exact match for the complex value of either the "matchExpressions" or
+		// "matchFields" fields.
+		if mapPairMatch("matchExpressions", map1, map2) {
+			return true
+		}
+		return mapPairMatch("matchFields", map1, map2)
+
+	// ObjectMeta.ownerReferences : OwnerReference.[uid OR name]
+	case "ownerReferences":
+		if mapPairMatch("uid", map1, map2) {
+			return true
+		}
+		return mapPairMatch("name", map1, map2)
+
+	// NodeAffinity.preferredDuringSchedulingIgnoredDuringExecution : PreferredSchedulingTerm.preference
+	// PodAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
+	// PodAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
+	case "preferredDuringSchedulingIgnoredDuringExecution":
+		// This is a bit of a complicated case as the values are very nested and because the same identifying key is
+		// used for two different array types (PreferredSchedulingTerm and WeightedPodAffinityTerm).
+		// See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#nodeaffinity-v1-core
+		// and https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#podaffinity-v1-core
+		// For now, only match if there is an exact match for the complex value of the "preference" or
+		// "podAffinityTerm" field.
+		// The value for the "weight" field can be updated.
+
+		// NodeAffinity.preferredDuringSchedulingIgnoredDuringExecution : PreferredSchedulingTerm.preference
+		if mapPairMatch("preference", map1, map2) {
+			return true
+		}
+		// PodAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
+		// PodAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
+		return mapPairMatch("podAffinityTerm", map1, map2)
+
+	// Container.ports : ContainerPort.containerPort
+	// EndpointSubset.ports : EndpointPort.port
+	// ServiceSpec.ports : ServicePort.port
+	case "ports":
+		// Container.ports : ContainerPort.containerPort
+		if mapPairMatch("containerPort", map1, map2) {
+			return true
+		}
+		// EndpointSubset.ports : EndpointPort.port
+		// ServiceSpec.ports : ServicePort.port
+		return mapPairMatch("port", map1, map2)
+
+	// ClusterRole.rules : PolicyRule.resources
+	// IngressSpec.rules : IngressRule.host
+	// Role.rules : PolicyRule.resources
+	case "rules":
+		// ClusterRole.rules : PolicyRule.resources
+		// Role.rules : PolicyRule.resources
+		if mapPairMatch("resources", map1, map2) {
+			return true
+		}
+		// IngressSpec.rules : IngressRule.host
+		return mapPairMatch("host", map1, map2)
+
+	// ProjectedVolumeSource.sources
+	case "sources":
+		// ProjectedVolumeSource.sources : VolumeProjection.configMap.name
+		if val1, index1 := findItemInMapSlice("configMap", map1); index1 != -1 {
+			if val2, index2 := findItemInMapSlice("configMap", map2); index2 != -1 {
+				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+			}
+			return false
+		}
+		// ProjectedVolumeSource.sources : VolumeProjection.downwardAPI.items
+		if val1, index1 := findItemInMapSlice("downwardAPI", map1); index1 != -1 {
+			if val2, index2 := findItemInMapSlice("downwardAPI", map2); index2 != -1 {
+				return mapPairMatch("items", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+			}
+			return false
+		}
+		// ProjectedVolumeSource.sources : VolumeProjection.secret.name
+		if val1, index1 := findItemInMapSlice("secret", map1); index1 != -1 {
+			if val2, index2 := findItemInMapSlice("secret", map2); index2 != -1 {
+				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+			}
+			return false
+		}
+		// ProjectedVolumeSource.sources : VolumeProjection.serviceAccountToken.name
+		if val1, index1 := findItemInMapSlice("serviceAccountToken", map1); index1 != -1 {
+			if val2, index2 := findItemInMapSlice("serviceAccountToken", map2); index2 != -1 {
+				return mapPairMatch("path", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+			}
+		}
+		return false
+
+	// IngressSpec.tls : IngressTLS.[secretName OR hosts]
+	case "tls":
+		if mapPairMatch("secretName", map1, map2) {
+			return true
+		}
+		return mapPairMatch("hosts", map1, map2)
+
+	// StatefulSetSpec.volumeClaimTemplates : PersistentVolumeClaim.metadata.name
+	case "volumeClaimTemplates":
+		if val1, index1 := findItemInMapSlice("metadata", map1); index1 != -1 {
+			if val2, index2 := findItemInMapSlice("metadata", map2); index2 != -1 {
+				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+			}
 		}
 		return false
 	}
 
-	return mapPairMatch(identifyingKey[sequenceKey], val1, val2)
+	if idKey, ok := identifyingKey[sequenceKey]; ok {
+		return mapPairMatch(idKey, map1, map2)
+	}
+
+	// FSGroupStrategyOptions.ranges : IDRange
+	// RunAsGroupStrategyOptions.ranges : IDRange
+	// RunAsUserStrategyOptions.ranges : IDRange
+	// SupplementalGroupsStrategyOptions.ranges : IDRange
+	// PodSecurityPolicySpec.hostPorts : HostPortRange
+	// PodSpec.tolerations : Toleration
+	return deepEqual(map1, map2)
 }
 
 // Returns true if map1 and map2 have the same key-value pair for the given key
-// Assumes that the value at the given key is a primitive type
 func mapPairMatch(key string, map1, map2 yaml.MapSlice) bool {
-	index1 := findKeyInMapSlice(key, map1)
-	if index1 == -1 {
+	if item1, index1 := findItemInMapSlice(key, map1); index1 != -1 {
+		if item2, index2 := findItemInMapSlice(key, map2); index2 != -1 {
+			return deepEqual(item1.Value, item2.Value)
+		}
+	}
+	return false
+}
+
+// DeepEqual but ignoring mapslice order and comments
+func deepEqual(val1, val2 interface{}) bool {
+	// MapItem
+	if mapItem1, ok := val1.(yaml.MapItem); ok {
+		if mapItem2, ok := val2.(yaml.MapItem); ok {
+			return mapItem1.Key == mapItem2.Key && deepEqual(mapItem1.Value, mapItem2.Value)
+		}
 		return false
 	}
-	index2 := findKeyInMapSlice(key, map2)
-	if index2 == -1 {
+
+	// SequenceItem
+	if seqItem1, ok := val1.(yaml.SequenceItem); ok {
+		if seqItem2, ok := val2.(yaml.SequenceItem); ok {
+			return deepEqual(seqItem1.Value, seqItem2.Value)
+		}
 		return false
 	}
-	return map1[index1].Value == map2[index2].Value
+
+	// MapSlice
+	if map1, ok := val1.(yaml.MapSlice); ok {
+		if map2, ok := val2.(yaml.MapSlice); ok {
+			numValues1, numValues2 := 0, 0
+			for _, item1 := range map1 {
+				if !isComment(item1) {
+					numValues1++
+				}
+			}
+			for _, item2 := range map2 {
+				if !isComment(item2) {
+					numValues2++
+				}
+			}
+			if numValues1 != numValues1 {
+				return false
+			}
+			for _, item1 := range map1 {
+				if isComment(item1) {
+					continue
+				}
+				item2, index2 := findItemInMapSlice(item1.Key, map2)
+				if index2 == -1 || !deepEqual(item1.Value, item2.Value) {
+					return false
+				}
+			}
+			return true
+		}
+		return false
+	}
+
+	// []SequenceItem
+	if seq1, ok := val1.([]yaml.SequenceItem); ok {
+		if seq2, ok := val2.([]yaml.SequenceItem); ok {
+			index1, index2 := 0, 0
+			len1, len2 := len(seq1), len(seq2)
+			for index1 < len1 || index2 < len2 {
+				for index1 < len1 && isComment(seq1[index1]) {
+					index1++
+				}
+				for index2 < len2 && isComment(seq1[index2]) {
+					index2++
+				}
+				if (index1 == len1 && index2 < len2) || (index2 == len2 && index1 < len1) ||
+					!deepEqual(seq1[index1].Value, seq2[index2].Value) {
+					return false
+				}
+				index1++
+				index2++
+			}
+			return true
+		}
+		return false
+	}
+
+	return val1 == val2
+}
+
+func isComment(val interface{}) bool {
+	// MapItem
+	if m, ok := val.(yaml.MapItem); ok {
+		_, ok = m.Key.(yaml.PreDoc)
+		return ok || (m.Key == nil && m.Value == nil && len(m.Comment) > 0)
+	}
+
+	// SequenceItem
+	if s, ok := val.(yaml.SequenceItem); ok {
+		return s.Value == nil && len(s.Comment) > 0
+	}
+
+	return false
 }
 
 // The fix function does not preserve comments (because kubernetes resources do not support comments) so we convert
