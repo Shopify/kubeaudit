@@ -41,8 +41,9 @@ func TestPreserveComments(t *testing.T) {
 
 	// Copy original yaml to a temp file because autofix modifies the input file
 	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix_test")
+	tmpFilename := tmpFile.Name()
 	assert.Nil(err)
-	defer os.Remove(tmpFile.Name())
+	defer os.Remove(tmpFilename)
 	origFile, err := os.Open(origFilename)
 	assert.Nil(err)
 	_, err = io.Copy(tmpFile, origFile)
@@ -50,15 +51,10 @@ func TestPreserveComments(t *testing.T) {
 	tmpFile.Close()
 	origFile.Close()
 
-	rootConfig.manifest = tmpFile.Name()
+	rootConfig.manifest = tmpFilename
 	autofix(nil, nil)
 
-	expectedYaml, err := ioutil.ReadFile(expectedFilename)
-	assert.Nil(err)
-	fixedYaml, err := ioutil.ReadFile(tmpFile.Name())
-	assert.Nil(err)
-
-	assert.Equal(string(fixedYaml), string(expectedYaml))
+	assert.True(compareTextFiles(expectedFilename, tmpFilename))
 }
 
 var testData = []struct {

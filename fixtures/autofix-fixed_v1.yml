@@ -70,6 +70,9 @@ spec:
             - SETPCAP
             - SETUID
             - SYS_CHROOT
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
       automountServiceAccountToken: false
   selector: null
 status: {}
