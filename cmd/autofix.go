@@ -482,7 +482,7 @@ func mapPairMatch(key string, map1, map2 yaml.MapSlice) bool {
 //
 //     []yaml.SequenceItem{{Value: yaml.MapSlice{
 //          {Key: "k2", Value: "v2"},
-// 	        {Key: "k", Value: "v"},
+//          {Key: "k", Value: "v"},
 //      }}}
 func deepEqual(val1, val2 interface{}) bool {
 	// MapItem
@@ -515,7 +515,7 @@ func deepEqual(val1, val2 interface{}) bool {
 					numValues2++
 				}
 			}
-			if numValues1 != numValues1 {
+			if numValues1 != numValues2 {
 				return false
 			}
 			for _, item1 := range map1 {
