@@ -100,11 +100,11 @@ func auditRunAsNonRoot(resource Resource) (results []Result) {
 			return
 		}
 
-		// check if Container Security Context is defined, else audit the Pod Security Context
-		if (container.SecurityContext == nil && podSpec.SecurityContext != nil) || (container.SecurityContext.RunAsNonRoot == nil && container.SecurityContext.RunAsNonRoot != nil) {
-			checkRunAsNonRootCSC(container, result)
-		} else {
+		// check if Container Security Context is defined properly, else audit the Pod Security Context
+		if (container.SecurityContext == nil && podSpec.SecurityContext != nil) || ((container.SecurityContext != nil && container.SecurityContext.RunAsNonRoot == nil) && (podSpec.SecurityContext != nil && podSpec.SecurityContext.RunAsNonRoot != nil)) {
 			checkRunAsNonRootPSC(podSpec, result)
+		} else {
+			checkRunAsNonRootCSC(container, result)
 		}
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)
