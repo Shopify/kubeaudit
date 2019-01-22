@@ -7,4 +7,5 @@ type Occurrence struct {
 	message   string // just the message
 	container string // name of the container
 	metadata  Metadata
+	podHost   string // Hostname of the pod
 }

@@ -5,7 +5,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func checkRunAsNonRoot(container ContainerV1, result *Result) {
+// Checks the CSC for RANR
+func checkRunAsNonRootCSC(container ContainerV1, result *Result) {
 	if reason := result.Labels["audit.kubernetes.io/allow-run-as-root"]; reason != "" {
 		if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{
@@ -46,7 +47,52 @@ func checkRunAsNonRoot(container ContainerV1, result *Result) {
 	return
 }
 
+// Checks the PSC for RANR
+
+func checkRunAsNonRootPSC(podSpec PodSpecV1, result *Result) {
+	if reason := result.Labels["audit.kubernetes.io/allow-run-as-root"]; reason != "" {
+		if podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil || *podSpec.SecurityContext.RunAsNonRoot == false {
+			occ := Occurrence{
+				podHost:  podSpec.Hostname,
+				id:       ErrorRunAsNonRootFalseAllowed,
+				kind:     Warn,
+				message:  "Allowed setting RunAsNonRoot to false",
+				metadata: Metadata{"Reason": prettifyReason(reason)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		} else {
+			occ := Occurrence{
+				podHost:  podSpec.Hostname,
+				id:       ErrorMisconfiguredKubeauditAllow,
+				kind:     Warn,
+				message:  "Allowed setting RunAsNonRoot to false, but it is set to true",
+				metadata: Metadata{"Reason": prettifyReason(reason)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
+	} else if podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil {
+		occ := Occurrence{
+			podHost: podSpec.Hostname,
+			id:      ErrorRunAsNonRootNil,
+			kind:    Error,
+			message: "RunAsNonRoot is not set, which results in root user being allowed!",
+		}
+		result.Occurrences = append(result.Occurrences, occ)
+	} else if *podSpec.SecurityContext.RunAsNonRoot == false {
+		occ := Occurrence{
+			podHost: podSpec.Hostname,
+			id:      ErrorRunAsNonRootFalse,
+			kind:    Error,
+			message: "RunAsNonRoot is set to false (root user allowed), please set to true!",
+		}
+		result.Occurrences = append(result.Occurrences, occ)
+	}
+	return
+}
+
 func auditRunAsNonRoot(resource Resource) (results []Result) {
+	// get PodSpec for PSC
+	podSpec := getPodSpecs(resource)
 	for _, container := range getContainers(resource) {
 		result, err := newResultFromResource(resource)
 		if err != nil {
@@ -54,7 +100,12 @@ func auditRunAsNonRoot(resource Resource) (results []Result) {
 			return
 		}
 
-		checkRunAsNonRoot(container, result)
+		// check if Container Security Context is defined, else audit the Pod Security Context
+		if (container.SecurityContext == nil && podSpec.SecurityContext != nil) || (container.SecurityContext.RunAsNonRoot == nil && container.SecurityContext.RunAsNonRoot != nil) {
+			checkRunAsNonRootCSC(container, result)
+		} else {
+			checkRunAsNonRootPSC(podSpec, result)
+		}
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)
 		}
