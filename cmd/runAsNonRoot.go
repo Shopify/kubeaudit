@@ -101,7 +101,7 @@ func auditRunAsNonRoot(resource Resource) (results []Result) {
 		}
 
 		// check if Container Security Context is defined properly, else audit the Pod Security Context
-		if (container.SecurityContext == nil && podSpec.SecurityContext != nil) || ((container.SecurityContext != nil && container.SecurityContext.RunAsNonRoot == nil) && (podSpec.SecurityContext != nil && podSpec.SecurityContext.RunAsNonRoot != nil)) {
+		if isPSCDefinedCSCUndefined(podSpec, container) {
 			checkRunAsNonRootPSC(podSpec, result)
 		} else {
 			checkRunAsNonRootCSC(container, result)

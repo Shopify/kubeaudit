@@ -59,6 +59,11 @@ func createFields(res Result, occ Occurrence) (fields log.Fields) {
 		fields[k] = v
 	}
 	fields["Container"] = occ.container
+
+	if occ.id == ErrorRunAsNonRootFalse {
+		fields["Pod"] = occ.podHost
+	}
+
 	return
 }
 

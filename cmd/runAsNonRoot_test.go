@@ -23,3 +23,18 @@ func TestRunAsRootFalseAllowedV1(t *testing.T) {
 func TestRunAsNonRootMisconfiguredAllowV1(t *testing.T) {
 	runAuditTest(t, "run_as_non_root_misconfigured_allow_v1.yml", auditRunAsNonRoot, []int{ErrorMisconfiguredKubeauditAllow})
 }
+
+func TestPSCRunAsNonRootFalseV1(t *testing.T) {
+	runAuditTest(t, "run_as_non_root_psc_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalse})
+}
+
+func TestPSCTrueCSCFalseRunAsNonRootFalseV1(t *testing.T) {
+	runAuditTest(t, "run_as_non_root_psc_true_csc_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalse})
+}
+
+func TestPSCFalseCSCFalseRunAsNonRootFalseV1(t *testing.T) {
+	runAuditTest(t, "run_as_non_root_psc_false_csc_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalse})
+}
+func TestPSCRunAsRootFalseAllowedV1(t *testing.T) {
+	runAuditTest(t, "run_as_non_root_psc_false_allowed_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalseAllowed})
+}

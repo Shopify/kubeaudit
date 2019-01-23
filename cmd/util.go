@@ -360,3 +360,15 @@ func prettifyReason(reason string) string {
 	}
 	return reason
 }
+
+func isPSCDefinedCSCUndefined(podSpec PodSpecV1, container ContainerV1) bool {
+	if container.SecurityContext == nil && podSpec.SecurityContext != nil {
+		return true
+	}
+	if container.SecurityContext != nil && container.SecurityContext.RunAsNonRoot == nil {
+		if podSpec.SecurityContext != nil && podSpec.SecurityContext.RunAsNonRoot != nil {
+			return true
+		}
+	}
+	return false
+}
