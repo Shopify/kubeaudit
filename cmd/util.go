@@ -45,8 +45,8 @@ func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 }
 
 func newResultFromResource(resource Resource) (*Result, error) {
-	result := &Result{}
-	switch kubeType := resource.(type) {
+	result := &Result{FileName: resource.FileName}
+	switch kubeType := resource.Object.(type) {
 	case *CronJobV1Beta1:
 		result.KubeType = "cronjob"
 		result.Labels = kubeType.Spec.JobTemplate.Labels
@@ -108,7 +108,7 @@ func newResultFromResource(resource Resource) (*Result, error) {
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
 	default:
-		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
+		return nil, fmt.Errorf("resource type %s not supported", resource.Object.GetObjectKind().GroupVersionKind())
 	}
 	return result, nil
 }
@@ -119,7 +119,7 @@ func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, er
 		return nil, err
 	}
 
-	switch kubeType := resource.(type) {
+	switch kubeType := resource.Object.(type) {
 	case *CronJobV1Beta1:
 		result.DSA = kubeType.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.JobTemplate.Spec.Template.Spec.ServiceAccountName
@@ -175,32 +175,32 @@ func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, er
 func getKubeResources(clientset *kubernetes.Clientset) (resources []Resource) {
 	for _, resource := range getDaemonSets(clientset).Items {
 		if isInRootConfigNamespace(resource.ObjectMeta) {
-			resources = append(resources, resource.DeepCopyObject())
+			resources = append(resources, Resource{Object: resource.DeepCopyObject()})
 		}
 	}
 	for _, resource := range getDeployments(clientset).Items {
 		if isInRootConfigNamespace(resource.ObjectMeta) {
-			resources = append(resources, resource.DeepCopyObject())
+			resources = append(resources, Resource{Object: resource.DeepCopyObject()})
 		}
 	}
 	for _, resource := range getPods(clientset).Items {
 		if isInRootConfigNamespace(resource.ObjectMeta) {
-			resources = append(resources, resource.DeepCopyObject())
+			resources = append(resources, Resource{Object: resource.DeepCopyObject()})
 		}
 	}
 	for _, resource := range getReplicationControllers(clientset).Items {
 		if isInRootConfigNamespace(resource.ObjectMeta) {
-			resources = append(resources, resource.DeepCopyObject())
+			resources = append(resources, Resource{Object: resource.DeepCopyObject()})
 		}
 	}
 	for _, resource := range getStatefulSets(clientset).Items {
 		if isInRootConfigNamespace(resource.ObjectMeta) {
-			resources = append(resources, resource.DeepCopyObject())
+			resources = append(resources, Resource{Object: resource.DeepCopyObject()})
 		}
 	}
 	for _, resource := range getNamespaces(clientset).Items {
 		if isInRootConfigNamespace(resource.ObjectMeta) {
-			resources = append(resources, resource.DeepCopyObject())
+			resources = append(resources, Resource{Object: resource.DeepCopyObject()})
 		}
 	}
 
@@ -256,25 +256,32 @@ func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 	for _, b := range bufSlice {
 		obj, _, err := decoder.Decode(b, nil, nil)
 		if err == nil && obj != nil {
-			if !IsSupportedResourceType(obj) {
-				decoded = append(decoded, obj)
+			if !IsSupportedResourceType(Resource{Object: obj}) {
 				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind().GroupVersionKind())
 				continue
 			}
 
-			if !containerNamesUniq(obj) {
+			if !containerNamesUniq(Resource{Object: obj}) {
 				log.Error("Container names are not uniq")
 				return nil, errors.New("Container names are not uniq")
 			}
-			decoded = append(decoded, obj)
+			decoded = append(decoded, Resource{FileName: filename, Object: obj})
 		}
 	}
 	return
 }
 
 func getResources() (resources []Resource, err error) {
-	if rootConfig.manifest != "" {
-		resources, err = getKubeResourcesManifest(rootConfig.manifest)
+	if len(rootConfig.manifests) > 0 {
+		for _, manifest := range rootConfig.manifests {
+			resource, err := getKubeResourcesManifest(manifest)
+			if err != nil {
+				return resources, err
+			}
+			for _, r := range resource {
+				resources = append(resources, r)
+			}
+		}
 	} else {
 		if kube, err := kubeClient(); err == nil {
 			resources = getKubeResources(kube)
@@ -351,7 +358,15 @@ func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 			return
 		}
 		results := getResults(resources, auditFunc)
+		oldName := ""
 		for _, result := range results {
+			if oldName != result.Name {
+				if oldName != "" {
+					fmt.Println()
+				}
+				log.Printf("Scanning resource %s in file %s, found:\n", result.Name, result.FileName)
+				oldName = result.Name
+			}
 			result.Print()
 		}
 	}

@@ -10,79 +10,79 @@ import (
 )
 
 func setContainers(resource Resource, containers []ContainerV1) Resource {
-	switch t := resource.(type) {
+	switch t := resource.Object.(type) {
 	case *CronJobV1Beta1:
 		t.Spec.JobTemplate.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DaemonSetV1:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DaemonSetV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1Beta2:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *PodV1:
 		t.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *ReplicationControllerV1:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *StatefulSetV1:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *StatefulSetV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	}
 	return resource
 }
 
 func disableDSA(resource Resource) Resource {
-	switch t := resource.(type) {
+	switch t := resource.Object.(type) {
 	case *CronJobV1Beta1:
 		t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DaemonSetV1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DaemonSetV1Beta1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1Beta1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1Beta2:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *PodV1:
 		t.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *ReplicationControllerV1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *StatefulSetV1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *StatefulSetV1Beta1:
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	}
 	return resource
 }
@@ -94,85 +94,85 @@ func setASAT(resource Resource, b bool) Resource {
 	} else {
 		boolean = newFalse()
 	}
-	switch t := resource.(type) {
+	switch t := resource.Object.(type) {
 	case *CronJobV1Beta1:
 		t.Spec.JobTemplate.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DaemonSetV1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DaemonSetV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1Beta2:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *PodV1:
 		t.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *ReplicationControllerV1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *StatefulSetV1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *StatefulSetV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
-		return t.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	}
 	return resource
 }
 
 func setPodAnnotations(resource Resource, annotations map[string]string) Resource {
-	switch kubeType := resource.(type) {
+	switch kubeType := resource.Object.(type) {
 	case *CronJobV1Beta1:
 		kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *DaemonSetV1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *DaemonSetV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *DeploymentExtensionsV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *DeploymentV1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *DeploymentV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *DeploymentV1Beta2:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *PodV1:
 		kubeType.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *ReplicationControllerV1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *StatefulSetV1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	case *StatefulSetV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
-		return kubeType.DeepCopyObject()
+		return Resource{FileName: resource.FileName, Object: kubeType.DeepCopyObject()}
 	}
 	return resource
 }
 
 func getContainers(resource Resource) (container []ContainerV1) {
-	switch kubeType := resource.(type) {
+	switch kubeType := resource.Object.(type) {
 	case *CronJobV1Beta1:
 		container = kubeType.Spec.JobTemplate.Spec.Template.Spec.Containers
 	case *DaemonSetV1:
@@ -210,7 +210,7 @@ func getPodSpecs(resource Resource) (podSpec PodSpecV1) {
 }
 
 func getPodAnnotations(resource Resource) (annotations map[string]string) {
-	switch kubeType := resource.(type) {
+	switch kubeType := resource.Object.(type) {
 	case *CronJobV1Beta1:
 		annotations = kubeType.Spec.JobTemplate.Spec.Template.ObjectMeta.GetAnnotations()
 	case *DaemonSetV1:
@@ -238,21 +238,21 @@ func getPodAnnotations(resource Resource) (annotations map[string]string) {
 }
 
 // WriteToFile writes and then appends incoming resource
-func WriteToFile(decode Resource, filename string, toAppend bool) error {
+func WriteToFile(decode Resource, toAppend bool) error {
 	info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
-	groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
+	groupVersion := schema.GroupVersion{Group: decode.Object.GetObjectKind().GroupVersionKind().Group, Version: decode.Object.GetObjectKind().GroupVersionKind().Version}
 	encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
-	yaml, err := k8sRuntime.Encode(encoder, decode)
+	yaml, err := k8sRuntime.Encode(encoder, decode.Object)
 	if err != nil {
 		return err
 	}
 	if !toAppend {
-		err = ioutil.WriteFile(filename, yaml, 0644)
+		err = ioutil.WriteFile(decode.FileName, yaml, 0644)
 		if err != nil {
 			return err
 		}
 	} else {
-		f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		f, err := os.OpenFile(decode.FileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 		if err != nil {
 			return err
 		}

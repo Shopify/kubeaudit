@@ -9,7 +9,7 @@ import (
 
 func TestSetContainersV1(t *testing.T) {
 	assert := assert.New(t)
-	obj := NewPod().DeepCopyObject()
+	obj := Resource{FileName: "HELLO", Object: NewPod().DeepCopyObject()}
 	containers := getContainers(obj)
 	containers[0].Name = "modified"
 	setContainers(obj, containers)
@@ -20,7 +20,7 @@ func TestSetContainersV1(t *testing.T) {
 
 func TestGetContainersV1(t *testing.T) {
 	assert := assert.New(t)
-	obj := NewPod().DeepCopyObject()
+	obj := Resource{FileName: "HELLO", Object: NewPod().DeepCopyObject()}
 	for _, container := range getContainers(obj) {
 		assert.Equal(container.Name, "container")
 	}
@@ -33,12 +33,13 @@ func TestWriteToFileV1(t *testing.T) {
 	resource, err := getKubeResourcesManifest(file)
 	assert.Equal(1, len(resource))
 	assert.Nil(err)
-	err = WriteToFile(resource[0], fileout, false)
+	resource[0].FileName = fileout
+	err = WriteToFile(resource[0], false)
 	assert.Nil(err)
 	resource2, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
 	assert.Equal(1, len(resource2))
-	assert.Equal(resource, resource2)
+	assert.Equal(resource[0].Object, resource2[0].Object)
 	err = os.Remove(fileout)
 	assert.Nil(err)
 }
