@@ -27,7 +27,7 @@ func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 			resource = fixPrivileged(resource, occurrence)
 		case ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil:
 			resource = fixReadOnlyRootFilesystem(resource, occurrence)
-		case ErrorRunAsNonRootFalse, ErrorRunAsNonRootNil:
+		case ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCNilCSCNil:
 			resource = fixRunAsNonRoot(resource, occurrence)
 		case ErrorServiceAccountTokenDeprecated:
 			resource = fixDeprecatedServiceAccount(resource)
@@ -46,7 +46,7 @@ func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 func prepareResourceForFix(resource Resource, result Result) Resource {
 	needSecurityContextDefined := []int{ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue,
 		ErrorPrivilegedNil, ErrorPrivilegedTrue, ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil,
-		ErrorRunAsNonRootFalse, ErrorRunAsNonRootNil, ErrorServiceAccountTokenDeprecated,
+		ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCNilCSCNil, ErrorServiceAccountTokenDeprecated,
 		ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNilAndNoName,
 		ErrorCapabilityNotDropped, ErrorCapabilityAdded, ErrorMisconfiguredKubeauditAllow}
 	needCapabilitiesDefined := []int{ErrorCapabilityNotDropped, ErrorCapabilityAdded, ErrorMisconfiguredKubeauditAllow}

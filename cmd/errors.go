@@ -56,12 +56,14 @@ const (
 	ErrorResourcesLimitsMemoryNil
 	// ErrorResourcesLimitsNil occurs when the resource limit is set to nil.
 	ErrorResourcesLimitsNil
-	// ErrorRunAsNonRootFalse occurs when RunAsNonRoot is set to false.
-	ErrorRunAsNonRootFalse
+	// ErrorRunAsNonRootPSCTrueCSCFalse occurs when RunAsNonRoot is set to false in the Container SC and to true/false in Pod SC.
+	ErrorRunAsNonRootPSCTrueFalseCSCFalse
+	// ErrorRunAsNonRootPSCFalseCSCNil occurs when RunAsNonRoot is Nil in the Container SC and to false in Pod SC.
+	ErrorRunAsNonRootPSCFalseCSCNil
 	// ErrorRunAsNonRootFalseAllowed occurs when RunAsNonRoot is allowed to be set to false.
 	ErrorRunAsNonRootFalseAllowed
-	// ErrorRunAsNonRootNil occurs when RunAsNonRoot is not set.
-	ErrorRunAsNonRootNil
+	// ErrorRunAsNonRootNil occurs when RunAsNonRoot is not set in either Pod SC or Container SC.
+	ErrorRunAsNonRootPSCNilCSCNil
 	// ErrorServiceAccountTokenDeprecated occurs when serviceAccount is used. ServiceAccount is a deprecated alias
 	// for ServiceAccountName.
 	ErrorServiceAccountTokenDeprecated

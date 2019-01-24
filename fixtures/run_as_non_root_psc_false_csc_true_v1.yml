@@ -11,5 +11,5 @@ spec:
   - name: fakeContainerRANR
     resources: {}
     securityContext:
-      runAsNonRoot: false
+      runAsNonRoot: true
 status: {}
