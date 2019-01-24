@@ -361,7 +361,7 @@ func prettifyReason(reason string) string {
 	return reason
 }
 
-func isCSCWellDefined(podSpec PodSpecV1, container ContainerV1) bool {
+func shouldAuditCSC(podSpec PodSpecV1, container ContainerV1) bool {
 	if container.SecurityContext != nil && container.SecurityContext.RunAsNonRoot != nil {
 		return true
 	}

@@ -32,7 +32,7 @@ func checkRunAsNonRootCSC(container ContainerV1, result *Result) {
 			container: container.Name,
 			id:        ErrorRunAsNonRootPSCNilCSCNil,
 			kind:      Error,
-			message:   "RunAsNonRoot is not set in Container/Pod's Security Context, which results in root user being allowed!",
+			message:   "RunAsNonRoot is not set in Container's Security Context, which results in root user being allowed!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	} else if *container.SecurityContext.RunAsNonRoot == false {
@@ -49,33 +49,36 @@ func checkRunAsNonRootCSC(container ContainerV1, result *Result) {
 
 // Checks the PSC for RANR
 
-func checkRunAsNonRootPSC(podSpec PodSpecV1, result *Result) {
+func checkRunAsNonRootPSC(podSpec PodSpecV1, result *Result, containerName string) {
 	if reason := result.Labels["audit.kubernetes.io/allow-run-as-root"]; reason != "" {
 		if podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil || *podSpec.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{
-				podHost:  podSpec.Hostname,
-				id:       ErrorRunAsNonRootFalseAllowed,
-				kind:     Warn,
-				message:  "Allowed setting RunAsNonRoot to false",
-				metadata: Metadata{"Reason": prettifyReason(reason)},
+				container: containerName,
+				podHost:   podSpec.Hostname,
+				id:        ErrorRunAsNonRootFalseAllowed,
+				kind:      Warn,
+				message:   "Allowed setting RunAsNonRoot to false",
+				metadata:  Metadata{"Reason": prettifyReason(reason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		} else {
 			occ := Occurrence{
-				podHost:  podSpec.Hostname,
-				id:       ErrorMisconfiguredKubeauditAllow,
-				kind:     Warn,
-				message:  "Allowed setting RunAsNonRoot to false, but it is set to true",
-				metadata: Metadata{"Reason": prettifyReason(reason)},
+				container: containerName,
+				podHost:   podSpec.Hostname,
+				id:        ErrorMisconfiguredKubeauditAllow,
+				kind:      Warn,
+				message:   "Allowed setting RunAsNonRoot to false, but it is set to true",
+				metadata:  Metadata{"Reason": prettifyReason(reason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
 	} else if *podSpec.SecurityContext.RunAsNonRoot == false {
 		occ := Occurrence{
-			podHost: podSpec.Hostname,
-			id:      ErrorRunAsNonRootPSCFalseCSCNil,
-			kind:    Error,
-			message: "RunAsNonRoot is set to false (root user allowed) in Pods's Security Context and not set in Container's Security Context, please set to true!",
+			container: containerName,
+			podHost:   podSpec.Hostname,
+			id:        ErrorRunAsNonRootPSCFalseCSCNil,
+			kind:      Error,
+			message:   "RunAsNonRoot is set to false (root user allowed) in Pods's Security Context and not set in Container's Security Context, please set to true!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}
@@ -93,10 +96,10 @@ func auditRunAsNonRoot(resource Resource) (results []Result) {
 		}
 
 		// check if Container Security Context is defined properly, else audit the Pod Security Context
-		if isCSCWellDefined(podSpec, container) {
+		if shouldAuditCSC(podSpec, container) {
 			checkRunAsNonRootCSC(container, result)
 		} else {
-			checkRunAsNonRootPSC(podSpec, result)
+			checkRunAsNonRootPSC(podSpec, result, container.Name)
 		}
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)
