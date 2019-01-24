@@ -86,14 +86,16 @@ func fix(resources []Resource) (fixedResources []Resource) {
 }
 
 func autofix(*cobra.Command, []string) {
-	resources, err := getKubeResourcesManifest(rootConfig.manifest)
-	if err != nil {
-		log.Error(err)
-	}
-	fixedResources := fix(resources)
-	err = writeManifestFile(fixedResources, rootConfig.manifest)
-	if err != nil {
-		return
+	for _, manifest := range rootConfig.manifests {
+		resources, err := getKubeResourcesManifest(manifest)
+		if err != nil {
+			log.Error(err)
+		}
+		fixedResources := fix(resources)
+		err = writeManifestFile(fixedResources, manifest)
+		if err != nil {
+			return
+		}
 	}
 }
 
@@ -104,6 +106,9 @@ var autofixCmd = &cobra.Command{
 
 Example usage:
 kubeaudit autofix -f /path/to/yaml`,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		cmd.MarkFlagRequired("manifest")
+	},
 	Run: autofix,
 }
 

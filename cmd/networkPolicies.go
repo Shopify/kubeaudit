@@ -133,14 +133,20 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyListV1, err error) {
 	// Prevent the return of a nil value
 	netPolList = &NetworkPolicyListV1{}
-	if rootConfig.manifest != "" {
-		resources, err := getKubeResourcesManifest(rootConfig.manifest)
-		if err != nil {
-			return netPolList, err
+	if len(rootConfig.manifests) > 0 {
+		resources := make([]Resource, 0)
+		for _, manifest := range rootConfig.manifests {
+			resource, err := getKubeResourcesManifest(manifest)
+			if err != nil {
+				return netPolList, err
+			}
+			for _, r := range resource {
+				resources = append(resources, r)
+			}
 		}
 
 		for _, resource := range resources {
-			switch kubeType := resource.(type) {
+			switch kubeType := resource.Object.(type) {
 			case *NetworkPolicyV1:
 				netPolList.Items = append(netPolList.Items, *kubeType)
 			}
@@ -167,7 +173,7 @@ func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyLis
 
 func getNamespaceName(resource Resource) string {
 	name := ""
-	ns, ok := resource.(*NamespaceV1)
+	ns, ok := resource.Object.(*NamespaceV1)
 	if ok {
 		name = ns.ObjectMeta.Name
 	}
