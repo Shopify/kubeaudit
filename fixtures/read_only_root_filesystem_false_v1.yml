@@ -5,7 +5,6 @@ metadata:
   name: fakeStatefulSetRORF3
   namespace: fakeStatefulSetRORF
 spec:
-  selector: null
   serviceName: ""
   template:
     metadata:
@@ -17,7 +16,6 @@ spec:
       - name: fakeContainerRORF
         resources: {}
         securityContext:
-          procMount: null
           readOnlyRootFilesystem: false
   updateStrategy: {}
 status:
