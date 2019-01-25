@@ -21,6 +21,7 @@ type Result struct {
 	MEMLimitActual string
 	MEMLimitMax    string
 	Name           string
+	FileName       string
 	Namespace      string
 	Occurrences    []Occurrence
 	SA             string

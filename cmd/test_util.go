@@ -60,7 +60,7 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
 	// Set manifest for test run
-	rootConfig.manifest = file
+	rootConfig.manifests = append(rootConfig.manifests, file)
 
 	for _, resource := range resources {
 		var currentResults []Result
@@ -106,7 +106,7 @@ func NewPod() *PodV1 {
 		return nil
 	}
 	for _, resource := range resources {
-		switch t := resource.(type) {
+		switch t := resource.Object.(type) {
 		case *PodV1:
 			return t
 		}
@@ -119,7 +119,7 @@ func assertEqualYaml(fileToFix string, fileFixed string, auditFunc func(resource
 	fileFixed = filepath.Join(path, fileFixed)
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
-	assert.Equal(correctlyFixedResources[0], fixedResource)
+	assert.Equal(correctlyFixedResources[0].Object, fixedResource.Object)
 }
 
 // WriteToTmpFile writes a single resource to a tmpfile, you are responsible
@@ -127,9 +127,9 @@ func assertEqualYaml(fileToFix string, fileFixed string, auditFunc func(resource
 // name.
 func WriteToTmpFile(decode Resource) (string, error) {
 	info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
-	groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
+	groupVersion := schema.GroupVersion{Group: decode.Object.GetObjectKind().GroupVersionKind().Group, Version: decode.Object.GetObjectKind().GroupVersionKind().Version}
 	encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
-	yaml, err := k8sRuntime.Encode(encoder, decode)
+	yaml, err := k8sRuntime.Encode(encoder, decode.Object)
 	if err != nil {
 		return "", err
 	}
