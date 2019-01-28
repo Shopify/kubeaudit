@@ -199,6 +199,16 @@ func getContainers(resource Resource) (container []ContainerV1) {
 	return container
 }
 
+// Get PodSpec from the PodV1 resource type to check for PSC
+
+func getPodSpecs(resource Resource) (podSpec PodSpecV1) {
+	switch kubeType := resource.(type) {
+	case *PodV1:
+		podSpec = kubeType.Spec
+	}
+	return podSpec
+}
+
 func getPodAnnotations(resource Resource) (annotations map[string]string) {
 	switch kubeType := resource.(type) {
 	case *CronJobV1Beta1:
