@@ -24,7 +24,7 @@ var path = "../fixtures/"
 func FixTestSetup(t *testing.T, file string, auditFunction func(Resource) []Result) (*assert.Assertions, Resource) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)
-	resources, err := getKubeResourcesManifest(file)
+	resources, _, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
 	assert.Equal(1, len(resources))
 	resource := resources[0]
@@ -57,7 +57,7 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 		limits.parseLimitFlags()
 	}
 
-	resources, err := getKubeResourcesManifest(file)
+	resources, _, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
 	// Set manifest for test run
 	rootConfig.manifest = file
@@ -101,7 +101,7 @@ func runAuditTestInNamespace(t *testing.T, namespace string, file string, functi
 
 // NewPod returns a simple Pod resource
 func NewPod() *PodV1 {
-	resources, err := getKubeResourcesManifest("../fixtures/pod_v1.yml")
+	resources, _, err := getKubeResourcesManifest("../fixtures/pod_v1.yml")
 	if err != nil {
 		return nil
 	}
@@ -117,7 +117,7 @@ func NewPod() *PodV1 {
 func assertEqualYaml(fileToFix string, fileFixed string, auditFunc func(resource Resource) []Result, t *testing.T) {
 	assert, fixedResource := FixTestSetup(t, fileToFix, auditFunc)
 	fileFixed = filepath.Join(path, fileFixed)
-	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
+	correctlyFixedResources, _, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
 	assert.Equal(correctlyFixedResources[0], fixedResource)
 }

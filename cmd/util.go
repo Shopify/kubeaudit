@@ -206,10 +206,18 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []Resource) {
 	return
 }
 
-func writeManifestFile(decoded []Resource, filename string) error {
+func writeManifestFile(decoded []Resource, unsupportedDecoded []Resource, filename string) error {
 	var toAppend bool
 	for _, decode := range decoded {
 		if err := WriteToFile(decode, filename, toAppend); err != nil {
+			log.Error(err)
+			return err
+		}
+		toAppend = true
+	}
+	toAppend = true
+	for _, unsupportedDecode := range unsupportedDecoded {
+		if err := WriteToFile(unsupportedDecode, filename, toAppend); err != nil {
 			log.Error(err)
 			return err
 		}
@@ -229,7 +237,7 @@ func containerNamesUniq(resource Resource) bool {
 	return true
 }
 
-func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
+func getKubeResourcesManifest(filename string) (decoded []Resource, unsupportedDecoded []Resource, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -245,12 +253,13 @@ func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 		if err == nil && obj != nil {
 			if !IsSupportedResourceType(obj) {
 				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind().GroupVersionKind())
+				unsupportedDecoded = append(unsupportedDecoded, obj)
 				continue
 			}
 
 			if !containerNamesUniq(obj) {
 				log.Error("Container names are not uniq")
-				return nil, errors.New("Container names are not uniq")
+				return nil, nil, errors.New("Container names are not uniq")
 			}
 			decoded = append(decoded, obj)
 		}
@@ -260,7 +269,7 @@ func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 
 func getResources() (resources []Resource, err error) {
 	if rootConfig.manifest != "" {
-		resources, err = getKubeResourcesManifest(rootConfig.manifest)
+		resources, _, err = getKubeResourcesManifest(rootConfig.manifest)
 	} else {
 		if kube, err := kubeClient(); err == nil {
 			resources = getKubeResources(kube)

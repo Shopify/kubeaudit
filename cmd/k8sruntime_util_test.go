@@ -30,12 +30,12 @@ func TestWriteToFileV1(t *testing.T) {
 	file := "../fixtures/read_only_root_filesystem_false_v1.yml"
 	fileout := "out_v1.yml"
 	assert := assert.New(t)
-	resource, err := getKubeResourcesManifest(file)
+	resource, _, err := getKubeResourcesManifest(file)
 	assert.Equal(1, len(resource))
 	assert.Nil(err)
 	err = WriteToFile(resource[0], fileout, false)
 	assert.Nil(err)
-	resource2, err := getKubeResourcesManifest(file)
+	resource2, _, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
 	assert.Equal(1, len(resource2))
 	assert.Equal(resource, resource2)

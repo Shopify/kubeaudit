@@ -9,14 +9,14 @@ import (
 func TestDoubleNameV1(t *testing.T) {
 	file := "../fixtures/double-name_v1.yml"
 	assert := assert.New(t)
-	_, err := getKubeResourcesManifest(file)
+	_, _, err := getKubeResourcesManifest(file)
 	assert.NotNil(err)
 }
 
 func TestUnknownResourceV1(t *testing.T) {
 	file := "../fixtures/unknown_type_v1.yml"
 	assert := assert.New(t)
-	objects, err := getKubeResourcesManifest(file)
+	objects, _, err := getKubeResourcesManifest(file)
 
 	assert.Nil(err)
 	assert.Len(objects, 0)
