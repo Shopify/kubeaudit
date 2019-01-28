@@ -134,7 +134,7 @@ func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyLis
 	// Prevent the return of a nil value
 	netPolList = &NetworkPolicyListV1{}
 	if rootConfig.manifest != "" {
-		resources, _, err := getKubeResourcesManifest(rootConfig.manifest)
+		resources, err := getKubeResourcesManifest(rootConfig.manifest)
 		if err != nil {
 			return netPolList, err
 		}

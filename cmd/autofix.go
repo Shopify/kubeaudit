@@ -21,7 +21,7 @@ func getAuditFunctions() []interface{} {
 // preserves the order of the keys) using the Shopify/yaml fork of go-yaml/yaml (the fork adds comment support) and
 // then merge the fixed MapSlice back into the original MapSlice so that we get the comments and original order back.
 func autofix(*cobra.Command, []string) {
-	resources, unsupportedResources, err := getKubeResourcesManifest(rootConfig.manifest)
+	resources, err := getKubeResourcesManifest(rootConfig.manifest)
 	if err != nil {
 		log.Error(err)
 	}
@@ -34,7 +34,7 @@ func autofix(*cobra.Command, []string) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	err = writeManifestFile(fixedResources, unsupportedResources, tmpFile.Name())
+	err = writeManifestFile(fixedResources, tmpFile.Name())
 	if err != nil {
 		log.Error(err)
 	}
@@ -48,7 +48,7 @@ func autofix(*cobra.Command, []string) {
 	if err != nil {
 		log.Error(err)
 	}
-}x
+}
 
 var autofixCmd = &cobra.Command{
 	Use:   "autofix",

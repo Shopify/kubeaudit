@@ -183,6 +183,9 @@ func prepareResourceForFix(resource Resource, result Result) Resource {
 
 func fix(resources []Resource) (fixedResources []Resource) {
 	for _, resource := range resources {
+		if !IsSupportedResourceType(resource) {
+			continue
+		}
 		results := mergeAuditFunctions(getAuditFunctions())(resource)
 		for _, result := range results {
 			resource = fixPotentialSecurityIssue(resource, result)
