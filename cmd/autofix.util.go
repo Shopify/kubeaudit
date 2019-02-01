@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"bytes"
 	"io/ioutil"
 
 	"github.com/Shopify/yaml"
+	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/kubernetes/scheme"
 )
 
 // deepEqual recursively compares two values but ignores mapslice order and comments. For example the following values
@@ -566,4 +569,39 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	// PodSecurityPolicySpec.hostPorts : HostPortRange
 	// PodSpec.tolerations : Toleration
 	return deepEqual(map1, map2)
+}
+
+// SplitYamlResource splits the yaml file into byte slices for each resource in the yaml file and checks if the first resource
+// is only comments, in which case it deletes the first resource in the slice and add's the comment to the final file and updates toAppend flag
+
+func splitYamlResources(filename string, toWriteFile string) (splitDecoded [][]byte, toAppend bool, err error) {
+	buf, err := ioutil.ReadFile(rootConfig.manifest)
+
+	if err != nil {
+		log.Error("File not found")
+		return
+	}
+	splitDecoded = bytes.Split(buf, []byte("---"))
+	if err != nil {
+		log.Error(err)
+		return nil, false, err
+	}
+	if len(splitDecoded) != 0 {
+		if len(splitDecoded[0]) == 0 {
+			splitDecoded = splitDecoded[1:]
+		}
+		decoder := scheme.Codecs.UniversalDeserializer()
+		_, _, err := decoder.Decode(splitDecoded[0], nil, nil)
+		// if Decode returns err, then it means that splitDecoded[0] is only comments(pre doc) in this case remove this resource from slice and write to file
+		if err != nil {
+			err = writeManifestFile(splitDecoded[0], toWriteFile, false)
+			if err != nil {
+				return nil, false, err
+			}
+			splitDecoded = splitDecoded[1:]
+			return splitDecoded, true, nil
+		}
+	}
+
+	return splitDecoded, false, nil
 }

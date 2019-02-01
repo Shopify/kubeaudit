@@ -22,17 +22,9 @@ func getAuditFunctions() []interface{} {
 // then merge the fixed MapSlice back into the original MapSlice so that we get the comments and original order back.
 func autofix(*cobra.Command, []string) {
 
-	var toAppend bool
+	var toAppend = false
 
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
-	if err != nil {
-		log.Error(err)
-	}
-
-	err = os.Truncate(rootConfig.manifest, 0)
-	if err != nil {
-		log.Error(err)
-	}
 
 	fixedResources := fix(resources)
 
@@ -44,15 +36,19 @@ func autofix(*cobra.Command, []string) {
 	if err != nil {
 		log.Error(err)
 	}
+	finalFile, err := ioutil.TempFile("", "kubeaudit_autofix_final")
+	if err != nil {
+		log.Error(err)
+	}
 
-	for index := range resources {
-		defer os.Remove(tmpFixedFile.Name())
+	splitResources, toAppend, err := splitYamlResources(rootConfig.manifest, finalFile.Name())
+
+	for index := range fixedResources {
 		err = writeSingleResourceManifestFile(fixedResources[index], tmpFixedFile.Name())
 		if err != nil {
 			log.Error(err)
 		}
-		defer os.Remove(tmpOrigFile.Name())
-		err = writeSingleResourceManifestFile(resources[index], tmpOrigFile.Name())
+		err := ioutil.WriteFile(tmpOrigFile.Name(), splitResources[index], 0644)
 		if err != nil {
 			log.Error(err)
 		}
@@ -61,11 +57,24 @@ func autofix(*cobra.Command, []string) {
 			log.Error(err)
 		}
 
-		err = writeManifestFile(fixedYaml, rootConfig.manifest, toAppend)
+		err = writeManifestFile(fixedYaml, finalFile.Name(), toAppend)
 		if err != nil {
 			log.Error(err)
 		}
 		toAppend = true
+	}
+
+	finalData, err := ioutil.ReadFile(finalFile.Name())
+	if err != nil {
+		log.Error(err)
+	}
+	err = os.Truncate(rootConfig.manifest, 0)
+	if err != nil {
+		log.Error(err)
+	}
+	err = writeManifestFile(finalData, rootConfig.manifest, false)
+	if err != nil {
+		log.Error(err)
 	}
 }
 
