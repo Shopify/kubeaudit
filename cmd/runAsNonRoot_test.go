@@ -5,15 +5,15 @@ import (
 )
 
 func TestSecurityContextNilV1(t *testing.T) {
-	runAuditTest(t, "security_context_nil_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCNilCSCNil})
+	runAuditTest(t, "security_context_nil_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootNil})
 }
 
 func TestRunAsNonRootNilV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_nil_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCNilCSCNil})
+	runAuditTest(t, "run_as_non_root_nil_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootNil})
 }
 
 func TestRunAsNonRootFalseV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCTrueFalseCSCFalse})
+	runAuditTest(t, "run_as_non_root_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalse})
 }
 
 func TestRunAsRootFalseAllowedV1(t *testing.T) {
@@ -22,31 +22,4 @@ func TestRunAsRootFalseAllowedV1(t *testing.T) {
 
 func TestRunAsNonRootMisconfiguredAllowV1(t *testing.T) {
 	runAuditTest(t, "run_as_non_root_misconfigured_allow_v1.yml", auditRunAsNonRoot, []int{ErrorMisconfiguredKubeauditAllow})
-}
-
-func TestPSCFalseCSCNilRunAsNonRootV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_psc_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCFalseCSCNil})
-}
-
-func TestPSCTrueCSCFalseRunAsNonRootFalseV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_psc_true_csc_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCTrueFalseCSCFalse})
-}
-
-func TestPSCFalseCSCFalseRunAsNonRootFalseV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_psc_false_csc_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCTrueFalseCSCFalse})
-}
-func TestPSCRunAsRootFalseAllowedV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_psc_false_allowed_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalseAllowed})
-}
-
-func TestPSCFalseCSCTrueRunAsNonRootFalseV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_psc_false_csc_true_v1.yml", auditRunAsNonRoot, []int{})
-}
-
-func TestPSCFalseCSCNilMultipleRunAsNonRootFalseV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_psc_false_csc_nil_multiple_cont_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCFalseCSCNil})
-}
-
-func TestPSCFalseCSCTrueMultipleRunAsNonRootFalseV1(t *testing.T) {
-	runAuditTest(t, "run_as_non_root_psc_false_csc_true_multiple_cont_v1.yml", auditRunAsNonRoot, []int{})
 }

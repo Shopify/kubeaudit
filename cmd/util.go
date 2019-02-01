@@ -360,13 +360,3 @@ func prettifyReason(reason string) string {
 	}
 	return reason
 }
-
-func shouldAuditCSC(podSpec PodSpecV1, container ContainerV1) bool {
-	if container.SecurityContext != nil && container.SecurityContext.RunAsNonRoot != nil {
-		return true
-	}
-	if podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil {
-		return true
-	}
-	return false
-}
