@@ -184,6 +184,7 @@ func prepareResourceForFix(resource Resource, result Result) Resource {
 func fix(resources []Resource) (fixedResources []Resource) {
 	for _, resource := range resources {
 		if !IsSupportedResourceType(resource) {
+			fixedResources = append(fixedResources, resource)
 			continue
 		}
 		results := mergeAuditFunctions(getAuditFunctions())(resource)

@@ -21,32 +21,51 @@ func getAuditFunctions() []interface{} {
 // preserves the order of the keys) using the Shopify/yaml fork of go-yaml/yaml (the fork adds comment support) and
 // then merge the fixed MapSlice back into the original MapSlice so that we get the comments and original order back.
 func autofix(*cobra.Command, []string) {
+
+	var toAppend bool
+
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = os.Truncate(rootConfig.manifest, 0)
 	if err != nil {
 		log.Error(err)
 	}
 
 	fixedResources := fix(resources)
 
-	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix")
+	tmpFixedFile, err := ioutil.TempFile("", "kubeaudit_autofix_fixed")
 	if err != nil {
 		log.Error(err)
 	}
-	defer os.Remove(tmpFile.Name())
-
-	err = writeManifestFile(fixedResources, tmpFile.Name())
+	tmpOrigFile, err := ioutil.TempFile("", "kubeaudit_autofix_orig")
 	if err != nil {
 		log.Error(err)
 	}
 
-	fixedYaml, err := mergeYAML(rootConfig.manifest, tmpFile.Name())
-	if err != nil {
-		log.Error(err)
-	}
+	for index := range resources {
+		defer os.Remove(tmpFixedFile.Name())
+		err = writeSingleResourceManifestFile(fixedResources[index], tmpFixedFile.Name())
+		if err != nil {
+			log.Error(err)
+		}
+		defer os.Remove(tmpOrigFile.Name())
+		err = writeSingleResourceManifestFile(resources[index], tmpOrigFile.Name())
+		if err != nil {
+			log.Error(err)
+		}
+		fixedYaml, err := mergeYAML(tmpOrigFile.Name(), tmpFixedFile.Name())
+		if err != nil {
+			log.Error(err)
+		}
 
-	err = ioutil.WriteFile(rootConfig.manifest, fixedYaml, 0644)
-	if err != nil {
-		log.Error(err)
+		err = writeManifestFile(fixedYaml, rootConfig.manifest, toAppend)
+		if err != nil {
+			log.Error(err)
+		}
+		toAppend = true
 	}
 }
 

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  name: run_as_non_root_psc_true_csc_false
+  namespace: fakeDeploymentRANR
+spec:
+  securityContext:
+   runAsNonRoot: true
+  containers:
+  - name: fakeContainerRANR
+    resources: {}
+    securityContext:
+      runAsNonRoot: false
+status: {}
