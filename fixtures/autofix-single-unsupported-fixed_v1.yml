@@ -1,0 +1,26 @@
+# This is a test yaml file
+# to be autofixed
+
+%YAML   1.1
+%TAG    !   !foo
+%TAG    !yaml!  tag:yaml.org,2002:
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  creationTimestamp: null
+spec:
+  rules: #This is a comment 1
+  - http:
+      paths:
+      - backend:
+          serviceName: test
+          servicePort: 80
+        path: /testpath
+status:
+  loadBalancer: {}
+#This is a comment 2

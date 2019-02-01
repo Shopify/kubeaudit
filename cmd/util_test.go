@@ -19,5 +19,4 @@ func TestUnknownResourceV1(t *testing.T) {
 	_, err := getKubeResourcesManifest(file)
 
 	assert.Nil(err)
-	//assert.Len(objects, 0)
 }

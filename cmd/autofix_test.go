@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"io"
+	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/Shopify/yaml"
@@ -31,28 +34,76 @@ func TestFixV1Beta1(t *testing.T) {
 	assertEqualWorkloads(assert, correctlyFixedResources, fixedResources)
 }
 
-// func TestPreserveComments(t *testing.T) {
-// 	origFilename := "../fixtures/autofix_v1.yml"
-// 	expectedFilename := "../fixtures/autofix-fixed_v1.yml"
-// 	assert := assert.New(t)
+func TestPreserveComments(t *testing.T) {
+	origFilename := "../fixtures/autofix_v1.yml"
+	expectedFilename := "../fixtures/autofix-fixed_v1.yml"
+	assert := assert.New(t)
 
-// 	// Copy original yaml to a temp file because autofix modifies the input file
-// 	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix_test")
-// 	tmpFilename := tmpFile.Name()
-// 	assert.Nil(err)
-// 	defer os.Remove(tmpFilename)
-// 	origFile, err := os.Open(origFilename)
-// 	assert.Nil(err)
-// 	_, err = io.Copy(tmpFile, origFile)
-// 	assert.Nil(err)
-// 	tmpFile.Close()
-// 	origFile.Close()
+	// Copy original yaml to a temp file because autofix modifies the input file
+	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix_test")
+	tmpFilename := tmpFile.Name()
+	assert.Nil(err)
+	defer os.Remove(tmpFilename)
+	origFile, err := os.Open(origFilename)
+	assert.Nil(err)
+	_, err = io.Copy(tmpFile, origFile)
+	assert.Nil(err)
+	tmpFile.Close()
+	origFile.Close()
 
-// 	rootConfig.manifest = tmpFilename
-// 	autofix(nil, nil)
+	rootConfig.manifest = tmpFilename
+	autofix(nil, nil)
 
-// 	assert.True(compareTextFiles(expectedFilename, tmpFilename))
-// }
+	assert.True(compareTextFiles(expectedFilename, tmpFilename))
+}
+
+func TestUnsupportedResources(t *testing.T) {
+	origFilename := "../fixtures/autofix-unsupported_v1.yml"
+	expectedFilename := "../fixtures/autofix-unsupported-fixed_v1.yml"
+	assert := assert.New(t)
+
+	// Copy original yaml to a temp file because autofix modifies the input file
+	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix_test")
+	tmpFilename := tmpFile.Name()
+	assert.Nil(err)
+	defer os.Remove(tmpFilename)
+	origFile, err := os.Open(origFilename)
+	assert.Nil(err)
+	_, err = io.Copy(tmpFile, origFile)
+	assert.Nil(err)
+	tmpFile.Close()
+	origFile.Close()
+
+	rootConfig.manifest = tmpFilename
+	autofix(nil, nil)
+
+	assert.True(compareTextFiles(expectedFilename, tmpFilename))
+}
+
+func TestSingleUnsupportedResource(t *testing.T) {
+
+	origFilename := "../fixtures/autofix-single-unsupported_v1.yml"
+	expectedFilename := "../fixtures/autofix-single-unsupported-fixed_v1.yml"
+	assert := assert.New(t)
+
+	// Copy original yaml to a temp file because autofix modifies the input file
+	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix_test")
+	tmpFilename := tmpFile.Name()
+	assert.Nil(err)
+	defer os.Remove(tmpFilename)
+	origFile, err := os.Open(origFilename)
+	assert.Nil(err)
+	_, err = io.Copy(tmpFile, origFile)
+	assert.Nil(err)
+	tmpFile.Close()
+	origFile.Close()
+
+	rootConfig.manifest = tmpFilename
+	autofix(nil, nil)
+
+	assert.True(compareTextFiles(expectedFilename, tmpFilename))
+
+}
 
 var testData = []struct {
 	orig   yaml.MapSlice

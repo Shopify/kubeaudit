@@ -6,6 +6,46 @@
 %TAG    !yaml!  tag:yaml.org,2002:
 
 ---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  creationTimestamp: null
+spec:
+  rules: #This is a comment 1
+  - http:
+      paths:
+      - backend:
+          serviceName: test
+          servicePort: 80
+        path: /testpath
+status:
+  loadBalancer: {}
+#This is a comment 2
+---
+
+#This is a comment 3
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  creationTimestamp: null
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: test
+          servicePort: 80
+        path: /testpath
+status:
+  loadBalancer: {}
+#This is a comment 5
+---
 apiVersion: apps/v1 # The latest api version for Deployment
 # This is a deployment
 kind: Deployment
