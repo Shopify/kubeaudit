@@ -14,7 +14,7 @@ Fixes # (issue)
 - [ ] Bug fix :bug:
 - [ ] New feature :sparkles:
 - [ ] This change requires a documentation update :book:
-- [ ] Breaking Changes :warning:
+- [ ] Breaking changes :warning:
 ##### How Has This Been Tested?
 
 <!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration -->
