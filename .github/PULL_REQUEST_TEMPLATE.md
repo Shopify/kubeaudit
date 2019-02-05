@@ -1,5 +1,7 @@
 <!-- Please erase any parts of this template not applicable to your Pull Request. -->
 
+<!-- All code PR must be labeled with :bug: (patch fixes), :sparkles: (backwards-compatible features), or :warning: (breaking changes) -->
+
 ##### Description
 
 <!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. -->
@@ -9,11 +11,14 @@ Fixes # (issue)
 ##### Type of change
 
 <!-- Please delete options that are not relevant. --->
-
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] This change requires a documentation update
-
+- [ ] Non Breaking Changes
+    - [ ] Bug fix :bug:
+    - [ ] New feature :sparkles:
+    - [ ] This change requires a documentation update
+- [ ] Breaking Changes :warning:
+    - [ ] Bug fix 
+    - [ ] New feature
+    - [ ] This change requires a documentation update
 ##### How Has This Been Tested?
 
 <!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration -->
