@@ -11,14 +11,10 @@ Fixes # (issue)
 ##### Type of change
 
 <!-- Please delete options that are not relevant. --->
-- [ ] Non Breaking Changes
-    - [ ] Bug fix :bug:
-    - [ ] New feature :sparkles:
-    - [ ] This change requires a documentation update
+- [ ] Bug fix :bug:
+- [ ] New feature :sparkles:
+- [ ] This change requires a documentation update :book:
 - [ ] Breaking Changes :warning:
-    - [ ] Bug fix 
-    - [ ] New feature
-    - [ ] This change requires a documentation update
 ##### How Has This Been Tested?
 
 <!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration -->
