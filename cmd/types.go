@@ -81,7 +81,7 @@ type ReplicationControllerListV1 = apiv1.ReplicationControllerList
 // ReplicationControllerV1 is a type alias for the v1 version of the k8s API.
 type ReplicationControllerV1 = apiv1.ReplicationController
 
-// Resource is a type alias for a k8s Object.
+// Resource is a type alias for a runtime.Object.
 type Resource k8sRuntime.Object
 
 // SecurityContextV1 is a type alias for the v1 version of the k8s API.

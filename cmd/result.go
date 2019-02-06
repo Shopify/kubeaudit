@@ -58,7 +58,14 @@ func createFields(res Result, occ Occurrence) (fields log.Fields) {
 	for k, v := range occ.metadata {
 		fields[k] = v
 	}
-	fields["Container"] = occ.container
+	if len(occ.container) != 0 {
+		fields["Container"] = occ.container
+	}
+
+	if occ.id == ErrorRunAsNonRootPSCFalseCSCNil && len(occ.podHost) != 0 {
+		fields["Pod"] = occ.podHost
+	}
+
 	return
 }
 
