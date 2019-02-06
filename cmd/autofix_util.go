@@ -424,11 +424,16 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 
 	// ClusterRole.rules : PolicyRule.resources
 	// IngressSpec.rules : IngressRule.host
+	// IngressSpec.rules : IngressRule.http
 	// Role.rules : PolicyRule.resources
 	case "rules":
 		// ClusterRole.rules : PolicyRule.resources
 		// Role.rules : PolicyRule.resources
 		if mapPairMatch("resources", map1, map2) {
+			return true
+		}
+		// IngressSpec.rules : IngressRule.http
+		if mapPairMatch("http", map1, map2) {
 			return true
 		}
 		// IngressSpec.rules : IngressRule.host

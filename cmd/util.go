@@ -213,10 +213,12 @@ func writeManifestFile(decoded []byte, filename string, toAppend bool) error {
 		log.Error(err)
 		return err
 	}
+	defer f.Close()
 	if toAppend {
 		f.WriteString("---\n")
 	}
-	defer f.Close()
+	// Remove newline from the decoded slice if the slice starts with a newline
+	decoded = []byte(strings.TrimPrefix(string(decoded), "\n"))
 	f.Write(decoded)
 	return nil
 }
@@ -371,4 +373,14 @@ func prettifyReason(reason string) string {
 		return "Unspecified"
 	}
 	return reason
+}
+
+func shouldAuditCSC(podSpec PodSpecV1, container ContainerV1) bool {
+	if container.SecurityContext != nil && container.SecurityContext.RunAsNonRoot != nil {
+		return true
+	}
+	if podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil {
+		return true
+	}
+	return false
 }

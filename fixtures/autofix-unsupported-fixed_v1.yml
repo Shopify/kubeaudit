@@ -25,7 +25,6 @@ status:
   loadBalancer: {}
 #This is a comment 2
 ---
-
 #This is a comment 3
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -38,7 +37,7 @@ spec:
   rules:
   - http:
       paths:
-      - backend:
+      - backend: #This is a comment 4
           serviceName: test
           servicePort: 80
         path: /testpath
