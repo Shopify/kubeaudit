@@ -29,3 +29,26 @@ func TestFixReadOnlyRootFilesystemMisconfiguredAllowV1(t *testing.T) {
 		assert.True(*container.SecurityContext.ReadOnlyRootFilesystem)
 	}
 }
+
+func TestFixReadOnlyRootFilesystemFalseAllowedMultiContainerMultiLabelsV1(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "read_only_root_filesystem_false_allowed_multi_container_multi_labels_v1.yml", auditReadOnlyRootFS)
+	for _, resource := range resources {
+		for _, container := range getContainers(resource) {
+			assert.False(*container.SecurityContext.ReadOnlyRootFilesystem)
+		}
+	}
+}
+
+func TestFixReadOnlyRootFilesystemFalseAllowedMultiContainerSingleLabelV1(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "read_only_root_filesystem_false_allowed_multi_container_single_label_v1.yml", auditReadOnlyRootFS)
+	for _, resource := range resources {
+		for _, container := range getContainers(resource) {
+			switch container.Name {
+			case "fakeContainerRORF1":
+				assert.False(*container.SecurityContext.ReadOnlyRootFilesystem)
+			case "fakeContainerRORF2":
+				assert.True(*container.SecurityContext.ReadOnlyRootFilesystem)
+			}
+		}
+	}
+}

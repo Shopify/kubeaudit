@@ -6,7 +6,7 @@ import (
 )
 
 func checkReadOnlyRootFS(container ContainerV1, result *Result) {
-	if reason := result.Labels["audit.kubernetes.io/allow-read-only-root-filesystem-false"]; reason != "" {
+	if labelExists, reason := getContainerOverrideLabelReason(result, container, "allow-read-only-root-filesystem-false"); labelExists {
 		if container.SecurityContext == nil || container.SecurityContext.ReadOnlyRootFilesystem == nil || *container.SecurityContext.ReadOnlyRootFilesystem == false {
 			occ := Occurrence{
 				container: container.Name,

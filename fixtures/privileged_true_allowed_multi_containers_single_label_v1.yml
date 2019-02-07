@@ -9,9 +9,12 @@ spec:
     metadata:
       labels:
         apps: fakePrivileged
-        audit.kubernetes.io/pod/allow-privileged: "Privileged execution required"
+        container.audit.kubernetes.io/fakeContainerPrivileged2/allow-privileged: "Privileged execution required"
     spec:
       containers:
       - name: fakeContainerPrivileged
         securityContext:
-            privileged: false
+          privileged: true
+      - name: fakeContainerPrivileged2
+        securityContext:
+          privileged: true
