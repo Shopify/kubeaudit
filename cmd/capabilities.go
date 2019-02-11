@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 )
 
 type capsDropList struct {

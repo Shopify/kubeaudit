@@ -48,3 +48,7 @@
 [[constraint]]
   name = "github.com/stretchr/testify"
   branch = "master"
+
+[[constraint]]
+  name = "github.com/Shopify/yaml"
+  branch = "v2"

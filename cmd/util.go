@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"reflect"
 	"runtime"
 	"strings"
@@ -206,14 +207,26 @@ func getKubeResources(clientset *kubernetes.Clientset) (resources []Resource) {
 	return
 }
 
-func writeManifestFile(decoded []Resource, filename string) error {
-	var toAppend bool
-	for _, decode := range decoded {
-		if err := WriteToFile(decode, filename, toAppend); err != nil {
-			log.Error(err)
-			return err
-		}
-		toAppend = true
+func writeManifestFile(decoded []byte, filename string, toAppend bool) error {
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer f.Close()
+	if toAppend {
+		f.WriteString("---\n")
+	}
+	// Remove newline from the decoded slice if the slice starts with a newline
+	decoded = []byte(strings.TrimPrefix(string(decoded), "\n"))
+	f.Write(decoded)
+	return nil
+}
+
+func writeSingleResourceManifestFile(decoded Resource, filename string) error {
+	if err := WriteToFile(decoded, filename, false); err != nil {
+		log.Error(err)
+		return err
 	}
 	return nil
 }
@@ -244,6 +257,7 @@ func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 		obj, _, err := decoder.Decode(b, nil, nil)
 		if err == nil && obj != nil {
 			if !IsSupportedResourceType(obj) {
+				decoded = append(decoded, obj)
 				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind().GroupVersionKind())
 				continue
 			}

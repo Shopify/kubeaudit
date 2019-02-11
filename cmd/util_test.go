@@ -16,8 +16,7 @@ func TestDoubleNameV1(t *testing.T) {
 func TestUnknownResourceV1(t *testing.T) {
 	file := "../fixtures/unknown_type_v1.yml"
 	assert := assert.New(t)
-	objects, err := getKubeResourcesManifest(file)
+	_, err := getKubeResourcesManifest(file)
 
 	assert.Nil(err)
-	assert.Len(objects, 0)
 }
