@@ -14,7 +14,7 @@ func TestCronjobV1(t *testing.T) {
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
-	fixedResources := fix(resources)
+	fixedResources, _ := fix(resources)
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
 	assert.Nil(deep.Equal(correctlyFixedResources, fixedResources))

@@ -18,7 +18,7 @@ func autofix(*cobra.Command, []string) {
 
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
 
-	fixedResources := fix(resources)
+	fixedResources, extraResources := fix(resources)
 
 	tmpFixedFile, err := ioutil.TempFile("", "kubeaudit_autofix_fixed")
 	if err != nil {
@@ -35,6 +35,11 @@ func autofix(*cobra.Command, []string) {
 		log.Error(err)
 	}
 	defer os.Remove(finalFile.Name())
+	extraFile, err := ioutil.TempFile("", "kubeaudit_autofix_extra")
+	if err != nil {
+		log.Error(err)
+	}
+	defer os.Remove(extraFile.Name())
 
 	splitResources, toAppend, err := splitYamlResources(rootConfig.manifest, finalFile.Name())
 
@@ -52,6 +57,21 @@ func autofix(*cobra.Command, []string) {
 			log.Error(err)
 		}
 		err = writeManifestFile(fixedYaml, finalFile.Name(), toAppend)
+		if err != nil {
+			log.Error(err)
+		}
+		toAppend = true
+	}
+	for index := range extraResources {
+		err = writeSingleResourceManifestFile(extraResources[index], extraFile.Name())
+		if err != nil {
+			log.Error(err)
+		}
+		fixedData, err := ioutil.ReadFile(extraFile.Name())
+		if err != nil {
+			log.Error(err)
+		}
+		err = writeManifestFile(fixedData, finalFile.Name(), toAppend)
 		if err != nil {
 			log.Error(err)
 		}

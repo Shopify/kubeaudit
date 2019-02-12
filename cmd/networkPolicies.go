@@ -101,7 +101,7 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 			container: "",
 			id:        ErrorMissingDefaultDenyIngressNetworkPolicy,
 			kind:      Error,
-			message:   "Namespace is missing a default deny egress NetworkPolicy",
+			message:   "Namespace is missing a default deny ingress NetworkPolicy",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}
@@ -111,7 +111,7 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 			container: "",
 			id:        ErrorMissingDefaultDenyEgressNetworkPolicy,
 			kind:      Error,
-			message:   "Namespace is missing a default deny ingress NetworkPolicy",
+			message:   "Namespace is missing a default deny egress NetworkPolicy",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 
@@ -142,7 +142,9 @@ func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyLis
 		for _, resource := range resources {
 			switch kubeType := resource.(type) {
 			case *NetworkPolicyV1:
-				netPolList.Items = append(netPolList.Items, *kubeType)
+				if (*kubeType).ObjectMeta.Namespace == namespace {
+					netPolList.Items = append(netPolList.Items, *kubeType)
+				}
 			}
 		}
 

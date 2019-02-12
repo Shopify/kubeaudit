@@ -13,7 +13,7 @@ func getAuditFunctions() []interface{} {
 	return []interface{}{
 		auditAllowPrivilegeEscalation, auditReadOnlyRootFS, auditRunAsNonRoot,
 		auditAutomountServiceAccountToken, auditPrivileged, auditCapabilities,
-		auditAppArmor, auditSeccomp,
+		auditAppArmor, auditSeccomp, auditNetworkPolicies,
 	}
 }
 
@@ -42,7 +42,10 @@ func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 		case ErrorSeccompAnnotationMissing, ErrorSeccompDeprecated, ErrorSeccompDeprecatedPod, ErrorSeccompDisabled,
 			ErrorSeccompDisabledPod:
 			resource = fixSeccomp(resource)
+		case ErrorMissingDefaultDenyIngressNetworkPolicy, ErrorMissingDefaultDenyEgressNetworkPolicy:
+			resource = fixNetworkPolicy(resource, occurrence)
 		}
+
 	}
 	return resource
 }
@@ -78,7 +81,7 @@ func prepareResourceForFix(resource Resource, result Result) Resource {
 	return resource
 }
 
-func fix(resources []Resource) (fixedResources []Resource) {
+func fix(resources []Resource) (fixedResources []Resource, extraResources []Resource) {
 	for _, resource := range resources {
 		if !IsSupportedResourceType(resource) {
 			fixedResources = append(fixedResources, resource)
@@ -86,7 +89,12 @@ func fix(resources []Resource) (fixedResources []Resource) {
 		}
 		results := mergeAuditFunctions(getAuditFunctions())(resource)
 		for _, result := range results {
-			resource = fixPotentialSecurityIssue(resource, result)
+			if IsNamespaceType(resource) {
+				extraResource := fixPotentialSecurityIssue(resource, result)
+				extraResources = append(extraResources, extraResource)
+			} else {
+				resource = fixPotentialSecurityIssue(resource, result)
+			}
 		}
 		fixedResources = append(fixedResources, resource)
 	}
