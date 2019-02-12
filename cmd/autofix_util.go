@@ -9,6 +9,90 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
+func getAuditFunctions() []interface{} {
+	return []interface{}{
+		auditAllowPrivilegeEscalation, auditReadOnlyRootFS, auditRunAsNonRoot,
+		auditAutomountServiceAccountToken, auditPrivileged, auditCapabilities,
+		auditAppArmor, auditSeccomp,
+	}
+}
+
+func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
+	resource = prepareResourceForFix(resource, result)
+	for _, occurrence := range result.Occurrences {
+		switch occurrence.id {
+		case ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue:
+			resource = fixAllowPrivilegeEscalation(resource, occurrence)
+		case ErrorCapabilityNotDropped:
+			resource = fixCapabilityNotDropped(resource, occurrence)
+		case ErrorCapabilityAdded:
+			resource = fixCapabilityAdded(resource, occurrence)
+		case ErrorPrivilegedNil, ErrorPrivilegedTrue:
+			resource = fixPrivileged(resource, occurrence)
+		case ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil:
+			resource = fixReadOnlyRootFilesystem(resource, occurrence)
+		case ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCNilCSCNil, ErrorRunAsNonRootPSCFalseCSCNil:
+			resource = fixRunAsNonRoot(resource, occurrence)
+		case ErrorServiceAccountTokenDeprecated:
+			resource = fixDeprecatedServiceAccount(resource)
+		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNilAndNoName:
+			resource = fixServiceAccountToken(resource)
+		case ErrorAppArmorAnnotationMissing, ErrorAppArmorDisabled:
+			resource = fixAppArmor(resource)
+		case ErrorSeccompAnnotationMissing, ErrorSeccompDeprecated, ErrorSeccompDeprecatedPod, ErrorSeccompDisabled,
+			ErrorSeccompDisabledPod:
+			resource = fixSeccomp(resource)
+		}
+	}
+	return resource
+}
+
+func prepareResourceForFix(resource Resource, result Result) Resource {
+	needSecurityContextDefined := []int{ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue,
+		ErrorPrivilegedNil, ErrorPrivilegedTrue, ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil,
+		ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCNilCSCNil, ErrorRunAsNonRootPSCFalseCSCNil, ErrorServiceAccountTokenDeprecated,
+		ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNilAndNoName,
+		ErrorCapabilityNotDropped, ErrorCapabilityAdded, ErrorMisconfiguredKubeauditAllow}
+	needCapabilitiesDefined := []int{ErrorCapabilityNotDropped, ErrorCapabilityAdded, ErrorMisconfiguredKubeauditAllow}
+
+	// Set of errors to fix
+	errors := make(map[int]bool)
+	for _, occurrence := range result.Occurrences {
+		errors[occurrence.id] = true
+	}
+
+	for _, err := range needSecurityContextDefined {
+		if _, ok := errors[err]; ok {
+			resource = fixSecurityContextNil(resource)
+			break
+		}
+	}
+
+	for _, err := range needCapabilitiesDefined {
+		if _, ok := errors[err]; ok {
+			resource = fixCapabilitiesNil(resource)
+			break
+		}
+	}
+
+	return resource
+}
+
+func fix(resources []Resource) (fixedResources []Resource) {
+	for _, resource := range resources {
+		if !IsSupportedResourceType(resource) {
+			fixedResources = append(fixedResources, resource)
+			continue
+		}
+		results := mergeAuditFunctions(getAuditFunctions())(resource)
+		for _, result := range results {
+			resource = fixPotentialSecurityIssue(resource, result)
+		}
+		fixedResources = append(fixedResources, resource)
+	}
+	return
+}
+
 // deepEqual recursively compares two values but ignores mapslice order and comments. For example the following values
 // are considered to be equal:
 //
