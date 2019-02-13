@@ -1,12 +1,8 @@
 package cmd
 
-import "fmt"
-
 func fixNetworkPolicy(resource Resource, occurrence Occurrence) Resource {
-	var obj Resource
-	fmt.Println("I was HERe")
-	fmt.Println("I was HERe")
-	fmt.Println("I was HERe")
+	res := &NetworkPolicyV1{}
+	obj := res.DeepCopyObject()
 	nsName := getNamespaceName(resource)
 	if occurrence.id == ErrorMissingDefaultDenyIngressNetworkPolicy {
 		obj = setNetworkPolicyFields(obj, nsName, "Ingress")

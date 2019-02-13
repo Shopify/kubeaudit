@@ -52,7 +52,11 @@ func setContainers(resource Resource, containers []ContainerV1) Resource {
 func setNetworkPolicyFields(resource Resource, nsName string, policy string) Resource {
 	switch t := resource.(type) {
 	case *NetworkPolicyV1:
+		t.DeepCopy()
+		t.Kind = "NetworkPolicy"
+		t.APIVersion = "networking.k8s.io/v1"
 		t.ObjectMeta.Namespace = nsName
+		t.ObjectMeta.Name = "default-deny"
 		t.Spec.PolicyTypes = append(t.Spec.PolicyTypes, networking.PolicyType(policy))
 		return t.DeepCopyObject()
 	}
