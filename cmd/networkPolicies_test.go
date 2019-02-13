@@ -3,7 +3,7 @@ package cmd
 import "testing"
 
 func TestNamespaceMissingDefaulDenyNetPol(t *testing.T) {
-	runAuditTest(t, "namespace_missing_default_deny_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressNetworkPolicy, ErrorMissingDefaultDenyEgressNetworkPolicy})
+	runAuditTest(t, "namespace_missing_default_deny_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy})
 }
 
 func TestNamespaceMissingDefaultDenyEgressNetPol(t *testing.T) {

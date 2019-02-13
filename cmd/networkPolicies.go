@@ -95,8 +95,15 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 			}
 		}
 	}
-
-	if !hasDenyAllIngressRule {
+	if !hasDenyAllEgressRule && !hasDenyAllIngressRule {
+		occ := Occurrence{
+			container: "",
+			id:        ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy,
+			kind:      Error,
+			message:   "Namespace is missing a default deny ingress and default deny egress NetworkPolicy",
+		}
+		result.Occurrences = append(result.Occurrences, occ)
+	} else if !hasDenyAllIngressRule {
 		occ := Occurrence{
 			container: "",
 			id:        ErrorMissingDefaultDenyIngressNetworkPolicy,
@@ -104,9 +111,7 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 			message:   "Namespace is missing a default deny ingress NetworkPolicy",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-	}
-
-	if !hasDenyAllEgressRule {
+	} else if !hasDenyAllEgressRule {
 		occ := Occurrence{
 			container: "",
 			id:        ErrorMissingDefaultDenyEgressNetworkPolicy,

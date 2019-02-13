@@ -19,6 +19,7 @@ func getAuditFunctions() []interface{} {
 
 func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 	resource = prepareResourceForFix(resource, result)
+
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue:
@@ -42,7 +43,7 @@ func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 		case ErrorSeccompAnnotationMissing, ErrorSeccompDeprecated, ErrorSeccompDeprecatedPod, ErrorSeccompDisabled,
 			ErrorSeccompDisabledPod:
 			resource = fixSeccomp(resource)
-		case ErrorMissingDefaultDenyIngressNetworkPolicy, ErrorMissingDefaultDenyEgressNetworkPolicy:
+		case ErrorMissingDefaultDenyIngressNetworkPolicy, ErrorMissingDefaultDenyEgressNetworkPolicy, ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy:
 			resource = fixNetworkPolicy(resource, occurrence)
 		}
 
