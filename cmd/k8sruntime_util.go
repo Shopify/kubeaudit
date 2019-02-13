@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	networking "k8s.io/api/networking/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -43,6 +44,16 @@ func setContainers(resource Resource, containers []ContainerV1) Resource {
 		return t.DeepCopyObject()
 	case *StatefulSetV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
+		return t.DeepCopyObject()
+	}
+	return resource
+}
+
+func setNetworkPolicyFields(resource Resource, nsName string, policy string) Resource {
+	switch t := resource.(type) {
+	case *NetworkPolicyV1:
+		t.ObjectMeta.Namespace = nsName
+		t.Spec.PolicyTypes = append(t.Spec.PolicyTypes, networking.PolicyType(policy))
 		return t.DeepCopyObject()
 	}
 	return resource

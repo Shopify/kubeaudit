@@ -1,15 +1,18 @@
 package cmd
 
+import "fmt"
+
 func fixNetworkPolicy(resource Resource, occurrence Occurrence) Resource {
-	obj := &NetworkPolicyV1{}
+	var obj Resource
+	fmt.Println("I was HERe")
+	fmt.Println("I was HERe")
+	fmt.Println("I was HERe")
 	nsName := getNamespaceName(resource)
-	obj.ObjectMeta.Namespace = nsName
-	obj.Spec.PolicyTypes = nil
 	if occurrence.id == ErrorMissingDefaultDenyIngressNetworkPolicy {
-		obj.Spec.PolicyTypes = append(obj.Spec.PolicyTypes, "Ingress")
+		obj = setNetworkPolicyFields(obj, nsName, "Ingress")
 	}
 	if occurrence.id == ErrorMissingDefaultDenyEgressNetworkPolicy {
-		obj.Spec.PolicyTypes = append(obj.Spec.PolicyTypes, "Egress")
+		obj = setNetworkPolicyFields(obj, nsName, "Egress")
 	}
 	return obj
 }
