@@ -6,6 +6,7 @@ func TestFixServiceAccountTokenDeprecatedV1(t *testing.T) {
 	assert, resource := FixTestSetup(t, "service_account_token_deprecated_v1.yml", auditAutomountServiceAccountToken)
 	switch typ := resource.(type) {
 	case *ReplicationControllerV1:
+		assert.Equal("fakeDeprecatedServiceAccount", typ.Spec.Template.Spec.ServiceAccountName)
 		assert.Equal("", typ.Spec.Template.Spec.DeprecatedServiceAccount)
 	}
 }
