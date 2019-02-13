@@ -92,7 +92,10 @@ func fix(resources []Resource) (fixedResources []Resource, extraResources []Reso
 		for _, result := range results {
 			if IsNamespaceType(resource) {
 				extraResource := fixPotentialSecurityIssue(resource, result)
-				extraResources = append(extraResources, extraResource)
+				// If return resource from fixPotentialSecurityIssue is Namespace type then we don't have to add extra resources for it.
+				if !IsNamespaceType(extraResource) {
+					extraResources = append(extraResources, extraResource)
+				}
 			} else {
 				resource = fixPotentialSecurityIssue(resource, result)
 			}
