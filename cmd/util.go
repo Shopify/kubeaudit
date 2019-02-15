@@ -223,14 +223,6 @@ func writeManifestFile(decoded []byte, filename string, toAppend bool) error {
 	return nil
 }
 
-func writeSingleResourceManifestFile(decoded Resource, filename string) error {
-	if err := WriteToFile(decoded, filename, false); err != nil {
-		log.Error(err)
-		return err
-	}
-	return nil
-}
-
 func containerNamesUniq(resource Resource) bool {
 	names := make(map[string]bool)
 	for _, container := range getContainers(resource) {
