@@ -13,6 +13,7 @@ import (
 func TestFixV1(t *testing.T) {
 	file := "../fixtures/autofix_v1.yml"
 	fileFixed := "../fixtures/autofix-fixed_v1.yml"
+	rootConfig.manifest = file
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
@@ -25,6 +26,7 @@ func TestFixV1(t *testing.T) {
 func TestExtraResourcesFixV1(t *testing.T) {
 	file := "../fixtures/autofix-extra-resources_v1.yml"
 	fileFixed := "../fixtures/autofix-extra-resources-fixed_v1.yml"
+	rootConfig.manifest = file
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
@@ -37,6 +39,7 @@ func TestExtraResourcesFixV1(t *testing.T) {
 func TestExtraResourcesEgressFixV1(t *testing.T) {
 	file := "../fixtures/autofix-extra-resources-egress_v1.yml"
 	fileFixed := "../fixtures/autofix-extra-resources-egress-fixed_v1.yml"
+	rootConfig.manifest = file
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
@@ -50,6 +53,7 @@ func TestExtraResourcesEgressFixV1(t *testing.T) {
 func TestExtraResourcesIngressFixV1(t *testing.T) {
 	file := "../fixtures/autofix-extra-resources-ingress_v1.yml"
 	fileFixed := "../fixtures/autofix-extra-resources-ingress-fixed_v1.yml"
+	rootConfig.manifest = file
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
