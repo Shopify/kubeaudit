@@ -23,6 +23,22 @@ func TestFixV1(t *testing.T) {
 	assertEqualWorkloads(assert, correctlyFixedResources, fixedResources)
 }
 
+func TestAllResourcesFixV1(t *testing.T) {
+	file := "../fixtures/autofix-all-resources_v1.yml"
+	fileFixedResources := "../fixtures/autofix-fixed_v1.yml"
+	fileExtraResources := "../fixtures/autofix-extra-resources-fixed_v1.yml"
+	rootConfig.manifest = file
+	assert := assert.New(t)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	fixedResources, extraResources := fix(resources)
+	correctlyFixedResources, err := getKubeResourcesManifest(fileFixedResources)
+	assert.Nil(err)
+	correctlyFixedExtraResources, err := getKubeResourcesManifest(fileExtraResources)
+	assertEqualWorkloads(assert, correctlyFixedResources, fixedResources)
+	assertEqualWorkloads(assert, correctlyFixedExtraResources, extraResources)
+}
+
 func TestExtraResourcesFixV1(t *testing.T) {
 	file := "../fixtures/autofix-extra-resources_v1.yml"
 	fileFixed := "../fixtures/autofix-extra-resources-fixed_v1.yml"
