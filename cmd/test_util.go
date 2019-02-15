@@ -34,6 +34,21 @@ func FixTestSetup(t *testing.T, file string, auditFunction func(Resource) []Resu
 	return assert, fixPotentialSecurityIssue(resource, result)
 }
 
+// FixTestSetupMultipleResources allows kubeaudit to be used programmatically instead of via the shell for multiple Resources. It is intended to be used for testing.
+func FixTestSetupMultipleResources(t *testing.T, file string, auditFunction func(Resource) []Result) (*assert.Assertions, []Resource) {
+	var fixedResources []Resource
+	assert := assert.New(t)
+	file = filepath.Join(path, file)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	results := getResults(resources, auditFunction)
+	for index := range resources {
+		resource := resources[index]
+		fixedResources = append(fixedResources, fixPotentialSecurityIssue(resource, results[index]))
+	}
+	return assert, fixedResources
+}
+
 func runAuditTest(t *testing.T, file string, function interface{}, errCodes []int, argStr ...string) (results []Result) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)
