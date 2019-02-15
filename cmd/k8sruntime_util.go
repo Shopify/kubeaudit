@@ -50,20 +50,15 @@ func setContainers(resource Resource, containers []ContainerV1) Resource {
 }
 
 func setNetworkPolicyFields(nsName string, policyList []string) Resource {
-	obj := &NetworkPolicyV1{}
-	resource := obj.DeepCopyObject()
-	switch t := resource.(type) {
-	case *NetworkPolicyV1:
-		t.Kind = "NetworkPolicy"
-		t.APIVersion = "networking.k8s.io/v1"
-		t.ObjectMeta.Namespace = nsName
-		t.ObjectMeta.Name = "default-deny"
-		for _, policy := range policyList {
-			t.Spec.PolicyTypes = append(t.Spec.PolicyTypes, networking.PolicyType(policy))
-		}
-		return t.DeepCopyObject()
+	var np NetworkPolicyV1
+	np.Kind = "NetworkPolicy"
+	np.APIVersion = "networking.k8s.io/v1"
+	np.ObjectMeta.Namespace = nsName
+	np.ObjectMeta.Name = "default-deny"
+	for _, policy := range policyList {
+		np.Spec.PolicyTypes = append(np.Spec.PolicyTypes, networking.PolicyType(policy))
 	}
-	return resource
+	return np.DeepCopyObject()
 }
 
 func disableDSA(resource Resource) Resource {

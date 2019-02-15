@@ -147,7 +147,7 @@ func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyLis
 		for _, resource := range resources {
 			switch kubeType := resource.(type) {
 			case *NetworkPolicyV1:
-				if (*kubeType).ObjectMeta.Namespace == namespace {
+				if kubeType.ObjectMeta.Namespace == namespace {
 					netPolList.Items = append(netPolList.Items, *kubeType)
 				}
 			}

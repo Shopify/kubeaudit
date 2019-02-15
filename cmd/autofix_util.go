@@ -46,7 +46,6 @@ func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 		case ErrorMissingDefaultDenyIngressNetworkPolicy, ErrorMissingDefaultDenyEgressNetworkPolicy, ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy:
 			resource = fixNetworkPolicy(resource, occurrence)
 		}
-
 	}
 	return resource
 }
