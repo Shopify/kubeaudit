@@ -51,47 +51,36 @@ func setContainers(resource Resource, containers []ContainerV1) Resource {
 func disableDSA(resource Resource) Resource {
 	switch t := resource.(type) {
 	case *CronJobV1Beta1:
-		t.Spec.JobTemplate.Spec.Template.Spec.ServiceAccountName = t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *DaemonSetV1:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *DaemonSetV1Beta1:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *DeploymentExtensionsV1Beta1:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *DeploymentV1:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *DeploymentV1Beta1:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *DeploymentV1Beta2:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *PodV1:
-		t.Spec.ServiceAccountName = t.Spec.DeprecatedServiceAccount
 		t.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *ReplicationControllerV1:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *StatefulSetV1:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *StatefulSetV1Beta1:
-		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	}
