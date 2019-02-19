@@ -18,6 +18,11 @@ func autofix(*cobra.Command, []string) {
 
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
 
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
 	fixedResources := fix(resources)
 
 	tmpFixedFile, err := ioutil.TempFile("", "kubeaudit_autofix_fixed")
