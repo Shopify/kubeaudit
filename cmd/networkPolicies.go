@@ -183,7 +183,11 @@ func auditNetworkPolicies(resource Resource) (results []Result) {
 	}
 
 	// iterate over namespaces not netpol --> actually an namespace check not an netpol check
-	result, err := newResultFromResource(resource)
+	result, err, warn := newResultFromResource(resource)
+	if warn != nil {
+		log.Warn(warn)
+		return
+	}
 	if err != nil {
 		log.Error(err)
 		return

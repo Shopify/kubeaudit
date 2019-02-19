@@ -115,3 +115,23 @@ func IsSupportedResourceType(obj Resource) bool {
 		return false
 	}
 }
+
+// IsSupportedGroupVersionKind returns false if resource is of Supported Kind but not of supported Group Version Kind
+func IsSupportedGroupVersionKind(obj Resource) bool {
+	if IsSupportedResourceType(obj) {
+		return true
+	}
+	switch obj.GetObjectKind().GroupVersionKind().Kind {
+	case "CronJob",
+		"DaemonSetList", "DaemonSet",
+		"Deployment",
+		"Namespace",
+		"NetworkPolicyList", "NetworkPolicy",
+		"PodList", "Pod",
+		"ReplicationControllerList", "ReplicationController",
+		"StatefulSetList", "StatefulSet":
+		return false
+	default:
+		return true
+	}
+}

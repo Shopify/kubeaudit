@@ -44,7 +44,7 @@ func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
 }
 
-func newResultFromResource(resource Resource) (*Result, error) {
+func newResultFromResource(resource Resource) (*Result, error, error) {
 	result := &Result{}
 	switch kubeType := resource.(type) {
 	case *CronJobV1Beta1:
@@ -108,15 +108,22 @@ func newResultFromResource(resource Resource) (*Result, error) {
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
 	default:
-		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
+		if IsSupportedGroupVersionKind(resource) {
+			return nil, nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
+		}
+		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind()), nil
 	}
-	return result, nil
+	return result, nil, nil
 }
 
-func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, error) {
-	result, err := newResultFromResource(resource)
+func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, error, error) {
+	result, err, warn := newResultFromResource(resource)
+	if warn != nil {
+		log.Warn(warn)
+		return nil, nil, warn
+	}
 	if err != nil {
-		return nil, err
+		return nil, err, nil
 	}
 
 	switch kubeType := resource.(type) {
@@ -169,7 +176,7 @@ func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, er
 		result.Token = newFalse()
 	}
 
-	return result, nil
+	return result, nil, nil
 }
 
 func getKubeResources(clientset *kubernetes.Clientset) (resources []Resource) {
