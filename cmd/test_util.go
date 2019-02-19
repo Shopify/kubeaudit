@@ -41,10 +41,11 @@ func FixTestSetupMultipleResources(t *testing.T, file string, auditFunction func
 	file = filepath.Join(path, file)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
-	results := getResults(resources, auditFunction)
-	for index := range resources {
-		resource := resources[index]
-		fixedResources = append(fixedResources, fixPotentialSecurityIssue(resource, results[index]))
+	for _, resource := range resources {
+		results := getResults([]Resource{resource}, auditFunction)
+		for _, result := range results {
+			fixedResources = append(fixedResources, fixPotentialSecurityIssue(resource, result))
+		}
 	}
 	return assert, fixedResources
 }
