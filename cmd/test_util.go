@@ -44,8 +44,9 @@ func FixTestSetupMultipleResources(t *testing.T, file string, auditFunction func
 	for _, resource := range resources {
 		results := getResults([]Resource{resource}, auditFunction)
 		for _, result := range results {
-			fixedResources = append(fixedResources, fixPotentialSecurityIssue(resource, result))
+			resource = fixPotentialSecurityIssue(resource, result)
 		}
+		fixedResources = append(fixedResources, resource)
 	}
 	return assert, fixedResources
 }
