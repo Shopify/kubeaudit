@@ -20,3 +20,15 @@ func TestUnknownResourceV1(t *testing.T) {
 
 	assert.Nil(err)
 }
+
+func TestUnknownResourceV2(t *testing.T) {
+	file := "../fixtures/unknown_type_v1.yml"
+	assert := assert.New(t)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	assert.Len(resources, 1)
+	result, err, warn := newResultFromResource(resources[0])
+	assert.Nil(err)
+	assert.Nil(result)
+	assert.NotNil(warn)
+}

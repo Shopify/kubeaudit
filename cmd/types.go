@@ -122,17 +122,24 @@ func IsSupportedGroupVersionKind(obj Resource) bool {
 		return true
 	}
 	switch obj.GetObjectKind().GroupVersionKind().Kind {
-	case "CronJob",
-		"DaemonSetList", "DaemonSet",
-		"Deployment",
-		"Namespace",
-		"NetworkPolicyList", "NetworkPolicy",
-		"PodList", "Pod",
-		"ReplicationControllerList", "ReplicationController",
-		"StatefulSetList", "StatefulSet":
-		return false
-	default:
+	case "ReplicaSet", "Endpoints", "Ingress", "Service",
+		"ConfigMap", "Secret", "PersistentVolumeClaim", "StorageClass",
+		"Volume", "VolumeAttachment",
+		"ControllerRevision", "CustomResourceDefinition", "Event",
+		"LimitRange", "HorizontalPodAutoscaler", "InitializerConfiguration",
+		"MutatingWebhookConfiguration", "ValidatingWebhookConfiguration", "PodTemplate",
+		"PodDisruptionBudget", "PriorityClass",
+		"PodPreset", "PodSecurityPolicy", "APIService", "Binding",
+		"CertificateSigningRequest", "ClusterRole",
+		"ClusterRoleBinding", "ComponentStatus", "LocalSubjectAccessReview", "Node",
+		"PersistentVolume", "ResourceQuota",
+		"Role", "RoleBinding",
+		"SelfSubjectAccessReview", "SelfSubjectRulesReview",
+		"ServiceAccount", "SubjectAccessReview",
+		"TokenReview":
 		return true
+	default:
+		return false
 	}
 }
 
