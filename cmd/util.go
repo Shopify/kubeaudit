@@ -261,8 +261,8 @@ func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 			}
 
 			if !containerNamesUniq(obj) {
-				log.Error("Container names are not uniq")
-				return nil, errors.New("Container names are not uniq")
+				log.Error("Container names are not unique")
+				return nil, errors.New("Container names are not unique")
 			}
 			decoded = append(decoded, obj)
 		}

@@ -19,4 +19,3 @@ spec:
           capabilities:
             drop:
             - AUDIT_WRITE
-      - name: name
