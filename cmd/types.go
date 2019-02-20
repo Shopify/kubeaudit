@@ -115,3 +115,13 @@ func IsSupportedResourceType(obj Resource) bool {
 		return false
 	}
 }
+
+// IsNamespaceType returns true if obj is of NamespaceV1 type
+func IsNamespaceType(obj Resource) bool {
+	switch obj.(type) {
+	case *NamespaceV1:
+		return true
+	default:
+		return false
+	}
+}

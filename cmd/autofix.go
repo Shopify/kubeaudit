@@ -6,6 +6,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/kubernetes/scheme"
 )
 
 // The fix function does not preserve comments (because kubernetes resources do not support comments) so we convert
@@ -18,7 +21,7 @@ func autofix(*cobra.Command, []string) {
 
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
 
-	fixedResources := fix(resources)
+	fixedResources, extraResources := fix(resources)
 
 	tmpFixedFile, err := ioutil.TempFile("", "kubeaudit_autofix_fixed")
 	if err != nil {
@@ -35,11 +38,16 @@ func autofix(*cobra.Command, []string) {
 		log.Error(err)
 	}
 	defer os.Remove(finalFile.Name())
+	extraFile, err := ioutil.TempFile("", "kubeaudit_autofix_extra")
+	if err != nil {
+		log.Error(err)
+	}
+	defer os.Remove(extraFile.Name())
 
 	splitResources, toAppend, err := splitYamlResources(rootConfig.manifest, finalFile.Name())
 
 	for index := range fixedResources {
-		err = writeSingleResourceManifestFile(fixedResources[index], tmpFixedFile.Name())
+		err = WriteToFile(fixedResources[index], tmpFixedFile.Name(), false)
 		if err != nil {
 			log.Error(err)
 		}
@@ -52,6 +60,20 @@ func autofix(*cobra.Command, []string) {
 			log.Error(err)
 		}
 		err = writeManifestFile(fixedYaml, finalFile.Name(), toAppend)
+		if err != nil {
+			log.Error(err)
+		}
+		toAppend = true
+	}
+	for index := range extraResources {
+		info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
+		groupVersion := schema.GroupVersion{Group: extraResources[index].GetObjectKind().GroupVersionKind().Group, Version: extraResources[index].GetObjectKind().GroupVersionKind().Version}
+		encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
+		fixedData, err := k8sRuntime.Encode(encoder, extraResources[index])
+		if err != nil {
+			log.Error(err)
+		}
+		err = writeManifestFile(fixedData, finalFile.Name(), toAppend)
 		if err != nil {
 			log.Error(err)
 		}

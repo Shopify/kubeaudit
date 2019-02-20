@@ -176,6 +176,21 @@ func compareTextFiles(file1, file2 string) bool {
 		return false
 	}
 
+	f1stat, err := f1.Stat()
+	if err != nil {
+		return false
+	}
+
+	f2stat, err := f2.Stat()
+	if err != nil {
+		return false
+	}
+
+	if f1stat.Size() != f2stat.Size() {
+		fmt.Printf("File sizes don't match")
+		return false
+	}
+
 	s1 := bufio.NewScanner(f1)
 	s2 := bufio.NewScanner(f2)
 
