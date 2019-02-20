@@ -11,6 +11,8 @@ for d in $(go list ./... | grep -v vendor); do
     fi
 done
 
+go build -o kubeaudit main.go
+
 cp -r fixtures/ fixtures_temp
 
 for f in fixtures_temp/*;
