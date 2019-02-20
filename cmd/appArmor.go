@@ -59,7 +59,11 @@ func badAppArmorProfileName(profileName string) bool {
 }
 
 func auditAppArmor(resource Resource) (results []Result) {
-	result, err := newResultFromResource(resource)
+	result, err, warn := newResultFromResource(resource)
+	if warn != nil {
+		log.Warn(warn)
+		return
+	}
 	if err != nil {
 		log.Error(err)
 		return

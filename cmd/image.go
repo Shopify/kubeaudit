@@ -68,7 +68,11 @@ func checkImage(container ContainerV1, image imgFlags, result *Result) {
 
 func auditImages(image imgFlags, resource Resource) (results []Result) {
 	for _, container := range getContainers(resource) {
-		result, err := newResultFromResource(resource)
+		result, err, warn := newResultFromResource(resource)
+		if warn != nil {
+			log.Warn(warn)
+			return
+		}
 		if err != nil {
 			log.Error(err)
 			return
