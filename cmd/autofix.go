@@ -38,11 +38,9 @@ func autofix(*cobra.Command, []string) {
 		log.Error(err)
 	}
 	defer os.Remove(finalFile.Name())
-	extraFile, err := ioutil.TempFile("", "kubeaudit_autofix_extra")
 	if err != nil {
 		log.Error(err)
 	}
-	defer os.Remove(extraFile.Name())
 
 	splitResources, toAppend, err := splitYamlResources(rootConfig.manifest, finalFile.Name())
 

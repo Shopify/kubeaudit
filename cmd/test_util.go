@@ -159,6 +159,18 @@ func compareTextFiles(file1, file2 string) bool {
 		return false
 	}
 
+	s1 := bufio.NewScanner(f1)
+	s2 := bufio.NewScanner(f2)
+
+	for s1.Scan() {
+		s2.Scan()
+		text1 := s1.Text()
+		text2 := s2.Text()
+		if text1 != text2 {
+			fmt.Printf("Files don't match here:\n%v\n%v\n\n", text1, text2)
+			return false
+		}
+	}
 	f1stat, err := f1.Stat()
 	if err != nil {
 		return false
@@ -172,19 +184,6 @@ func compareTextFiles(file1, file2 string) bool {
 	if f1stat.Size() != f2stat.Size() {
 		fmt.Printf("File sizes don't match")
 		return false
-	}
-
-	s1 := bufio.NewScanner(f1)
-	s2 := bufio.NewScanner(f2)
-
-	for s1.Scan() {
-		s2.Scan()
-		text1 := s1.Text()
-		text2 := s2.Text()
-		if text1 != text2 {
-			fmt.Printf("Files don't match here:\n%v\n%v\n\n", text1, text2)
-			return false
-		}
 	}
 	return true
 }
