@@ -10,13 +10,19 @@ func TestFixAppArmorAnnotationMissingV1(t *testing.T) {
 	testFixAppArmor(t, "apparmor_annotation_missing_v1.yml")
 }
 
-func testFixAppArmor(t *testing.T, configFile string) {
-	assert, resource := FixTestSetup(t, configFile, auditAppArmor)
-	containers := getContainers(resource)
-	annotations := getPodAnnotations(resource)
+func TestFixAppArmorAnnotationMissingMultipleResourcesV1(t *testing.T) {
+	testFixAppArmor(t, "apparmor_annotation_missing_multiple_resources_v1.yml")
+}
 
-	for _, container := range containers {
-		containerAnnotation := ContainerAnnotationKeyPrefix + container.Name
-		assert.Equal(ProfileRuntimeDefault, annotations[containerAnnotation])
+func testFixAppArmor(t *testing.T, configFile string) {
+	assert, resources := FixTestSetupMultipleResources(t, configFile, auditAppArmor)
+	for _, resource := range resources {
+		containers := getContainers(resource)
+		annotations := getPodAnnotations(resource)
+
+		for _, container := range containers {
+			containerAnnotation := ContainerAnnotationKeyPrefix + container.Name
+			assert.Equal(ProfileRuntimeDefault, annotations[containerAnnotation])
+		}
 	}
 }
