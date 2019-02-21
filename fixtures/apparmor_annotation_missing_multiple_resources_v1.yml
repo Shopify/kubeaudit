@@ -101,6 +101,25 @@ spec:
 status:
   replicas: 0
 ---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: fakeReplicationController1
+  namespace: fakeReplicationController
+spec:
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        apps: fakeAutomountServiceAccountToken
+    spec:
+      containers:
+      - name: fakeContainer
+        resources: {}
+status:
+  replicas: 0
+---
 apiVersion: v1
 kind: Pod
 metadata:

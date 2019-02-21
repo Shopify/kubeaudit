@@ -33,7 +33,7 @@ func TestWriteToFileV1(t *testing.T) {
 	resource, err := getKubeResourcesManifest(file)
 	assert.Equal(1, len(resource))
 	assert.Nil(err)
-	err = WriteToFile(resource[0], fileout, false)
+	err = WriteToFile(resource[0], fileout)
 	assert.Nil(err)
 	resource2, err := getKubeResourcesManifest(file)
 	assert.Nil(err)

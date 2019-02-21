@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"io/ioutil"
-	"os"
 
 	networking "k8s.io/api/networking/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
@@ -262,7 +261,7 @@ func getPodAnnotations(resource Resource) (annotations map[string]string) {
 }
 
 // WriteToFile writes and then appends incoming resource
-func WriteToFile(decode Resource, filename string, toAppend bool) error {
+func WriteToFile(decode Resource, filename string) error {
 	info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
 	groupVersion := schema.GroupVersion{Group: decode.GetObjectKind().GroupVersionKind().Group, Version: decode.GetObjectKind().GroupVersionKind().Version}
 	encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
@@ -270,21 +269,9 @@ func WriteToFile(decode Resource, filename string, toAppend bool) error {
 	if err != nil {
 		return err
 	}
-	if !toAppend {
-		err = ioutil.WriteFile(filename, yaml, 0644)
-		if err != nil {
-			return err
-		}
-	} else {
-		f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		_, err = f.Write(yaml)
-		if err != nil {
-			return err
-		}
+	err = ioutil.WriteFile(filename, yaml, 0644)
+	if err != nil {
+		return err
 	}
 	return nil
 }

@@ -52,7 +52,7 @@ func autofix(*cobra.Command, []string) {
 	splitResources, toAppend, err := splitYamlResources(rootConfig.manifest, finalFile.Name())
 
 	for index := range fixedResources {
-		err = WriteToFile(fixedResources[index], tmpFixedFile.Name(), false)
+		err = WriteToFile(fixedResources[index], tmpFixedFile.Name())
 		if err != nil {
 			log.Error(err)
 		}
