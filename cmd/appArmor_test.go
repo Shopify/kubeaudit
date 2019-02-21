@@ -15,3 +15,7 @@ func TestAppArmorAnnotationMissingV1(t *testing.T) {
 func TestAppArmorBadValueV1(t *testing.T) {
 	runAuditTest(t, "apparmor_disabled_v1.yml", auditAppArmor, []int{ErrorAppArmorDisabled})
 }
+
+func TestAppArmorFakeResourceV1(t *testing.T) {
+	runFakeResourceAuditTest(t, auditAppArmor, []Resource{NewUnsupportedResource()})
+}
