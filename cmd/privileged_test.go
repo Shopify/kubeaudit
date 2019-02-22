@@ -21,3 +21,11 @@ func TestPrivilegedTrueAllowedV1(t *testing.T) {
 func TestPrivilegedMisconfiguredAllowV1(t *testing.T) {
 	runAuditTest(t, "privileged_misconfigured_allow_v1.yml", auditPrivileged, []int{ErrorMisconfiguredKubeauditAllow})
 }
+
+func TestPrivilegedTrueAllowedMultiContainerMultiLabelsV1(t *testing.T) {
+	runAuditTest(t, "privileged_true_allowed_multi_containers_multi_labels_v1.yml", auditPrivileged, []int{ErrorPrivilegedTrueAllowed})
+}
+
+func TestPrivilegedTrueAllowedMultiContainerSingleLabelV1(t *testing.T) {
+	runAuditTest(t, "privileged_true_allowed_multi_containers_single_label_v1.yml", auditPrivileged, []int{ErrorPrivilegedTrueAllowed, ErrorPrivilegedTrue})
+}

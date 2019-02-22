@@ -43,3 +43,11 @@ func TestAllowPrivilegeEscalationTrueAllowedV1Beta1(t *testing.T) {
 func TestAllowPrivilegeEscalationMisconfiguredAllowV1Beta1(t *testing.T) {
 	runAuditTest(t, "allow_privilege_escalation_misconfigured_allow_v1beta1.yml", auditAllowPrivilegeEscalation, []int{ErrorMisconfiguredKubeauditAllow})
 }
+
+func TestAllowPrivilegeEscalationMultipleAllowMultipleContainers(t *testing.T) {
+	runAuditTest(t, "allow_privilege_escalation_true_multiple_allowed_multiple_containers_v1beta.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
+}
+
+func TestAllowPrivilegeEscalationSingleAllowMultipleContainers(t *testing.T) {
+	runAuditTest(t, "allow_privilege_escalation_true_single_allowed_multiple_containers_v1beta.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrue, ErrorAllowPrivilegeEscalationTrueAllowed})
+}

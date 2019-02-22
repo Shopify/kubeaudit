@@ -72,7 +72,7 @@ func checkCapabilities(container ContainerV1, result *Result) {
 		}
 	}
 
-	allowedMap := result.allowedCaps()
+	allowedMap := result.allowedCaps(container)
 	allowed := make(CapSet)
 	for k := range allowedMap {
 		allowed[k] = true

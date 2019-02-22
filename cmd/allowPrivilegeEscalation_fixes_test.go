@@ -29,3 +29,26 @@ func TestFixAllowPrivilegeEscalationMisconfiguredAllowV1(t *testing.T) {
 		assert.False(*container.SecurityContext.AllowPrivilegeEscalation)
 	}
 }
+
+func TestFixAllowPrivilegeEscalationTrueAllowedMultipleContainerV1(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "allow_privilege_escalation_true_multiple_allowed_multiple_containers_v1beta.yml", auditAllowPrivilegeEscalation)
+	for _, resource := range resources {
+		for _, container := range getContainers(resource) {
+			assert.True(*container.SecurityContext.AllowPrivilegeEscalation)
+		}
+	}
+}
+
+func TestFixAllowPrivilegeEscalationTrueAllowedMultipleContainerV2(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "allow_privilege_escalation_true_single_allowed_multiple_containers_v1beta.yml", auditAllowPrivilegeEscalation)
+	for _, resource := range resources {
+		for _, container := range getContainers(resource) {
+			switch container.Name {
+			case "fakeContainerAPE":
+				assert.False(*container.SecurityContext.AllowPrivilegeEscalation)
+			case "fakeContainerAPE2":
+				assert.True(*container.SecurityContext.AllowPrivilegeEscalation)
+			}
+		}
+	}
+}

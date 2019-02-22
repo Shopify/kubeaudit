@@ -5,9 +5,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Checks the CSC for RANR
 func checkRunAsNonRootCSC(container ContainerV1, result *Result) {
-	if reason := result.Labels["audit.kubernetes.io/allow-run-as-root"]; reason != "" {
+	if labelExists, reason := getContainerOverrideLabelReason(result, container, "allow-run-as-root"); labelExists {
 		if container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil || *container.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{
 				container: container.Name,
@@ -49,11 +48,11 @@ func checkRunAsNonRootCSC(container ContainerV1, result *Result) {
 
 // Checks the PodSecurityContext for RANR
 
-func checkRunAsNonRootPSC(podSpec PodSpecV1, result *Result, containerName string) {
-	if reason := result.Labels["audit.kubernetes.io/allow-run-as-root"]; reason != "" {
+func checkRunAsNonRootPSC(podSpec PodSpecV1, container ContainerV1, result *Result) {
+	if labelExists, reason := getContainerOverrideLabelReason(result, container, "allow-run-as-root"); labelExists {
 		if podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil || *podSpec.SecurityContext.RunAsNonRoot == false {
 			occ := Occurrence{
-				container: containerName,
+				container: container.Name,
 				podHost:   podSpec.Hostname,
 				id:        ErrorRunAsNonRootFalseAllowed,
 				kind:      Warn,
@@ -63,7 +62,7 @@ func checkRunAsNonRootPSC(podSpec PodSpecV1, result *Result, containerName strin
 			result.Occurrences = append(result.Occurrences, occ)
 		} else {
 			occ := Occurrence{
-				container: containerName,
+				container: container.Name,
 				podHost:   podSpec.Hostname,
 				id:        ErrorMisconfiguredKubeauditAllow,
 				kind:      Warn,
@@ -74,7 +73,7 @@ func checkRunAsNonRootPSC(podSpec PodSpecV1, result *Result, containerName strin
 		}
 	} else if *podSpec.SecurityContext.RunAsNonRoot == false {
 		occ := Occurrence{
-			container: containerName,
+			container: container.Name,
 			podHost:   podSpec.Hostname,
 			id:        ErrorRunAsNonRootPSCFalseCSCNil,
 			kind:      Error,
@@ -99,7 +98,7 @@ func auditRunAsNonRoot(resource Resource) (results []Result) {
 		if shouldAuditCSC(podSpec, container) {
 			checkRunAsNonRootCSC(container, result)
 		} else {
-			checkRunAsNonRootPSC(podSpec, result, container.Name)
+			checkRunAsNonRootPSC(podSpec, container, result)
 		}
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)

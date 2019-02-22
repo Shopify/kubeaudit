@@ -82,3 +82,33 @@ func TestFixCapabilitiesMisconfiguredAllowV1Beta2(t *testing.T) {
 		assertAllDropped(assert, container.SecurityContext.Capabilities.Drop)
 	}
 }
+
+func TestFixCapabilitySomeAllowedMultiContainersAllContainerLabelsV1Beta2(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "capabilities_some_allowed_multi_containers_all_container_labels_v1beta2.yml", auditCapabilities)
+	add := []CapabilityV1{"SYS_TIME"}
+	for _, resource := range resources {
+		for _, container := range getContainers(resource) {
+			fmt.Println(container.Name)
+			assert.Equal(add, container.SecurityContext.Capabilities.Add)
+			assertAllDropped(assert, container.SecurityContext.Capabilities.Drop, []CapabilityV1{"CHOWN"})
+		}
+	}
+}
+
+func TestFixCapabilitySomeAllowedMultiContainersSomeContainerLabelsV1Beta2(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "capabilities_some_allowed_multi_containers_some_container_labels_v1beta2.yml", auditCapabilities)
+	for _, resource := range resources {
+		for _, container := range getContainers(resource) {
+			switch container.Name {
+			case "fakeContainerSC":
+				add := []CapabilityV1{"SYS_TIME"}
+				assert.Equal(add, container.SecurityContext.Capabilities.Add)
+				assertAllDropped(assert, container.SecurityContext.Capabilities.Drop, []CapabilityV1{"CHOWN"})
+			case "fakeContainerSC2":
+				add := []CapabilityV1{}
+				assert.Equal(add, container.SecurityContext.Capabilities.Add)
+				assertAllDropped(assert, container.SecurityContext.Capabilities.Drop, []CapabilityV1{"CHOWN", "SYS_TIME"})
+			}
+		}
+	}
+}

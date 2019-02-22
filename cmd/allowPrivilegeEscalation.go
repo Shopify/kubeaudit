@@ -6,7 +6,7 @@ import (
 )
 
 func checkAllowPrivilegeEscalation(container ContainerV1, result *Result) {
-	if reason := result.Labels["audit.kubernetes.io/allow-privilege-escalation"]; reason == "" {
+	if labelExists, reason := getContainerOverrideLabelReason(result, container, "allow-privilege-escalation"); !labelExists {
 		if container.SecurityContext == nil || container.SecurityContext.AllowPrivilegeEscalation == nil {
 			occ := Occurrence{
 				container: container.Name,

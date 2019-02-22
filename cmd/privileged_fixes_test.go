@@ -36,3 +36,26 @@ func TestFixPrivilegedMisconfiguredAllowV1(t *testing.T) {
 		assert.False(*container.SecurityContext.Privileged)
 	}
 }
+
+func TestFixPrivilegedTrueAllowedMultiContainerMultiLabelsV1(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "privileged_true_allowed_multi_containers_multi_labels_v1.yml", auditPrivileged)
+	for _, resource := range resources {
+		for _, container := range getContainers(resource) {
+			assert.True(*container.SecurityContext.Privileged)
+		}
+	}
+}
+
+func TestFixPrivilegedTrueAllowedMultiContainerSingleLabelV1(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "privileged_true_allowed_multi_containers_single_label_v1.yml", auditPrivileged)
+	for _, resource := range resources {
+		for _, container := range getContainers(resource) {
+			switch container.Name {
+			case "fakeContainerPrivileged":
+				assert.False(*container.SecurityContext.Privileged)
+			case "fakeContainerPrivileged2":
+				assert.True(*container.SecurityContext.Privileged)
+			}
+		}
+	}
+}
