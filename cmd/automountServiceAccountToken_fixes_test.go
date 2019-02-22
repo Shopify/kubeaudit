@@ -6,7 +6,49 @@ func TestFixServiceAccountTokenDeprecatedV1(t *testing.T) {
 	assert, resource := FixTestSetup(t, "service_account_token_deprecated_v1.yml", auditAutomountServiceAccountToken)
 	switch typ := resource.(type) {
 	case *ReplicationControllerV1:
+		assert.Equal("fakeDeprecatedServiceAccount", typ.Spec.Template.Spec.ServiceAccountName)
 		assert.Equal("", typ.Spec.Template.Spec.DeprecatedServiceAccount)
+	}
+}
+
+func TestFixServiceAccountTokenDeprecatedV2(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "service_account_token_deprecated_multiple_resources_v1.yml", auditAutomountServiceAccountToken)
+	for index := range resources {
+		switch t := resources[index].(type) {
+		case *CronJobV1Beta1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.JobTemplate.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *DaemonSetV1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *DaemonSetV1Beta1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *DeploymentExtensionsV1Beta1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *DeploymentV1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *DeploymentV1Beta1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *DeploymentV1Beta2:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *PodV1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.DeprecatedServiceAccount)
+		case *ReplicationControllerV1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *StatefulSetV1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *StatefulSetV1Beta1:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		}
 	}
 }
 
