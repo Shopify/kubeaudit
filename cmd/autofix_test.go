@@ -13,13 +13,70 @@ import (
 func TestFixV1(t *testing.T) {
 	file := "../fixtures/autofix_v1.yml"
 	fileFixed := "../fixtures/autofix-fixed_v1.yml"
+	rootConfig.manifest = file
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
-	fixedResources := fix(resources)
+	fixedResources, _ := fix(resources)
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
 	assertEqualWorkloads(assert, correctlyFixedResources, fixedResources)
+}
+
+func TestAllResourcesFixV1(t *testing.T) {
+	file := "../fixtures/autofix-all-resources_v1.yml"
+	fileFixedResources := "../fixtures/autofix-fixed_v1.yml"
+	fileExtraResources := "../fixtures/autofix-extra-resources-fixed_v1.yml"
+	rootConfig.manifest = file
+	assert := assert.New(t)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	fixedResources, extraResources := fix(resources)
+	correctlyFixedResources, err := getKubeResourcesManifest(fileFixedResources)
+	assert.Nil(err)
+	correctlyFixedExtraResources, err := getKubeResourcesManifest(fileExtraResources)
+	assertEqualWorkloads(assert, correctlyFixedResources, fixedResources)
+	assertEqualWorkloads(assert, correctlyFixedExtraResources, extraResources)
+}
+
+func TestExtraResourcesFixV1(t *testing.T) {
+	file := "../fixtures/autofix-extra-resources_v1.yml"
+	fileFixed := "../fixtures/autofix-extra-resources-fixed_v1.yml"
+	rootConfig.manifest = file
+	assert := assert.New(t)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	_, extraResources := fix(resources)
+	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
+	assert.Nil(err)
+	assertEqualWorkloads(assert, correctlyFixedResources, extraResources)
+}
+
+func TestExtraResourcesEgressFixV1(t *testing.T) {
+	file := "../fixtures/autofix-extra-resources-egress_v1.yml"
+	fileFixed := "../fixtures/autofix-extra-resources-egress-fixed_v1.yml"
+	rootConfig.manifest = file
+	assert := assert.New(t)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	_, extraResources := fix(resources)
+	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
+	assert.Nil(err)
+	assertEqualWorkloads(assert, correctlyFixedResources, extraResources)
+
+}
+
+func TestExtraResourcesIngressFixV1(t *testing.T) {
+	file := "../fixtures/autofix-extra-resources-ingress_v1.yml"
+	fileFixed := "../fixtures/autofix-extra-resources-ingress-fixed_v1.yml"
+	rootConfig.manifest = file
+	assert := assert.New(t)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	_, extraResources := fix(resources)
+	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
+	assert.Nil(err)
+	assertEqualWorkloads(assert, correctlyFixedResources, extraResources)
 }
 
 func TestFixV1Beta1(t *testing.T) {
@@ -28,10 +85,34 @@ func TestFixV1Beta1(t *testing.T) {
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
-	fixedResources := fix(resources)
+	fixedResources, _ := fix(resources)
 	correctlyFixedResources, err := getKubeResourcesManifest(fileFixed)
 	assert.Nil(err)
 	assertEqualWorkloads(assert, correctlyFixedResources, fixedResources)
+}
+
+func TestFixV1Beta2(t *testing.T) {
+	origFilename := "../fixtures/autofix-all-resources_v1.yml"
+	expectedFilename := "../fixtures/autofix-all-resources-fixed_v1.yml"
+	assert := assert.New(t)
+
+	// Copy original yaml to a temp file because autofix modifies the input file
+	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix_test")
+	tmpFilename := tmpFile.Name()
+	assert.Nil(err)
+	defer os.Remove(tmpFilename)
+	origFile, err := os.Open(origFilename)
+	assert.Nil(err)
+	_, err = io.Copy(tmpFile, origFile)
+	assert.Nil(err)
+	tmpFile.Close()
+	origFile.Close()
+
+	rootConfig.manifest = tmpFilename
+	autofix(nil, nil)
+
+	assert.True(compareTextFiles(expectedFilename, tmpFilename))
+
 }
 
 func TestPreserveComments(t *testing.T) {

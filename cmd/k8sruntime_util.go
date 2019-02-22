@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	networking "k8s.io/api/networking/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -46,6 +47,18 @@ func setContainers(resource Resource, containers []ContainerV1) Resource {
 		return t.DeepCopyObject()
 	}
 	return resource
+}
+
+func setNetworkPolicyFields(nsName string, policyList []string) Resource {
+	var np NetworkPolicyV1
+	np.Kind = "NetworkPolicy"
+	np.APIVersion = "networking.k8s.io/v1"
+	np.ObjectMeta.Namespace = nsName
+	np.ObjectMeta.Name = "default-deny"
+	for _, policy := range policyList {
+		np.Spec.PolicyTypes = append(np.Spec.PolicyTypes, networking.PolicyType(policy))
+	}
+	return np.DeepCopyObject()
 }
 
 func disableDSA(resource Resource) Resource {
