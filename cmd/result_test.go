@@ -24,21 +24,17 @@ func TestShouldLog(t *testing.T) {
 			assert.Equal(t, len(members), 5)
 		case ErrorResourcesLimitsMemoryExceeded:
 			assert.Equal(t, len(members), 5)
-
 		}
 	}
 }
 
 func TestCreateFields(t *testing.T) {
-	rootConfig.manifest = "../fixtures/autofix-all-resources_v1.yml"
+	rootConfig.manifest = "../fixtures/run_as_non_root_psc_false_csc_nil_multiple_cont_v1.yml"
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
 	assert.Nil(t, err)
 	results := getResults(resources, auditRunAsNonRoot)
-	assert.Equal(t, 2, len(results))
+	assert.Equal(t, 1, len(results))
 	assert.Equal(t, 1, len(results[0].Occurrences))
-	assert.Equal(t, 1, len(results[1].Occurrences))
 	fields := createFields(results[0], results[0].Occurrences[0])
-	assert.Equal(t, 4, len(fields))
-	fields = createFields(results[1], results[1].Occurrences[0])
-	assert.Equal(t, 4, len(fields))
+	assert.Equal(t, 5, len(fields))
 }
