@@ -15,19 +15,16 @@ go build -o kubeaudit main.go
 
 cp -r fixtures/ fixtures_temp
 
-for f in fixtures_temp/*;
-do
+for f in fixtures_temp/*; do
     ./kubeaudit autofix -f $f 2>> /dev/null
-done;
+done
 
-for f in fixtures_temp/*;
-do
+for f in fixtures_temp/*; do
     echo $f >> result_file
     ./kubeaudit all -f $f 2>> result_file
-done;
+done
 
-if (( $(grep -c 'level=error' result_file) > 0 ));
-    then
+if (( $(grep -c 'level=error' result_file) > 0 )); then
     echo ERROR: Regression Test Failed
     sed -n '/^fixtures_temp/{ x; /level=error/p; d; }; /level=error/H; ${ x; /level=error/p; }' result_file
     rm result_file
@@ -35,5 +32,4 @@ if (( $(grep -c 'level=error' result_file) > 0 ));
     exit 1 # terminate and indicate error
 fi
 
-rm result_file
-rm -r fixtures_temp
+rm -r ./result_file ./fixtures_temp

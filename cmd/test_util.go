@@ -211,6 +211,7 @@ func compareTextFiles(file1, file2 string) bool {
 			return false
 		}
 	}
+
 	f1stat, err := f1.Stat()
 	if err != nil {
 		return false
