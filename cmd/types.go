@@ -145,7 +145,6 @@ func IsSupportedGroupVersionKind(obj Resource) bool {
 		return false
 	}
 }
-
 // IsNamespaceType returns true if obj is of NamespaceV1 type
 func IsNamespaceType(obj Resource) bool {
 	switch obj.(type) {

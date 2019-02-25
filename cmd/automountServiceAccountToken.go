@@ -17,7 +17,7 @@ func checkAutomountServiceAccountToken(result *Result) {
 		return
 	}
 
-	if reason := result.Labels["audit.kubernetes.io/allow-automount-service-account-token"]; reason != "" {
+	if labelExists, reason := getPodOverrideLabelReason(result, "allow-automount-service-account-token"); labelExists {
 		if result.Token != nil && *result.Token {
 			occ := Occurrence{
 				id:       ErrorAutomountServiceAccountTokenTrueAllowed,

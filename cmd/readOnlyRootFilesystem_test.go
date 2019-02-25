@@ -21,3 +21,11 @@ func TestReadOnlyRootFilesystemFalseAllowedV1(t *testing.T) {
 func TestReadOnlyRootFilesystemMisconfiguredAllowV1(t *testing.T) {
 	runAuditTest(t, "read_only_root_filesystem_misconfigured_allow_v1.yml", auditReadOnlyRootFS, []int{ErrorMisconfiguredKubeauditAllow})
 }
+
+func TestReadOnlyRootFilesystemFalseAllowedMultContainerMultiLabelsV1(t *testing.T) {
+	runAuditTest(t, "read_only_root_filesystem_false_allowed_multi_container_multi_labels_v1.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemFalseAllowed})
+}
+
+func TestReadOnlyRootFilesystemFalseAllowedMultContainerSingleLabelV1(t *testing.T) {
+	runAuditTest(t, "read_only_root_filesystem_false_allowed_multi_container_single_label_v1.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemFalseAllowed, ErrorReadOnlyRootFilesystemFalse})
+}

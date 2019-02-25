@@ -50,3 +50,11 @@ func TestPSCFalseCSCNilMultipleRunAsNonRootFalseV1(t *testing.T) {
 func TestPSCFalseCSCTrueMultipleRunAsNonRootFalseV1(t *testing.T) {
 	runAuditTest(t, "run_as_non_root_psc_false_csc_true_multiple_cont_v1.yml", auditRunAsNonRoot, []int{})
 }
+
+func TestPSCRunAsRootFalseAllowedMultiContainersV1(t *testing.T) {
+	runAuditTest(t, "run_as_non_root_psc_false_allowed_multi_containers_multi_labels_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalseAllowed, ErrorRunAsNonRootFalseAllowed})
+}
+
+func TestPSCRunAsRootFalseAllowedMultiContainersV2(t *testing.T) {
+	runAuditTest(t, "run_as_non_root_psc_false_allowed_multi_containers_single_label_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCTrueFalseCSCFalse})
+}

@@ -23,21 +23,21 @@ func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue:
-			resource = fixAllowPrivilegeEscalation(resource, occurrence)
+			resource = fixAllowPrivilegeEscalation(&result, resource, occurrence)
 		case ErrorCapabilityNotDropped:
-			resource = fixCapabilityNotDropped(resource, occurrence)
+			resource = fixCapabilityNotDropped(&result, resource, occurrence)
 		case ErrorCapabilityAdded:
-			resource = fixCapabilityAdded(resource, occurrence)
+			resource = fixCapabilityAdded(&result, resource, occurrence)
 		case ErrorPrivilegedNil, ErrorPrivilegedTrue:
-			resource = fixPrivileged(resource, occurrence)
+			resource = fixPrivileged(&result, resource, occurrence)
 		case ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil:
-			resource = fixReadOnlyRootFilesystem(resource, occurrence)
+			resource = fixReadOnlyRootFilesystem(&result, resource, occurrence)
 		case ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCNilCSCNil, ErrorRunAsNonRootPSCFalseCSCNil:
-			resource = fixRunAsNonRoot(resource, occurrence)
+			resource = fixRunAsNonRoot(&result, resource, occurrence)
 		case ErrorServiceAccountTokenDeprecated:
 			resource = fixDeprecatedServiceAccount(resource)
 		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNilAndNoName:
-			resource = fixServiceAccountToken(resource)
+			resource = fixServiceAccountToken(&result, resource)
 		case ErrorAppArmorAnnotationMissing, ErrorAppArmorDisabled:
 			resource = fixAppArmor(resource)
 		case ErrorSeccompAnnotationMissing, ErrorSeccompDeprecated, ErrorSeccompDeprecatedPod, ErrorSeccompDisabled,

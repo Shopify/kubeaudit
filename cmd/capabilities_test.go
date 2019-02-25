@@ -40,13 +40,3 @@ func TestCapabilitiesMisconfiguredAllowV1Beta2(t *testing.T) {
 func TestCapabilitiesDroppedAllV1Beta2(t *testing.T) {
 	runAuditTest(t, "capabilities_dropped_all_v1beta2.yml", auditCapabilities, []int{})
 }
-
-func TestCapabilitiesDropCapConfigV1(t *testing.T) {
-	rootConfig.dropCapConfig = "../fixtures/drop_Cap_Config_Manifest_v1.yml"
-	runAuditTest(t, "capabilities_dropped_all_v1beta2.yml", auditCapabilities, []int{})
-}
-
-func TestCapabilitiesFakeDropCapConfigV1(t *testing.T) {
-	rootConfig.dropCapConfig = "fake/path/here"
-	runAuditTest(t, "capabilities_dropped_all_v1beta2.yml", auditCapabilities, []int{KubeauditInternalError})
-}

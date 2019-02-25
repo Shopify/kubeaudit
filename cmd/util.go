@@ -382,3 +382,31 @@ func shouldAuditCSC(podSpec PodSpecV1, container ContainerV1) bool {
 	}
 	return false
 }
+
+func getContainerOverrideLabelReason(result *Result, container ContainerV1, overrideLabel string) (bool, string) {
+	containerOverrideLabel := "container.audit.kubernetes.io/" + container.Name + "/" + overrideLabel
+
+	if reason := result.Labels[containerOverrideLabel]; reason != "" {
+		return true, reason
+	}
+	return getPodOverrideLabelReason(result, overrideLabel)
+}
+
+func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, string) {
+	podOverrideLabel := "audit.kubernetes.io/pod/" + overrideLabel
+	if reason := result.Labels[podOverrideLabel]; reason != "" {
+		return true, reason
+	}
+	return false, ""
+}
+
+func isDefinedCapOverrideLabel(result *Result, container ContainerV1, capName string) bool {
+	capNameKey := strings.Replace(capName, "_", "-", -1)
+	containerKeyString := "container.audit.kubernetes.io/" + container.Name + "/allow-capability-" + capNameKey
+	if result.Labels[containerKeyString] != "" {
+		return true
+	}
+
+	podKeyString := "audit.kubernetes.io/pod/allow-capability-" + capNameKey
+	return result.Labels[podKeyString] != ""
+}

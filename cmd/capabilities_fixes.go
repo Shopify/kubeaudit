@@ -17,10 +17,10 @@ func fixCapabilitiesNil(resource Resource) Resource {
 	return setContainers(resource, containers)
 }
 
-func fixCapabilityNotDropped(resource Resource, occurrence Occurrence) Resource {
+func fixCapabilityNotDropped(result *Result, resource Resource, occurrence Occurrence) Resource {
 	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
-		if occurrence.container == container.Name {
+		if occurrence.container == container.Name && !isDefinedCapOverrideLabel(result, container, occurrence.metadata["CapName"]) {
 			container.SecurityContext.Capabilities.Drop = append(container.SecurityContext.Capabilities.Drop, CapabilityV1(occurrence.metadata["CapName"]))
 		}
 		containers = append(containers, container)
@@ -28,13 +28,13 @@ func fixCapabilityNotDropped(resource Resource, occurrence Occurrence) Resource 
 	return setContainers(resource, containers)
 }
 
-func fixCapabilityAdded(resource Resource, occurrence Occurrence) Resource {
+func fixCapabilityAdded(result *Result, resource Resource, occurrence Occurrence) Resource {
 	var containers []ContainerV1
 	for _, container := range getContainers(resource) {
 		if occurrence.container == container.Name {
 			add := []CapabilityV1{}
 			for _, cap := range container.SecurityContext.Capabilities.Add {
-				if string(cap) != occurrence.metadata["CapName"] {
+				if string(cap) != occurrence.metadata["CapName"] || isDefinedCapOverrideLabel(result, container, string(cap)) {
 					add = append(add, cap)
 				}
 			}
