@@ -226,17 +226,6 @@ func writeManifestFile(decoded []byte, filename string, toAppend bool) error {
 	return nil
 }
 
-func containerNamesUniq(resource Resource) bool {
-	names := make(map[string]bool)
-	for _, container := range getContainers(resource) {
-		if names[container.Name] {
-			return false
-		}
-		names[container.Name] = true
-	}
-	return true
-}
-
 func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
@@ -255,11 +244,6 @@ func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 				decoded = append(decoded, obj)
 				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind().GroupVersionKind())
 				continue
-			}
-
-			if !containerNamesUniq(obj) {
-				log.Error("Container names are not unique")
-				return nil, errors.New("Container names are not unique")
 			}
 			decoded = append(decoded, obj)
 		}
