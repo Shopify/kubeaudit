@@ -131,6 +131,7 @@ func IsSupportedGroupVersionKind(obj Resource) bool {
 		"ControllerRevision", "CustomResourceDefinition", "Event",
 		"LimitRange", "HorizontalPodAutoscaler", "InitializerConfiguration",
 		"MutatingWebhookConfiguration", "ValidatingWebhookConfiguration", "PodTemplate",
+		"PodDisruptionBudget", "PriorityClass",
 		"PodPreset", "PodSecurityPolicy", "APIService", "Binding",
 		"CertificateSigningRequest", "ClusterRole",
 		"ClusterRoleBinding", "ComponentStatus", "LocalSubjectAccessReview", "Node",
