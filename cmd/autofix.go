@@ -20,6 +20,10 @@ func autofix(*cobra.Command, []string) {
 	var toAppend = false
 
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	fixedResources, extraResources := fix(resources)
 
@@ -38,11 +42,11 @@ func autofix(*cobra.Command, []string) {
 		log.Error(err)
 	}
 	defer os.Remove(finalFile.Name())
+
+	splitResources, toAppend, err := splitYamlResources(rootConfig.manifest, finalFile.Name())
 	if err != nil {
 		log.Error(err)
 	}
-
-	splitResources, toAppend, err := splitYamlResources(rootConfig.manifest, finalFile.Name())
 
 	for index := range fixedResources {
 		err = WriteToFile(fixedResources[index], tmpFixedFile.Name(), false)
@@ -63,6 +67,7 @@ func autofix(*cobra.Command, []string) {
 		}
 		toAppend = true
 	}
+
 	for index := range extraResources {
 		info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
 		groupVersion := schema.GroupVersion{Group: extraResources[index].GetObjectKind().GroupVersionKind().Group, Version: extraResources[index].GetObjectKind().GroupVersionKind().Version}

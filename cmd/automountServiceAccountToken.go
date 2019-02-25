@@ -62,7 +62,11 @@ func checkAutomountServiceAccountToken(result *Result) {
 }
 
 func auditAutomountServiceAccountToken(resource Resource) (results []Result) {
-	result, err := newResultFromResourceWithServiceAccountInfo(resource)
+	result, err, warn := newResultFromResourceWithServiceAccountInfo(resource)
+	if warn != nil {
+		log.Warn(warn)
+		return
+	}
 	if err != nil {
 		log.Error(err)
 		return
