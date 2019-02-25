@@ -44,7 +44,7 @@ func isInNamespace(meta metav1.ObjectMeta, namespace string) (valid bool) {
 	return namespace == apiv1.NamespaceAll || namespace == meta.Namespace
 }
 
-func newResultFromResource(resource Resource) (*Result, error) {
+func newResultFromResource(resource Resource) (*Result, error, error) {
 	result := &Result{}
 	switch kubeType := resource.(type) {
 	case *CronJobV1Beta1:
@@ -108,15 +108,18 @@ func newResultFromResource(resource Resource) (*Result, error) {
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
 	default:
-		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
+		if IsSupportedGroupVersionKind(resource) {
+			return nil, nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind())
+		}
+		return nil, fmt.Errorf("resource type %s not supported", resource.GetObjectKind().GroupVersionKind()), nil
 	}
-	return result, nil
+	return result, nil, nil
 }
 
-func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, error) {
-	result, err := newResultFromResource(resource)
-	if err != nil {
-		return nil, err
+func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, error, error) {
+	result, err, warn := newResultFromResource(resource)
+	if warn != nil || err != nil {
+		return nil, err, warn
 	}
 
 	switch kubeType := resource.(type) {
@@ -169,7 +172,7 @@ func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, er
 		result.Token = newFalse()
 	}
 
-	return result, nil
+	return result, nil, nil
 }
 
 func getKubeResources(clientset *kubernetes.Clientset) (resources []Resource) {
@@ -223,17 +226,6 @@ func writeManifestFile(decoded []byte, filename string, toAppend bool) error {
 	return nil
 }
 
-func containerNamesUniq(resource Resource) bool {
-	names := make(map[string]bool)
-	for _, container := range getContainers(resource) {
-		if names[container.Name] {
-			return false
-		}
-		names[container.Name] = true
-	}
-	return true
-}
-
 func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 	buf, err := ioutil.ReadFile(filename)
 
@@ -252,11 +244,6 @@ func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 				decoded = append(decoded, obj)
 				log.Warnf("Skipping unsupported resource type %s", obj.GetObjectKind().GroupVersionKind())
 				continue
-			}
-
-			if !containerNamesUniq(obj) {
-				log.Error("Container names are not uniq")
-				return nil, errors.New("Container names are not uniq")
 			}
 			decoded = append(decoded, obj)
 		}

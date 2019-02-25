@@ -116,6 +116,33 @@ func IsSupportedResourceType(obj Resource) bool {
 	}
 }
 
+// IsSupportedGroupVersionKind returns false if resource is of Supported Kind but not of supported Group Version Kind
+func IsSupportedGroupVersionKind(obj Resource) bool {
+	if IsSupportedResourceType(obj) {
+		return true
+	}
+	switch obj.GetObjectKind().GroupVersionKind().Kind {
+	case "ReplicaSet", "Endpoints", "Ingress", "Service",
+		"ConfigMap", "Secret", "PersistentVolumeClaim", "StorageClass",
+		"Volume", "VolumeAttachment",
+		"ControllerRevision", "CustomResourceDefinition", "Event",
+		"LimitRange", "HorizontalPodAutoscaler", "InitializerConfiguration",
+		"MutatingWebhookConfiguration", "ValidatingWebhookConfiguration", "PodTemplate",
+		"PodDisruptionBudget", "PriorityClass",
+		"PodPreset", "PodSecurityPolicy", "APIService", "Binding",
+		"CertificateSigningRequest", "ClusterRole",
+		"ClusterRoleBinding", "ComponentStatus", "LocalSubjectAccessReview", "Node",
+		"PersistentVolume", "ResourceQuota",
+		"Role", "RoleBinding",
+		"SelfSubjectAccessReview", "SelfSubjectRulesReview",
+		"ServiceAccount", "SubjectAccessReview",
+		"TokenReview":
+		return true
+	default:
+		return false
+	}
+}
+
 // IsNamespaceType returns true if obj is of NamespaceV1 type
 func IsNamespaceType(obj Resource) bool {
 	switch obj.(type) {
