@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	log "github.com/sirupsen/logrus"
-	logTest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	apiv1 "k8s.io/api/core/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
@@ -109,22 +108,6 @@ func runAuditTest(t *testing.T, file string, function interface{}, errCodes []in
 		assert.True(errors[errCode])
 	}
 	return
-}
-
-func runFakeResourceAuditTest(t *testing.T, function interface{}, fakeResources []Resource) {
-	for _, resource := range fakeResources {
-		switch f := function.(type) {
-		case (func(Resource) []Result):
-			hook := logTest.NewGlobal()
-			_ = f(resource)
-			assert.Equal(t, log.ErrorLevel, hook.LastEntry().Level)
-			hook.Reset()
-		default:
-			name := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
-			log.Fatal("Invalid audit function provided: ", name)
-		}
-	}
-
 }
 
 func runAuditTestInNamespace(t *testing.T, namespace string, file string, function interface{}, errCodes []int) {
