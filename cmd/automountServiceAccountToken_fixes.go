@@ -1,6 +1,6 @@
 package cmd
 
-func fixServiceAccountToken(resource Resource) Resource {
+func fixServiceAccountToken(result *Result, resource Resource) Resource {
 	return setASAT(resource, false)
 }
 

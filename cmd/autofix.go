@@ -6,6 +6,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/kubernetes/scheme"
 )
 
 // The fix function does not preserve comments (because kubernetes resources do not support comments) so we convert
@@ -18,19 +21,37 @@ func autofix(*cobra.Command, []string) {
 
 		resources, err := getKubeResourcesManifest(manifest)
 
-		fixedResources := fix(resources)
+	resources, err := getKubeResourcesManifest(rootConfig.manifest)
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
-		tmpFixedFile, err := ioutil.TempFile("", "kubeaudit_autofix_fixed")
-		if err != nil {
-			log.Error(err)
-		}
-		defer os.Remove(tmpFixedFile.Name())
-		tmpOrigFile, err := ioutil.TempFile("", "kubeaudit_autofix_orig")
-		if err != nil {
-			log.Error(err)
-		}
-		defer os.Remove(tmpOrigFile.Name())
-		finalFile, err := ioutil.TempFile("", "kubeaudit_autofix_final")
+	fixedResources, extraResources := fix(resources)
+
+	tmpFixedFile, err := ioutil.TempFile("", "kubeaudit_autofix_fixed")
+	if err != nil {
+		log.Error(err)
+	}
+	defer os.Remove(tmpFixedFile.Name())
+	tmpOrigFile, err := ioutil.TempFile("", "kubeaudit_autofix_orig")
+	if err != nil {
+		log.Error(err)
+	}
+	defer os.Remove(tmpOrigFile.Name())
+	finalFile, err := ioutil.TempFile("", "kubeaudit_autofix_final")
+	if err != nil {
+		log.Error(err)
+	}
+	defer os.Remove(finalFile.Name())
+
+	splitResources, toAppend, err := splitYamlResources(rootConfig.manifest, finalFile.Name())
+	if err != nil {
+		log.Error(err)
+	}
+
+	for index := range fixedResources {
+		err = WriteToFile(fixedResources[index], tmpFixedFile.Name())
 		if err != nil {
 			log.Error(err)
 		}
@@ -70,6 +91,35 @@ func autofix(*cobra.Command, []string) {
 		if err != nil {
 			log.Error(err)
 		}
+		toAppend = true
+	}
+
+	for index := range extraResources {
+		info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
+		groupVersion := schema.GroupVersion{Group: extraResources[index].GetObjectKind().GroupVersionKind().Group, Version: extraResources[index].GetObjectKind().GroupVersionKind().Version}
+		encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
+		fixedData, err := k8sRuntime.Encode(encoder, extraResources[index])
+		if err != nil {
+			log.Error(err)
+		}
+		err = writeManifestFile(fixedData, finalFile.Name(), toAppend)
+		if err != nil {
+			log.Error(err)
+		}
+		toAppend = true
+	}
+
+	finalData, err := ioutil.ReadFile(finalFile.Name())
+	if err != nil {
+		log.Error(err)
+	}
+	err = os.Truncate(rootConfig.manifest, 0)
+	if err != nil {
+		log.Error(err)
+	}
+	err = writeManifestFile(finalData, rootConfig.manifest, false)
+	if err != nil {
+		log.Error(err)
 	}
 }
 

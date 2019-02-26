@@ -17,7 +17,7 @@ func checkAutomountServiceAccountToken(result *Result) {
 		return
 	}
 
-	if reason := result.Labels["audit.kubernetes.io/allow-automount-service-account-token"]; reason != "" {
+	if labelExists, reason := getPodOverrideLabelReason(result, "allow-automount-service-account-token"); labelExists {
 		if result.Token != nil && *result.Token {
 			occ := Occurrence{
 				id:       ErrorAutomountServiceAccountTokenTrueAllowed,
@@ -38,7 +38,8 @@ func checkAutomountServiceAccountToken(result *Result) {
 		return
 	}
 
-	if result.Token != nil && *result.Token && result.SA == "" {
+	if result.Token != nil && *result.Token &&
+		(result.SA == "" || result.SA == "default") {
 		// automountServiceAccountToken = true, and serviceAccountName is blank (default: default)
 		occ := Occurrence{
 			id:      ErrorAutomountServiceAccountTokenTrueAndNoName,
@@ -62,7 +63,11 @@ func checkAutomountServiceAccountToken(result *Result) {
 }
 
 func auditAutomountServiceAccountToken(resource Resource) (results []Result) {
-	result, err := newResultFromResourceWithServiceAccountInfo(resource)
+	result, err, warn := newResultFromResourceWithServiceAccountInfo(resource)
+	if warn != nil {
+		log.Warn(warn)
+		return
+	}
 	if err != nil {
 		log.Error(err)
 		return

@@ -13,35 +13,38 @@ func getAuditFunctions() []interface{} {
 	return []interface{}{
 		auditAllowPrivilegeEscalation, auditReadOnlyRootFS, auditRunAsNonRoot,
 		auditAutomountServiceAccountToken, auditPrivileged, auditCapabilities,
-		auditAppArmor, auditSeccomp,
+		auditAppArmor, auditSeccomp, auditNetworkPolicies,
 	}
 }
 
 func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 	resource = prepareResourceForFix(resource, result)
+
 	for _, occurrence := range result.Occurrences {
 		switch occurrence.id {
 		case ErrorAllowPrivilegeEscalationNil, ErrorAllowPrivilegeEscalationTrue:
-			resource = fixAllowPrivilegeEscalation(resource, occurrence)
+			resource = fixAllowPrivilegeEscalation(&result, resource, occurrence)
 		case ErrorCapabilityNotDropped:
-			resource = fixCapabilityNotDropped(resource, occurrence)
+			resource = fixCapabilityNotDropped(&result, resource, occurrence)
 		case ErrorCapabilityAdded:
-			resource = fixCapabilityAdded(resource, occurrence)
+			resource = fixCapabilityAdded(&result, resource, occurrence)
 		case ErrorPrivilegedNil, ErrorPrivilegedTrue:
-			resource = fixPrivileged(resource, occurrence)
+			resource = fixPrivileged(&result, resource, occurrence)
 		case ErrorReadOnlyRootFilesystemFalse, ErrorReadOnlyRootFilesystemNil:
-			resource = fixReadOnlyRootFilesystem(resource, occurrence)
+			resource = fixReadOnlyRootFilesystem(&result, resource, occurrence)
 		case ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCNilCSCNil, ErrorRunAsNonRootPSCFalseCSCNil:
-			resource = fixRunAsNonRoot(resource, occurrence)
+			resource = fixRunAsNonRoot(&result, resource, occurrence)
 		case ErrorServiceAccountTokenDeprecated:
 			resource = fixDeprecatedServiceAccount(resource)
 		case ErrorAutomountServiceAccountTokenTrueAndNoName, ErrorAutomountServiceAccountTokenNilAndNoName:
-			resource = fixServiceAccountToken(resource)
+			resource = fixServiceAccountToken(&result, resource)
 		case ErrorAppArmorAnnotationMissing, ErrorAppArmorDisabled:
 			resource = fixAppArmor(resource)
 		case ErrorSeccompAnnotationMissing, ErrorSeccompDeprecated, ErrorSeccompDeprecatedPod, ErrorSeccompDisabled,
 			ErrorSeccompDisabledPod:
 			resource = fixSeccomp(resource)
+		case ErrorMissingDefaultDenyIngressNetworkPolicy, ErrorMissingDefaultDenyEgressNetworkPolicy, ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy:
+			resource = fixNetworkPolicy(resource, occurrence)
 		}
 	}
 	return resource
@@ -78,7 +81,7 @@ func prepareResourceForFix(resource Resource, result Result) Resource {
 	return resource
 }
 
-func fix(resources []Resource) (fixedResources []Resource) {
+func fix(resources []Resource) (fixedResources []Resource, extraResources []Resource) {
 	for _, resource := range resources {
 		if !IsSupportedResourceType(resource) {
 			fixedResources = append(fixedResources, resource)
@@ -86,7 +89,15 @@ func fix(resources []Resource) (fixedResources []Resource) {
 		}
 		results := mergeAuditFunctions(getAuditFunctions())(resource)
 		for _, result := range results {
-			resource = fixPotentialSecurityIssue(resource, result)
+			if IsNamespaceType(resource) {
+				extraResource := fixPotentialSecurityIssue(resource, result)
+				// If return resource from fixPotentialSecurityIssue is Namespace type then we don't have to add extra resources for it.
+				if !IsNamespaceType(extraResource) {
+					extraResources = append(extraResources, extraResource)
+				}
+			} else {
+				resource = fixPotentialSecurityIssue(resource, result)
+			}
 		}
 		fixedResources = append(fixedResources, resource)
 	}

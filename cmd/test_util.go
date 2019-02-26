@@ -34,6 +34,23 @@ func FixTestSetup(t *testing.T, file string, auditFunction func(Resource) []Resu
 	return assert, fixPotentialSecurityIssue(resource, result)
 }
 
+// FixTestSetupMultipleResources allows kubeaudit to be used programmatically instead of via the shell for multiple Resources. It is intended to be used for testing.
+func FixTestSetupMultipleResources(t *testing.T, file string, auditFunction func(Resource) []Result) (*assert.Assertions, []Resource) {
+	var fixedResources []Resource
+	assert := assert.New(t)
+	file = filepath.Join(path, file)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	for _, resource := range resources {
+		results := getResults([]Resource{resource}, auditFunction)
+		for _, result := range results {
+			resource = fixPotentialSecurityIssue(resource, result)
+		}
+		fixedResources = append(fixedResources, resource)
+	}
+	return assert, fixedResources
+}
+
 func runAuditTest(t *testing.T, file string, function interface{}, errCodes []int, argStr ...string) (results []Result) {
 	assert := assert.New(t)
 	file = filepath.Join(path, file)
@@ -97,6 +114,12 @@ func runAuditTestInNamespace(t *testing.T, namespace string, file string, functi
 	rootConfig.namespace = namespace
 	runAuditTest(t, file, function, errCodes)
 	rootConfig.namespace = apiv1.NamespaceAll
+}
+
+// NewUnsupportedResource returns a fake unsupported resource for testing purposes
+func NewUnsupportedResource() Resource {
+	var unsupportedResource UnsupportedType
+	return unsupportedResource.DeepCopyObject()
 }
 
 // NewPod returns a simple Pod resource
@@ -170,6 +193,21 @@ func compareTextFiles(file1, file2 string) bool {
 			fmt.Printf("Files don't match here:\n%v\n%v\n\n", text1, text2)
 			return false
 		}
+	}
+
+	f1stat, err := f1.Stat()
+	if err != nil {
+		return false
+	}
+
+	f2stat, err := f2.Stat()
+	if err != nil {
+		return false
+	}
+
+	if f1stat.Size() != f2stat.Size() {
+		fmt.Printf("File sizes don't match")
+		return false
 	}
 	return true
 }

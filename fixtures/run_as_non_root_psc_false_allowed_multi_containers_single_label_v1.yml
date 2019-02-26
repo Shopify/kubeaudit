@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  name: run_as_non_root_false_allowed
+  labels:
+    apps: fakeSecurityContext
+    container.audit.kubernetes.io/fakeContainerRANR/allow-run-as-root: "Superuser privileges needed"
+  namespace: fakeDeploymentRANR  
+spec:
+  securityContext:
+    runAsNonRoot: false
+  containers:
+  - name: fakeContainerRANR
+    resources: {}
+    securityContext:
+      runAsNonRoot: true
+  - name: fakeContainerRANR2
+    resources: {}
+    securityContext:
+      runAsNonRoot: false
+status: {}

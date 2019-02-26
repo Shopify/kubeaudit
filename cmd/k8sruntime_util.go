@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"io/ioutil"
-	"os"
 
+	networking "k8s.io/api/networking/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -48,39 +48,62 @@ func setContainers(resource Resource, containers []ContainerV1) Resource {
 	return resource
 }
 
+func setNetworkPolicyFields(nsName string, policyList []string) Resource {
+	var np NetworkPolicyV1
+	np.Kind = "NetworkPolicy"
+	np.APIVersion = "networking.k8s.io/v1"
+	np.ObjectMeta.Namespace = nsName
+	np.ObjectMeta.Name = "default-deny"
+	for _, policy := range policyList {
+		np.Spec.PolicyTypes = append(np.Spec.PolicyTypes, networking.PolicyType(policy))
+	}
+	return np.DeepCopyObject()
+}
+
 func disableDSA(resource Resource) Resource {
 	switch t := resource.Object.(type) {
 	case *CronJobV1Beta1:
+		t.Spec.JobTemplate.Spec.Template.Spec.ServiceAccountName = t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.JobTemplate.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DaemonSetV1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DaemonSetV1Beta1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentExtensionsV1Beta1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1Beta1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *DeploymentV1Beta2:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *PodV1:
+		t.Spec.ServiceAccountName = t.Spec.DeprecatedServiceAccount
 		t.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *ReplicationControllerV1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *StatefulSetV1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	case *StatefulSetV1Beta1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return Resource{FileName: resource.FileName, Object: t.DeepCopyObject()}
 	}
@@ -238,7 +261,7 @@ func getPodAnnotations(resource Resource) (annotations map[string]string) {
 }
 
 // WriteToFile writes and then appends incoming resource
-func WriteToFile(decode Resource, toAppend bool) error {
+func WriteToFile(decode Resource, filename string) error {
 	info, _ := k8sRuntime.SerializerInfoForMediaType(scheme.Codecs.SupportedMediaTypes(), "application/yaml")
 	groupVersion := schema.GroupVersion{Group: decode.Object.GetObjectKind().GroupVersionKind().Group, Version: decode.Object.GetObjectKind().GroupVersionKind().Version}
 	encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
@@ -246,21 +269,9 @@ func WriteToFile(decode Resource, toAppend bool) error {
 	if err != nil {
 		return err
 	}
-	if !toAppend {
-		err = ioutil.WriteFile(decode.FileName, yaml, 0644)
-		if err != nil {
-			return err
-		}
-	} else {
-		f, err := os.OpenFile(decode.FileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		_, err = f.Write(yaml)
-		if err != nil {
-			return err
-		}
+	err = ioutil.WriteFile(filename, yaml, 0644)
+	if err != nil {
+		return err
 	}
 	return nil
 }

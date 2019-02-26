@@ -1,0 +1,16 @@
+capabilitiesToBeDropped:
+  # https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
+  - CHOWN
+  - DAC_OVERRIDE
+  - FOWNER
+  - FSETID
+  - KILL
+  - MKNOD
+  - NET_BIND_SERVICE
+  - NET_RAW
+  - SETFCAP
+  - SETGID
+  - SETUID
+  - SETPCAP
+  - SYS_CHROOT
+  - SETFCAP

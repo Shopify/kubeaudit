@@ -95,23 +95,28 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 			}
 		}
 	}
-
-	if !hasDenyAllIngressRule {
+	if !hasDenyAllEgressRule && !hasDenyAllIngressRule {
+		occ := Occurrence{
+			container: "",
+			id:        ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy,
+			kind:      Error,
+			message:   "Namespace is missing a default deny ingress and default deny egress NetworkPolicy",
+		}
+		result.Occurrences = append(result.Occurrences, occ)
+	} else if !hasDenyAllIngressRule {
 		occ := Occurrence{
 			container: "",
 			id:        ErrorMissingDefaultDenyIngressNetworkPolicy,
 			kind:      Error,
-			message:   "Namespace is missing a default deny egress NetworkPolicy",
+			message:   "Namespace is missing a default deny ingress NetworkPolicy",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
-	}
-
-	if !hasDenyAllEgressRule {
+	} else if !hasDenyAllEgressRule {
 		occ := Occurrence{
 			container: "",
 			id:        ErrorMissingDefaultDenyEgressNetworkPolicy,
 			kind:      Error,
-			message:   "Namespace is missing a default deny ingress NetworkPolicy",
+			message:   "Namespace is missing a default deny egress NetworkPolicy",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 
@@ -148,7 +153,9 @@ func getNetworkPoliciesResources(namespace string) (netPolList *NetworkPolicyLis
 		for _, resource := range resources {
 			switch kubeType := resource.Object.(type) {
 			case *NetworkPolicyV1:
-				netPolList.Items = append(netPolList.Items, *kubeType)
+				if kubeType.ObjectMeta.Namespace == namespace {
+					netPolList.Items = append(netPolList.Items, *kubeType)
+				}
 			}
 		}
 
@@ -189,7 +196,11 @@ func auditNetworkPolicies(resource Resource) (results []Result) {
 	}
 
 	// iterate over namespaces not netpol --> actually an namespace check not an netpol check
-	result, err := newResultFromResource(resource)
+	result, err, warn := newResultFromResource(resource)
+	if warn != nil {
+		log.Warn(warn)
+		return
+	}
 	if err != nil {
 		log.Error(err)
 		return

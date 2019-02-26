@@ -40,3 +40,25 @@ func TestCapabilitiesMisconfiguredAllowV1Beta2(t *testing.T) {
 func TestCapabilitiesDroppedAllV1Beta2(t *testing.T) {
 	runAuditTest(t, "capabilities_dropped_all_v1beta2.yml", auditCapabilities, []int{})
 }
+
+func TestCapabilitiesSomeAllowedMultiContainersAllLabelsV1Beta2(t *testing.T) {
+	runAuditTest(t, "capabilities_some_allowed_multi_containers_all_container_labels_v1beta2.yml", auditCapabilities, []int{ErrorCapabilityAllowed, ErrorCapabilityAllowed})
+}
+
+func TestCapabilitiesSomeAllowedMultiContainersSomeLabelsV1Beta2(t *testing.T) {
+	runAuditTest(t, "capabilities_some_allowed_multi_containers_some_container_labels_v1beta2.yml", auditCapabilities, []int{ErrorCapabilityAdded, ErrorCapabilityAdded, ErrorCapabilityAllowed})
+}
+
+func TestCapabilitiesSomeAllowedMultiContainersMixLabelsV1Beta2(t *testing.T) {
+	runAuditTest(t, "capabilities_some_allowed_multi_containers_mix_labels_v1beta2.yml", auditCapabilities, []int{ErrorCapabilityAllowed, ErrorCapabilityAllowed})
+}
+
+func TestCapabilitiesManualConfigV1(t *testing.T) {
+	rootConfig.dropCapConfig = "../fixtures/capSetConfig.yaml"
+	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{})
+}
+
+func TestCapabilitiesManualConfigV2(t *testing.T) {
+	rootConfig.dropCapConfig = "../fake/file/path"
+	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{KubeauditInternalError})
+}

@@ -95,14 +95,16 @@ type StatefulSetV1Beta1 = appsv1beta1.StatefulSet
 
 // Metadata holds metadata for a potential security issue.
 type Metadata = map[string]string
-
 // Resource holds a K8sRuntime.Object and the fileName it was read form.
 type Resource struct {
 	Object   runtime.Object
 	FileName string
 }
 
+// UnsupportedType is a type alias for v1 version of the k8s apps API, this is meant for testing
+type UnsupportedType = apiv1.Binding
 // IsSupportedResourceType returns true if obj is a supported Kubernetes resource type
+
 func IsSupportedResourceType(obj Resource) bool {
 	switch obj.Object.(type) {
 	case *CronJobV1Beta1,
@@ -113,6 +115,43 @@ func IsSupportedResourceType(obj Resource) bool {
 		*PodListV1, *PodV1,
 		*ReplicationControllerListV1, *ReplicationControllerV1,
 		*StatefulSetListV1, *StatefulSetV1, *StatefulSetV1Beta1:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsSupportedGroupVersionKind returns false if resource is of Supported Kind but not of supported Group Version Kind
+func IsSupportedGroupVersionKind(obj Resource) bool {
+	if IsSupportedResourceType(obj) {
+		return true
+	}
+	switch obj.GetObjectKind().GroupVersionKind().Kind {
+	case "ReplicaSet", "Endpoints", "Ingress", "Service",
+		"ConfigMap", "Secret", "PersistentVolumeClaim", "StorageClass",
+		"Volume", "VolumeAttachment",
+		"ControllerRevision", "CustomResourceDefinition", "Event",
+		"LimitRange", "HorizontalPodAutoscaler", "InitializerConfiguration",
+		"MutatingWebhookConfiguration", "ValidatingWebhookConfiguration", "PodTemplate",
+		"PodDisruptionBudget", "PriorityClass",
+		"PodPreset", "PodSecurityPolicy", "APIService", "Binding",
+		"CertificateSigningRequest", "ClusterRole",
+		"ClusterRoleBinding", "ComponentStatus", "LocalSubjectAccessReview", "Node",
+		"PersistentVolume", "ResourceQuota",
+		"Role", "RoleBinding",
+		"SelfSubjectAccessReview", "SelfSubjectRulesReview",
+		"ServiceAccount", "SubjectAccessReview",
+		"TokenReview":
+		return true
+	default:
+		return false
+	}
+}
+
+// IsNamespaceType returns true if obj is of NamespaceV1 type
+func IsNamespaceType(obj Resource) bool {
+	switch obj.(type) {
+	case *NamespaceV1:
 		return true
 	default:
 		return false

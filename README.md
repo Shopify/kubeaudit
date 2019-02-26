@@ -387,25 +387,56 @@ spec:
     metadata:
       labels:
         apps: YourAppNameHere
-        audit.kubernetes.io/allow-privilege-escalation: "YourReasonForOverrideHere"
+        container.audit.kubernetes.io/<container-name>/allow-privilege-escalation: "YourReasonForOverrideHere"
 ```
 
 Any label with a non-nil reason string will prevent `kubeaudit` from throwing the corresponding error and issue a warning instead.
 Reasons matching `"true"` (not case sensitive) will be displayed as `Unspecified`.
 
-`kubeaudit` supports many labels:
-- [audit.kubernetes.io/allow-privilege-escalation](#allowpe_label)
-- [audit.kubernetes.io/allow-privileged](#priv_label)
-- [audit.kubernetes.io/allow-capability](#caps_label)
-- [audit.kubernetes.io/allow-run-as-root](#nonroot_label)
-- [audit.kubernetes.io/allow-automount-service-account-token](#sat_label)
-- [audit.kubernetes.io/allow-read-only-root-filesystem-false](#rootfs_label)
+`kubeaudit` can skip certain audits by applying override labels to containers. If you want skip an audit for a specific container inside a pod, you can add an container override label. For example, if you use `kubeaudit` to ignore `allow-run-as-root` check for container "MyContainer1", you can add the following label:
+
+```sh
+spec:
+  template:
+    metadata:
+      labels:
+        apps: YourAppNameHere
+        container.audit.kubernetes.io/MyContainer1/allow-run-as-root: "YourReasonForOverrideHere"
+```
+
+Similarly, you can have `kubeaudit` to skip a specific audit for all containers inside the pod by adding a pod override label. For example, if you use `kubeaudit` to ignore `allow-run-as-root` check for all containers inside the pod, you can add the following label:
+
+```sh
+spec:
+  template:
+    metadata:
+      labels:
+        apps: YourAppNameHere
+        audit.kubernetes.io/pod/allow-run-as-root: "YourReasonForOverrideHere"
+```
+
+`kubeaudit` supports many labels on pod or container level:
+- [audit.kubernetes.io/pod/allow-privilege-escalation](#allowpe_label)
+- [container.audit.kubernetes.io/\<container-name\>/allow-privilege-escalation](#allowpe_label)
+- [audit.kubernetes.io/pod/allow-privileged](#priv_label)
+- [container.audit.kubernetes.io/\<container-name\>/allow-privileged](#priv_label)
+- [audit.kubernetes.io/pod/allow-capability](#caps_label)
+- [container.audit.kubernetes.io/\<container-name\>/allow-capability](#caps_label)
+- [audit.kubernetes.io/pod/allow-run-as-root](#nonroot_label)
+- [container.audit.kubernetes.io/\<container-name\>/allow-run-as-root](#nonroot_label)
+- [audit.kubernetes.io/pod/allow-automount-service-account-token](#sat_label)
+- [audit.kubernetes.io/pod/allow-read-only-root-filesystem-false](#rootfs_label)
+- [container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false](#rootfs_label)
 
 <a name="allowpe_label"/>
 
-### audit.kubernetes.io/allow-privilege-escalation
+### container.audit.kubernetes.io/\<container-name\>/allow-privilege-escalation
 
-Allows `allowPrivilegeEscalation` to be set to `true`.
+Allow `allowPrivilegeEscalation` to be set to `true` to a specific container.
+
+### audit.kubernetes.io/pod/allow-privilege-escalation
+
+Allows `allowPrivilegeEscalation` to be set to `true` to all the containers in a pod.
 
 ```sh
 kubeaudit.allow.privilegeEscalation: "Superuser privileges needed"
@@ -415,9 +446,13 @@ WARN[0000] Allowed setting AllowPrivilegeEscalation to true  Reason="Superuser p
 
 <a name="priv_label"/>
 
-### audit.kubernetes.io/allow-privileged
+### container.audit.kubernetes.io/\<container-name\>/allow-privileged
 
-Allows `privileged` to be set to `true`.
+Allow `privileged` to be set to `true` to a specific container.
+
+### audit.kubernetes.io/pod/allow-privileged
+
+Allows `privileged` to be set to `true` to all the containers in a pod.
 
 ```sh
 kubeaudit.allow.privileged: "Privileged execution required"
@@ -427,9 +462,13 @@ WARN[0000] Allowed setting privileged to true                Reason="Privileged 
 
 <a name="caps_label"/>
 
-### audit.kubernetes.io/allow-capability
+### container.audit.kubernetes.io/\<container-name\>/allow-capability
 
-Allows adding a capability or keeping one that would otherwise be dropped.
+Allows adding a capability or keeping one that would otherwise be dropped to a specific container.
+
+### audit.kubernetes.io/pod/allow-capability
+
+Allows adding a capability or keeping one that would otherwise be dropped to all the containers in a pod.
 
 ```sh
 kubeaudit.allow.capability.chown: "true"
@@ -439,9 +478,13 @@ WARN[0000] Capability allowed                                CapName=CHOWN Reaso
 
 <a name="nonroot_label"/>
 
-### audit.kubernetes.io/allow-run-as-root
+### container.audit.kubernetes.io/\<container-name\>/allow-run-as-root
 
-Allows setting `runAsNonRoot` to `false`.
+Allows setting `runAsNonRoot` to `false` to a specific container.
+
+### audit.kubernetes.io/pod/allow-run-as-root
+
+Allows setting `runAsNonRoot` to `false` to all the containers in a pod.
 
 ```sh
 kubeaudit.allow.runAsRoot: "Root privileges needed"
@@ -451,9 +494,9 @@ WARN[0000] Allowed setting RunAsNonRoot to false             Reason="Root privil
 
 <a name="sat_label"/>
 
-### audit.kubernetes.io/allow-automount-service-account-token
+### audit.kubernetes.io/pod/allow-automount-service-account-token
 
-Allows setting `automountServiceAccountToken` to `true`.
+Allows setting `automountServiceAccountToken` to `true` to a pod.
 
 ```sh
 kubeaudit.allow.autmountServiceAccountToken: "True"
@@ -463,9 +506,13 @@ WARN[0000] Allowed setting automountServiceAccountToken to true  Reason=Unspecif
 
 <a name="rootfs_label"/>
 
-### audit.kubernetes.io/allow-read-only-root-filesystem-false
+### container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false
 
-Allows setting `readOnlyRootFilesystem` to `false`
+Allows setting `readOnlyRootFilesystem` to `false` to a specific container.
+
+### audit.kubernetes.io/pod/allow-read-only-root-filesystem-false
+
+Allows setting `readOnlyRootFilesystem` to `false` to all containers in a pod.
 
 ```sh
 kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"

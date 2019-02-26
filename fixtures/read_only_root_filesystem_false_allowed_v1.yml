@@ -9,7 +9,7 @@ spec:
     metadata:
       labels:
         apps: fakeReadOnlyRootFilesystem
-        audit.kubernetes.io/allow-read-only-root-filesystem-false: "Write permissions needed"
+        audit.kubernetes.io/pod/allow-read-only-root-filesystem-false: "Write permissions needed"
     spec:
       containers:
       - name: fakeContainerRORF
