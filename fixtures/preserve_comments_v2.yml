@@ -2,8 +2,33 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: dapi-test-pod
+  name: dapi-test-pod # This is also comment 1
+  ownerReferences:  # This is also comment 2
+  - apiVersion: apps/v1  # This is also comment 3
+    controller: true  # This is also comment 4
+    blockOwnerDeletion: true  # This is also comment 5
+    kind: ReplicaSet  # This is also comment 6
+    name: my-repset  # This is also comment 7
+    uid: d9607e19-f88f-11e6-a518-42010a800195  # This is also comment 8
 spec:
+  affinity: # This is also comment 1
+    nodeAffinity: # This is also comment 2
+      requiredDuringSchedulingIgnoredDuringExecution: # This is also comment 3
+        nodeSelectorTerms: # This is also comment 4
+        - matchExpressions: # This is also comment 5
+          - key: kubernetes.io/e2e-az-name # This is also comment 6
+            operator: In # This is also comment 7
+            values: # This is also comment 8
+            - e2e-az1 # This is also comment 9
+            - e2e-az2 # This is also comment 10
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: another-node-label-key
+            operator: In
+            values:
+            - another-node-label-value
   containers:
     - name: test-container
       image: k8s.gcr.io/busybox
