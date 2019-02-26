@@ -25,10 +25,6 @@ func autofix(*cobra.Command, []string) {
 		return
 	}
 
-	if err != nil {
-		log.Error(err)
-		return
-	}
 	fixedResources, extraResources := fix(resources)
 
 	tmpFixedFile, err := ioutil.TempFile("", "kubeaudit_autofix_fixed")
