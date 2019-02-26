@@ -14,4 +14,4 @@ const (
 var KubeauditLogLevel = Info
 
 // KubeauditLogLevels represents an enum for the supported log levels.
-var KubeauditLogLevels = map[string]int{"ERROR": Error, "WARN": Warn, "INFO": Info, "DEBUG": Debug}
+var KubeauditLogLevels = map[string]int{"ERROR": Error, "WARN": Warn, "INFO": Info}

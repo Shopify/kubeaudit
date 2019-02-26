@@ -60,6 +60,36 @@ func TestFixServiceAccountTokenTrueAndNoNameV1(t *testing.T) {
 	}
 }
 
+func TestFixServiceAccountTokenTrueAndNoNameV2(t *testing.T) {
+	assert, resources := FixTestSetupMultipleResources(t, "service_account_token_true_and_no_name_multiple_resources_v1.yml", auditAutomountServiceAccountToken)
+	for index := range resources {
+		switch t := resources[index].(type) {
+		case *CronJobV1Beta1:
+			assert.False(*t.Spec.JobTemplate.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *DaemonSetV1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *DaemonSetV1Beta1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *DeploymentExtensionsV1Beta1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *DeploymentV1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *DeploymentV1Beta1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *DeploymentV1Beta2:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *PodV1:
+			assert.False(*t.Spec.AutomountServiceAccountToken)
+		case *ReplicationControllerV1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *StatefulSetV1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *StatefulSetV1Beta1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		}
+	}
+}
+
 func TestFixServiceAccountTokenNilAndNoNameV1(t *testing.T) {
 	assert, resource := FixTestSetup(t, "service_account_token_nil_and_no_name_v1.yml", auditAutomountServiceAccountToken)
 	switch typ := resource.(type) {

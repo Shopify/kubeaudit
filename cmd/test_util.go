@@ -116,6 +116,12 @@ func runAuditTestInNamespace(t *testing.T, namespace string, file string, functi
 	rootConfig.namespace = apiv1.NamespaceAll
 }
 
+// NewUnsupportedResource returns a fake unsupported resource for testing purposes
+func NewUnsupportedResource() Resource {
+	var unsupportedResource UnsupportedType
+	return unsupportedResource.DeepCopyObject()
+}
+
 // NewPod returns a simple Pod resource
 func NewPod() *PodV1 {
 	resources, err := getKubeResourcesManifest("../fixtures/pod_v1.yml")

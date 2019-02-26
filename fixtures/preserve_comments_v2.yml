@@ -1,0 +1,127 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod # This is also comment 1
+  ownerReferences:  # This is also comment 2
+  - apiVersion: apps/v1  # This is also comment 3
+    controller: true  # This is also comment 4
+    blockOwnerDeletion: true  # This is also comment 5
+    kind: ReplicaSet  # This is also comment 6
+    name: my-repset  # This is also comment 7
+    uid: d9607e19-f88f-11e6-a518-42010a800195  # This is also comment 8
+spec:
+  affinity: # This is also comment 1
+    nodeAffinity: # This is also comment 2
+      requiredDuringSchedulingIgnoredDuringExecution: # This is also comment 3
+        nodeSelectorTerms: # This is also comment 4
+        - matchExpressions: # This is also comment 5
+          - key: kubernetes.io/e2e-az-name # This is also comment 6
+            operator: In # This is also comment 7
+            values: # This is also comment 8
+            - e2e-az1 # This is also comment 9
+            - e2e-az2 # This is also comment 10
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: another-node-label-key
+            operator: In
+            values:
+            - another-node-label-value
+  containers:
+    - name: test-container
+      image: k8s.gcr.io/busybox
+      command: [ "/bin/sh", "-c", "ls /etc/config/" ]
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        # Provide the name of the ConfigMap containing the files you want
+        # to add to the container
+        name: special-config # This is comment 1
+      projected: # This is comment 2
+        sources: # This is comment 3 
+  restartPolicy: Never # This is comment 4
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: with-node-affinity
+spec:
+  affinity: # This is comment 1
+    nodeAffinity:  # This is comment 2
+      requiredDuringSchedulingIgnoredDuringExecution:  # This is comment 3
+        nodeSelectorTerms:  # This is comment 4
+        - matchExpressions:  # This is comment 5
+          - key: kubernetes.io/e2e-az-name  # This is comment 6
+            operator: In  # This is comment 7
+            values:  # This is comment 8
+            - e2e-az1  # This is comment 9
+            - e2e-az2  # This is comment 10
+      preferredDuringSchedulingIgnoredDuringExecution:  # This is comment 11
+      - weight: 1  # This is comment 12
+        preference:  # This is comment 13
+          matchExpressions:  # This is comment 14
+          - key: another-node-label-key  # This is comment 15
+            operator: In  # This is comment 16
+            values:  # This is comment 17
+            - another-node-label-value  # This is comment 18
+  containers:  # This is comment 19
+  - name: with-node-affinity  # This is comment 20
+    image: k8s.gcr.io/pause:2.0  # This is comment 21
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: tls-example-ingress # This is comment 1
+spec: # This is comment 2
+  tls: # This is comment 3
+  - hosts: # This is comment 4
+    - sslexample.foo.com # This is comment 5
+    secretName: testsecret-tls # This is comment 6
+  rules: # This is comment 7
+    - host: sslexample.foo.com # This is comment 8
+      http: # This is comment 9
+        paths: # This is comment 10
+        - path: / # This is comment 11
+          backend: # This is comment 12
+            serviceName: service1 # This is comment 13
+            servicePort: 80 # This is comment 14
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  serviceName: "nginx"
+  replicas: 3 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: nginx # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: nginx
+        image: k8s.gcr.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates: # This is also comment #1
+  - metadata: # This is also comment #2
+      name: www  # This is also comment #3
+    spec: # This is also comment #4
+      accessModes: [ "ReadWriteOnce" ] # This is also comment #5
+      storageClassName: "my-storage-class" # This is also comment #6
+      resources: # This is also comment #7
+        requests: # This is also comment #8
+          storage: 1Gi # This is also comment #9

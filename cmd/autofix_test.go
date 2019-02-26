@@ -138,6 +138,28 @@ func TestPreserveComments(t *testing.T) {
 	assert.True(compareTextFiles(expectedFilename, tmpFilename))
 }
 
+func TestPreserveCommentsV2(t *testing.T) {
+	origFilename := "../fixtures/preserve_comments_v2.yml"
+	expectedFilename := "../fixtures/preserve_comments-fixed_v2.yml"
+	assert := assert.New(t)
+	// Copy original yaml to a temp file because autofix modifies the input file
+	tmpFile, err := ioutil.TempFile("", "kubeaudit_autofix_test")
+	tmpFilename := tmpFile.Name()
+	assert.Nil(err)
+	defer os.Remove(tmpFilename)
+	origFile, err := os.Open(origFilename)
+	assert.Nil(err)
+	_, err = io.Copy(tmpFile, origFile)
+	assert.Nil(err)
+	tmpFile.Close()
+	origFile.Close()
+
+	rootConfig.manifest = tmpFilename
+	autofix(nil, nil)
+
+	assert.True(compareTextFiles(expectedFilename, tmpFilename))
+}
+
 func TestUnsupportedResources(t *testing.T) {
 	origFilename := "../fixtures/autofix-unsupported_v1.yml"
 	expectedFilename := "../fixtures/autofix-unsupported-fixed_v1.yml"
