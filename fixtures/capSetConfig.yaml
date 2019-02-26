@@ -13,3 +13,4 @@ capabilitiesToBeDropped:
   - SETUID
   - SETPCAP
   - SYS_CHROOT
+  - SETFCAP

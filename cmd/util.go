@@ -28,14 +28,6 @@ func newFalse() *bool {
 	return new(bool)
 }
 
-func debugPrint() {
-	if rootConfig.verbose == "DEBUG" {
-		buf := make([]byte, 1<<16)
-		stacklen := runtime.Stack(buf, true)
-		log.Debugf("%s", buf[:stacklen])
-	}
-}
-
 func isInRootConfigNamespace(meta metav1.ObjectMeta) (valid bool) {
 	return isInNamespace(meta, rootConfig.namespace)
 }
