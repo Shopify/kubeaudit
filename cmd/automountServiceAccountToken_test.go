@@ -21,3 +21,7 @@ func TestServiceAccountTokenTrueAllowedV1(t *testing.T) {
 func TestServiceAccountTokenMisconfiguredAllowV1(t *testing.T) {
 	runAuditTest(t, "service_account_token_misconfigured_allow_v1.yml", auditAutomountServiceAccountToken, []int{ErrorMisconfiguredKubeauditAllow})
 }
+
+func TestServiceAccountTokenTrueAndDefaultNameV1(t *testing.T) {
+	runAuditTest(t, "service_account_token_true_and_default_name_v1.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenTrueAndNoName})
+}
