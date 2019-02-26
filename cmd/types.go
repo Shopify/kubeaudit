@@ -99,7 +99,7 @@ type StatefulSetV1Beta1 = appsv1beta1.StatefulSet
 // Metadata holds metadata for a potential security issue.
 type Metadata = map[string]string
 
-// UnsupportedType is a type alias for v1 version of the k8s apps API, this is meant foor testing
+// UnsupportedType is a type alias for v1 version of the k8s apps API, this is meant for testing
 type UnsupportedType = apiv1.Binding
 
 // IsSupportedResourceType returns true if obj is a supported Kubernetes resource type
