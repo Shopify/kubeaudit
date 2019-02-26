@@ -31,7 +31,7 @@ func TestFixRunAsRootFalseAllowedV1(t *testing.T) {
 }
 
 func TestFixRunAsNonRootMisconfiguredAllowV1(t *testing.T) {
-	assert, resource := FixTestSetup(t, "run_as_non_root_misconfigured_allow_v1.yml", auditRunAsNonRoot)
+	assert, resource := FixTestSetup(t, "run_as_non_root_misconfigured_allow_container_v1.yml", auditRunAsNonRoot)
 	for _, container := range getContainers(resource) {
 		assert.True(*container.SecurityContext.RunAsNonRoot)
 	}
