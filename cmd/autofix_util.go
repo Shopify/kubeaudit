@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"bufio"
 	"bytes"
 	"io/ioutil"
+	"os"
 
 	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
@@ -205,6 +207,23 @@ func isComment(val interface{}) bool {
 		return s.Value == nil && len(s.Comment) > 0
 	}
 
+	return false
+}
+
+// isFirstLineSeparator returns true if the first line in the manifest file is a yaml separator
+func isFirstLineSeparatorOrComment(filename string) bool {
+	file, err := os.Open(filename)
+	if err != nil {
+		return false
+	}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lineStr := scanner.Text()
+		if lineStr == "---" || lineStr[0] == '#' {
+			return true
+		}
+		return false
+	}
 	return false
 }
 
