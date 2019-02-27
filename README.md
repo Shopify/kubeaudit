@@ -52,7 +52,13 @@ or
 
 - renaming the binary to `kubectl-audit` and having it available in your path.
 
+#### GoFish
 
+You can also choose to install kubeaudit using [GoFish](https://gofi.sh/). It will also install kubeaudit as a kubectl plugin so it can be invoked with either `kubeaudit` or `kubectl audit` as mentioned above.
+
+To install, run `gofish install kubeaudit`.
+
+You can install gofish [following the instructions](https://gofi.sh/#install) for your Operating System.
 
 <a name="general" />
 
@@ -311,7 +317,7 @@ WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125M
 
 ## Audit AppArmor
 
-It checks that AppArmor is enabled for all containers by making sure the following annotation exists on the pod. 
+It checks that AppArmor is enabled for all containers by making sure the following annotation exists on the pod.
 There must be an annotation for each container in the pod:
 
 ```
@@ -337,8 +343,8 @@ ERRO[0000] AppArmor disabled. Annotation=container.apparmor.security.beta.kubern
 
 ## Audit Seccomp
 
-It checks that Seccomp is enabled for all containers by making sure one or both of the following annotations exists 
-on the pod. If no pod annotation is used, then there must be an annotation for each container. Container annotations 
+It checks that Seccomp is enabled for all containers by making sure one or both of the following annotations exists
+on the pod. If no pod annotation is used, then there must be an annotation for each container. Container annotations
 override the pod annotation:
 
 ```
@@ -349,7 +355,7 @@ seccomp.security.alpha.kubernetes.io/pod: <profile>
 container.seccomp.security.alpha.kubernetes.io/<container name>: <profile>
 ```
 
-where profile can be "runtime/default" or start with "localhost/" to be considered valid. "docker/default" is 
+where profile can be "runtime/default" or start with "localhost/" to be considered valid. "docker/default" is
 deprecated and will show a warning. It should be replaced with "runtime/default".
 
 If the Seccomp annotation is missing:
