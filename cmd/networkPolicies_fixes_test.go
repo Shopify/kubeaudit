@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNetworkPoliciesFix(t *testing.T) {
-	origFilename := "../fixtures/namespace_missing_default_deny_netpol.yml"
-	expectedFilename := "../fixtures/namespace_missing_default_deny_netpol-fixed.yml"
+func TestAutofixNetworkPoliciesFix(t *testing.T) {
+	origFilename := "../fixtures/autofix-namespace-missing-default-deny-netpol.yml"
+	expectedFilename := "../fixtures/autofix-namespace-missing-default-deny-netpol-fixed.yml"
 	assert := assert.New(t)
 
 	// Copy original yaml to a temp file because autofix modifies the input file
