@@ -33,9 +33,6 @@ type DaemonSetV1 = appsv1.DaemonSet
 // DaemonSetV1Beta1 is a type alias for the v1beta1 version of the k8s extensions API.
 type DaemonSetV1Beta1 = extensionsv1beta1.DaemonSet
 
-// DaemonSetV1Beta2 is a type alias for the v1beta2 version of the k8s extensions API.
-type DaemonSetV1Beta2 = appsv1beta2.DaemonSet
-
 // DeploymentExtensionsV1Beta1 is a type alias for the v1beta1 version of the k8s extensions API.
 type DeploymentExtensionsV1Beta1 = extensionsv1beta1.Deployment
 
