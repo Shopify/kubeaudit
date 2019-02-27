@@ -46,7 +46,7 @@ check_version:
 
 setup:
 	go mod download
-
+	go mod tidy
 # Cross Compilation
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_UNIX) -v
