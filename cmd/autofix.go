@@ -91,7 +91,7 @@ func autofix(*cobra.Command, []string) {
 	if err != nil {
 		log.Error(err)
 	}
-	err = writeManifestFile(finalData, rootConfig.manifest, false)
+	err = writeManifestFile(finalData, rootConfig.manifest, !isFirstLineSeparatorOrComment(finalFile.Name()))
 	if err != nil {
 		log.Error(err)
 	}
