@@ -385,8 +385,7 @@ var identifyingKey = map[string]string{
 	// PodSpec.imagePullSecrets : LocalObjectReference.name
 	// ServiceAccount.imagePullSecrets : LocalObjectReference.name
 	"imagePullSecrets": "name",
-	"ingress":          "ports", // NetworkPolicySpec.ingress : NetworkPolicyIngressRule.ports
-	"initContainers":   "name",  // PodSpec.initContainers : Container.name
+	"initContainers":   "name", // PodSpec.initContainers : Container.name
 	// LabelSelector.matchExpressions : LabelSelectorRequirement.key
 	// NodeSelectorTerm.matchExpressions : NodeSelectorRequirement.key
 	"matchExpressions": "key",
@@ -452,6 +451,13 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 			}
 		}
 		return false
+
+	// NetworkPolicySpec.ingress : NetworkPolicyIngressRule.[ports OR from]
+	case "ingress":
+		if mapPairMatch("ports", map1, map2) {
+			return true
+		}
+		return mapPairMatch("from", map1, map2)
 
 	// ConfigMapProjection.items : KeyToPath.key
 	// ConfigMapVolumeSource.items : KeyToPath.key
