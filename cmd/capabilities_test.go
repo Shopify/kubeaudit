@@ -54,7 +54,7 @@ func TestCapabilitiesSomeAllowedMultiContainersMixLabelsV1Beta2(t *testing.T) {
 }
 
 func TestCapabilitiesManualConfigV1(t *testing.T) {
-	rootConfig.dropCapConfig = "../fixtures/capSetConfig.yaml"
+	rootConfig.dropCapConfig = "../configs/capSetConfig.yaml"
 	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{})
 }
 

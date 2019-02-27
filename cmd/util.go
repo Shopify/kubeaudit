@@ -238,6 +238,11 @@ func getKubeResourcesManifest(filename string) (decoded []Resource, err error) {
 				continue
 			}
 			decoded = append(decoded, obj)
+		} else {
+			if !isCommentSlice(b) {
+				err = fmt.Errorf("File is not a valid Kubernetes manifest")
+				return decoded, err
+			}
 		}
 	}
 	return

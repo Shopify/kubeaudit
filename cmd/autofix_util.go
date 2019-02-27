@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
@@ -225,6 +226,17 @@ func isFirstLineSeparatorOrComment(filename string) bool {
 		return false
 	}
 	return false
+}
+
+// isCommentSlice returns true if the byteslice contains only yaml comments
+func isCommentSlice(b []byte) bool {
+	lineSlice := bytes.Split(b, []byte("/n"))
+	for _, line := range lineSlice {
+		if len(line) > 0 && !strings.HasPrefix(string(line), "#") {
+			return false
+		}
+	}
+	return true
 }
 
 // mapPairMatch returns true if map1 and map2 have the same key-value pair for the given key
