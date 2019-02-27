@@ -4,7 +4,6 @@
 /.glide
 /.dev
 .DS_Store
-/vendor
 coverage.txt
 /dist
 *.swp
