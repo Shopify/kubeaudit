@@ -115,6 +115,13 @@ func TestFixV1Beta2(t *testing.T) {
 
 }
 
+func TestInvalidManifests(t *testing.T) {
+	file := "../configs/capSetConfig.yaml"
+	assert := assert.New(t)
+	_, err := getKubeResourcesManifest(file)
+	assert.NotNil(err)
+}
+
 func TestPreserveComments(t *testing.T) {
 	origFilename := "../fixtures/autofix_v1.yml"
 	expectedFilename := "../fixtures/autofix-fixed_v1.yml"
