@@ -61,6 +61,12 @@ func autofix(*cobra.Command, []string) {
 		if err != nil {
 			log.Error(err)
 		}
+
+		fixedYaml, err = cleanupManifest(tmpOrigFile.Name(), fixedYaml)
+		if err != nil {
+			log.Error(err)
+		}
+
 		err = writeManifestFile(fixedYaml, finalFile.Name(), toAppend)
 		if err != nil {
 			log.Error(err)
@@ -73,6 +79,10 @@ func autofix(*cobra.Command, []string) {
 		groupVersion := schema.GroupVersion{Group: extraResources[index].GetObjectKind().GroupVersionKind().Group, Version: extraResources[index].GetObjectKind().GroupVersionKind().Version}
 		encoder := scheme.Codecs.EncoderForVersion(info.Serializer, groupVersion)
 		fixedData, err := k8sRuntime.Encode(encoder, extraResources[index])
+		if err != nil {
+			log.Error(err)
+		}
+		fixedData, err = cleanupManifest("", fixedData)
 		if err != nil {
 			log.Error(err)
 		}

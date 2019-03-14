@@ -666,3 +666,51 @@ func splitYamlResources(filename string, toWriteFile string) (splitDecoded [][]b
 
 	return splitDecoded, false, nil
 }
+
+func cleanupManifest(origFile string, finalData []byte) ([]byte, error) {
+	objectMetacreationTs := []byte("\n  creationTimestamp: null\n")
+	specTemplatecreationTs := []byte("\n      creationTimestamp: null\n")
+	nullStatus := []byte("\nstatus: {}\n")
+	nullReplicaStatus := []byte("status:\n  replicas: 0\n")
+	nullLBStatus := []byte("status:\n  loadBalancer: {}\n")
+	nullMetaStatus := []byte("\n    status: {}\n")
+
+	var hasObjectMetacreationTs, hasSpecTemplatecreationTs, hasNullStatus,
+		hasNullReplicaStatus, hasNullLBStatus, hasNullMetaStatus bool
+
+	if origFile != "" {
+		origData, err := ioutil.ReadFile(origFile)
+		if err != nil {
+			return nil, err
+		}
+		hasObjectMetacreationTs = bytes.Contains(origData, objectMetacreationTs)
+		hasSpecTemplatecreationTs = bytes.Contains(origData, specTemplatecreationTs)
+
+		hasNullStatus = bytes.Contains(origData, nullStatus)
+		hasNullReplicaStatus = bytes.Contains(origData, nullReplicaStatus)
+		hasNullLBStatus = bytes.Contains(origData, nullLBStatus)
+		hasNullMetaStatus = bytes.Contains(origData, nullMetaStatus)
+
+	} // null value is false in case of origFile
+
+	if !hasObjectMetacreationTs {
+		finalData = bytes.Replace(finalData, objectMetacreationTs, []byte("\n"), -1)
+	}
+	if !hasSpecTemplatecreationTs {
+		finalData = bytes.Replace(finalData, specTemplatecreationTs, []byte("\n"), -1)
+	}
+	if !hasNullStatus {
+		finalData = bytes.Replace(finalData, nullStatus, []byte("\n"), -1)
+	}
+	if !hasNullReplicaStatus {
+		finalData = bytes.Replace(finalData, nullReplicaStatus, []byte("\n"), -1)
+	}
+	if !hasNullLBStatus {
+		finalData = bytes.Replace(finalData, nullLBStatus, []byte("\n"), -1)
+	}
+	if !hasNullMetaStatus {
+		finalData = bytes.Replace(finalData, nullMetaStatus, []byte("\n"), -1)
+	}
+
+	return finalData, nil
+}

@@ -43,7 +43,6 @@ spec:
         # to add to the container
         name: special-config # This is comment 1
       projected: # This is comment 2
-        sources: # This is comment 3 
   restartPolicy: Never # This is comment 4
 ---
 apiVersion: v1
