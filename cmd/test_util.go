@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
@@ -188,25 +189,38 @@ func compareTextFiles(file1, file2 string) bool {
 	for s1.Scan() {
 		s2.Scan()
 		text1 := s1.Text()
+		if len(text1) > 0 {
+			text1 = text1[:len(text1)-1]
+		}
+
 		text2 := s2.Text()
+		if len(text2) > 0 {
+			text2 = text2[:len(text2)-1]
+		}
+
 		if text1 != text2 {
 			fmt.Printf("Files don't match here:\n%v\n%v\n\n", text1, text2)
 			return false
 		}
 	}
 
-	f1stat, err := f1.Stat()
+	data1, err := ioutil.ReadFile(file1)
 	if err != nil {
 		return false
 	}
 
-	f2stat, err := f2.Stat()
+	data2, err := ioutil.ReadFile(file2)
 	if err != nil {
 		return false
 	}
 
-	if f1stat.Size() != f2stat.Size() {
-		fmt.Printf("File sizes don't match")
+	str1 := strings.Replace(string(data1), "\n", "", -1)
+	str2 := strings.Replace(string(data2), "\n", "", -1)
+	str1 = strings.Replace(str1, " ", "", -1)
+	str2 = strings.Replace(str2, " ", "", -1)
+
+	if len(str1) != len(str2) {
+		fmt.Printf("File sizes don't match\nFile1: %v\nFile2: %v\n\n", len(str1), len(str2))
 		return false
 	}
 	return true
