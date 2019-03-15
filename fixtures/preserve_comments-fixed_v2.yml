@@ -13,7 +13,6 @@ metadata:
   annotations:
     container.apparmor.security.beta.kubernetes.io/test-container: runtime/default
     seccomp.security.alpha.kubernetes.io/pod: runtime/default
-  creationTimestamp: null
 spec:
   affinity: # This is also comment 1
     nodeAffinity: # This is also comment 2
@@ -72,10 +71,9 @@ spec:
       # to add to the container
       name: special-config # This is comment 1
     projected: # This is comment 2
-      sources: null # This is comment 3 
+      sources: null # This is comment 3
   restartPolicy: Never # This is comment 4
   automountServiceAccountToken: false
-status: {}
 ---
 apiVersion: v1
 kind: Pod
@@ -84,7 +82,6 @@ metadata:
   annotations:
     container.apparmor.security.beta.kubernetes.io/with-node-affinity: runtime/default
     seccomp.security.alpha.kubernetes.io/pod: runtime/default
-  creationTimestamp: null
 spec:
   affinity: # This is comment 1
     nodeAffinity: # This is comment 2
@@ -130,13 +127,11 @@ spec:
       readOnlyRootFilesystem: true
       runAsNonRoot: true
   automountServiceAccountToken: false
-status: {}
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: tls-example-ingress # This is comment 1
-  creationTimestamp: null
 spec: # This is comment 2
   tls: # This is comment 3
   - hosts: # This is comment 4
@@ -150,14 +145,12 @@ spec: # This is comment 2
         backend: # This is comment 12
           serviceName: service1 # This is comment 13
           servicePort: 80 # This is comment 14
-status:
-  loadBalancer: {}
+
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: web
-  creationTimestamp: null
 spec:
   selector:
     matchLabels:
@@ -171,7 +164,6 @@ spec:
       annotations:
         container.apparmor.security.beta.kubernetes.io/nginx: runtime/default
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
-      creationTimestamp: null
     spec:
       terminationGracePeriodSeconds: 10
       containers:
@@ -209,7 +201,6 @@ spec:
   volumeClaimTemplates: # This is also comment #1
   - metadata: # This is also comment #2
       name: www # This is also comment #3
-      creationTimestamp: null
     spec: # This is also comment #4
       # This is also comment #5
       accessModes:
@@ -219,7 +210,4 @@ spec:
         requests: # This is also comment #8
           storage: 1Gi # This is also comment #9
       dataSource: null
-    status: {}
   updateStrategy: {}
-status:
-  replicas: 0

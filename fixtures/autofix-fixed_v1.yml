@@ -74,5 +74,4 @@ spec:
           runAsNonRoot: true
       automountServiceAccountToken: false
   selector: null
-status: {}
 # Post doc comment
