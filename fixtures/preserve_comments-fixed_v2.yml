@@ -209,5 +209,4 @@ spec:
       resources: # This is also comment #7
         requests: # This is also comment #8
           storage: 1Gi # This is also comment #9
-      dataSource: null
   updateStrategy: {}
