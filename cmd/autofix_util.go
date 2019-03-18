@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Shopify/kubeaudit/scheme"
 	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
-	"k8s.io/client-go/kubernetes/scheme"
 )
 
 func getAuditFunctions() []interface{} {
