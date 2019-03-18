@@ -11,7 +11,7 @@ type KubeauditConfig struct {
 // KubeauditConfigSpec contains Config Spec
 type KubeauditConfigSpec struct {
 	ForceConfig  bool                         `yaml:"forceConfig"`
-	Manifest     *KubeauditConfigManifest     `yaml:"manifest"`
+	Manifest     []*KubeauditConfigManifest   `yaml:"manifest"`
 	Capabilities *KubeauditConfigCapabilities `yaml:"capabilities"`
 	Overrides    *KubeauditConfigOverrides    `yaml:"overrides"`
 }
@@ -47,4 +47,23 @@ type KubeauditConfigOverrides struct {
 	RunAsRoot                    string `yaml:"run-as-root"`
 	AutomountServiceAccountToken string `yaml:"automount-service-account-token"`
 	ReadOnlyRootFilesystemFalse  string `yaml:"read-only-root-filesystem-false"`
+}
+
+func mapOverridesToStructFields(label string) string {
+	if label == "allow-privilege-escalation" {
+		return "PrivilegeEscalation"
+	}
+	if label == "allow-privileged" {
+		return "Privileged"
+	}
+	if label == "allow-run-as-root" {
+		return "RunAsRoot"
+	}
+	if label == "allow-automount-service-account-token" {
+		return "AutomountServiceAccountToken"
+	}
+	if label == "allow-read-only-root-filesystem-false" {
+		return "ReadOnlyRootFilesystemFalse"
+	}
+	return ""
 }

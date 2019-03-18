@@ -385,7 +385,7 @@ func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, stri
 		return true, reason
 	}
 	if rootConfig.kubeauditConfig != "" {
-		overrideLabel = strings.TrimPrefix(overrideLabel, "allow-")
+		overrideLabel = mapOverridesToStructFields(overrideLabel)
 		if kubeauditConfig == nil || kubeauditConfig.Spec == nil || kubeauditConfig.Spec.Overrides == nil {
 			return false, ""
 		}
