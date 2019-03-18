@@ -13,14 +13,15 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	allPods       bool
-	json          bool
-	kubeConfig    string
-	localMode     bool
-	manifest      string
-	namespace     string
-	verbose       string
-	dropCapConfig string
+	allPods         bool
+	json            bool
+	kubeConfig      string
+	localMode       bool
+	manifest        string
+	namespace       string
+	verbose         string
+	dropCapConfig   string
+	kubeauditConfig string
 }
 
 // RootCmd defines the shell command usage for kubeaudit.
@@ -50,6 +51,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.dropCapConfig, "dropCapConfig", "d", "", "filepath for process capabilities to drop")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeauditConfig, "kubeauditConfig", "config", "", "filepath for kubeaudit config file")
 }
 
 func processFlags() {

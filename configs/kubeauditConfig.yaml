@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: kubeauditConfig
+audit: true
+spec:
+  forceConfig: true
+  manifest:
+  - path: config/kubernetes/default/*/*.yaml
+  capabilities:
+    NET_ADMIN: drop
+    SETPCAP: drop
+    MKNOD: drop
+    AUDIT_WRITE: drop
+    CHOWN: drop
+    NET_RAW: drop
+    DAC_OVERRIDE: drop
+    FOWNER: drop
+    FSETID: drop
+    KILL: drop
+    SETGID: drop
+    SETUID: drop
+    NET_BIND_SERVICE: drop
+    SYS_CHROOT: drop
+    SETFCAP: drop
+  overrides:
+    privilege-escalation: deny
+    privileged: deny
+    run-as-root: deny
+    automount-service-account-token: deny
+    read-only-root-filesystem-false: deny
