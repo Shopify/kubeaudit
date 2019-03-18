@@ -44,6 +44,22 @@ spec:
 status:
   replicas: 0
 ---
+apiVersion: apps/v1beta2
+kind: DaemonSet
+metadata:
+  name: fakeReplicationController1
+  namespace: fakeReplicationController
+spec:
+  template:
+    metadata:
+      labels:
+        apps: fakeAutomountServiceAccountToken
+    spec:
+      containers:
+      - name: fakeContainer
+status:
+  replicas: 0
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:

@@ -20,6 +20,9 @@ func setContainers(resource Resource, containers []ContainerV1) Resource {
 	case *DaemonSetV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
+	case *DaemonSetV1Beta2:
+		t.Spec.Template.Spec.Containers = containers
+		return t.DeepCopyObject()
 	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.Containers = containers
 		return t.DeepCopyObject()
@@ -71,6 +74,10 @@ func disableDSA(resource Resource) Resource {
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
 	case *DaemonSetV1Beta1:
+		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
+		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
+		return t.DeepCopyObject()
+	case *DaemonSetV1Beta2:
 		t.Spec.Template.Spec.ServiceAccountName = t.Spec.Template.Spec.DeprecatedServiceAccount
 		t.Spec.Template.Spec.DeprecatedServiceAccount = ""
 		return t.DeepCopyObject()
@@ -127,6 +134,9 @@ func setASAT(resource Resource, b bool) Resource {
 	case *DaemonSetV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
+	case *DaemonSetV1Beta2:
+		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
+		return t.DeepCopyObject()
 	case *DeploymentExtensionsV1Beta1:
 		t.Spec.Template.Spec.AutomountServiceAccountToken = boolean
 		return t.DeepCopyObject()
@@ -166,6 +176,9 @@ func setPodAnnotations(resource Resource, annotations map[string]string) Resourc
 	case *DaemonSetV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
+	case *DaemonSetV1Beta2:
+		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
+		return kubeType.DeepCopyObject()
 	case *DeploymentExtensionsV1Beta1:
 		kubeType.Spec.Template.ObjectMeta.SetAnnotations(annotations)
 		return kubeType.DeepCopyObject()
@@ -201,6 +214,8 @@ func getContainers(resource Resource) (container []ContainerV1) {
 	case *DaemonSetV1:
 		container = kubeType.Spec.Template.Spec.Containers
 	case *DaemonSetV1Beta1:
+		container = kubeType.Spec.Template.Spec.Containers
+	case *DaemonSetV1Beta2:
 		container = kubeType.Spec.Template.Spec.Containers
 	case *DeploymentExtensionsV1Beta1:
 		container = kubeType.Spec.Template.Spec.Containers
@@ -239,6 +254,8 @@ func getPodAnnotations(resource Resource) (annotations map[string]string) {
 	case *DaemonSetV1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	case *DaemonSetV1Beta1:
+		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
+	case *DaemonSetV1Beta2:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
 	case *DeploymentExtensionsV1Beta1:
 		annotations = kubeType.Spec.Template.ObjectMeta.GetAnnotations()
