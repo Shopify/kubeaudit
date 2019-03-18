@@ -54,6 +54,11 @@ func newResultFromResource(resource Resource) (*Result, error, error) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
+	case *DaemonSetV1Beta2:
+		result.KubeType = "daemonSet"
+		result.Labels = kubeType.Spec.Template.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	case *DeploymentExtensionsV1Beta1:
 		result.KubeType = "deployment"
 		result.Labels = kubeType.Spec.Template.Labels
@@ -120,6 +125,10 @@ func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, er
 		result.SA = kubeType.Spec.JobTemplate.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.JobTemplate.Spec.Template.Spec.AutomountServiceAccountToken
 	case *DaemonSetV1Beta1:
+		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
+		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	case *DaemonSetV1Beta2:
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken

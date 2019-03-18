@@ -24,6 +24,9 @@ func TestFixServiceAccountTokenDeprecatedV2(t *testing.T) {
 		case *DaemonSetV1Beta1:
 			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
 			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
+		case *DaemonSetV1Beta2:
+			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
+			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
 		case *DeploymentExtensionsV1Beta1:
 			assert.Equal("fakeDeprecatedServiceAccount", t.Spec.Template.Spec.ServiceAccountName)
 			assert.Equal("", t.Spec.Template.Spec.DeprecatedServiceAccount)
@@ -69,6 +72,8 @@ func TestFixServiceAccountTokenTrueAndNoNameV2(t *testing.T) {
 		case *DaemonSetV1:
 			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
 		case *DaemonSetV1Beta1:
+			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
+		case *DaemonSetV1Beta2:
 			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)
 		case *DeploymentExtensionsV1Beta1:
 			assert.False(*t.Spec.Template.Spec.AutomountServiceAccountToken)

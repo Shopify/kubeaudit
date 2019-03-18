@@ -33,6 +33,9 @@ type DaemonSetV1 = appsv1.DaemonSet
 // DaemonSetV1Beta1 is a type alias for the v1beta1 version of the k8s extensions API.
 type DaemonSetV1Beta1 = extensionsv1beta1.DaemonSet
 
+// DaemonSetV1Beta2 is a type alias for the v1beta2 version of the k8s extensions API.
+type DaemonSetV1Beta2 = appsv1beta2.DaemonSet
+
 // DeploymentExtensionsV1Beta1 is a type alias for the v1beta1 version of the k8s extensions API.
 type DeploymentExtensionsV1Beta1 = extensionsv1beta1.Deployment
 
@@ -106,7 +109,7 @@ type UnsupportedType = apiv1.Binding
 func IsSupportedResourceType(obj Resource) bool {
 	switch obj.(type) {
 	case *CronJobV1Beta1,
-		*DaemonSetListV1, *DaemonSetV1, *DaemonSetV1Beta1,
+		*DaemonSetListV1, *DaemonSetV1, *DaemonSetV1Beta1, *DaemonSetV1Beta2,
 		*DeploymentExtensionsV1Beta1, *DeploymentV1, *DeploymentV1Beta1, *DeploymentV1Beta2, *DeploymentListV1,
 		*NamespaceListV1, *NamespaceV1,
 		*NetworkPolicyListV1, *NetworkPolicyV1,
