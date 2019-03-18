@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
@@ -23,6 +25,8 @@ type rootFlags struct {
 	dropCapConfig   string
 	kubeauditConfig string
 }
+
+var kubeauditConfig = &KubeauditConfig{}
 
 // RootCmd defines the shell command usage for kubeaudit.
 var RootCmd = &cobra.Command{
@@ -71,5 +75,20 @@ func processFlags() {
 			log.Fatal("Local mode selected but $HOME not set.")
 		}
 		rootConfig.kubeConfig = filepath.Join(home, ".kube", "config")
+	}
+	if rootConfig.kubeauditConfig != "" {
+		data, err := ioutil.ReadFile(rootConfig.kubeauditConfig)
+		if err != nil {
+			log.Warn("Unable to find file at set kubeauditConfig path, auditing without any config")
+			return
+		}
+		err = yaml.Unmarshal(data, kubeauditConfig)
+		if err != nil {
+			log.Fatal("Unable to parse given kubeauditConfig file, please check the syntax of your config file")
+		}
+		if !kubeauditConfig.Audit {
+			log.Warn("kubeaudit set to no-audit mode in kubeauditConfig!")
+			os.Exit(0)
+		}
 	}
 }
