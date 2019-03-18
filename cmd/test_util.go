@@ -11,12 +11,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Shopify/kubeaudit/scheme"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	apiv1 "k8s.io/api/core/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes/scheme"
 )
 
 var path = "../fixtures/"

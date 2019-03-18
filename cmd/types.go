@@ -127,7 +127,7 @@ func IsSupportedGroupVersionKind(obj Resource) bool {
 	switch obj.GetObjectKind().GroupVersionKind().Kind {
 	case "ReplicaSet", "Endpoints", "Ingress", "Service",
 		"ConfigMap", "Secret", "PersistentVolumeClaim", "StorageClass",
-		"Volume", "VolumeAttachment",
+		"Volume", "VolumeAttachment", "Certificate",
 		"ControllerRevision", "CustomResourceDefinition", "Event",
 		"LimitRange", "HorizontalPodAutoscaler", "InitializerConfiguration",
 		"MutatingWebhookConfiguration", "ValidatingWebhookConfiguration", "PodTemplate",

@@ -3,10 +3,10 @@ package cmd
 import (
 	"io/ioutil"
 
+	"github.com/Shopify/kubeaudit/scheme"
 	networking "k8s.io/api/networking/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes/scheme"
 )
 
 func setContainers(resource Resource, containers []ContainerV1) Resource {

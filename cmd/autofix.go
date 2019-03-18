@@ -4,11 +4,11 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/Shopify/kubeaudit/scheme"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes/scheme"
 )
 
 // The fix function does not preserve comments (because kubernetes resources do not support comments) so we convert
