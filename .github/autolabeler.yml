@@ -1,0 +1,6 @@
+core: ["/cmd"]
+legal: ["LICENSE*", "CODE_OF_CONDUCT*"]
+config: [".github","build","travis.yml","Makefile","/configs"]
+go-modules: ["go.*"]
+readme: ["README*"]
+datafiles: ["/fixtures"]
