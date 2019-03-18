@@ -384,6 +384,17 @@ func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, stri
 	if reason := result.Labels[podOverrideLabel]; reason != "" {
 		return true, reason
 	}
+	if rootConfig.kubeauditConfig != "" {
+		overrideLabel = strings.TrimPrefix(overrideLabel, "allow-")
+		if kubeauditConfig == nil || kubeauditConfig.Spec == nil || kubeauditConfig.Spec.Overrides == nil {
+			return false, ""
+		}
+		r := reflect.ValueOf(kubeauditConfig.Spec.Overrides)
+		configOverrideVal := reflect.Indirect(r).FieldByName(overrideLabel)
+		if configOverrideVal.String() == "allow" {
+			return true, "Allowed " + overrideLabel + " in kubeauditConfig"
+		}
+	}
 	return false, ""
 }
 
