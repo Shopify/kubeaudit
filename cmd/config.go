@@ -10,7 +10,6 @@ type KubeauditConfig struct {
 
 // KubeauditConfigSpec contains Config Spec
 type KubeauditConfigSpec struct {
-	ForceConfig  bool                         `yaml:"forceConfig"`
 	Manifest     []*KubeauditConfigManifest   `yaml:"manifest"`
 	Capabilities *KubeauditConfigCapabilities `yaml:"capabilities"`
 	Overrides    *KubeauditConfigOverrides    `yaml:"overrides"`

@@ -385,12 +385,12 @@ func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, stri
 		return true, reason
 	}
 	if rootConfig.kubeauditConfig != "" {
-		overrideLabel = mapOverridesToStructFields(overrideLabel)
+		tempLabel := mapOverridesToStructFields(overrideLabel)
 		if kubeauditConfig == nil || kubeauditConfig.Spec == nil || kubeauditConfig.Spec.Overrides == nil {
 			return false, ""
 		}
 		r := reflect.ValueOf(kubeauditConfig.Spec.Overrides)
-		configOverrideVal := reflect.Indirect(r).FieldByName(overrideLabel)
+		configOverrideVal := reflect.Indirect(r).FieldByName(tempLabel)
 		if configOverrideVal.String() == "allow" {
 			return true, "Allowed " + overrideLabel + " in kubeauditConfig"
 		}

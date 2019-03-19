@@ -22,7 +22,6 @@ type rootFlags struct {
 	manifest        string
 	namespace       string
 	verbose         string
-	dropCapConfig   string
 	kubeauditConfig string
 }
 
@@ -54,7 +53,6 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.dropCapConfig, "dropCapConfig", "d", "", "filepath for process capabilities to drop")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeauditConfig, "kubeauditConfig", "k", "", "filepath for kubeaudit config file")
 }
 
@@ -84,7 +82,6 @@ func processFlags() {
 		}
 		err = yaml.Unmarshal(data, kubeauditConfig)
 		if err != nil {
-			log.Println(err)
 			log.Fatal("Unable to parse given kubeauditConfig file, please check the syntax of your config file")
 		}
 		if !kubeauditConfig.Audit {
