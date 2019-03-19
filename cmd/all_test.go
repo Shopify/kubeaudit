@@ -21,3 +21,10 @@ func TestAuditAllV1beta1(t *testing.T) {
 	}
 	runAuditTest(t, "audit_all_v1beta1.yml", mergeAuditFunctions(allAuditFunctions), requiredErrors)
 }
+
+func TestAuditFalseAllV1(t *testing.T) {
+	var kubeauditConfig = &KubeauditConfig{}
+	kubeauditConfig.Audit = false
+	requiredErrors := []int{}
+	runAuditTest(t, "audit_all_v1.yml", mergeAuditFunctions(allAuditFunctions), requiredErrors)
+}

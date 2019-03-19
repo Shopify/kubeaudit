@@ -29,3 +29,10 @@ func TestReadOnlyRootFilesystemFalseAllowedMultContainerMultiLabelsV1(t *testing
 func TestReadOnlyRootFilesystemFalseAllowedMultContainerSingleLabelV1(t *testing.T) {
 	runAuditTest(t, "read_only_root_filesystem_false_allowed_multi_container_single_label_v1.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemFalseAllowed, ErrorReadOnlyRootFilesystemFalse})
 }
+
+func TestAllowReadOnlyRootFilesystemFalseFromConfig(t *testing.T) {
+	rootConfig.kubeauditConfig = "../configs/allow_Read_Only_Root_Filesystem_False_From_Config.yml"
+	runAuditTest(t, "security_context_nil_v1.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemFalseAllowed})
+	runAuditTest(t, "read_only_root_filesystem_nil_v1.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemFalseAllowed})
+	runAuditTest(t, "read_only_root_filesystem_false_v1.yml", auditReadOnlyRootFS, []int{ErrorReadOnlyRootFilesystemFalseAllowed})
+}

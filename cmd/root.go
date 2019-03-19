@@ -2,14 +2,16 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
-	"github.com/Shopify/yaml"
+	"io/ioutil"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
+
+	"github.com/Shopify/yaml"
 )
 
 var rootConfig rootFlags
@@ -74,7 +76,9 @@ func processFlags() {
 		}
 		rootConfig.kubeConfig = filepath.Join(home, ".kube", "config")
 	}
+
 	if rootConfig.kubeauditConfig != "" {
+		var kubeauditConfig = &KubeauditConfig{}
 		data, err := ioutil.ReadFile(rootConfig.kubeauditConfig)
 		if err != nil {
 			log.Warn("Unable to find file at set kubeauditConfig path, auditing without any config")
@@ -89,4 +93,5 @@ func processFlags() {
 			os.Exit(0)
 		}
 	}
+
 }

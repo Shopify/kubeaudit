@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"io/ioutil"
+
+	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -47,8 +50,17 @@ var defaultCapList = &KubeauditConfigCapabilities{
 	SetFCAP:        "drop",
 }
 
-func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet) {
+func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
+	var kubeauditConfig = &KubeauditConfig{}
 	if rootConfig.kubeauditConfig != "" {
+		data, err := ioutil.ReadFile(rootConfig.kubeauditConfig)
+		if err != nil {
+			log.Println(err)
+			return dropCapSet, err
+		}
+
+		yaml.Unmarshal(data, kubeauditConfig)
+
 		if kubeauditConfig != nil && kubeauditConfig.Spec != nil && kubeauditConfig.Spec.Capabilities != nil {
 			dropCapSet = dropCapFromConfigList(kubeauditConfig.Spec.Capabilities)
 		} else {
@@ -80,7 +92,17 @@ func checkCapabilities(container ContainerV1, result *Result) {
 		allowed[k] = true
 	}
 
-	toBeDropped := recommendedCapabilitiesToBeDropped()
+	toBeDropped, err := recommendedCapabilitiesToBeDropped()
+	if err != nil {
+		occ := Occurrence{
+			container: container.Name,
+			id:        KubeauditInternalError,
+			kind:      Error,
+			message:   "This should not have happened, if you are on kubeaudit master please consider to report: " + err.Error(),
+		}
+		result.Occurrences = append(result.Occurrences, occ)
+		return
+	}
 	if allCapsDrop {
 		dropped = toBeDropped
 	}

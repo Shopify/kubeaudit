@@ -29,3 +29,10 @@ func TestPrivilegedTrueAllowedMultiContainerMultiLabelsV1(t *testing.T) {
 func TestPrivilegedTrueAllowedMultiContainerSingleLabelV1(t *testing.T) {
 	runAuditTest(t, "privileged_true_allowed_multi_containers_single_label_v1.yml", auditPrivileged, []int{ErrorPrivilegedTrueAllowed, ErrorPrivilegedTrue})
 }
+
+func TestAllowPrivilegedFromConfig(t *testing.T) {
+	rootConfig.kubeauditConfig = "../configs/allow_Privileged_From_Config.yml"
+	runAuditTest(t, "security_context_nil_v1.yml", auditPrivileged, []int{ErrorPrivilegedNil})
+	runAuditTest(t, "privileged_nil_v1.yml", auditPrivileged, []int{ErrorPrivilegedNil})
+	runAuditTest(t, "privileged_true_v1.yml", auditPrivileged, []int{ErrorPrivilegedTrueAllowed})
+}

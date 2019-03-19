@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/Shopify/kubeaudit/scheme"
+	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
@@ -385,6 +386,11 @@ func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, stri
 		return true, reason
 	}
 	if rootConfig.kubeauditConfig != "" {
+		var kubeauditConfig = &KubeauditConfig{}
+
+		data, _ := ioutil.ReadFile(rootConfig.kubeauditConfig)
+		yaml.Unmarshal(data, kubeauditConfig)
+
 		tempLabel := mapOverridesToStructFields(overrideLabel)
 		if kubeauditConfig == nil || kubeauditConfig.Spec == nil || kubeauditConfig.Spec.Overrides == nil {
 			return false, ""

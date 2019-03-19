@@ -16,6 +16,7 @@ privileged, ... You get the gist of it and more on that later. Just know:
 - [Autofix](#autofix)
 - [Audits](#audits)
 - [Override Labels](#labels)
+- [Audit Configuration](#audit-configuration)
 - [Contribute!](#contribute)
 
 <a name="installation" />
@@ -75,6 +76,10 @@ or
 1. just running `kubeaudit` will log human readable output
 1. if run with `-j/--json` it will log output json formatted so that its output
    can be used by other programs easily
+
+`kubeaudit` supports using manual audit configuration provided by the user, use the command
+`kubeaudit -f/--manifest /path/to/manifest.yml -k/--kubeConfig /path/to/config.yml`
+For more details on audit config check out [Audit Configuration](#audit-configuration).
 
 `kubeaudit` has four different log levels `INFO, WARN, ERROR` controlled by
 `-v/--verbose LEVEL` and for those who counted and want to work on `kubeaudit`
@@ -520,7 +525,6 @@ kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"
 WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permissions needed"
 ```
 
-<a name="contribute" />
 
 ## Drop capabilities list
 
@@ -546,7 +550,44 @@ capabilitiesToBeDropped:
   - SETFCAP #Set file capabilities.
 ```
 
-This can be overridden by using `-d` flag and providing your own defaults in the yaml format as shown above.
+This can be overridden by using `-k` flag and providing your own defaults in the yaml format as shown below.
+
+<a name="audit-configuration" />
+
+## Audit Configuration
+
+Allows configuring your own audit settings for kubeaudit. By default following configuration is used: 
+
+```
+apiVersion: v1
+kind: kubeauditConfig
+audit: true  # Set to false if you want kubeaudit to not audit your k8s manifests
+spec:
+  capabilities: # List of all supported capabilities
+    NET_ADMIN: drop         # Set to `keep` to keep capability 
+    SETPCAP: drop           # Set to `keep` to keep capability 
+    MKNOD: drop             # Set to `keep` to keep capability 
+    AUDIT_WRITE: drop       # Set to `keep` to keep capability 
+    CHOWN: drop             # Set to `keep` to keep capability 
+    NET_RAW: drop           # Set to `keep` to keep capability 
+    DAC_OVERRIDE: drop      # Set to `keep` to keep capability 
+    FOWNER: drop            # Set to `keep` to keep capability 
+    FSETID: drop            # Set to `keep` to keep capability 
+    KILL: drop              # Set to `keep` to keep capability 
+    SETGID: drop            # Set to `keep` to keep capability 
+    SETUID: drop            # Set to `keep` to keep capability 
+    NET_BIND_SERVICE: drop  # Set to `keep` to keep capability 
+    SYS_CHROOT: drop        # Set to `keep` to keep capability 
+    SETFCAP: drop           # Set to `keep` to keep capability 
+  overrides: # List of all supported overrides
+    privilege-escalation: deny               # Set to `allow` to skip auditing potential vulnerability
+    privileged: deny                         # Set to `allow` to skip auditing potential vulnerability
+    run-as-root: deny                        # Set to `allow` to skip auditing potential vulnerability
+    automount-service-account-token: deny    # Set to `allow` to skip auditing potential vulnerability
+    read-only-root-filesystem-false: deny    # Set to `allow` to skip auditing potential vulnerability
+```
+
+<a name="contribute" />
 
 ## Contributing
 
