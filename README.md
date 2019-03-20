@@ -437,8 +437,8 @@ metadata:
 - [audit.kubernetes.io/pod/allow-automount-service-account-token](#sat_label)
 - [audit.kubernetes.io/pod/allow-read-only-root-filesystem-false](#rootfs_label)
 - [container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false](#rootfs_label)
-- [audit.kubernetes.io/<namespace-name>/allow-non-default-deny-egress-network-policy](#egress_label)
-- [audit.kubernetes.io/<namespace-name>/allow-non-default-deny-ingress-network-policy](#ingress_label)
+- [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy](#egress_label)
+- [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy](#ingress_label)
 
 <a name="allowpe_label"/>
 
