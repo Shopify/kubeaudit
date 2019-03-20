@@ -43,7 +43,7 @@ func checkIfDefaultDenyPolicy(netPol networking.NetworkPolicy) (bool, bool) {
 	return hasDenyAllIngressRule, hasDenyAllEgressRule
 }
 
-func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result) {
+func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result, nsName string) {
 	hasDenyAllIngressRule, hasDenyAllEgressRule := false, false
 
 	for _, netPol := range netPols.Items {
@@ -95,31 +95,77 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result)
 			}
 		}
 	}
-	if !hasDenyAllEgressRule && !hasDenyAllIngressRule {
-		occ := Occurrence{
-			container: "",
-			id:        ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy,
-			kind:      Error,
-			message:   "Namespace is missing a default deny ingress and default deny egress NetworkPolicy",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-	} else if !hasDenyAllIngressRule {
-		occ := Occurrence{
-			container: "",
-			id:        ErrorMissingDefaultDenyIngressNetworkPolicy,
-			kind:      Error,
-			message:   "Namespace is missing a default deny ingress NetworkPolicy",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
-	} else if !hasDenyAllEgressRule {
-		occ := Occurrence{
-			container: "",
-			id:        ErrorMissingDefaultDenyEgressNetworkPolicy,
-			kind:      Error,
-			message:   "Namespace is missing a default deny egress NetworkPolicy",
-		}
-		result.Occurrences = append(result.Occurrences, occ)
 
+	egressLabelExists, egressReason := getNamespaceOverrideLabelReason(result, nsName, "egress")
+	ingressLabelExists, ingressReason := getNamespaceOverrideLabelReason(result, nsName, "ingress")
+
+	if egressLabelExists && ingressLabelExists {
+		if !hasDenyAllEgressRule && !hasDenyAllIngressRule {
+			occ := Occurrence{
+				container: "",
+				id:        ErrorMissingDefaultDenyIngressAndEgressNetworkPolicyAllowed,
+				kind:      Warn,
+				message:   "Allowed Namespace is missing a default deny ingress and default deny egress NetworkPolicy",
+				metadata:  Metadata{"Reason": prettifyReason("Ingress: " + ingressReason + " Egress: " + egressReason)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
+	} else {
+		if !hasDenyAllEgressRule && !hasDenyAllIngressRule {
+			occ := Occurrence{
+				container: "",
+				id:        ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy,
+				kind:      Error,
+				message:   "Namespace is missing a default deny ingress and default deny egress NetworkPolicy",
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
+	}
+
+	if ingressLabelExists && !egressLabelExists {
+		if !hasDenyAllIngressRule && hasDenyAllEgressRule {
+			occ := Occurrence{
+				container: "",
+				id:        ErrorMissingDefaultDenyIngressNetworkPolicyAllowed,
+				kind:      Warn,
+				message:   "Allowed Namespace is missing a default deny ingress NetworkPolicy",
+				metadata:  Metadata{"Reason": prettifyReason(ingressReason)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
+	} else {
+		if !hasDenyAllIngressRule && hasDenyAllEgressRule {
+			occ := Occurrence{
+				container: "",
+				id:        ErrorMissingDefaultDenyIngressNetworkPolicy,
+				kind:      Error,
+				message:   "Namespace is missing a default deny ingress NetworkPolicy",
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
+	}
+
+	if !ingressLabelExists && egressLabelExists {
+		if hasDenyAllIngressRule && !hasDenyAllEgressRule {
+			occ := Occurrence{
+				container: "",
+				id:        ErrorMissingDefaultDenyEgressNetworkPolicyAllowed,
+				kind:      Warn,
+				message:   "Allowed Namespace is missing a default deny ingress NetworkPolicy",
+				metadata:  Metadata{"Reason": prettifyReason(egressReason)},
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
+	} else {
+		if hasDenyAllIngressRule && !hasDenyAllEgressRule {
+			occ := Occurrence{
+				container: "",
+				id:        ErrorMissingDefaultDenyEgressNetworkPolicy,
+				kind:      Error,
+				message:   "Namespace is missing a default deny ingress NetworkPolicy",
+			}
+			result.Occurrences = append(result.Occurrences, occ)
+		}
 	}
 
 	if hasDenyAllIngressRule && hasDenyAllEgressRule {
@@ -207,7 +253,7 @@ func auditNetworkPolicies(resource Resource) (results []Result) {
 		return
 	}
 
-	checkNamespaceNetworkPolicies(netPols, result)
+	checkNamespaceNetworkPolicies(netPols, result, nsName)
 	if len(result.Occurrences) > 0 {
 		results = append(results, *result)
 	}
