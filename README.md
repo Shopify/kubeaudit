@@ -534,13 +534,13 @@ WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permiss
 
 <a name="egress_label"/>
 
-### audit.kubernetes.io/<namespace-name>/allow-non-default-deny-egress-network-policy
+### audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy
 
 Allows absense of `default-deny` egress network policy for that specific namespace.
 
 <a name="ingress_label"/>
 
-### audit.kubernetes.io/<namespace-name>/allow-non-default-deny-ingress-network-policy
+### audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy
 
 Allows absense of `default-deny` ingress network policy for that specific namespace.
 
