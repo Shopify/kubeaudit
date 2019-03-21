@@ -547,7 +547,7 @@ Allows absense of `default-deny` ingress network policy for that specific namesp
 ```sh
 audit.kubernetes.io/default/allow-non-default-deny-egress-network-policy: "Egress is allowed"
 
-WARN[0000] Allowed Namespace without a default deny ingress NetworkPolicy  KubeType=namespace Name=default Reason="Egress is allowed"
+WARN[0000] Allowed Namespace without a default deny egress NetworkPolicy  KubeType=namespace Name=default Reason="Egress is allowed"
 ```
 
 <a name="contribute" />
