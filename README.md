@@ -416,7 +416,7 @@ spec:
 ```
 
 `kubeaudit` can also skip a specific audit for all network policies associated with a namespace resource
-by adding a namespace override label. For example if you use `kubeaudit` to ignore `allow-non-default-deny-egress-network-policy` check for a namespace named `namespaceName1` you can add the following label to the namespace:
+by adding a namespace override label. For example, if you use `kubeaudit` to ignore the `allow-non-default-deny-egress-network-policy` check for the namespace `namespaceName1` you can add the following label to the namespace:
 
 ```sh
 metadata:
