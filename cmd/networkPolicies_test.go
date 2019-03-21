@@ -21,3 +21,15 @@ func TestNamespaceHasDefaulDenyNetPol(t *testing.T) {
 func TestNamespaceHasDefaulDenyAndAllowAllNetPol(t *testing.T) {
 	runAuditTest(t, "namespace_has_default_deny_and_allow_all_netpol.yml", auditNetworkPolicies, []int{InfoDefaultDenyNetworkPolicyExists, WarningAllowAllIngressNetworkPolicyExists, WarningAllowAllEgressNetworkPolicyExists})
 }
+
+func TestAllowedNamespaceMissingDefaulDenyNetPol(t *testing.T) {
+	runAuditTest(t, "allowed_namespace_missing_default_deny_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressAndEgressNetworkPolicyAllowed})
+}
+
+func TestAllowedNamespaceMissingDefaultDenyEgressNetPol(t *testing.T) {
+	runAuditTest(t, "allowed_namespace_missing_default_deny_egress_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyEgressNetworkPolicyAllowed})
+}
+
+func TestAllowedNamespaceMissingDefaultDenyIngressNetPol(t *testing.T) {
+	runAuditTest(t, "allowed_namespace_missing_default_deny_ingress_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressNetworkPolicyAllowed})
+}

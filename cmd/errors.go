@@ -83,12 +83,18 @@ const (
 	ErrorSeccompDeprecated
 	// InfoImageCorrect occurs when an image tag is correct.
 	InfoImageCorrect
-	// ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy missing a default deny egress and default deny egress NetworkPolicy
+	// ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy missing a default deny egress and default deny egress NetworkPolicy but it's set to be allowed
 	ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy
+	// ErrorMissingDefaultDenyIngressAndEgressNetworkPolicyAllowed occurs when missing a default deny egress and default deny egress NetworkPolicy but it's set to be allowed
+	ErrorMissingDefaultDenyIngressAndEgressNetworkPolicyAllowed
 	// ErrorMissingDefaultDenyEgressNetworkPolicy occurs when a namespace is missing a default deny egress NetworkPolicy
 	ErrorMissingDefaultDenyEgressNetworkPolicy
+	// ErrorMissingDefaultDenyEgressNetworkPolicyAllowed occurs when a namespace is missing a default deny egress NetworkPolicy but it's allowed
+	ErrorMissingDefaultDenyEgressNetworkPolicyAllowed
 	// ErrorMissingDefaultDenyEgressNetworkPolicy occurs when a namespace is missing a default deny ingress NetworkPolicy
 	ErrorMissingDefaultDenyIngressNetworkPolicy
+	// ErrorMissingDefaultDenyIngressNetworkPolicyAllowed  occurs when a namespace is missing a default deny ingress NetworkPolicy but it's allowed
+	ErrorMissingDefaultDenyIngressNetworkPolicyAllowed
 	// InfoDefaultDenyNetworkPolicyExists occurs when a namespace has a default deny NetworkPolicy
 	InfoDefaultDenyNetworkPolicyExists
 	// WarningAllowAllIngressNetworkPolicyExists occurs when a namespace has an allow all ingress NetworkPolicy

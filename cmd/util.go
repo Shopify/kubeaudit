@@ -387,6 +387,20 @@ func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, stri
 	return false, ""
 }
 
+func getNamespaceOverrideLabelReason(result *Result, nsName string, policyType string) (bool, string) {
+	var namespaceOverrideLabel string
+	if policyType == "egress" {
+		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "/" + "allow-non-default-deny-egress-network-policy"
+	}
+	if policyType == "ingress" {
+		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "/" + "allow-non-default-deny-ingress-network-policy"
+	}
+	if reason := result.Labels[namespaceOverrideLabel]; reason != "" {
+		return true, reason
+	}
+	return false, ""
+}
+
 func isDefinedCapOverrideLabel(result *Result, container ContainerV1, capName string) bool {
 	capNameKey := strings.Replace(capName, "_", "-", -1)
 	containerKeyString := "container.audit.kubernetes.io/" + container.Name + "/allow-capability-" + capNameKey

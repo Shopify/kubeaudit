@@ -415,7 +415,17 @@ spec:
         audit.kubernetes.io/pod/allow-run-as-root: "YourReasonForOverrideHere"
 ```
 
-`kubeaudit` supports many labels on pod or container level:
+`kubeaudit` can also skip a specific audit for all network policies associated with a namespace resource
+by adding a namespace override label. For example, if you use `kubeaudit` to ignore the `allow-non-default-deny-egress-network-policy` check for the namespace `namespaceName1` you can add the following label to the namespace:
+
+```sh
+metadata:
+  name: namespaceName1
+  labels:
+    audit.kubernetes.io/namespaceName1/allow-non-default-deny-egress-network-policy: "YourReasonForOverrideHere"
+```
+
+`kubeaudit` supports many labels on pod, namespace or container level:
 - [audit.kubernetes.io/pod/allow-privilege-escalation](#allowpe_label)
 - [container.audit.kubernetes.io/\<container-name\>/allow-privilege-escalation](#allowpe_label)
 - [audit.kubernetes.io/pod/allow-privileged](#priv_label)
@@ -427,6 +437,8 @@ spec:
 - [audit.kubernetes.io/pod/allow-automount-service-account-token](#sat_label)
 - [audit.kubernetes.io/pod/allow-read-only-root-filesystem-false](#rootfs_label)
 - [container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false](#rootfs_label)
+- [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy](#egress_label)
+- [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy](#ingress_label)
 
 <a name="allowpe_label"/>
 
@@ -518,6 +530,24 @@ Allows setting `readOnlyRootFilesystem` to `false` to all containers in a pod.
 kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"
 
 WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permissions needed"
+```
+
+<a name="egress_label"/>
+
+### audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy
+
+Allows absense of `default-deny` egress network policy for that specific namespace.
+
+<a name="ingress_label"/>
+
+### audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy
+
+Allows absense of `default-deny` ingress network policy for that specific namespace.
+
+```sh
+audit.kubernetes.io/default/allow-non-default-deny-egress-network-policy: "Egress is allowed"
+
+WARN[0000] Allowed Namespace without a default deny ingress NetworkPolicy  KubeType=namespace Name=default Reason="Egress is allowed"
 ```
 
 <a name="contribute" />
