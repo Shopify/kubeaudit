@@ -151,7 +151,7 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result,
 				container: "",
 				id:        ErrorMissingDefaultDenyEgressNetworkPolicyAllowed,
 				kind:      Warn,
-				message:   "Allowed Namespace without a default deny ingress NetworkPolicy",
+				message:   "Allowed Namespace without a default deny egress NetworkPolicy",
 				metadata:  Metadata{"Reason": prettifyReason(egressReason)},
 			}
 			result.Occurrences = append(result.Occurrences, occ)
@@ -162,7 +162,7 @@ func checkNamespaceNetworkPolicies(netPols *NetworkPolicyListV1, result *Result,
 				container: "",
 				id:        ErrorMissingDefaultDenyEgressNetworkPolicy,
 				kind:      Error,
-				message:   "Namespace is missing a default deny ingress NetworkPolicy",
+				message:   "Namespace is missing a default deny egress NetworkPolicy",
 			}
 			result.Occurrences = append(result.Occurrences, occ)
 		}
