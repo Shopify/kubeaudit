@@ -27,6 +27,7 @@ func assertAllDropped(assert *assert.Assertions, dropped []CapabilityV1, allowed
 }
 
 func TestFixCapabilitiesNotDroppedV1Beta2(t *testing.T) {
+	rootConfig.auditConfig = ""
 	assert, resource := FixTestSetup(t, "capabilities_nil_v1beta2.yml", auditCapabilities)
 	add := []CapabilityV1{}
 	for _, container := range getContainers(resource) {
