@@ -54,13 +54,13 @@ func TestCapabilitiesSomeAllowedMultiContainersMixLabelsV1Beta2(t *testing.T) {
 }
 
 func TestCapabilitiesManualConfigV2(t *testing.T) {
-	rootConfig.kubeauditConfig = "../fake/file/path"
+	rootConfig.auditConfig = "../fake/file/path"
 	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{KubeauditInternalError})
 }
 
 func TestCustomCapabilitiesToBeDroppedV1(t *testing.T) {
 	assert := assert.New(t)
-	rootConfig.kubeauditConfig = "../configs/custom_Capabilities_To_Be_Dropped_v1.yml"
+	rootConfig.auditConfig = "../configs/custom_capabilities_to_be_dropped_v1.yml"
 	capabilities, err := recommendedCapabilitiesToBeDropped()
 	assert.Nil(err)
 	assert.Equal(NewCapSetFromArray([]CapabilityV1{"MKNOD", "CHOWN", "DAC_OVERRIDE", "FSETID", "SETGID", "NET_BIND_SERVICE", "SETFCAP"}), capabilities, "")
@@ -68,7 +68,7 @@ func TestCustomCapabilitiesToBeDroppedV1(t *testing.T) {
 
 func TestCustomCapabilitiesToBeDroppedV2(t *testing.T) {
 	assert := assert.New(t)
-	rootConfig.kubeauditConfig = "../configs/custom_Capabilities_To_Be_Dropped_v1.yml"
+	rootConfig.auditConfig = "../configs/custom_capabilities_to_be_dropped_v1.yml"
 	capabilities, err := recommendedCapabilitiesToBeDropped()
 	assert.Nil(err)
 	assert.NotEqual(NewCapSetFromArray([]CapabilityV1{"MKNOD", "SYS_CHROOT", "KILL", "CHOWN", "DAC_OVERRIDE", "FSETID", "SETGID", "NET_BIND_SERVICE", "SETFCAP"}), capabilities, "")

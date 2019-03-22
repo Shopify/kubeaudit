@@ -63,7 +63,7 @@ func TestPSCRunAsRootFalseAllowedMultiContainersV2(t *testing.T) {
 }
 
 func TestAllowRunAsNonRootFromConfig(t *testing.T) {
-	rootConfig.kubeauditConfig = "../configs/allow_Run_As_Non_Root_From_Config.yml"
+	rootConfig.auditConfig = "../configs/allow_run_as_non_root_from_config.yml"
 	runAuditTest(t, "security_context_nil_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalseAllowed})
 	runAuditTest(t, "run_as_non_root_nil_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalseAllowed})
 	runAuditTest(t, "run_as_non_root_false_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalseAllowed})

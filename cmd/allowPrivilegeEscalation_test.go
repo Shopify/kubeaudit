@@ -53,7 +53,7 @@ func TestAllowPrivilegeEscalationSingleAllowMultipleContainers(t *testing.T) {
 }
 
 func TestAllowPrivilegeEscalationFromConfig(t *testing.T) {
-	rootConfig.kubeauditConfig = "../configs/allow_Privilege_Escalation_From_Config.yml"
+	rootConfig.auditConfig = "../configs/allow_privilege_escalation_from_config.yml"
 	runAuditTest(t, "security_context_nil_v1.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
 	runAuditTest(t, "allow_privilege_escalation_nil_v1.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
 	runAuditTest(t, "allow_privilege_escalation_true_v1.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})

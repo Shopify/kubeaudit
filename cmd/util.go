@@ -385,10 +385,10 @@ func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, stri
 	if reason := result.Labels[podOverrideLabel]; reason != "" {
 		return true, reason
 	}
-	if rootConfig.kubeauditConfig != "" {
+	if rootConfig.auditConfig != "" {
 		var kubeauditConfig = &KubeauditConfig{}
 
-		data, _ := ioutil.ReadFile(rootConfig.kubeauditConfig)
+		data, _ := ioutil.ReadFile(rootConfig.auditConfig)
 		yaml.Unmarshal(data, kubeauditConfig)
 
 		tempLabel := mapOverridesToStructFields(overrideLabel)
@@ -406,15 +406,35 @@ func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, stri
 
 func getNamespaceOverrideLabelReason(result *Result, nsName string, policyType string) (bool, string) {
 	var namespaceOverrideLabel string
+	var tempLabel string
 	if policyType == "egress" {
 		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "/" + "allow-non-default-deny-egress-network-policy"
+		tempLabel = "allow-non-default-deny-egress-network-policy"
 	}
 	if policyType == "ingress" {
 		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "/" + "allow-non-default-deny-ingress-network-policy"
+		tempLabel = "allow-non-default-deny-ingress-network-policy"
 	}
 	if reason := result.Labels[namespaceOverrideLabel]; reason != "" {
 		return true, reason
 	}
+	if rootConfig.auditConfig != "" {
+		var kubeauditConfig = &KubeauditConfig{}
+
+		data, _ := ioutil.ReadFile(rootConfig.auditConfig)
+		yaml.Unmarshal(data, kubeauditConfig)
+
+		tempOverrideField := mapOverridesToStructFields(tempLabel)
+		if kubeauditConfig == nil || kubeauditConfig.Spec == nil || kubeauditConfig.Spec.Overrides == nil {
+			return false, ""
+		}
+		r := reflect.ValueOf(kubeauditConfig.Spec.Overrides)
+		configOverrideVal := reflect.Indirect(r).FieldByName(tempOverrideField)
+		if configOverrideVal.String() == "allow" {
+			return true, "Allowed " + tempLabel + " in kubeauditConfig"
+		}
+	}
+
 	return false, ""
 }
 

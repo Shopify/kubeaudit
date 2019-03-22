@@ -14,7 +14,7 @@ func TestFixV1(t *testing.T) {
 	file := "../fixtures/autofix_v1.yml"
 	fileFixed := "../fixtures/autofix-fixed_v1.yml"
 	rootConfig.manifest = file
-	rootConfig.kubeauditConfig = ""
+	rootConfig.auditConfig = ""
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
@@ -29,7 +29,7 @@ func TestAllResourcesFixV1(t *testing.T) {
 	fileFixedResources := "../fixtures/autofix-fixed_v1.yml"
 	fileExtraResources := "../fixtures/autofix-extra-resources-fixed_v1.yml"
 	rootConfig.manifest = file
-	rootConfig.kubeauditConfig = ""
+	rootConfig.auditConfig = ""
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
@@ -45,7 +45,7 @@ func TestExtraResourcesFixV1(t *testing.T) {
 	file := "../fixtures/autofix-extra-resources_v1.yml"
 	fileFixed := "../fixtures/autofix-extra-resources-fixed_v1.yml"
 	rootConfig.manifest = file
-	rootConfig.kubeauditConfig = ""
+	rootConfig.auditConfig = ""
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
@@ -59,7 +59,7 @@ func TestExtraResourcesEgressFixV1(t *testing.T) {
 	file := "../fixtures/autofix-extra-resources-egress_v1.yml"
 	fileFixed := "../fixtures/autofix-extra-resources-egress-fixed_v1.yml"
 	rootConfig.manifest = file
-	rootConfig.kubeauditConfig = ""
+	rootConfig.auditConfig = ""
 	assert := assert.New(t)
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
@@ -87,7 +87,7 @@ func TestFixV1Beta1(t *testing.T) {
 	file := "../fixtures/autofix_v1beta1.yml"
 	fileFixed := "../fixtures/autofix-fixed_v1beta1.yml"
 	assert := assert.New(t)
-	rootConfig.kubeauditConfig = ""
+	rootConfig.auditConfig = ""
 	resources, err := getKubeResourcesManifest(file)
 	assert.Nil(err)
 	fixedResources, _ := fix(resources)

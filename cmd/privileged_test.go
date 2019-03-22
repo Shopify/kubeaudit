@@ -31,7 +31,7 @@ func TestPrivilegedTrueAllowedMultiContainerSingleLabelV1(t *testing.T) {
 }
 
 func TestAllowPrivilegedFromConfig(t *testing.T) {
-	rootConfig.kubeauditConfig = "../configs/allow_Privileged_From_Config.yml"
+	rootConfig.auditConfig = "../configs/allow_privileged_from_config.yml"
 	runAuditTest(t, "security_context_nil_v1.yml", auditPrivileged, []int{ErrorPrivilegedNil})
 	runAuditTest(t, "privileged_nil_v1.yml", auditPrivileged, []int{ErrorPrivilegedNil})
 	runAuditTest(t, "privileged_true_v1.yml", auditPrivileged, []int{ErrorPrivilegedTrueAllowed})

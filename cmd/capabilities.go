@@ -52,8 +52,8 @@ var defaultCapList = &KubeauditConfigCapabilities{
 
 func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 	var kubeauditConfig = &KubeauditConfig{}
-	if rootConfig.kubeauditConfig != "" {
-		data, err := ioutil.ReadFile(rootConfig.kubeauditConfig)
+	if rootConfig.auditConfig != "" {
+		data, err := ioutil.ReadFile(rootConfig.auditConfig)
 		if err != nil {
 			log.Println(err)
 			return dropCapSet, err

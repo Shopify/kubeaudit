@@ -33,3 +33,18 @@ func TestAllowedNamespaceMissingDefaultDenyEgressNetPol(t *testing.T) {
 func TestAllowedNamespaceMissingDefaultDenyIngressNetPol(t *testing.T) {
 	runAuditTest(t, "allowed_namespace_missing_default_deny_ingress_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressNetworkPolicyAllowed})
 }
+
+func TestAllowedNamespaceMissingDefaulDenyNetPolFromConfig(t *testing.T) {
+	rootConfig.auditConfig = "../configs/allow_namespace_missing_default_deny_net_pol.yml"
+	runAuditTest(t, "namespace_missing_default_deny_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressAndEgressNetworkPolicyAllowed})
+}
+
+func TestAllowedNamespaceMissingDefaultDenyEgressNetPolFromConfig(t *testing.T) {
+	rootConfig.auditConfig = "../configs/allow_namespace_missing_default_deny_egress_net_pol.yml"
+	runAuditTest(t, "namespace_missing_default_deny_egress_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyEgressNetworkPolicyAllowed})
+}
+
+func TestAllowedNamespaceMissingDefaultDenyIngressNetPolFromConfig(t *testing.T) {
+	rootConfig.auditConfig = "../configs/allow_namespace_missing_default_deny_ingress_net_pol.yml"
+	runAuditTest(t, "namespace_missing_default_deny_ingress_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressNetworkPolicyAllowed})
+}

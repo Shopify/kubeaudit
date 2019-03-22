@@ -24,7 +24,7 @@ type rootFlags struct {
 	manifest        string
 	namespace       string
 	verbose         string
-	kubeauditConfig string
+	auditConfig string
 }
 
 var kubeauditConfig = &KubeauditConfig{}
@@ -55,7 +55,7 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeauditConfig, "kubeauditConfig", "k", "", "filepath for kubeaudit config file")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.auditConfig, "auditconfig", "k", "", "filepath for kubeaudit config file")
 }
 
 func processFlags() {
@@ -77,9 +77,9 @@ func processFlags() {
 		rootConfig.kubeConfig = filepath.Join(home, ".kube", "config")
 	}
 
-	if rootConfig.kubeauditConfig != "" {
+	if rootConfig.auditConfig != "" {
 		var kubeauditConfig = &KubeauditConfig{}
-		data, err := ioutil.ReadFile(rootConfig.kubeauditConfig)
+		data, err := ioutil.ReadFile(rootConfig.auditConfig)
 		if err != nil {
 			log.Warn("Unable to find file at set kubeauditConfig path, auditing without any config")
 			return

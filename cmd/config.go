@@ -69,7 +69,7 @@ func mapOverridesToStructFields(label string) string {
 	if label == "allow-non-default-deny-egress-network-policy" {
 		return "NonDefaultDenyEgressNetworkPolicy"
 	}
-	if label == "non-default-deny-ingress-network-policy" {
+	if label == "allow-non-default-deny-ingress-network-policy" {
 		return "NonDefaultDenyIngressNetworkPolicy"
 	}
 	return ""

@@ -27,7 +27,7 @@ func TestServiceAccountTokenTrueAndDefaultNameV1(t *testing.T) {
 }
 
 func TestAutomountServiceAccountTokenFromConfig(t *testing.T) {
-	rootConfig.kubeauditConfig = "../configs/allow_Automount_Service_Account_Token_From_Config.yml"
+	rootConfig.auditConfig = "../configs/allow_automount_service_account_token_from_config.yml"
 	runAuditTest(t, "service_account_token_deprecated_v1.yml", auditAutomountServiceAccountToken, []int{ErrorServiceAccountTokenDeprecated})
 	runAuditTest(t, "service_account_token_true_and_no_name_v1.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenTrueAllowed})
 	runAuditTest(t, "service_account_token_nil_and_no_name_v1.yml", auditAutomountServiceAccountToken, []int{ErrorMisconfiguredKubeauditAllow})
