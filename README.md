@@ -316,7 +316,7 @@ WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125M
 
 ## Audit AppArmor
 
-It checks that AppArmor is enabled for all containers by making sure the following annotation exists on the pod. 
+It checks that AppArmor is enabled for all containers by making sure the following annotation exists on the pod.
 There must be an annotation for each container in the pod:
 
 ```
@@ -342,8 +342,8 @@ ERRO[0000] AppArmor disabled. Annotation=container.apparmor.security.beta.kubern
 
 ## Audit Seccomp
 
-It checks that Seccomp is enabled for all containers by making sure one or both of the following annotations exists 
-on the pod. If no pod annotation is used, then there must be an annotation for each container. Container annotations 
+It checks that Seccomp is enabled for all containers by making sure one or both of the following annotations exists
+on the pod. If no pod annotation is used, then there must be an annotation for each container. Container annotations
 override the pod annotation:
 
 ```
@@ -354,7 +354,7 @@ seccomp.security.alpha.kubernetes.io/pod: <profile>
 container.seccomp.security.alpha.kubernetes.io/<container name>: <profile>
 ```
 
-where profile can be "runtime/default" or start with "localhost/" to be considered valid. "docker/default" is 
+where profile can be "runtime/default" or start with "localhost/" to be considered valid. "docker/default" is
 deprecated and will show a warning. It should be replaced with "runtime/default".
 
 If the Seccomp annotation is missing:
@@ -420,7 +420,17 @@ spec:
         audit.kubernetes.io/pod/allow-run-as-root: "YourReasonForOverrideHere"
 ```
 
-`kubeaudit` supports many labels on pod or container level:
+`kubeaudit` can also skip a specific audit for all network policies associated with a namespace resource
+by adding a namespace override label. For example, if you use `kubeaudit` to ignore the `allow-non-default-deny-egress-network-policy` check for the namespace `namespaceName1` you can add the following label to the namespace:
+
+```sh
+metadata:
+  name: namespaceName1
+  labels:
+    audit.kubernetes.io/namespaceName1/allow-non-default-deny-egress-network-policy: "YourReasonForOverrideHere"
+```
+
+`kubeaudit` supports many labels on pod, namespace or container level:
 - [audit.kubernetes.io/pod/allow-privilege-escalation](#allowpe_label)
 - [container.audit.kubernetes.io/\<container-name\>/allow-privilege-escalation](#allowpe_label)
 - [audit.kubernetes.io/pod/allow-privileged](#priv_label)
@@ -432,6 +442,8 @@ spec:
 - [audit.kubernetes.io/pod/allow-automount-service-account-token](#sat_label)
 - [audit.kubernetes.io/pod/allow-read-only-root-filesystem-false](#rootfs_label)
 - [container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false](#rootfs_label)
+- [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy](#egress_label)
+- [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy](#ingress_label)
 
 <a name="allowpe_label"/>
 
@@ -525,6 +537,25 @@ kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"
 WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permissions needed"
 ```
 
+<a name="egress_label"/>
+
+### audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy
+
+Allows absense of `default-deny` egress network policy for that specific namespace.
+
+<a name="ingress_label"/>
+
+### audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy
+
+Allows absense of `default-deny` ingress network policy for that specific namespace.
+
+```sh
+audit.kubernetes.io/default/allow-non-default-deny-egress-network-policy: "Egress is allowed"
+
+WARN[0000] Allowed Namespace without a default deny ingress NetworkPolicy  KubeType=namespace Name=default Reason="Egress is allowed"
+```
+
+<a name="contribute" />
 
 ## Drop capabilities list
 
@@ -556,7 +587,7 @@ This can be overridden by using `-k` flag and providing your own defaults in the
 
 ## Audit Configuration
 
-Allows configuring your own audit settings for kubeaudit. By default following configuration is used: 
+Allows configuring your own audit settings for kubeaudit. By default following configuration is used:
 
 ```
 apiVersion: v1
@@ -564,21 +595,21 @@ kind: kubeauditConfig
 audit: true  # Set to false if you want kubeaudit to not audit your k8s manifests
 spec:
   capabilities: # List of all supported capabilities
-    NET_ADMIN: drop         # Set to `keep` to keep capability 
-    SETPCAP: drop           # Set to `keep` to keep capability 
-    MKNOD: drop             # Set to `keep` to keep capability 
-    AUDIT_WRITE: drop       # Set to `keep` to keep capability 
-    CHOWN: drop             # Set to `keep` to keep capability 
-    NET_RAW: drop           # Set to `keep` to keep capability 
-    DAC_OVERRIDE: drop      # Set to `keep` to keep capability 
-    FOWNER: drop            # Set to `keep` to keep capability 
-    FSETID: drop            # Set to `keep` to keep capability 
-    KILL: drop              # Set to `keep` to keep capability 
-    SETGID: drop            # Set to `keep` to keep capability 
-    SETUID: drop            # Set to `keep` to keep capability 
-    NET_BIND_SERVICE: drop  # Set to `keep` to keep capability 
-    SYS_CHROOT: drop        # Set to `keep` to keep capability 
-    SETFCAP: drop           # Set to `keep` to keep capability 
+    NET_ADMIN: drop         # Set to `keep` to keep capability
+    SETPCAP: drop           # Set to `keep` to keep capability
+    MKNOD: drop             # Set to `keep` to keep capability
+    AUDIT_WRITE: drop       # Set to `keep` to keep capability
+    CHOWN: drop             # Set to `keep` to keep capability
+    NET_RAW: drop           # Set to `keep` to keep capability
+    DAC_OVERRIDE: drop      # Set to `keep` to keep capability
+    FOWNER: drop            # Set to `keep` to keep capability
+    FSETID: drop            # Set to `keep` to keep capability
+    KILL: drop              # Set to `keep` to keep capability
+    SETGID: drop            # Set to `keep` to keep capability
+    SETUID: drop            # Set to `keep` to keep capability
+    NET_BIND_SERVICE: drop  # Set to `keep` to keep capability
+    SYS_CHROOT: drop        # Set to `keep` to keep capability
+    SETFCAP: drop           # Set to `keep` to keep capability
   overrides: # List of all supported overrides
     privilege-escalation: deny                      # Set to `allow` to skip auditing potential vulnerability
     privileged: deny                                # Set to `allow` to skip auditing potential vulnerability
