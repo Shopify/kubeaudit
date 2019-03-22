@@ -33,6 +33,11 @@ func TestCapabilitiesSomeDroppedV1Beta2(t *testing.T) {
 	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 
+func TestAllowAuditCapabilitiesSomeDroppedFromConfigV1Beta2(t *testing.T) {
+	rootConfig.auditConfig = "../configs/allow_audit_from_config.yml"
+	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
+}
+
 func TestCapabilitiesMisconfiguredAllowV1Beta2(t *testing.T) {
 	runAuditTest(t, "capabilities_misconfigured_allow_v1beta2.yml", auditCapabilities, []int{ErrorMisconfiguredKubeauditAllow})
 }

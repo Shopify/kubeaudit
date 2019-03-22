@@ -6,6 +6,11 @@ func TestNamespaceMissingDefaulDenyNetPol(t *testing.T) {
 	runAuditTest(t, "namespace_missing_default_deny_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy})
 }
 
+func TestAllowAuditNamespaceMissingDefaulDenyNetPolFromConfig(t *testing.T) {
+	rootConfig.auditConfig = "../configs/allow_audit_from_config.yml"
+	runAuditTest(t, "namespace_missing_default_deny_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy})
+}
+
 func TestNamespaceMissingDefaultDenyEgressNetPol(t *testing.T) {
 	runAuditTest(t, "namespace_missing_default_deny_egress_netpol.yml", auditNetworkPolicies, []int{ErrorMissingDefaultDenyEgressNetworkPolicy})
 }

@@ -62,6 +62,10 @@ func TestPSCRunAsRootFalseAllowedMultiContainersV2(t *testing.T) {
 	runAuditTest(t, "run_as_non_root_psc_false_allowed_multi_containers_single_label_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCTrueFalseCSCFalse})
 }
 
+func TestAllowAuditPSCRunAsRootFalseAllowedMultiContainersFromConfigV2(t *testing.T) {
+	rootConfig.auditConfig = "../configs/allow_audit_from_config.yml"
+	runAuditTest(t, "run_as_non_root_psc_false_allowed_multi_containers_single_label_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootPSCTrueFalseCSCFalse, ErrorRunAsNonRootPSCTrueFalseCSCFalse})
+}
 func TestAllowRunAsNonRootFromConfig(t *testing.T) {
 	rootConfig.auditConfig = "../configs/allow_run_as_non_root_from_config.yml"
 	runAuditTest(t, "security_context_nil_v1.yml", auditRunAsNonRoot, []int{ErrorRunAsNonRootFalseAllowed})
