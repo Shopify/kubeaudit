@@ -33,6 +33,11 @@ func TestCapabilitiesSomeDroppedV1Beta2(t *testing.T) {
 	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
 }
 
+func TestAllowAuditCapabilitiesSomeDroppedFromConfigV1Beta2(t *testing.T) {
+	rootConfig.auditConfig = "../configs/allow_audit_from_config.yml"
+	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{ErrorCapabilityNotDropped})
+}
+
 func TestCapabilitiesMisconfiguredAllowV1Beta2(t *testing.T) {
 	runAuditTest(t, "capabilities_misconfigured_allow_v1beta2.yml", auditCapabilities, []int{ErrorMisconfiguredKubeauditAllow})
 }
@@ -53,12 +58,26 @@ func TestCapabilitiesSomeAllowedMultiContainersMixLabelsV1Beta2(t *testing.T) {
 	runAuditTest(t, "capabilities_some_allowed_multi_containers_mix_labels_v1beta2.yml", auditCapabilities, []int{ErrorCapabilityAllowed, ErrorCapabilityAllowed})
 }
 
-func TestCapabilitiesManualConfigV1(t *testing.T) {
-	rootConfig.dropCapConfig = "../configs/capSetConfig.yaml"
-	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{})
+func TestCapabilitiesManualConfigV2(t *testing.T) {
+	rootConfig.auditConfig = "../fake/file/path"
+	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{KubeauditInternalError})
+	rootConfig.auditConfig = ""
 }
 
-func TestCapabilitiesManualConfigV2(t *testing.T) {
-	rootConfig.dropCapConfig = "../fake/file/path"
-	runAuditTest(t, "capabilities_some_dropped_v1beta2.yml", auditCapabilities, []int{KubeauditInternalError})
+func TestCustomCapabilitiesToBeDroppedV1(t *testing.T) {
+	assert := assert.New(t)
+	rootConfig.auditConfig = "../configs/custom_capabilities_to_be_dropped_v1.yml"
+	capabilities, err := recommendedCapabilitiesToBeDropped()
+	assert.Nil(err)
+	assert.Equal(NewCapSetFromArray([]CapabilityV1{"MKNOD", "CHOWN", "DAC_OVERRIDE", "FSETID", "SETGID", "NET_BIND_SERVICE", "SETFCAP"}), capabilities, "")
+	rootConfig.auditConfig = ""
+}
+
+func TestCustomCapabilitiesToBeDroppedV2(t *testing.T) {
+	assert := assert.New(t)
+	rootConfig.auditConfig = "../configs/custom_capabilities_to_be_dropped_v1.yml"
+	capabilities, err := recommendedCapabilitiesToBeDropped()
+	assert.Nil(err)
+	assert.NotEqual(NewCapSetFromArray([]CapabilityV1{"MKNOD", "SYS_CHROOT", "KILL", "CHOWN", "DAC_OVERRIDE", "FSETID", "SETGID", "NET_BIND_SERVICE", "SETFCAP"}), capabilities, "")
+	rootConfig.auditConfig = ""
 }

@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/Shopify/kubeaudit/scheme"
+	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
@@ -384,20 +385,60 @@ func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, stri
 	if reason := result.Labels[podOverrideLabel]; reason != "" {
 		return true, reason
 	}
+	if rootConfig.auditConfig != "" {
+		var kubeauditConfig = &KubeauditConfig{}
+
+		data, _ := ioutil.ReadFile(rootConfig.auditConfig)
+
+		// err check for unmarshalling is not useful as Root Init crashes the program if Config is not well formed
+		yaml.Unmarshal(data, kubeauditConfig)
+
+		tempLabel := mapOverridesToStructFields(overrideLabel)
+		if kubeauditConfig == nil || kubeauditConfig.Spec == nil || kubeauditConfig.Spec.Overrides == nil {
+			return false, ""
+		}
+		r := reflect.ValueOf(kubeauditConfig.Spec.Overrides)
+		configOverrideVal := reflect.Indirect(r).FieldByName(tempLabel)
+		if configOverrideVal.String() == "allow" {
+			return true, "Allowed " + overrideLabel + " in kubeauditConfig"
+		}
+	}
 	return false, ""
 }
 
 func getNamespaceOverrideLabelReason(result *Result, nsName string, policyType string) (bool, string) {
 	var namespaceOverrideLabel string
+	var tempLabel string
 	if policyType == "egress" {
 		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "/" + "allow-non-default-deny-egress-network-policy"
+		tempLabel = "allow-non-default-deny-egress-network-policy"
 	}
 	if policyType == "ingress" {
 		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "/" + "allow-non-default-deny-ingress-network-policy"
+		tempLabel = "allow-non-default-deny-ingress-network-policy"
 	}
 	if reason := result.Labels[namespaceOverrideLabel]; reason != "" {
 		return true, reason
 	}
+	if rootConfig.auditConfig != "" {
+		var kubeauditConfig = &KubeauditConfig{}
+
+		data, _ := ioutil.ReadFile(rootConfig.auditConfig)
+
+		// err check for unmarshalling is not useful as Root Init crashes the program if Config is not well formed
+		yaml.Unmarshal(data, kubeauditConfig)
+
+		tempOverrideField := mapOverridesToStructFields(tempLabel)
+		if kubeauditConfig == nil || kubeauditConfig.Spec == nil || kubeauditConfig.Spec.Overrides == nil {
+			return false, ""
+		}
+		r := reflect.ValueOf(kubeauditConfig.Spec.Overrides)
+		configOverrideVal := reflect.Indirect(r).FieldByName(tempOverrideField)
+		if configOverrideVal.String() == "allow" {
+			return true, "Allowed " + tempLabel + " in kubeauditConfig"
+		}
+	}
+
 	return false, ""
 }
 

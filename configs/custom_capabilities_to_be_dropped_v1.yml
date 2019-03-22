@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: kubeauditConfig
+audit: true
+spec:
+  capabilities:
+    NET_ADMIN: keep
+    SETPCAP: keep
+    MKNOD: drop
+    AUDIT_WRITE: keep
+    CHOWN: drop
+    NET_RAW: keep
+    DAC_OVERRIDE: drop
+    FOWNER: keep
+    FSETID: drop
+    KILL: keep
+    SETGID: drop
+    SETUID: keep
+    NET_BIND_SERVICE: drop
+    SYS_CHROOT: keep
+    SETFCAP: drop

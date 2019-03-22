@@ -5,23 +5,29 @@ import (
 	"os"
 	"path/filepath"
 
+	"io/ioutil"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
+
+	"github.com/Shopify/yaml"
 )
 
 var rootConfig rootFlags
 
 type rootFlags struct {
-	allPods       bool
-	json          bool
-	kubeConfig    string
-	localMode     bool
-	manifest      string
-	namespace     string
-	verbose       string
-	dropCapConfig string
+	allPods     bool
+	json        bool
+	kubeConfig  string
+	localMode   bool
+	manifest    string
+	namespace   string
+	verbose     string
+	auditConfig string
 }
+
+var kubeauditConfig = &KubeauditConfig{}
 
 // RootCmd defines the shell command usage for kubeaudit.
 var RootCmd = &cobra.Command{
@@ -49,7 +55,7 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.dropCapConfig, "dropCapConfig", "d", "", "filepath for process capabilities to drop")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.auditConfig, "auditconfig", "k", "", "filepath for kubeaudit config file")
 }
 
 func processFlags() {
@@ -70,4 +76,22 @@ func processFlags() {
 		}
 		rootConfig.kubeConfig = filepath.Join(home, ".kube", "config")
 	}
+
+	if rootConfig.auditConfig != "" {
+		var kubeauditConfig = &KubeauditConfig{}
+		data, err := ioutil.ReadFile(rootConfig.auditConfig)
+		if err != nil {
+			log.Warn("Unable to find file at set auditConfig path, auditing without any config")
+			return
+		}
+		err = yaml.Unmarshal(data, kubeauditConfig)
+		if err != nil {
+			log.Fatal("Unable to parse given auditConfig file, please check the syntax of your config file")
+		}
+		if !kubeauditConfig.Audit {
+			log.Warn("kubeaudit set to no-audit mode in auditConfig!")
+			os.Exit(0)
+		}
+	}
+
 }

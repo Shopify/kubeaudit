@@ -51,3 +51,12 @@ func TestAllowPrivilegeEscalationMultipleAllowMultipleContainers(t *testing.T) {
 func TestAllowPrivilegeEscalationSingleAllowMultipleContainers(t *testing.T) {
 	runAuditTest(t, "allow_privilege_escalation_true_single_allowed_multiple_containers_v1beta.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrue, ErrorAllowPrivilegeEscalationTrueAllowed})
 }
+
+func TestAllowPrivilegeEscalationFromConfig(t *testing.T) {
+	rootConfig.auditConfig = "../configs/allow_privilege_escalation_from_config.yml"
+	runAuditTest(t, "security_context_nil_v1.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
+	runAuditTest(t, "allow_privilege_escalation_nil_v1.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
+	runAuditTest(t, "allow_privilege_escalation_true_v1.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
+	runAuditTest(t, "allow_privilege_escalation_true_single_allowed_multiple_containers_v1beta.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
+	rootConfig.auditConfig = ""
+}

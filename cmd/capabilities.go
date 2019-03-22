@@ -2,18 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strings"
+
+	"io/ioutil"
 
 	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
-
-type capsDropList struct {
-	Drop []string `yaml:"capabilitiesToBeDropped"`
-}
 
 const defaultDropCapConfig = `
 # SANE DEFAULTS:
@@ -35,25 +31,44 @@ capabilitiesToBeDropped:
   - SETFCAP #Set file capabilities.
 `
 
+var defaultCapList = &KubeauditConfigCapabilities{
+	// SANE DEFAULTS:
+	NetAdmin:       "drop",
+	SetPCAP:        "drop",
+	MKNOD:          "drop",
+	AuditWrite:     "drop",
+	Chown:          "drop",
+	NetRaw:         "drop",
+	DacOverride:    "drop",
+	FOWNER:         "drop",
+	FSetID:         "drop",
+	Kill:           "drop",
+	SetGID:         "drop",
+	SetUID:         "drop",
+	NetBindService: "drop",
+	SYSChroot:      "drop",
+	SetFCAP:        "drop",
+}
+
 func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
-	yamlFile := []byte(defaultDropCapConfig)
-	if rootConfig.dropCapConfig != "" {
-		if _, err = os.Stat(rootConfig.dropCapConfig); err != nil {
-			return
-		}
-		yamlFile, err = ioutil.ReadFile(rootConfig.dropCapConfig)
+	var kubeauditConfig = &KubeauditConfig{}
+	if rootConfig.auditConfig != "" {
+		data, err := ioutil.ReadFile(rootConfig.auditConfig)
 		if err != nil {
-			return
+			log.Println(err)
+			return dropCapSet, err
 		}
-	}
-	caps := capsDropList{}
-	err = yaml.Unmarshal(yamlFile, &caps)
-	if err != nil {
-		return
-	}
-	dropCapSet = make(CapSet)
-	for _, drop := range caps.Drop {
-		dropCapSet[CapabilityV1(drop)] = true
+
+		// err check for unmarshalling is not useful as Root Init crashes the program if Config is not well formed
+		yaml.Unmarshal(data, kubeauditConfig)
+
+		if kubeauditConfig != nil && kubeauditConfig.Spec != nil && kubeauditConfig.Spec.Capabilities != nil {
+			dropCapSet = dropCapFromConfigList(kubeauditConfig.Spec.Capabilities)
+		} else {
+			dropCapSet = dropCapFromConfigList(defaultCapList)
+		}
+	} else {
+		dropCapSet = dropCapFromConfigList(defaultCapList)
 	}
 	return
 }
@@ -172,8 +187,7 @@ An ERROR log is generated when a pod has a capability which is on the drop list.
 A WARN log is generated when a pod has a capability allowed which is on the drop list.
 
 Example usage:
-kubeaudit caps
-kubeaudit caps -d drop_v1.yml`, defaultDropCapConfig),
+kubeaudit caps`, defaultDropCapConfig),
 	Run: runAudit(auditCapabilities),
 }
 
