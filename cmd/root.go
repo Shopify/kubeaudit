@@ -17,13 +17,13 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	allPods         bool
-	json            bool
-	kubeConfig      string
-	localMode       bool
-	manifest        string
-	namespace       string
-	verbose         string
+	allPods     bool
+	json        bool
+	kubeConfig  string
+	localMode   bool
+	manifest    string
+	namespace   string
+	verbose     string
 	auditConfig string
 }
 
@@ -81,15 +81,15 @@ func processFlags() {
 		var kubeauditConfig = &KubeauditConfig{}
 		data, err := ioutil.ReadFile(rootConfig.auditConfig)
 		if err != nil {
-			log.Warn("Unable to find file at set kubeauditConfig path, auditing without any config")
+			log.Warn("Unable to find file at set auditConfig path, auditing without any config")
 			return
 		}
 		err = yaml.Unmarshal(data, kubeauditConfig)
 		if err != nil {
-			log.Fatal("Unable to parse given kubeauditConfig file, please check the syntax of your config file")
+			log.Fatal("Unable to parse given auditConfig file, please check the syntax of your config file")
 		}
 		if !kubeauditConfig.Audit {
-			log.Warn("kubeaudit set to no-audit mode in kubeauditConfig!")
+			log.Warn("kubeaudit set to no-audit mode in auditConfig!")
 			os.Exit(0)
 		}
 	}
