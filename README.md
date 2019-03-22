@@ -78,7 +78,7 @@ or
    can be used by other programs easily
 
 `kubeaudit` supports using manual audit configuration provided by the user, use the command
-`kubeaudit -f/--manifest /path/to/manifest.yml -k/--kubeConfig /path/to/config.yml`
+`kubeaudit -f/--manifest /path/to/manifest.yml -k/--auditConfig /path/to/config.yml`
 For more details on audit config check out [Audit Configuration](#audit-configuration).
 
 `kubeaudit` has four different log levels `INFO, WARN, ERROR` controlled by
