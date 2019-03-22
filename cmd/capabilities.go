@@ -59,6 +59,7 @@ func recommendedCapabilitiesToBeDropped() (dropCapSet CapSet, err error) {
 			return dropCapSet, err
 		}
 
+		// err check for unmarshalling is not useful as Root Init crashes the program if Config is not well formed
 		yaml.Unmarshal(data, kubeauditConfig)
 
 		if kubeauditConfig != nil && kubeauditConfig.Spec != nil && kubeauditConfig.Spec.Capabilities != nil {
