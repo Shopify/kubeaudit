@@ -35,4 +35,5 @@ func TestAllowPrivilegedFromConfig(t *testing.T) {
 	runAuditTest(t, "security_context_nil_v1.yml", auditPrivileged, []int{ErrorPrivilegedNil})
 	runAuditTest(t, "privileged_nil_v1.yml", auditPrivileged, []int{ErrorPrivilegedNil})
 	runAuditTest(t, "privileged_true_v1.yml", auditPrivileged, []int{ErrorPrivilegedTrueAllowed})
+	rootConfig.auditConfig = ""
 }

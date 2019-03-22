@@ -31,4 +31,5 @@ func TestAutomountServiceAccountTokenFromConfig(t *testing.T) {
 	runAuditTest(t, "service_account_token_deprecated_v1.yml", auditAutomountServiceAccountToken, []int{ErrorServiceAccountTokenDeprecated})
 	runAuditTest(t, "service_account_token_true_and_no_name_v1.yml", auditAutomountServiceAccountToken, []int{ErrorAutomountServiceAccountTokenTrueAllowed})
 	runAuditTest(t, "service_account_token_nil_and_no_name_v1.yml", auditAutomountServiceAccountToken, []int{ErrorMisconfiguredKubeauditAllow})
+	rootConfig.auditConfig = ""
 }

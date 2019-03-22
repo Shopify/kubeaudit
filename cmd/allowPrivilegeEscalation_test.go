@@ -58,4 +58,5 @@ func TestAllowPrivilegeEscalationFromConfig(t *testing.T) {
 	runAuditTest(t, "allow_privilege_escalation_nil_v1.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
 	runAuditTest(t, "allow_privilege_escalation_true_v1.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
 	runAuditTest(t, "allow_privilege_escalation_true_single_allowed_multiple_containers_v1beta.yml", auditAllowPrivilegeEscalation, []int{ErrorAllowPrivilegeEscalationTrueAllowed})
+	rootConfig.auditConfig = ""
 }
