@@ -41,11 +41,13 @@ type KubeauditConfigCapabilities struct {
 
 // KubeauditConfigOverrides contains list of available overrides
 type KubeauditConfigOverrides struct {
-	PrivilegeEscalation          string `yaml:"privilege-escalation"`
-	Privileged                   string `yaml:"privileged"`
-	RunAsRoot                    string `yaml:"run-as-root"`
-	AutomountServiceAccountToken string `yaml:"automount-service-account-token"`
-	ReadOnlyRootFilesystemFalse  string `yaml:"read-only-root-filesystem-false"`
+	PrivilegeEscalation                string `yaml:"privilege-escalation"`
+	Privileged                         string `yaml:"privileged"`
+	RunAsRoot                          string `yaml:"run-as-root"`
+	AutomountServiceAccountToken       string `yaml:"automount-service-account-token"`
+	ReadOnlyRootFilesystemFalse        string `yaml:"read-only-root-filesystem-false"`
+	NonDefaultDenyIngressNetworkPolicy string `yaml:"non-default-deny-ingress-network-policy"`
+	NonDefaultDenyEgressNetworkPolicy  string `yaml:"non-default-deny-egress-network-policy"`
 }
 
 func mapOverridesToStructFields(label string) string {
@@ -63,6 +65,12 @@ func mapOverridesToStructFields(label string) string {
 	}
 	if label == "allow-read-only-root-filesystem-false" {
 		return "ReadOnlyRootFilesystemFalse"
+	}
+	if label == "allow-non-default-deny-egress-network-policy" {
+		return "NonDefaultDenyEgressNetworkPolicy"
+	}
+	if label == "non-default-deny-ingress-network-policy" {
+		return "NonDefaultDenyIngressNetworkPolicy"
 	}
 	return ""
 }

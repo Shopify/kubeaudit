@@ -580,11 +580,13 @@ spec:
     SYS_CHROOT: drop        # Set to `keep` to keep capability 
     SETFCAP: drop           # Set to `keep` to keep capability 
   overrides: # List of all supported overrides
-    privilege-escalation: deny               # Set to `allow` to skip auditing potential vulnerability
-    privileged: deny                         # Set to `allow` to skip auditing potential vulnerability
-    run-as-root: deny                        # Set to `allow` to skip auditing potential vulnerability
-    automount-service-account-token: deny    # Set to `allow` to skip auditing potential vulnerability
-    read-only-root-filesystem-false: deny    # Set to `allow` to skip auditing potential vulnerability
+    privilege-escalation: deny                      # Set to `allow` to skip auditing potential vulnerability
+    privileged: deny                                # Set to `allow` to skip auditing potential vulnerability
+    run-as-root: deny                               # Set to `allow` to skip auditing potential vulnerability
+    automount-service-account-token: deny           # Set to `allow` to skip auditing potential vulnerability
+    read-only-root-filesystem-false: deny           # Set to `allow` to skip auditing potential vulnerability
+    non-default-deny-ingress-network-policy: deny   # Set to `allow` to skip auditing potential vulnerability
+    non-default-deny-egress-network-policy: deny   # Set to `allow` to skip auditing potential vulnerability
 ```
 
 <a name="contribute" />
