@@ -28,4 +28,3 @@ spec:
     read-only-root-filesystem-false: deny
     non-default-deny-egress-network-policy: allow
     non-default-deny-ingress-network-policy: allow
-
