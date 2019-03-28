@@ -139,8 +139,8 @@ spec:
       labels:
         apps: fakeImage
     spec:
+      # Trust me the following line is longer than 80 characters
       containers:
-        # Trust me the following line is longer than 80 characters
       - image: gcr.io/docker-images-directory/apps/production/fake-image-app:<%= current_sha %>
         name: fakeContainerImg
         resources: {}

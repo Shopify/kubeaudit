@@ -17,7 +17,7 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       containers:
-      - image: gcr.io/docker-images-directory/apps/production/fake-image-app:<%= current_sha %>
+      - image: fakeContainerImg
         name: fakeContainerImg
         resources: {}
         securityContext:
