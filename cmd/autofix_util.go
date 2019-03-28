@@ -670,12 +670,13 @@ func splitYamlResources(filename string, toWriteFile string) (splitDecoded [][]b
 func cleanupManifest(origFile string, finalData []byte) ([]byte, error) {
 	objectMetacreationTs := []byte("\n  creationTimestamp: null\n")
 	specTemplatecreationTs := []byte("\n      creationTimestamp: null\n")
+	jobSpecTemplatecreationTs := []byte("\n          creationTimestamp: null\n")
 	nullStatus := []byte("\nstatus: {}\n")
 	nullReplicaStatus := []byte("status:\n  replicas: 0\n")
 	nullLBStatus := []byte("status:\n  loadBalancer: {}\n")
 	nullMetaStatus := []byte("\n    status: {}\n")
 
-	var hasObjectMetacreationTs, hasSpecTemplatecreationTs, hasNullStatus,
+	var hasObjectMetacreationTs, hasSpecTemplatecreationTs, hasJobSpecTemplatecreationTs, hasNullStatus,
 		hasNullReplicaStatus, hasNullLBStatus, hasNullMetaStatus bool
 
 	if origFile != "" {
@@ -685,6 +686,7 @@ func cleanupManifest(origFile string, finalData []byte) ([]byte, error) {
 		}
 		hasObjectMetacreationTs = bytes.Contains(origData, objectMetacreationTs)
 		hasSpecTemplatecreationTs = bytes.Contains(origData, specTemplatecreationTs)
+		hasJobSpecTemplatecreationTs = bytes.Contains(origData, jobSpecTemplatecreationTs)
 
 		hasNullStatus = bytes.Contains(origData, nullStatus)
 		hasNullReplicaStatus = bytes.Contains(origData, nullReplicaStatus)
@@ -698,6 +700,9 @@ func cleanupManifest(origFile string, finalData []byte) ([]byte, error) {
 	}
 	if !hasSpecTemplatecreationTs {
 		finalData = bytes.Replace(finalData, specTemplatecreationTs, []byte("\n"), -1)
+	}
+	if !hasJobSpecTemplatecreationTs {
+		finalData = bytes.Replace(finalData, jobSpecTemplatecreationTs, []byte("\n"), -1)
 	}
 	if !hasNullStatus {
 		finalData = bytes.Replace(finalData, nullStatus, []byte("\n"), -1)
