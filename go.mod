@@ -2,7 +2,7 @@ module github.com/Shopify/kubeaudit
 
 require (
 	cloud.google.com/go v0.34.0 // indirect
-	github.com/Shopify/yaml v0.0.0-20181217205125-7421e5c313a1
+	github.com/Shopify/yaml v0.0.0-20190328215659-1aafb9de702d
 	github.com/evanphx/json-patch v4.1.0+incompatible // indirect
 	github.com/go-test/deep v1.0.1
 	github.com/gogo/protobuf v1.2.0 // indirect

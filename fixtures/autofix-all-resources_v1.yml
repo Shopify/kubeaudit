@@ -42,3 +42,106 @@ metadata:
   creationTimestamp: null
 spec: {}
 status: {}
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  labels:
+    app: testapp
+    env: production
+    name: jobs
+  name: testapp
+spec:
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: testapp
+            env: production
+            name: testapp
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: role
+                    operator: In
+                    values:
+                    - testapp
+          automountServiceAccountToken: false
+          containers:
+          - env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/run/gcloud/key
+            image: gcr.io/docker-image/testapp:<%= current_sha %>
+            args: ["gcr.io/docker-images"]
+            name: jobs
+            resources:
+              limits:
+                cpu: "1"
+                memory: 10Gi
+              requests:
+                cpu: "1"
+                memory: 10Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                - AUDIT_WRITE
+                - CHOWN
+                - DAC_OVERRIDE
+                - FOWNER
+                - FSETID
+                - KILL
+                - MKNOD
+                - NET_BIND_SERVICE
+                - NET_RAW
+                - SETFCAP
+                - SETGID
+                - SETPCAP
+                - SETUID
+                - SYS_CHROOT
+              privileged: false
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+            volumeMounts:
+            - name: google-service-account
+              mountPath: "/var/run/gcloud"
+              readOnly: true
+          restartPolicy: Never
+          tolerations:
+            - key: "app"
+              operator: "Equal"
+              value: "testapp"
+              effect: "NoExecute"
+          volumes:
+          - name: google-service-account
+            secret:
+              secretName: service-account-key
+  schedule: 30 13 * * 1-5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: fakeDeploymentImg1
+  namespace: fakeDeploymentImg
+spec:
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        apps: fakeImage
+    spec:
+      # Trust me the following line is longer than 80 characters
+      containers:
+      - image: gcr.io/docker-images-directory/apps/production/fake-image-app:<%= current_sha %>
+        name: fakeContainerImg
+        resources: {}
+status: {}
