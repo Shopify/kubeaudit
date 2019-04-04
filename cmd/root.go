@@ -25,6 +25,7 @@ type rootFlags struct {
 	namespace   string
 	verbose     string
 	auditConfig string
+	exitError   bool
 }
 
 var kubeauditConfig = &KubeauditConfig{}
@@ -55,7 +56,8 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.allPods, "allPods", "a", false, "Audit againsts pods in all the phases (default Running Phase)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Specify the namespace scope to audit")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "yaml configuration to audit")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.auditConfig, "auditconfig", "k", "", "filepath for kubeaudit config file")
+	ootCmd.PersistentFlags().StringVarP(&rootConfig.auditConfig, "auditconfig", "k", "", "filepath for kubeaudit config file")
+	RootCmd.PersistentFlags().BoolVarP(&rootConfig.exitError, "exitcode", "e", false, "Exists with a non-zero status code if there are any issues found")
 }
 
 func processFlags() {

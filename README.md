@@ -89,6 +89,8 @@ For more details on audit config check out [Audit Configuration](#audit-configur
 1. if you only care about `ERROR` set it to `ERROR`
 1. if you care about `ERROR` and `WARN` set it to `WARN`
 
+`kubeaudit` will exit with exit-code `0` by default if `-e/--exitcode` is set, a non-zero exit code will be generated if any issues are reported
+
 But wait! Which version am I actually running? `kubeaudit version` will tell you.
 
 I need help! Run `kubeaudit help` every audit has its own help so you can run

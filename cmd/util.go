@@ -336,9 +336,14 @@ func runAudit(auditFunc interface{}) func(cmd *cobra.Command, args []string) {
 			log.Error(err)
 			return
 		}
+		occurrenceCount := 0
 		results := getResults(resources, auditFunc)
 		for _, result := range results {
 			result.Print()
+			occurrenceCount += len(result.Occurrences)
+		}
+		if rootConfig.exitError && occurrenceCount > 0 {
+			os.Exit(1)
 		}
 	}
 }
