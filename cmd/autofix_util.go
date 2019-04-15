@@ -48,6 +48,8 @@ func fixPotentialSecurityIssue(resource Resource, result Result) Resource {
 			resource = fixSeccomp(resource)
 		case ErrorMissingDefaultDenyIngressNetworkPolicy, ErrorMissingDefaultDenyEgressNetworkPolicy, ErrorMissingDefaultDenyIngressAndEgressNetworkPolicy:
 			resource = fixNetworkPolicy(resource, occurrence)
+		case ErrorNamespaceHostIPCTrue, ErrorNamespaceHostNetworkTrue, ErrorNamespaceHostPIDTrue:
+			resource = fixNamespace(&result, resource)
 		}
 	}
 	return resource
