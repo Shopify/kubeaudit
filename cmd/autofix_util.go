@@ -16,7 +16,7 @@ func getAuditFunctions() []interface{} {
 	return []interface{}{
 		auditAllowPrivilegeEscalation, auditReadOnlyRootFS, auditRunAsNonRoot,
 		auditAutomountServiceAccountToken, auditPrivileged, auditCapabilities,
-		auditAppArmor, auditSeccomp, auditNetworkPolicies,
+		auditAppArmor, auditSeccomp, auditNetworkPolicies, auditNamespaces,
 	}
 }
 
