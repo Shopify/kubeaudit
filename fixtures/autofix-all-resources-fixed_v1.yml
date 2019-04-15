@@ -217,17 +217,6 @@ spec:
   selector: null
 status: {}
 ---
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: default-deny
-  namespace: default
-spec:
-  podSelector: {}
-  policyTypes:
-  - Ingress
-  - Egress
----
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -258,3 +247,15 @@ spec:
       - backend: # comment
           serviceName: web # comment
           servicePort: 80 # comment
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
