@@ -217,6 +217,38 @@ spec:
   selector: null
 status: {}
 ---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: web
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "false"
+  labels:
+    name: web
+    app: testApp
+    env: production
+spec:
+  tls:
+  - hosts:
+    - testapp.shopifycloud.com
+    - testapp.shopifyapps.com
+    secretName: someSecret
+  rules:
+  - host: testapp.shopifycloud.com # comment 2
+    http: # comment 2
+      paths: # comment 2
+      - backend: # comment 2
+          serviceName: web # comment 2
+          servicePort: 80 # comment 2
+  - host: testapp.shopifyapps.com # comment
+    http: # comment
+      paths: # comment
+      - backend: # comment
+          serviceName: web # comment
+          servicePort: 80 # comment
+
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
