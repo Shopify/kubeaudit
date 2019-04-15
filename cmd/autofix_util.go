@@ -424,7 +424,6 @@ var identifyingKey = map[string]string{
 	"options":          "name", // PodDNSConfig.options : PodDNSConfigOption.name
 	// TopologySelectorTerm.matchLabelExpressions : TopologySelectorLabelRequirement.key
 	"matchLabelExpressions": "key",
-	"paths":                 "path",          // HTTPIngressRuleValue.paths : HTTPIngressPath.path
 	"pending":               "name",          // Initializers.pending : Initializer.name
 	"readinessGates":        "conditionType", // PodSpec.readinessGates : PodReadinessGate.conditionType
 	// PodAffinity.requiredDuringSchedulingIgnoredDuringExecution : PodAffinityTerm.labelSelector
@@ -559,17 +558,12 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	// IngressSpec.rules : IngressRule.http
 	// Role.rules : PolicyRule.resources
 	case "rules":
-		// ClusterRole.rules : PolicyRule.resources
-		// Role.rules : PolicyRule.resources
-		if mapPairMatch("resources", map1, map2) {
-			return true
+		if val1, index1 := findItemInMapSlice("host", map1); index1 != -1 {
+			if val2, index2 := findItemInMapSlice("host", map2); index2 != -1 {
+				return val1.Value == val2.Value
+			}
+			return false
 		}
-		// IngressSpec.rules : IngressRule.http
-		if mapPairMatch("http", map1, map2) {
-			return true
-		}
-		// IngressSpec.rules : IngressRule.host
-		return mapPairMatch("host", map1, map2)
 
 	// ProjectedVolumeSource.sources
 	case "sources":
