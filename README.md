@@ -386,7 +386,7 @@ ERRO[0000] Seccomp disabled for pod. Annotation=seccomp.security.alpha.kubernete
   Name=myPod Namespace=myNamespace Reason=unconfined
 ```
 
-<a name="seccomp" />
+<a name="namespaces" />
 
 ## Audit namespaces
 
@@ -578,7 +578,7 @@ audit.kubernetes.io/default/allow-non-default-deny-egress-network-policy: "Egres
 WARN[0000] Allowed Namespace without a default deny egress NetworkPolicy  KubeType=namespace Name=default Reason="Egress is allowed"
 ```
 
-<a name="#namespacenetwork_label"/>
+<a name="namespacenetwork_label"/>
 
 ### audit.kubernetes.io/pod/allow-namespace-host-network
 
@@ -588,7 +588,7 @@ audit.kubernetes.io/pod/allow-namespace-host-network: "hostNetwork is allowed"
 WARN[0000] Allowed setting hostNetwork to true           KubeType=pod Name=Pod Namespace=PodNamespace Reason="hostNetwork is allowed"
 ```
 
-<a name="#namespaceipc_label"/>
+<a name="namespaceipc_label"/>
 
 ### audit.kubernetes.io/pod/allow-namespace-host-IPC
 
@@ -598,7 +598,7 @@ audit.kubernetes.io/pod/allow-namespace-host-IPC: "hostIPC is allowed"
 WARN[0000] Allowed setting hostIPC to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="hostIPC is allowed"
 ```
 
-<a name="#namespacepid_label"/>
+<a name="namespacepid_label"/>
 
 ### audit.kubernetes.io/pod/allow-namespace-host-PID
 
