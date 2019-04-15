@@ -123,6 +123,9 @@ The manifest might end up a little too secure for the work it is supposed to do.
 - [Audit Service Accounts](#sat)
 - [Audit network policies](#netpol)
 - [Audit resources](#resources)
+- [Audit AppArmour](#apparmour)
+- [Audit Seccomp](#seccomp)
+- [Audit namespaces](#namespaces)
 
 <a name="all" />
 
@@ -314,6 +317,8 @@ WARN[0000] CPU limit exceeded, it is set to 1 but it must not exceed 500m. Pleas
 WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125Mi. Please adjust it!
 ```
 
+<a name="apparmour" />
+
 ## Audit AppArmor
 
 It checks that AppArmor is enabled for all containers by making sure the following annotation exists on the pod.
@@ -339,6 +344,8 @@ kubeaudit apparmor
 ERRO[0000] AppArmor disabled. Annotation=container.apparmor.security.beta.kubernetes.io/myContainer
   Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace Reason=badval
 ```
+
+<a name="seccomp" />
 
 ## Audit Seccomp
 
@@ -377,6 +384,19 @@ When Seccomp annotations are misconfigured for a pod:
 kubeaudit seccomp
 ERRO[0000] Seccomp disabled for pod. Annotation=seccomp.security.alpha.kubernetes.io/pod Container= KubeType=pod
   Name=myPod Namespace=myNamespace Reason=unconfined
+```
+
+<a name="seccomp" />
+
+## Audit namespaces
+
+`kubeaudit` will detect whether `hostNetwork`,`hostIPC` or `hostPID` is either set to `true` in `podSpec` for `Pod` workloads 
+
+```sh
+kubeaudit namespaces
+ERRO[0000] hostNetwork is set to true  in podSpec, please set to false!
+ERRO[0000] hostIPC is set to true  in podSpec, please set to false!
+ERRO[0000] hostPID is set to true  in podSpec, please set to false!
 ```
 
 <a name="labels" />
@@ -444,6 +464,9 @@ metadata:
 - [container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false](#rootfs_label)
 - [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy](#egress_label)
 - [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy](#ingress_label)
+- [audit.kubernetes.io/pod/allow-namespace-host-network](#namespacenetwork_label)
+- [audit.kubernetes.io/pod/allow-namespace-host-IPC](#namespaceipc_label)
+- [audit.kubernetes.io/pod/allow-namespace-host-PID](#namespacepid_label)
 
 <a name="allowpe_label"/>
 
@@ -555,6 +578,36 @@ audit.kubernetes.io/default/allow-non-default-deny-egress-network-policy: "Egres
 WARN[0000] Allowed Namespace without a default deny egress NetworkPolicy  KubeType=namespace Name=default Reason="Egress is allowed"
 ```
 
+<a name="#namespacenetwork_label"/>
+
+### audit.kubernetes.io/pod/allow-namespace-host-network
+
+```sh
+audit.kubernetes.io/pod/allow-namespace-host-network: "hostNetwork is allowed"
+
+WARN[0000] Allowed setting hostNetwork to true           KubeType=pod Name=Pod Namespace=PodNamespace Reason="hostNetwork is allowed"
+```
+
+<a name="#namespaceipc_label"/>
+
+### audit.kubernetes.io/pod/allow-namespace-host-IPC
+
+```sh
+audit.kubernetes.io/pod/allow-namespace-host-IPC: "hostIPC is allowed"
+
+WARN[0000] Allowed setting hostIPC to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="hostIPC is allowed"
+```
+
+<a name="#namespacepid_label"/>
+
+### audit.kubernetes.io/pod/allow-namespace-host-PID
+
+```sh
+audit.kubernetes.io/pod/allow-namespace-host-PID: "hostPID is allowed"
+
+WARN[0000] Allowed setting hostPID to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="hostPID is allowed"
+```
+
 <a name="contribute" />
 
 ## Drop capabilities list
@@ -617,7 +670,10 @@ spec:
     automount-service-account-token: deny           # Set to `allow` to skip auditing potential vulnerability
     read-only-root-filesystem-false: deny           # Set to `allow` to skip auditing potential vulnerability
     non-default-deny-ingress-network-policy: deny   # Set to `allow` to skip auditing potential vulnerability
-    non-default-deny-egress-network-policy: deny   # Set to `allow` to skip auditing potential vulnerability
+    non-default-deny-egress-network-policy: deny    # Set to `allow` to skip auditing potential vulnerability
+    namespace-host-network: deny                    # Set to `allow` to skip auditing potential vulnerability
+    namespace-host-IPC: deny                        # Set to `allow` to skip auditing potential vulnerability
+    namespace-host-PID: deny                        # Set to `allow` to skip auditing potential vulnerability
 ```
 
 <a name="contribute" />

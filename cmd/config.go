@@ -48,6 +48,9 @@ type KubeauditConfigOverrides struct {
 	ReadOnlyRootFilesystemFalse        string `yaml:"read-only-root-filesystem-false"`
 	NonDefaultDenyIngressNetworkPolicy string `yaml:"non-default-deny-ingress-network-policy"`
 	NonDefaultDenyEgressNetworkPolicy  string `yaml:"non-default-deny-egress-network-policy"`
+	HostNetwork                        string `yaml:"namespace-host-network"`
+	HostPID                            string `yaml:"namespace-host-PID"`
+	HostIPC                            string `yaml:"namespace-host-IPC"`
 }
 
 func mapOverridesToStructFields(label string) string {
@@ -71,6 +74,15 @@ func mapOverridesToStructFields(label string) string {
 	}
 	if label == "allow-non-default-deny-ingress-network-policy" {
 		return "NonDefaultDenyIngressNetworkPolicy"
+	}
+	if label == "allow-namespace-host-network" {
+		return "HostNetwork"
+	}
+	if label == "allow-namespace-host-IPC" {
+		return "HostIPC"
+	}
+	if label == "allow-namespace-host-PID" {
+		return "HostPID"
 	}
 	return ""
 }

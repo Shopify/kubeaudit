@@ -26,5 +26,8 @@ spec:
     run-as-root: deny
     automount-service-account-token: deny
     read-only-root-filesystem-false: deny
-    non-default-deny-egress-network-policy: allow
-    non-default-deny-ingress-network-policy: allow
+    non-default-deny-egress-network-policy: deny
+    non-default-deny-ingress-network-policy: deny
+    namespace-host-network: deny                    
+    namespace-host-IPC: deny                       
+    namespace-host-PID: deny 
