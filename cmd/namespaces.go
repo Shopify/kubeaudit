@@ -31,7 +31,7 @@ func checkNamespaces(podSpec PodSpecV1, result *Result) {
 			podHost: podSpec.Hostname,
 			id:      ErrorNamespaceHostNetworkTrue,
 			kind:    Error,
-			message: "hostNetwork is set to true  in podSpec, please set to false!",
+			message: "hostNetwork is set to true in podSpec, please set to false!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}
