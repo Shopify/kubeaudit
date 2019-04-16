@@ -54,34 +54,26 @@ type KubeauditConfigOverrides struct {
 }
 
 func mapOverridesToStructFields(label string) string {
-	if label == "allow-privilege-escalation" {
+	switch label {
+	case "allow-privilege-escalation":
 		return "PrivilegeEscalation"
-	}
-	if label == "allow-privileged" {
+	case "allow-privileged":
 		return "Privileged"
-	}
-	if label == "allow-run-as-root" {
+	case "allow-run-as-root":
 		return "RunAsRoot"
-	}
-	if label == "allow-automount-service-account-token" {
+	case "allow-automount-service-account-token":
 		return "AutomountServiceAccountToken"
-	}
-	if label == "allow-read-only-root-filesystem-false" {
+	case "allow-read-only-root-filesystem-false":
 		return "ReadOnlyRootFilesystemFalse"
-	}
-	if label == "allow-non-default-deny-egress-network-policy" {
+	case "allow-non-default-deny-egress-network-policy":
 		return "NonDefaultDenyEgressNetworkPolicy"
-	}
-	if label == "allow-non-default-deny-ingress-network-policy" {
+	case "allow-non-default-deny-ingress-network-policy":
 		return "NonDefaultDenyIngressNetworkPolicy"
-	}
-	if label == "allow-namespace-host-network" {
+	case "allow-namespace-host-network":
 		return "HostNetwork"
-	}
-	if label == "allow-namespace-host-IPC" {
+	case "allow-namespace-host-IPC":
 		return "HostIPC"
-	}
-	if label == "allow-namespace-host-PID" {
+	case "allow-namespace-host-PID":
 		return "HostPID"
 	}
 	return ""

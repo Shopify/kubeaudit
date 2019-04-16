@@ -123,7 +123,7 @@ The manifest might end up a little too secure for the work it is supposed to do.
 - [Audit Service Accounts](#sat)
 - [Audit network policies](#netpol)
 - [Audit resources](#resources)
-- [Audit AppArmour](#apparmour)
+- [Audit AppArmor](#apparmor)
 - [Audit Seccomp](#seccomp)
 - [Audit namespaces](#namespaces)
 
@@ -317,7 +317,7 @@ WARN[0000] CPU limit exceeded, it is set to 1 but it must not exceed 500m. Pleas
 WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125Mi. Please adjust it!
 ```
 
-<a name="apparmour" />
+<a name="apparmor" />
 
 ## Audit AppArmor
 
