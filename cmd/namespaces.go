@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -101,15 +100,7 @@ func auditNamespaces(resource Resource) (results []Result) {
 	switch kubeType := resource.(type) {
 	case *PodV1:
 		podSpec := kubeType.Spec
-		result, err, warn := newResultFromResource(resource)
-		if warn != nil {
-			log.Warn(warn)
-			return
-		}
-		if err != nil {
-			log.Error(err)
-			return
-		}
+		result, _, _ := newResultFromResource(resource)
 		checkNamespaces(podSpec, result)
 		if len(result.Occurrences) > 0 {
 			results = append(results, *result)
