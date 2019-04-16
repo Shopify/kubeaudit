@@ -98,15 +98,15 @@ const (
 	//  ErrorNamespaceHostIPCTrue occurs when a hostIPC is set to true in PodSpec
 	ErrorNamespaceHostIPCTrue
 	//  ErrorNamespaceHostIPCTrueAllowed occurs when a hostIPC is set to true in PodSpec but it's allowed
-	ErrorNamespaceHostIPCAllowed
+	ErrorNamespaceHostIPCTrueAllowed
 	//  ErrorNamespaceHostIPCTrue occurs when a hostNetwork is set to true in PodSpec
 	ErrorNamespaceHostNetworkTrue
-	//  ErrorNamespaceHostIPCTrueAllowed occurs when a hostNetwork is set to true in PodSpec but it's allowed
-	ErrorNamespaceHostNetworkAllowed
+	//  ErrorNamespaceHostNetworkTrueAllowed occurs when a hostNetwork is set to true in PodSpec but it's allowed
+	ErrorNamespaceHostNetworkTrueAllowed
 	//  ErrorNamespaceHostIPCTrue occurs when a hostPID is set to true in PodSpec
 	ErrorNamespaceHostPIDTrue
-	//  ErrorNamespaceHostIPCTrue occurs when a hostPID is set to true in PodSpec but it's allowed
-	ErrorNamespaceHostPIDAllowed
+	//  ErrorNamespaceHostPIDTrueAllowed occurs when a hostPID is set to true in PodSpec but it's allowed
+	ErrorNamespaceHostPIDTrueAllowed
 	// InfoDefaultDenyNetworkPolicyExists occurs when a namespace has a default deny NetworkPolicy
 	InfoDefaultDenyNetworkPolicyExists
 	// WarningAllowAllIngressNetworkPolicyExists occurs when a namespace has an allow all ingress NetworkPolicy

@@ -11,7 +11,7 @@ func checkNamespaces(podSpec PodSpecV1, result *Result) {
 		if podSpec.HostNetwork {
 			occ := Occurrence{
 				podHost:  podSpec.Hostname,
-				id:       ErrorNamespaceHostNetworkAllowed,
+				id:       ErrorNamespaceHostNetworkTrueAllowed,
 				kind:     Warn,
 				message:  "Allowed setting hostNetwork to true",
 				metadata: Metadata{"Reason": prettifyReason(reason)},
@@ -40,7 +40,7 @@ func checkNamespaces(podSpec PodSpecV1, result *Result) {
 		if podSpec.HostIPC {
 			occ := Occurrence{
 				podHost:  podSpec.Hostname,
-				id:       ErrorNamespaceHostIPCAllowed,
+				id:       ErrorNamespaceHostIPCTrueAllowed,
 				kind:     Warn,
 				message:  "Allowed setting hostIPC to true",
 				metadata: Metadata{"Reason": prettifyReason(reason)},
@@ -69,7 +69,7 @@ func checkNamespaces(podSpec PodSpecV1, result *Result) {
 		if podSpec.HostPID {
 			occ := Occurrence{
 				podHost:  podSpec.Hostname,
-				id:       ErrorNamespaceHostPIDAllowed,
+				id:       ErrorNamespaceHostPIDTrueAllowed,
 				kind:     Warn,
 				message:  "Allowed setting hostPID to true",
 				metadata: Metadata{"Reason": prettifyReason(reason)},
@@ -123,13 +123,12 @@ var namespacesCmd = &cobra.Command{
 	Use:   "namespaces",
 	Short: "Audit Pods for hostNetwork, hostIPC and hostPID",
 	Long: `This command determines which pods in a kubernetes cluster
-are running as root (uid=0).
+are running with hostNetwork, hostIPC or hostPID set to true.
+	
+A PASS is given when a pod has hostNetwork, hostIPC and hostPID set to false or not set
+A FAIL is generated when a pod has at least one of hostNetwork, hostIPC or hostPID set to true
 
-A PASS is given when a container runs as a uid greater than 0
-A FAIL is generated when a container runs as root
-
-Example usage:
-kubeaudit nonroot`,
+kubeaudit namespaces`,
 	Run: runAudit(auditNamespaces),
 }
 
