@@ -60,7 +60,7 @@ func checkNamespaces(podSpec PodSpecV1, result *Result) {
 			podHost: podSpec.Hostname,
 			id:      ErrorNamespaceHostIPCTrue,
 			kind:    Error,
-			message: "hostIPC is set to true  in podSpec, please set to false!",
+			message: "hostIPC is set to true in podSpec, please set to false!",
 		}
 		result.Occurrences = append(result.Occurrences, occ)
 	}
