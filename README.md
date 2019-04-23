@@ -9,6 +9,8 @@ different security concerns: run the container as a non-root user, use a read
 only root filesystem, drop scary capabilities, don't add new ones, don't run
 privileged, ... You get the gist of it and more on that later. Just know:
 
+`kubeaudit` is also available as a web app and can be accessed at https://kubeaud.it
+
 ## `kubeaudit` makes sure you deploy secure containers!
 
 - [Installation](#installation)
