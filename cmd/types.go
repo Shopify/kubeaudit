@@ -105,7 +105,7 @@ type Metadata = map[string]string
 // UnsupportedType is a type alias for v1 version of the k8s apps API, this is meant for testing
 type UnsupportedType = apiv1.Binding
 
-// Resource types listed here
+// ResourceTypes is a map of all the Kubernetes workloads kubeaudit can decode
 var ResourceTypes = map[string]bool{"ReplicaSet" : true, "Endpoints" : true, "Ingress" : true, "Service" : true,
 "ConfigMap" : true, "Secret" : true , "PersistentVolumeClaim" : true, "StorageClass" : true,
 "Volume" : true , "VolumeAttachment" : true , "Certificate" : true,
