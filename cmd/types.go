@@ -141,7 +141,7 @@ func IsSupportedResourceType(obj Resource) bool {
 
 // IsSupportedGroupVersionKind returns false if resource is of Supported Kind but not of supported Group Version Kind
 func IsSupportedGroupVersionKind(obj Resource) bool {
-	if ( IsSupportedResourceType(obj) || resourceTypes[obj.GetObjectKind().GroupVersionKind().Kind] ) {
+	if ( IsSupportedResourceType(obj) || ResourceTypes[obj.GetObjectKind().GroupVersionKind().Kind] ) {
 		return true
 	} else {
 		return false
