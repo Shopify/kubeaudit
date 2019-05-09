@@ -105,6 +105,23 @@ type Metadata = map[string]string
 // UnsupportedType is a type alias for v1 version of the k8s apps API, this is meant for testing
 type UnsupportedType = apiv1.Binding
 
+// Resource types listed here
+var resourceTypes = map[string]bool{"ReplicaSet" : true, "Endpoints" : true, "Ingress" : true, "Service" : true,
+"ConfigMap" : true, "Secret" : true , "PersistentVolumeClaim" : true, "StorageClass" : true,
+"Volume" : true , "VolumeAttachment" : true , "Certificate" : true,
+"ControllerRevision" : true, "CustomResourceDefinition" : true, "Event" : true,
+"LimitRange" : true, "HorizontalPodAutoscaler" : true, "InitializerConfiguration" : true,
+"MutatingWebhookConfiguration" : true, "ValidatingWebhookConfiguration" : true, "PodTemplate" : true,
+"PodDisruptionBudget" : true, "PriorityClass" : true,
+"PodPreset" : true, "PodSecurityPolicy" : true, "APIService" : true, "Binding" : true,
+"CertificateSigningRequest" : true, "ClusterRole" : true,
+"ClusterRoleBinding" : true, "ComponentStatus" : true, "LocalSubjectAccessReview" : true, "Node" : true,
+"PersistentVolume" : true, "ResourceQuota" : true,
+"Role" : true, "RoleBinding" : true,
+"SelfSubjectAccessReview" : true, "SelfSubjectRulesReview" : true,
+"ServiceAccount" : true, "SubjectAccessReview" : true,
+"TokenReview" : true}
+
 // IsSupportedResourceType returns true if obj is a supported Kubernetes resource type
 func IsSupportedResourceType(obj Resource) bool {
 	switch obj.(type) {
@@ -124,27 +141,9 @@ func IsSupportedResourceType(obj Resource) bool {
 
 // IsSupportedGroupVersionKind returns false if resource is of Supported Kind but not of supported Group Version Kind
 func IsSupportedGroupVersionKind(obj Resource) bool {
-	if IsSupportedResourceType(obj) {
+	if ( IsSupportedResourceType(obj) || resourceTypes[obj.GetObjectKind().GroupVersionKind().Kind] ) {
 		return true
-	}
-	switch obj.GetObjectKind().GroupVersionKind().Kind {
-	case "ReplicaSet", "Endpoints", "Ingress", "Service",
-		"ConfigMap", "Secret", "PersistentVolumeClaim", "StorageClass",
-		"Volume", "VolumeAttachment", "Certificate",
-		"ControllerRevision", "CustomResourceDefinition", "Event",
-		"LimitRange", "HorizontalPodAutoscaler", "InitializerConfiguration",
-		"MutatingWebhookConfiguration", "ValidatingWebhookConfiguration", "PodTemplate",
-		"PodDisruptionBudget", "PriorityClass",
-		"PodPreset", "PodSecurityPolicy", "APIService", "Binding",
-		"CertificateSigningRequest", "ClusterRole",
-		"ClusterRoleBinding", "ComponentStatus", "LocalSubjectAccessReview", "Node",
-		"PersistentVolume", "ResourceQuota",
-		"Role", "RoleBinding",
-		"SelfSubjectAccessReview", "SelfSubjectRulesReview",
-		"ServiceAccount", "SubjectAccessReview",
-		"TokenReview":
-		return true
-	default:
+	} else {
 		return false
 	}
 }
