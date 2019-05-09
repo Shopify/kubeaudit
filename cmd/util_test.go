@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"testing"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,4 +49,12 @@ func TestCertificateResourceV1(t *testing.T) {
 	assert.Nil(err)
 	assert.Nil(result)
 	assert.NotNil(warn)
+}
+
+func TestCustomResourceDefinition(t *testing.T){
+	file := "../fixtures/custom_resource_definition.yml"
+	assert := assert.New(t)
+	resources, err := getKubeResourcesManifest(file)
+	assert.Nil(err)
+	assert.Len(resources, 1)
 }
