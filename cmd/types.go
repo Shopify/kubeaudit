@@ -106,7 +106,7 @@ type Metadata = map[string]string
 type UnsupportedType = apiv1.Binding
 
 // Resource types listed here
-var resourceTypes = map[string]bool{"ReplicaSet" : true, "Endpoints" : true, "Ingress" : true, "Service" : true,
+var ResourceTypes = map[string]bool{"ReplicaSet" : true, "Endpoints" : true, "Ingress" : true, "Service" : true,
 "ConfigMap" : true, "Secret" : true , "PersistentVolumeClaim" : true, "StorageClass" : true,
 "Volume" : true , "VolumeAttachment" : true , "Certificate" : true,
 "ControllerRevision" : true, "CustomResourceDefinition" : true, "Event" : true,
