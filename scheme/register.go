@@ -22,6 +22,7 @@ import (
 	coordinationv1beta1 "k8s.io/api/coordination/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	eventsv1beta1 "k8s.io/api/events/v1beta1"
+	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	networkingv1 "k8s.io/api/networking/v1"
 	networkingv1beta1 "k8s.io/api/networking/v1beta1"
@@ -70,6 +71,7 @@ var localSchemeBuilder = runtime.SchemeBuilder{
 	coordinationv1.AddToScheme,
 	corev1.AddToScheme,
 	eventsv1beta1.AddToScheme,
+	extapi.AddToScheme,
 	extensionsv1beta1.AddToScheme,
 	networkingv1.AddToScheme,
 	networkingv1beta1.AddToScheme,
