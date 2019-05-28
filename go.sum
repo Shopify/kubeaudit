@@ -7,8 +7,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.1.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
-github.com/Shopify/yaml v0.0.0-20190328215659-1aafb9de702d h1:t5yaUYWv3XaeGNvWJi8vGNIsDSUqGPKaVToDkIjW/6g=
-github.com/Shopify/yaml v0.0.0-20190328215659-1aafb9de702d/go.mod h1:kYv0kdKeZo6HHK51q/+psdHmkI5avnAoHFva9aKxK2Q=
+github.com/Shopify/yaml v0.0.0-20190528182343-4d5fdf9c8799 h1:B3JJuzc5YC+3vXxs6QCKnthc/sqwp4iSmiHTfeZdeoI=
+github.com/Shopify/yaml v0.0.0-20190528182343-4d5fdf9c8799/go.mod h1:kYv0kdKeZo6HHK51q/+psdHmkI5avnAoHFva9aKxK2Q=
 github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/blang/semver v3.5.0+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
