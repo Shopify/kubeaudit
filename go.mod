@@ -1,7 +1,7 @@
 module github.com/Shopify/kubeaudit
 
 require (
-	github.com/Shopify/yaml v0.0.0-20190328215659-1aafb9de702d
+	github.com/Shopify/yaml v0.0.0-20190528182343-4d5fdf9c8799
 	github.com/evanphx/json-patch v4.1.0+incompatible // indirect
 	github.com/go-test/deep v1.0.1
 	github.com/gogo/protobuf v1.2.0 // indirect
