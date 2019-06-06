@@ -27,6 +27,10 @@ const (
 	ErrorCapabilityAllowed
 	// ErrorCapabilityNotDropped occurs when a capability should be dropped but it isn't
 	ErrorCapabilityNotDropped
+	// ErrorDockerSockMountAllowed occurs when a container is allowed to mount /var/run/docker.sock
+	ErrorDockerSockMountAllowed
+	// ErrorDockerSockMounted occurs when a container is mounting /var/run/docker.sock
+	ErrorDockerSockMounted
 	// ErrorImageTagIncorrect occurs when an incorrect image tag is provided.
 	ErrorImageTagIncorrect
 	// ErrorImageTagMissing occurs when there is no image tag provided.

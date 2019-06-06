@@ -21,6 +21,7 @@ spec:
     SYS_CHROOT: drop
     SETFCAP: drop
   overrides:
+    mount-docker-sock: deny
     privilege-escalation: deny
     privileged: deny
     run-as-root: deny
