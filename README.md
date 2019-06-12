@@ -123,7 +123,7 @@ The manifest might end up a little too secure for the work it is supposed to do.
 - [Audit Service Accounts](#sat)
 - [Audit network policies](#netpol)
 - [Audit resources](#resources)
-- [Audit mounting /var/run/docker.sock](#dockersock)
+- [Audit mounting Docker Socket](#dockersock)
 - [Audit AppArmor](#apparmor)
 - [Audit Seccomp](#seccomp)
 - [Audit namespaces](#namespaces)
@@ -320,7 +320,7 @@ WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125M
 
 <a name="dockersock" />
 
-## Audit Mounting /var/run/docker.sock
+## Audit Mounting Docker Socket
 
 It checks that no container in the pod mounts /var/run/docker.sock, as this can be a [very dangerous practice](https://dev.to/petermbenjamin/docker-security-best-practices-45ih). 
 If a container does this, it will be indicated as such:

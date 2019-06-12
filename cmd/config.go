@@ -41,7 +41,7 @@ type KubeauditConfigCapabilities struct {
 
 // KubeauditConfigOverrides contains list of available overrides
 type KubeauditConfigOverrides struct {
-	MountDockerSock					   string `yaml:"mount-docker-sock"`
+	MountDockerSock                    string `yaml:"mount-docker-sock"`
 	PrivilegeEscalation                string `yaml:"privilege-escalation"`
 	Privileged                         string `yaml:"privileged"`
 	RunAsRoot                          string `yaml:"run-as-root"`

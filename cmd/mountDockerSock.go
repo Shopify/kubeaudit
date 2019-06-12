@@ -5,13 +5,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const DOCKER_SOCK_PATH = "/var/run/docker.sock"
+// DockerSockPath is the mount path of the Docker socket
+const DockerSockPath = "/var/run/docker.sock"
 
 func checkMountDockerSock(container ContainerV1, result *Result) {
 	labelExists, reason := getContainerOverrideLabelReason(result, container, "allow-mount-docker-sock");
 	if container.VolumeMounts != nil {
 		for _, mount := range container.VolumeMounts {
-			if mount.MountPath == DOCKER_SOCK_PATH {
+			if mount.MountPath == DockerSockPath {
 				if labelExists {
 					occ := Occurrence{
 						container: container.Name,
@@ -38,7 +39,6 @@ func checkMountDockerSock(container ContainerV1, result *Result) {
 }
 
 func auditMountDockerSock(resource Resource) (results []Result) {
-
 	for _, container := range getContainers(resource) {
 		result, err, warn := newResultFromResource(resource)
 		if warn != nil {
