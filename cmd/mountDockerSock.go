@@ -16,7 +16,7 @@ func checkMountDockerSock(container ContainerV1, result *Result) {
 					container: container.Name,
 					id:        ErrorDockerSockMounted,
 					kind:      Warn,
-					message:   "/var/run/docker.sock is being mounted, please avoid this practice.",
+					message:   "/var/run/docker.sock is being mounted, please avoid mounting docker socket on your containers.",
 				}
 				result.Occurrences = append(result.Occurrences, occ)
 			}

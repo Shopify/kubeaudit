@@ -322,7 +322,7 @@ WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125M
 
 ## Audit Mounting Docker Socket
 
-It checks that no container in the pod mounts /var/run/docker.sock, as this can be a [very dangerous practice](https://dev.to/petermbenjamin/docker-security-best-practices-45ih). 
+It checks that no container in the pod mounts `/var/run/docker.sock`, as this can be a [very dangerous practice](https://dev.to/petermbenjamin/docker-security-best-practices-45ih). 
 If a container does this, it will be indicated as such:
 
 ```
@@ -338,7 +338,7 @@ volumes:
           path: /var/run/docker.sock
 ```
 
-If /var/run/docker.sock is being mounted by a container:
+If `/var/run/docker.sock` is being mounted by a container:
 
 ```sh
 kubeaudit mountds
