@@ -490,8 +490,6 @@ metadata:
 - [audit.kubernetes.io/pod/allow-automount-service-account-token](#sat_label)
 - [audit.kubernetes.io/pod/allow-read-only-root-filesystem-false](#rootfs_label)
 - [container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false](#rootfs_label)
-- [audit.kubernetes.io/pod/allow-mount-docker-sock](#mountds_label)
-- [container.audit.kubernetes.io/\<container-name\>/allow-mount-docker-sock](#mountds_label)
 - [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy](#egress_label)
 - [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy](#ingress_label)
 - [audit.kubernetes.io/pod/allow-namespace-host-network](#namespacenetwork_label)
@@ -588,22 +586,6 @@ Allows setting `readOnlyRootFilesystem` to `false` to all containers in a pod.
 kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"
 
 WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permissions needed"
-```
-
-<a name="mountds_label"/>
-
-### container.audit.kubernetes.io/\<container-name\>/allow-mount-docker-sock
-
-Allows mounting `/var/run/docker.sock` for a specific container.
-
-### audit.kubernetes.io/pod/allow-mount-docker-sock
-
-Allows mounting `/var/run/docker.sock` for all containers in a pod.
-
-```sh
-audit.kubernetes.io/pod/allow-mount-docker-sock: "Mounting /var/run/docker.sock needed"
-
-WARN[0000] Allowed mounting /var/run/docker.sock.        Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace Reason="Mounting /var/run/docker.sock needed"
 ```
 
 <a name="egress_label"/>
@@ -710,7 +692,6 @@ spec:
     SYS_CHROOT: drop        # Set to `keep` to keep capability
     SETFCAP: drop           # Set to `keep` to keep capability
   overrides: # List of all supported overrides
-    mount-docker-sock: deny                         # Set to `allow` to skip auditing potential vulnerability
     privilege-escalation: deny                      # Set to `allow` to skip auditing potential vulnerability
     privileged: deny                                # Set to `allow` to skip auditing potential vulnerability
     run-as-root: deny                               # Set to `allow` to skip auditing potential vulnerability

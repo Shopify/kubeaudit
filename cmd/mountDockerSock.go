@@ -9,28 +9,16 @@ import (
 const DockerSockPath = "/var/run/docker.sock"
 
 func checkMountDockerSock(container ContainerV1, result *Result) {
-	labelExists, reason := getContainerOverrideLabelReason(result, container, "allow-mount-docker-sock");
 	if container.VolumeMounts != nil {
 		for _, mount := range container.VolumeMounts {
-			if mount.MountPath == DockerSockPath {
-				if labelExists {
-					occ := Occurrence{
-						container: container.Name,
-						id:        ErrorDockerSockMountAllowed,
-						kind:      Warn,
-						message:   "Allowed mounting /var/run/docker.sock.",
-						metadata:  Metadata{"Reason": prettifyReason(reason)},
-					}
-					result.Occurrences = append(result.Occurrences, occ)
-				} else {	
-					occ := Occurrence{
-						container: container.Name,
-						id:        ErrorDockerSockMounted,
-						kind:      Warn,
-						message:   "/var/run/docker.sock is being mounted, please avoid this practice.",
-					}
-					result.Occurrences = append(result.Occurrences, occ)
+			if mount.MountPath == DockerSockPath {		
+				occ := Occurrence{
+					container: container.Name,
+					id:        ErrorDockerSockMounted,
+					kind:      Warn,
+					message:   "/var/run/docker.sock is being mounted, please avoid this practice.",
 				}
+				result.Occurrences = append(result.Occurrences, occ)
 			}
 		}
 	} 
@@ -65,7 +53,7 @@ var mountdsCmd = &cobra.Command{
 mount /var/run/docker.sock. 
 
 A PASS is given when a container does not mount /var/run/docker.sock
-A WARN log is generated when a container mounts /var/run/docker.sock
+A FAIL is generated when a container mounts /var/run/docker.sock
 
 Example usage:
 kubeaudit mountds`,
