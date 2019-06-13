@@ -22,7 +22,6 @@ func checkMountDockerSock(container ContainerV1, result *Result) {
 			}
 		}
 	} 
-
 	return
 }
 
