@@ -123,6 +123,7 @@ The manifest might end up a little too secure for the work it is supposed to do.
 - [Audit Service Accounts](#sat)
 - [Audit network policies](#netpol)
 - [Audit resources](#resources)
+- [Audit mounting Docker Socket](#dockersock)
 - [Audit AppArmor](#apparmor)
 - [Audit Seccomp](#seccomp)
 - [Audit namespaces](#namespaces)
@@ -315,6 +316,33 @@ With the `--cpu` and `--memory` parameters, `kubeaudit` can check the limits not
 kubeaudit limits --cpu 500m --memory 125Mi
 WARN[0000] CPU limit exceeded, it is set to 1 but it must not exceed 500m. Please adjust it! !
 WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125Mi. Please adjust it!
+```
+
+<a name="dockersock" />
+
+## Audit Mounting Docker Socket
+
+It checks that no container in the pod mounts `/var/run/docker.sock`, as this can be a [very dangerous practice](https://dev.to/petermbenjamin/docker-security-best-practices-45ih). 
+If a container does this, it will be indicated as such:
+
+```
+containers:
+      - image: <image name>
+        name: <container name>
+        volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: <volume name>
+volumes:
+      - name: <volume name>
+        hostPath:
+          path: /var/run/docker.sock
+```
+
+If `/var/run/docker.sock` is being mounted by a container:
+
+```sh
+kubeaudit mountds
+WARN[0000] /var/run/docker.sock is being mounted, please avoid this practice. Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace
 ```
 
 <a name="apparmor" />
