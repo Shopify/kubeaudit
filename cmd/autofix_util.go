@@ -557,14 +557,17 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 
 	// ClusterRole.rules : PolicyRule.resources
 	// IngressSpec.rules : IngressRule.host
-	// IngressSpec.rules : IngressRule.http
 	// Role.rules : PolicyRule.resources
 	case "rules":
-		if val1, index1 := findItemInMapSlice("host", map1); index1 != -1 {
-			if val2, index2 := findItemInMapSlice("host", map2); index2 != -1 {
-				return val1.Value == val2.Value
-			}
-			return false
+		// ClusterRole.rules : PolicyRule.resources
+		// Role.rules : PolicyRule.resources
+		if mapPairMatch("resources", map1, map2) {
+			return true
+		}
+
+		// IngressSpec.rules : IngressRule.host
+		if mapPairMatch("host", map1, map2) {
+			return true
 		}
 
 	// ProjectedVolumeSource.sources

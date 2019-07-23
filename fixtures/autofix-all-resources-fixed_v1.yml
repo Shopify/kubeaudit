@@ -296,6 +296,39 @@ spec:
   selector: null
 status: {}
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: secret-reader
+rules:
+- apiGroups:
+  - ""
+  # 1
+  resources:
+  - secrets
+  # 2
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+# "" indicates the core API group
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
