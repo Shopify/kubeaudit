@@ -241,8 +241,8 @@ func isCommentSlice(b []byte) bool {
 	return true
 }
 
-// mapPairMatch returns true if map1 and map2 have the same key-value pair for the given key
-func mapPairMatch(key string, map1, map2 yaml.MapSlice) bool {
+// equalValueForKey returns true if map1 and map2 have the same key-value pair for the given key
+func equalValueForKey(key string, map1, map2 yaml.MapSlice) bool {
 	if item1, index1 := findItemInMapSlice(key, map1); index1 != -1 {
 		if item2, index2 := findItemInMapSlice(key, map2); index2 != -1 {
 			return deepEqual(item1.Value, item2.Value)
@@ -465,31 +465,31 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	// EndpointSubset.addresses : EndpointAddress.[hostname OR ip]
 	// EndpointSubset.notReadyAddresses : EndpointAddress.[hostname OR ip]
 	case "addresses", "notReadyAddresses":
-		if mapPairMatch("hostname", map1, map2) {
+		if equalValueForKey("hostname", map1, map2) {
 			return true
 		}
-		return mapPairMatch("ip", map1, map2)
+		return equalValueForKey("ip", map1, map2)
 
 	// Container.envFrom : EnvFromSource.[configMapRef OR secretRef].name
 	case "envFrom":
 		if val1, index1 := findItemInMapSlice("configMapRef", map1); index1 != -1 {
 			if val2, index2 := findItemInMapSlice("configMapRef", map2); index2 != -1 {
-				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
 			}
 		}
 		if val1, index1 := findItemInMapSlice("secretRef", map1); index1 != -1 {
 			if val2, index2 := findItemInMapSlice("secretRef", map2); index2 != -1 {
-				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
 			}
 		}
 		return false
 
 	// NetworkPolicySpec.ingress : NetworkPolicyIngressRule.[ports OR from]
 	case "ingress":
-		if mapPairMatch("ports", map1, map2) {
+		if equalValueForKey("ports", map1, map2) {
 			return true
 		}
-		return mapPairMatch("from", map1, map2)
+		return equalValueForKey("from", map1, map2)
 
 	// ConfigMapProjection.items : KeyToPath.key
 	// ConfigMapVolumeSource.items : KeyToPath.key
@@ -499,11 +499,11 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	case "items":
 		// ConfigMapVolumeSource.items : KeyToPath.key
 		// SecretVolumeSource.items : KeyToPath.key
-		if mapPairMatch("key", map1, map2) {
+		if equalValueForKey("key", map1, map2) {
 			return true
 		}
 		// DownwardAPIVolumeSource.items : DownwardAPIVolumeFile.path
-		return mapPairMatch("path", map1, map2)
+		return equalValueForKey("path", map1, map2)
 
 	// NodeSelector.nodeSelectorTerms : NodeSelectorTerm.[matchExpressions OR matchFields]
 	case "nodeSelectorTerms":
@@ -511,17 +511,17 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 		// See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#nodeselector-v1-core
 		// For now, only match if there is an exact match for the complex value of either the "matchExpressions" or
 		// "matchFields" fields.
-		if mapPairMatch("matchExpressions", map1, map2) {
+		if equalValueForKey("matchExpressions", map1, map2) {
 			return true
 		}
-		return mapPairMatch("matchFields", map1, map2)
+		return equalValueForKey("matchFields", map1, map2)
 
 	// ObjectMeta.ownerReferences : OwnerReference.[uid OR name]
 	case "ownerReferences":
-		if mapPairMatch("uid", map1, map2) {
+		if equalValueForKey("uid", map1, map2) {
 			return true
 		}
-		return mapPairMatch("name", map1, map2)
+		return equalValueForKey("name", map1, map2)
 
 	// NodeAffinity.preferredDuringSchedulingIgnoredDuringExecution : PreferredSchedulingTerm.preference
 	// PodAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
@@ -536,24 +536,24 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 		// The value for the "weight" field can be updated.
 
 		// NodeAffinity.preferredDuringSchedulingIgnoredDuringExecution : PreferredSchedulingTerm.preference
-		if mapPairMatch("preference", map1, map2) {
+		if equalValueForKey("preference", map1, map2) {
 			return true
 		}
 		// PodAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
 		// PodAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
-		return mapPairMatch("podAffinityTerm", map1, map2)
+		return equalValueForKey("podAffinityTerm", map1, map2)
 
 	// Container.ports : ContainerPort.containerPort
 	// EndpointSubset.ports : EndpointPort.port
 	// ServiceSpec.ports : ServicePort.port
 	case "ports":
 		// Container.ports : ContainerPort.containerPort
-		if mapPairMatch("containerPort", map1, map2) {
+		if equalValueForKey("containerPort", map1, map2) {
 			return true
 		}
 		// EndpointSubset.ports : EndpointPort.port
 		// ServiceSpec.ports : ServicePort.port
-		return mapPairMatch("port", map1, map2)
+		return equalValueForKey("port", map1, map2)
 
 	// ClusterRole.rules : PolicyRule.resources
 	// IngressSpec.rules : IngressRule.host
@@ -561,12 +561,12 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	case "rules":
 		// ClusterRole.rules : PolicyRule.resources
 		// Role.rules : PolicyRule.resources
-		if mapPairMatch("resources", map1, map2) {
+		if equalValueForKey("resources", map1, map2) {
 			return true
 		}
 
 		// IngressSpec.rules : IngressRule.host
-		if mapPairMatch("host", map1, map2) {
+		if equalValueForKey("host", map1, map2) {
 			return true
 		}
 
@@ -575,51 +575,51 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 		// ProjectedVolumeSource.sources : VolumeProjection.configMap.name
 		if val1, index1 := findItemInMapSlice("configMap", map1); index1 != -1 {
 			if val2, index2 := findItemInMapSlice("configMap", map2); index2 != -1 {
-				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
 			}
 			return false
 		}
 		// ProjectedVolumeSource.sources : VolumeProjection.downwardAPI.items
 		if val1, index1 := findItemInMapSlice("downwardAPI", map1); index1 != -1 {
 			if val2, index2 := findItemInMapSlice("downwardAPI", map2); index2 != -1 {
-				return mapPairMatch("items", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+				return equalValueForKey("items", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
 			}
 			return false
 		}
 		// ProjectedVolumeSource.sources : VolumeProjection.secret.name
 		if val1, index1 := findItemInMapSlice("secret", map1); index1 != -1 {
 			if val2, index2 := findItemInMapSlice("secret", map2); index2 != -1 {
-				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
 			}
 			return false
 		}
 		// ProjectedVolumeSource.sources : VolumeProjection.serviceAccountToken.name
 		if val1, index1 := findItemInMapSlice("serviceAccountToken", map1); index1 != -1 {
 			if val2, index2 := findItemInMapSlice("serviceAccountToken", map2); index2 != -1 {
-				return mapPairMatch("path", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+				return equalValueForKey("path", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
 			}
 		}
 		return false
 
 	// IngressSpec.tls : IngressTLS.[secretName OR hosts]
 	case "tls":
-		if mapPairMatch("secretName", map1, map2) {
+		if equalValueForKey("secretName", map1, map2) {
 			return true
 		}
-		return mapPairMatch("hosts", map1, map2)
+		return equalValueForKey("hosts", map1, map2)
 
 	// StatefulSetSpec.volumeClaimTemplates : PersistentVolumeClaim.metadata.name
 	case "volumeClaimTemplates":
 		if val1, index1 := findItemInMapSlice("metadata", map1); index1 != -1 {
 			if val2, index2 := findItemInMapSlice("metadata", map2); index2 != -1 {
-				return mapPairMatch("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
 			}
 		}
 		return false
 	}
 
 	if idKey, ok := identifyingKey[sequenceKey]; ok {
-		return mapPairMatch(idKey, map1, map2)
+		return equalValueForKey(idKey, map1, map2)
 	}
 
 	// FSGroupStrategyOptions.ranges : IDRange
