@@ -486,7 +486,7 @@ func TestFindItemInMapSlice(t *testing.T) {
 	assert.Equal(-1, index)
 }
 
-func TestMapPairMatch(t *testing.T) {
+func TestEqualValueForKey(t *testing.T) {
 	assert := assert.New(t)
 
 	// same string
@@ -495,17 +495,17 @@ func TestMapPairMatch(t *testing.T) {
 		{Key: "k", Value: "v"},
 		{Key: "k2", Value: "v2"},
 	}
-	assert.True(mapPairMatch("k2", m1, m2))
+	assert.True(equalValueForKey("k2", m1, m2))
 
 	// different string
 	m1 = yaml.MapSlice{{Key: "k", Value: "v"}}
 	m2 = yaml.MapSlice{{Key: "k", Value: "v2"}}
-	assert.False(mapPairMatch("k2", m1, m2))
+	assert.False(equalValueForKey("k2", m1, m2))
 
 	// string and number
 	m1 = yaml.MapSlice{{Key: "k", Value: "2"}}
 	m2 = yaml.MapSlice{{Key: "k", Value: 2}}
-	assert.False(mapPairMatch("k", m1, m2))
+	assert.False(equalValueForKey("k", m1, m2))
 }
 
 func TestSequenceItemMatch(t *testing.T) {
