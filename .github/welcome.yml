@@ -2,7 +2,7 @@ newIssueWelcomeComment: >
   Thanks for opening your first issue here! Be sure to follow the issue template!
 
 newPRWelcomeComment: >
-  Thanks for opening this pull request! Please check out our contributing guidelines and sign the CLA.
+  Thanks for opening this pull request! Please check out our [contributing guidelines](https://github.com/Shopify/kubeaudit#contribute) and [sign the CLA](https://cla.shopify.com/).
 
 firstPRMergeComment: >
   Congrats on merging your first pull request, keep em coming!
