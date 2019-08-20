@@ -722,3 +722,5 @@ If you'd like to fix a bug, contribute a feature or just correct a typo, please 
 1. Submit a PR (All PR must be labeled with :bug: (Bug fix), :sparkles: (New feature), :book: (Documentation update), or :warning: (Breaking changes) )
 1. ???
 1. Profit
+
+Note that if you didn't sign the CLA before opening your PR, you can re-run the check by adding a comment to the PR that says "I've signed the CLA!"!
