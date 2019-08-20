@@ -30,3 +30,4 @@ Fixes # (issue)
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] The test coverage did not decrease
+- [ ] I have signed the appropriate [Contributor License Agreement](https://cla.shopify.com/)
