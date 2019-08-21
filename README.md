@@ -718,6 +718,9 @@ If you'd like to fix a bug, contribute a feature or just correct a typo, please 
 1. Run the tests to see everything is working as expected: `make test`
 1. Commit your changes: `git commit -am 'Adds awesome feature'`
 1. Push to the branch: `git push fork`
+1. Sign the [Contributor License Agreement](https://cla.shopify.com/)
 1. Submit a PR (All PR must be labeled with :bug: (Bug fix), :sparkles: (New feature), :book: (Documentation update), or :warning: (Breaking changes) )
 1. ???
 1. Profit
+
+Note that if you didn't sign the CLA before opening your PR, you can re-run the check by adding a comment to the PR that says "I've signed the CLA!"!
