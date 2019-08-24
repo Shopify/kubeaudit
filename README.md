@@ -231,7 +231,7 @@ kubeaudit caps
 ERRO[0000] Capability added  CapName=NET_ADMIN
 ```
 
-[`config/caps`](https://github.com/Shopify/kubeaudit/blob/master/config/capabilities-drop-list.yml)
+[`config/caps`](configs/custom_capabilities_to_be_dropped_v1.yml)
 holds a list of capabilities that we recommend be dropped, change it if you
 want to keep some of the capabilities otherwise `kubeaudit` will complain about
 them not being dropped:
