@@ -23,6 +23,10 @@ privileged, ... You get the gist of it and more on that later. Just know:
 
 ## Installation
 
+> **Please note `go get kubeaudit` is currently not functional**
+> 
+> We are aware of the issue and are working on a fix. You can still get kubeaudit using these alternate methods:
+
 #### Download a binary
 
 Kubeaudit has official releases that are blessed and stable here:
@@ -35,7 +39,7 @@ feature not yet included in a release you can do the following to get
 kubeaudit:
 
 ```sh
-go get -v github.com/Shopify/kubeaudit
+git clone https://github.com/Shopify/kubeaudit.git
 make
 make install
 ```
