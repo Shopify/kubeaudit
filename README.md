@@ -23,10 +23,6 @@ privileged, ... You get the gist of it and more on that later. Just know:
 
 ## Installation
 
-> **Please note `go get kubeaudit` is currently not functional**
-> 
-> We are aware of the issue and are working on a fix. You can still get kubeaudit using these alternate methods:
-
 #### Download a binary
 
 Kubeaudit has official releases that are blessed and stable here:
@@ -38,8 +34,18 @@ Master will have newer features than the stable releases. If you need a newer
 feature not yet included in a release you can do the following to get
 kubeaudit:
 
+For go 1.12 and higher:
+```sh
+GO111MODULE=on go get -v github.com/Shopify/kubeaudit
+cd $GOPATH/src/github.com/Shopify/kubeaudit
+make
+make install
+```
+
+For older versions of go:
 ```sh
 git clone https://github.com/Shopify/kubeaudit.git
+cd kubeaudit
 make
 make install
 ```
