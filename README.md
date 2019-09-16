@@ -37,9 +37,6 @@ kubeaudit:
 For go 1.12 and higher:
 ```sh
 GO111MODULE=on go get -v github.com/Shopify/kubeaudit
-cd $GOPATH/src/github.com/Shopify/kubeaudit
-make
-make install
 ```
 
 For older versions of go:
