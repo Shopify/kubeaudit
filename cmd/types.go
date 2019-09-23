@@ -75,6 +75,9 @@ type PodListV1 = apiv1.PodList
 // PodSpecV1 is a type alias for the v1 version of the k8s API.
 type PodSpecV1 = apiv1.PodSpec
 
+// PodTemplateV1 is a type alias for the v1 version of the k8s API.
+type PodTemplateV1 = apiv1.PodTemplate
+
 // PodV1 is a type alias for the v1 version of the k8s API.
 type PodV1 = apiv1.Pod
 
@@ -130,7 +133,7 @@ func IsSupportedResourceType(obj Resource) bool {
 		*DeploymentExtensionsV1Beta1, *DeploymentV1, *DeploymentV1Beta1, *DeploymentV1Beta2, *DeploymentListV1,
 		*NamespaceListV1, *NamespaceV1,
 		*NetworkPolicyListV1, *NetworkPolicyV1,
-		*PodListV1, *PodV1,
+		*PodListV1, *PodV1, *PodTemplateV1,
 		*ReplicationControllerListV1, *ReplicationControllerV1,
 		*StatefulSetListV1, *StatefulSetV1, *StatefulSetV1Beta1:
 		return true
