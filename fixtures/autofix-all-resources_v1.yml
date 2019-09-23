@@ -166,13 +166,13 @@ spec:
   rules:
   - host: testapp.shopifycloud.com # comment 2
     http: # comment 2
-      paths: # comment 2
+      paths:
       - backend: # comment 2
           serviceName: web # comment 2
           servicePort: 80 # comment 2
   - host: testapp.shopifyapps.com # comment
     http: # comment
-      paths: # comment
+      paths:
       - backend: # comment
           serviceName: web # comment
           servicePort: 80 # comment

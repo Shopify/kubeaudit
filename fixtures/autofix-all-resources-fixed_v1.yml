@@ -74,6 +74,7 @@ spec:
           runAsNonRoot: true
       automountServiceAccountToken: false
   selector: null
+
 # Post doc comment
 ---
 apiVersion: v1
@@ -122,8 +123,7 @@ spec:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/run/gcloud/key
             image: gcr.io/docker-image/testapp:<%= current_sha %>
-            args:
-            - gcr.io/docker-images
+            args: ["gcr.io/docker-images"]
             name: jobs
             resources:
               limits:
@@ -155,14 +155,14 @@ spec:
               runAsNonRoot: true
             volumeMounts:
             - name: google-service-account
-              mountPath: /var/run/gcloud
+              mountPath: "/var/run/gcloud"
               readOnly: true
           restartPolicy: Never
           tolerations:
-          - key: app
-            operator: Equal
-            value: testapp
-            effect: NoExecute
+          - key: "app"
+            operator: "Equal"
+            value: "testapp"
+            effect: "NoExecute"
           volumes:
           - name: google-service-account
             secret:
@@ -189,7 +189,8 @@ spec:
     spec:
       # Trust me the following line is longer than 80 characters
       containers:
-      - image: gcr.io/docker-images-directory/apps/production/fake-image-app:<%= current_sha %>
+      - image: gcr.io/docker-images-directory/apps/production/fake-image-app:<%= current_sha
+          %>
         name: fakeContainerImg
         resources: {}
         securityContext:
@@ -237,13 +238,13 @@ spec:
   rules:
   - host: testapp.shopifycloud.com # comment 2
     http: # comment 2
-      paths: # comment 2
+      paths:
       - backend: # comment 2
           serviceName: web # comment 2
           servicePort: 80 # comment 2
   - host: testapp.shopifyapps.com # comment
     http: # comment
-      paths: # comment
+      paths:
       - backend: # comment
           serviceName: web # comment
           servicePort: 80 # comment
@@ -267,8 +268,8 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       containers:
-      # This is a comment
-      - image: gcr.io/docker-images-directory/apps/
+      - # This is a comment
+        image: gcr.io/docker-images-directory/apps/
         name: fakeContainerImg
         resources: {}
         securityContext:
@@ -302,16 +303,9 @@ metadata:
   # "namespace" omitted since ClusterRoles are not namespaced
   name: secret-reader
 rules:
-- apiGroups:
-  - ""
-  # 1
-  resources:
-  - secrets
-  # 2
-  verbs:
-  - get
-  - watch
-  - list
+- apiGroups: [""]
+  resources: ["secrets"] # 1
+  verbs: ["get", "watch", "list"] # 2
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -319,15 +313,9 @@ metadata:
   namespace: default
   name: pod-reader
 rules:
-# "" indicates the core API group
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-  - watch
-  - list
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

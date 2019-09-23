@@ -14,7 +14,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
   creationTimestamp: null
 spec:
-  rules: #This is a comment 1
+  rules:
   - http:
       paths:
       - backend:
@@ -113,4 +113,5 @@ spec:
           runAsNonRoot: true
       automountServiceAccountToken: false
   selector: null
+
 # Post doc comment

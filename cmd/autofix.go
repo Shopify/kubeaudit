@@ -12,11 +12,9 @@ import (
 )
 
 // The fix function does not preserve comments (because kubernetes resources do not support comments) so we convert
-// both the original manifest file and the fixed manifest file into MapSlices (an array representation of a map which
-// preserves the order of the keys) using the Shopify/yaml fork of go-yaml/yaml (the fork adds comment support) and
-// then merge the fixed MapSlice back into the original MapSlice so that we get the comments and original order back.
+// both the original manifest file and the fixed manifest file into node trees and then merge the fixed node tree
+// into the original node tree so that we get the comments and original order back
 func autofix(*cobra.Command, []string) {
-
 	var toAppend = false
 
 	resources, err := getKubeResourcesManifest(rootConfig.manifest)
