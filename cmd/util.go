@@ -80,6 +80,11 @@ func newResultFromResource(resource Resource) (*Result, error, error) {
 		result.Labels = kubeType.Spec.Template.Labels
 		result.Name = kubeType.Name
 		result.Namespace = kubeType.Namespace
+	case *PodTemplateV1:
+		result.KubeType = "podTemplate"
+		result.Labels = kubeType.Labels
+		result.Name = kubeType.Name
+		result.Namespace = kubeType.Namespace
 	case *PodV1:
 		result.KubeType = "pod"
 		result.Labels = kubeType.Labels
@@ -153,6 +158,10 @@ func newResultFromResourceWithServiceAccountInfo(resource Resource) (*Result, er
 		result.DSA = kubeType.Spec.Template.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.Template.Spec.ServiceAccountName
 		result.Token = kubeType.Spec.Template.Spec.AutomountServiceAccountToken
+	case *PodTemplateV1:
+		result.DSA = kubeType.Template.Spec.DeprecatedServiceAccount
+		result.SA = kubeType.Template.Spec.ServiceAccountName
+		result.Token = kubeType.Template.Spec.AutomountServiceAccountToken
 	case *PodV1:
 		result.DSA = kubeType.Spec.DeprecatedServiceAccount
 		result.SA = kubeType.Spec.ServiceAccountName
