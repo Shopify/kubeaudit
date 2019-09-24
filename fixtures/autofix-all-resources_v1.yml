@@ -243,3 +243,24 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
   verbs: ["get", "watch", "list"]
+---
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: pod-template
+  labels:
+    name: pod-template
+    app: foobar
+    env: production
+template:
+  metadata:
+    name: pod-template
+    labels:
+      name: pod-template
+      app: foobar
+      env: production
+  spec:
+    restartPolicy: Never
+    containers:
+    - name: pod
+      image: gcr.io/production/foobar:tag
