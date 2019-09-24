@@ -9,7 +9,7 @@ spec:
     metadata:
       labels:
         apps: fakeSecurityContext
-        audit.kubernetes.io/pod/allow-run-as-root: "Superuser privileges needed"
+        audit.kubernetes.io/pod.allow-run-as-root: "SuperuserPrivilegesNeeded"
     spec:
       containers:
       - name: fakeContainerRANR

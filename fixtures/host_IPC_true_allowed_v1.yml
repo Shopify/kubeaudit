@@ -4,7 +4,7 @@ metadata:
     name: Pod
     namespace: PodNamespace
     labels:
-        audit.kubernetes.io/pod/allow-namespace-host-IPC: "some reason"
+        audit.kubernetes.io/pod.allow-namespace-host-IPC: "SomeReason"
 spec:
     containers:
     - name: container
