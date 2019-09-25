@@ -381,7 +381,7 @@ func shouldAuditCSC(podSpec PodSpecV1, container ContainerV1) bool {
 }
 
 func getContainerOverrideLabelReason(result *Result, container ContainerV1, overrideLabel string) (bool, string) {
-	containerOverrideLabel := "container.audit.kubernetes.io/" + container.Name + "/" + overrideLabel
+	containerOverrideLabel := "container.audit.kubernetes.io/" + container.Name + "." + overrideLabel
 
 	if reason := result.Labels[containerOverrideLabel]; reason != "" {
 		return true, reason
@@ -390,7 +390,7 @@ func getContainerOverrideLabelReason(result *Result, container ContainerV1, over
 }
 
 func getPodOverrideLabelReason(result *Result, overrideLabel string) (bool, string) {
-	podOverrideLabel := "audit.kubernetes.io/pod/" + overrideLabel
+	podOverrideLabel := "audit.kubernetes.io/pod." + overrideLabel
 	if reason := result.Labels[podOverrideLabel]; reason != "" {
 		return true, reason
 	}
@@ -419,11 +419,11 @@ func getNamespaceOverrideLabelReason(result *Result, nsName string, policyType s
 	var namespaceOverrideLabel string
 	var tempLabel string
 	if policyType == "egress" {
-		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "/" + "allow-non-default-deny-egress-network-policy"
+		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "." + "allow-non-default-deny-egress-network-policy"
 		tempLabel = "allow-non-default-deny-egress-network-policy"
 	}
 	if policyType == "ingress" {
-		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "/" + "allow-non-default-deny-ingress-network-policy"
+		namespaceOverrideLabel = "audit.kubernetes.io/" + nsName + "." + "allow-non-default-deny-ingress-network-policy"
 		tempLabel = "allow-non-default-deny-ingress-network-policy"
 	}
 	if reason := result.Labels[namespaceOverrideLabel]; reason != "" {
@@ -453,11 +453,11 @@ func getNamespaceOverrideLabelReason(result *Result, nsName string, policyType s
 
 func isDefinedCapOverrideLabel(result *Result, container ContainerV1, capName string) bool {
 	capNameKey := strings.Replace(capName, "_", "-", -1)
-	containerKeyString := "container.audit.kubernetes.io/" + container.Name + "/allow-capability-" + capNameKey
+	containerKeyString := "container.audit.kubernetes.io/" + container.Name + ".allow-capability-" + capNameKey
 	if result.Labels[containerKeyString] != "" {
 		return true
 	}
 
-	podKeyString := "audit.kubernetes.io/pod/allow-capability-" + capNameKey
+	podKeyString := "audit.kubernetes.io/pod.allow-capability-" + capNameKey
 	return result.Labels[podKeyString] != ""
 }

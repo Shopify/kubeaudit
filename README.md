@@ -447,10 +447,10 @@ spec:
     metadata:
       labels:
         apps: YourAppNameHere
-        container.audit.kubernetes.io/<container-name>/allow-privilege-escalation: "YourReasonForOverrideHere"
+        container.audit.kubernetes.io/<container-name>.allow-privilege-escalation: "YourReasonForOverrideHere"
 ```
 
-Any label with a non-nil reason string will prevent `kubeaudit` from throwing the corresponding error and issue a warning instead.
+Any label with a non-nil reason string will prevent `kubeaudit` from throwing the corresponding error and issue a warning instead. Note that the reason may only contain alphanumeric characters and `.`, `_`, `-`, per Kubernetes label specification.
 Reasons matching `"true"` (not case sensitive) will be displayed as `Unspecified`.
 
 `kubeaudit` can skip certain audits by applying override labels to containers. If you want skip an audit for a specific container inside a pod, you can add an container override label. For example, if you use `kubeaudit` to ignore `allow-run-as-root` check for container "MyContainer1", you can add the following label:
@@ -461,7 +461,7 @@ spec:
     metadata:
       labels:
         apps: YourAppNameHere
-        container.audit.kubernetes.io/MyContainer1/allow-run-as-root: "YourReasonForOverrideHere"
+        container.audit.kubernetes.io/MyContainer1.allow-run-as-root: "YourReasonForOverrideHere"
 ```
 
 Similarly, you can have `kubeaudit` to skip a specific audit for all containers inside the pod by adding a pod override label. For example, if you use `kubeaudit` to ignore `allow-run-as-root` check for all containers inside the pod, you can add the following label:
@@ -472,7 +472,7 @@ spec:
     metadata:
       labels:
         apps: YourAppNameHere
-        audit.kubernetes.io/pod/allow-run-as-root: "YourReasonForOverrideHere"
+        audit.kubernetes.io/pod.allow-run-as-root: "YourReasonForOverrideHere"
 ```
 
 `kubeaudit` can also skip a specific audit for all network policies associated with a namespace resource
@@ -482,66 +482,66 @@ by adding a namespace override label. For example, if you use `kubeaudit` to ign
 metadata:
   name: namespaceName1
   labels:
-    audit.kubernetes.io/namespaceName1/allow-non-default-deny-egress-network-policy: "YourReasonForOverrideHere"
+    audit.kubernetes.io/namespaceName1.allow-non-default-deny-egress-network-policy: "YourReasonForOverrideHere"
 ```
 
 `kubeaudit` supports many labels on pod, namespace or container level:
-- [audit.kubernetes.io/pod/allow-privilege-escalation](#allowpe_label)
-- [container.audit.kubernetes.io/\<container-name\>/allow-privilege-escalation](#allowpe_label)
-- [audit.kubernetes.io/pod/allow-privileged](#priv_label)
-- [container.audit.kubernetes.io/\<container-name\>/allow-privileged](#priv_label)
-- [audit.kubernetes.io/pod/allow-capability](#caps_label)
-- [container.audit.kubernetes.io/\<container-name\>/allow-capability](#caps_label)
-- [audit.kubernetes.io/pod/allow-run-as-root](#nonroot_label)
-- [container.audit.kubernetes.io/\<container-name\>/allow-run-as-root](#nonroot_label)
-- [audit.kubernetes.io/pod/allow-automount-service-account-token](#sat_label)
-- [audit.kubernetes.io/pod/allow-read-only-root-filesystem-false](#rootfs_label)
-- [container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false](#rootfs_label)
-- [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy](#egress_label)
-- [audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy](#ingress_label)
-- [audit.kubernetes.io/pod/allow-namespace-host-network](#namespacenetwork_label)
-- [audit.kubernetes.io/pod/allow-namespace-host-IPC](#namespaceipc_label)
-- [audit.kubernetes.io/pod/allow-namespace-host-PID](#namespacepid_label)
+- [audit.kubernetes.io/pod.allow-privilege-escalation](#allowpe_label)
+- [container.audit.kubernetes.io/\<container-name\>.allow-privilege-escalation](#allowpe_label)
+- [audit.kubernetes.io/pod.allow-privileged](#priv_label)
+- [container.audit.kubernetes.io/\<container-name\>.allow-privileged](#priv_label)
+- [audit.kubernetes.io/pod.allow-capability](#caps_label)
+- [container.audit.kubernetes.io/\<container-name\>.allow-capability](#caps_label)
+- [audit.kubernetes.io/pod.allow-run-as-root](#nonroot_label)
+- [container.audit.kubernetes.io/\<container-name\>.allow-run-as-root](#nonroot_label)
+- [audit.kubernetes.io/pod.allow-automount-service-account-token](#sat_label)
+- [audit.kubernetes.io/pod.allow-read-only-root-filesystem-false](#rootfs_label)
+- [container.audit.kubernetes.io/\<container-name\>.allow-read-only-root-filesystem-false](#rootfs_label)
+- [audit.kubernetes.io/\<namespace-name\>.allow-non-default-deny-egress-network-policy](#egress_label)
+- [audit.kubernetes.io/\<namespace-name\>.allow-non-default-deny-ingress-network-policy](#ingress_label)
+- [audit.kubernetes.io/pod.allow-namespace-host-network](#namespacenetwork_label)
+- [audit.kubernetes.io/pod.allow-namespace-host-IPC](#namespaceipc_label)
+- [audit.kubernetes.io/pod.allow-namespace-host-PID](#namespacepid_label)
 
 <a name="allowpe_label"/>
 
-### container.audit.kubernetes.io/\<container-name\>/allow-privilege-escalation
+### container.audit.kubernetes.io/\<container-name\>.allow-privilege-escalation
 
 Allow `allowPrivilegeEscalation` to be set to `true` to a specific container.
 
-### audit.kubernetes.io/pod/allow-privilege-escalation
+### audit.kubernetes.io/pod.allow-privilege-escalation
 
 Allows `allowPrivilegeEscalation` to be set to `true` to all the containers in a pod.
 
 ```sh
-kubeaudit.allow.privilegeEscalation: "Superuser privileges needed"
+kubeaudit.allow.privilegeEscalation: "SuperuserPrivilegesNeeded"
 
-WARN[0000] Allowed setting AllowPrivilegeEscalation to true  Reason="Superuser privileges needed"
+WARN[0000] Allowed setting AllowPrivilegeEscalation to true  Reason="SuperuserPrivilegesNeeded"
 ```
 
 <a name="priv_label"/>
 
-### container.audit.kubernetes.io/\<container-name\>/allow-privileged
+### container.audit.kubernetes.io/\<container-name\>.allow-privileged
 
 Allow `privileged` to be set to `true` to a specific container.
 
-### audit.kubernetes.io/pod/allow-privileged
+### audit.kubernetes.io/pod.allow-privileged
 
 Allows `privileged` to be set to `true` to all the containers in a pod.
 
 ```sh
-kubeaudit.allow.privileged: "Privileged execution required"
+kubeaudit.allow.privileged: "PrivilegedExecutionRequired"
 
-WARN[0000] Allowed setting privileged to true                Reason="Privileged execution required"
+WARN[0000] Allowed setting privileged to true                Reason="PrivilegedExecutionRequired"
 ```
 
 <a name="caps_label"/>
 
-### container.audit.kubernetes.io/\<container-name\>/allow-capability
+### container.audit.kubernetes.io/\<container-name\>.allow-capability
 
 Allows adding a capability or keeping one that would otherwise be dropped to a specific container.
 
-### audit.kubernetes.io/pod/allow-capability
+### audit.kubernetes.io/pod.allow-capability
 
 Allows adding a capability or keeping one that would otherwise be dropped to all the containers in a pod.
 
@@ -553,23 +553,23 @@ WARN[0000] Capability allowed                                CapName=CHOWN Reaso
 
 <a name="nonroot_label"/>
 
-### container.audit.kubernetes.io/\<container-name\>/allow-run-as-root
+### container.audit.kubernetes.io/\<container-name\>.allow-run-as-root
 
 Allows setting `runAsNonRoot` to `false` to a specific container.
 
-### audit.kubernetes.io/pod/allow-run-as-root
+### audit.kubernetes.io/pod.allow-run-as-root
 
 Allows setting `runAsNonRoot` to `false` to all the containers in a pod.
 
 ```sh
-kubeaudit.allow.runAsRoot: "Root privileges needed"
+kubeaudit.allow.runAsRoot: "RootPrivilegesNeeded"
 
-WARN[0000] Allowed setting RunAsNonRoot to false             Reason="Root privileges needed"
+WARN[0000] Allowed setting RunAsNonRoot to false             Reason="RootPrivilegesNeeded"
 ```
 
 <a name="sat_label"/>
 
-### audit.kubernetes.io/pod/allow-automount-service-account-token
+### audit.kubernetes.io/pod.allow-automount-service-account-token
 
 Allows setting `automountServiceAccountToken` to `true` to a pod.
 
@@ -581,66 +581,66 @@ WARN[0000] Allowed setting automountServiceAccountToken to true  Reason=Unspecif
 
 <a name="rootfs_label"/>
 
-### container.audit.kubernetes.io/\<container-name\>/allow-read-only-root-filesystem-false
+### container.audit.kubernetes.io/\<container-name\>.allow-read-only-root-filesystem-false
 
 Allows setting `readOnlyRootFilesystem` to `false` to a specific container.
 
-### audit.kubernetes.io/pod/allow-read-only-root-filesystem-false
+### audit.kubernetes.io/pod.allow-read-only-root-filesystem-false
 
 Allows setting `readOnlyRootFilesystem` to `false` to all containers in a pod.
 
 ```sh
-kubeaudit.allow.readOnlyRootFilesystemFalse: "Write permissions needed"
+kubeaudit.allow.readOnlyRootFilesystemFalse: "WritePermissionsNeeded"
 
-WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="Write permissions needed"
+WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="WritePermissionsNeeded"
 ```
 
 <a name="egress_label"/>
 
-### audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-egress-network-policy
+### audit.kubernetes.io/\<namespace-name\>.allow-non-default-deny-egress-network-policy
 
 Allows absense of `default-deny` egress network policy for that specific namespace.
 
 <a name="ingress_label"/>
 
-### audit.kubernetes.io/\<namespace-name\>/allow-non-default-deny-ingress-network-policy
+### audit.kubernetes.io/\<namespace-name\>.allow-non-default-deny-ingress-network-policy
 
 Allows absense of `default-deny` ingress network policy for that specific namespace.
 
 ```sh
-audit.kubernetes.io/default/allow-non-default-deny-egress-network-policy: "Egress is allowed"
+audit.kubernetes.io/default.allow-non-default-deny-egress-network-policy: "EgressIsAllowed"
 
-WARN[0000] Allowed Namespace without a default deny egress NetworkPolicy  KubeType=namespace Name=default Reason="Egress is allowed"
+WARN[0000] Allowed Namespace without a default deny egress NetworkPolicy  KubeType=namespace Name=default Reason="EgressIsAllowed"
 ```
 
 <a name="namespacenetwork_label"/>
 
-### audit.kubernetes.io/pod/allow-namespace-host-network
+### audit.kubernetes.io/pod.allow-namespace-host-network
 
 ```sh
-audit.kubernetes.io/pod/allow-namespace-host-network: "hostNetwork is allowed"
+audit.kubernetes.io/pod.allow-namespace-host-network: "HostNetworkIsAllowed"
 
-WARN[0000] Allowed setting hostNetwork to true           KubeType=pod Name=Pod Namespace=PodNamespace Reason="hostNetwork is allowed"
+WARN[0000] Allowed setting hostNetwork to true           KubeType=pod Name=Pod Namespace=PodNamespace Reason="HostNetworkIsAllowed"
 ```
 
 <a name="namespaceipc_label"/>
 
-### audit.kubernetes.io/pod/allow-namespace-host-IPC
+### audit.kubernetes.io/pod.allow-namespace-host-IPC
 
 ```sh
-audit.kubernetes.io/pod/allow-namespace-host-IPC: "hostIPC is allowed"
+audit.kubernetes.io/pod.allow-namespace-host-IPC: "HostIPCIsAllowed"
 
-WARN[0000] Allowed setting hostIPC to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="hostIPC is allowed"
+WARN[0000] Allowed setting hostIPC to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="HostIPCIsAllowed"
 ```
 
 <a name="namespacepid_label"/>
 
-### audit.kubernetes.io/pod/allow-namespace-host-PID
+### audit.kubernetes.io/pod.allow-namespace-host-PID
 
 ```sh
-audit.kubernetes.io/pod/allow-namespace-host-PID: "hostPID is allowed"
+audit.kubernetes.io/pod.allow-namespace-host-PID: "HOSTPIDIsAllowed"
 
-WARN[0000] Allowed setting hostPID to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="hostPID is allowed"
+WARN[0000] Allowed setting hostPID to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="HOSTPIDIsAllowed"
 ```
 
 <a name="contribute" />

@@ -3,8 +3,8 @@ kind: Namespace
 metadata:
   name: "default"
   labels:
-    audit.kubernetes.io/default/allow-non-default-deny-egress-network-policy: "Just for fun"
-    audit.kubernetes.io/default/allow-non-default-deny-ingress-network-policy: "Just for fun as well"
+    audit.kubernetes.io/default.allow-non-default-deny-egress-network-policy: "SomeReason"
+    audit.kubernetes.io/default.allow-non-default-deny-ingress-network-policy: "SomeReason"
 ---
 # https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/07-allow-traffic-from-some-pods-in-another-namespace.md
 kind: NetworkPolicy

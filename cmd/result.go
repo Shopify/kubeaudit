@@ -94,12 +94,12 @@ func (res *Result) allowedCaps(container ContainerV1) (allowed map[CapabilityV1]
 
 	allowed = make(map[CapabilityV1]string)
 	for k, v := range res.Labels {
-		if strings.Contains(k, "audit.kubernetes.io/pod/allow-capability-") {
-			capName := strings.Replace(strings.ToUpper(strings.TrimPrefix(k, "audit.kubernetes.io/pod/allow-capability-")), "-", "_", -1)
+		if strings.Contains(k, "audit.kubernetes.io/pod.allow-capability-") {
+			capName := strings.Replace(strings.ToUpper(strings.TrimPrefix(k, "audit.kubernetes.io/pod.allow-capability-")), "-", "_", -1)
 			allowed[CapabilityV1(capName)] = v
 		}
 
-		containerKeyString := "container.audit.kubernetes.io/" + container.Name + "/allow-capability-"
+		containerKeyString := "container.audit.kubernetes.io/" + container.Name + ".allow-capability-"
 		if strings.Contains(k, containerKeyString) {
 			capName := strings.Replace(strings.ToUpper(strings.TrimPrefix(k, containerKeyString)), "-", "_", -1)
 			allowed[CapabilityV1(capName)] = v

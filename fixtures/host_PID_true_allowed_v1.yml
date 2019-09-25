@@ -4,7 +4,7 @@ metadata:
     name: Pod
     namespace: PodNamespace
     labels:
-        audit.kubernetes.io/pod/allow-namespace-host-PID: "some reason"
+        audit.kubernetes.io/pod.allow-namespace-host-PID: "SomeReason"
 spec:
     containers:
     - name: container

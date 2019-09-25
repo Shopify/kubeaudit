@@ -9,7 +9,7 @@ spec:
     metadata:
       labels:
         apps: fakeSecurityContext
-        audit.kubernetes.io/pod/allow-capability-sys-time: "Time is of the essence"
+        audit.kubernetes.io/pod.allow-capability-sys-time: "SomeReason"
     spec:
       containers:
       - name: fakeContainerSC
