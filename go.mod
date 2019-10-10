@@ -18,7 +18,7 @@ require (
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20190905181640-827449938966
+	gopkg.in/yaml.v3 v3.0.0-20191010095647-fc94e3f71652
 	k8s.io/api v0.0.0-20190503110853-61630f889b3c
 	k8s.io/apiextensions-apiserver v0.0.0-20190508224317-421cff06bf05
 	k8s.io/apimachinery v0.0.0-20190508063446-a3da69d3723c
