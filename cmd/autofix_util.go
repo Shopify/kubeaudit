@@ -3,13 +3,28 @@ package cmd
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/Shopify/kubeaudit/scheme"
-	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
+	yaml "gopkg.in/yaml.v3"
+)
+
+// src https://github.com/go-yaml/yaml/blob/v3/resolve.go#L70
+const (
+	nullTag      = "!!null"
+	boolTag      = "!!bool"
+	strTag       = "!!str"
+	intTag       = "!!int"
+	floatTag     = "!!float"
+	timestampTag = "!!timestamp"
+	seqTag       = "!!seq"
+	mapTag       = "!!map"
+	binaryTag    = "!!binary"
+	mergeTag     = "!!merge"
 )
 
 func getAuditFunctions() []interface{} {
@@ -109,8 +124,8 @@ func fix(resources []Resource) (fixedResources []Resource, extraResources []Reso
 	return
 }
 
-// deepEqual recursively compares two values but ignores mapslice order and comments. For example the following values
-// are considered to be equal:
+// deepEqual recursively compares two values but ignores map and array child order and comments. For example the
+// following values are considered to be equal:
 //
 //     []yaml.SequenceItem{{Value: yaml.MapSlice{
 // 	       {Key: "k", Value: "v", Comment: "c"},
@@ -121,96 +136,76 @@ func fix(resources []Resource) (fixedResources []Resource, extraResources []Reso
 //          {Key: "k2", Value: "v2"},
 //          {Key: "k", Value: "v"},
 //      }}}
-
-func deepEqual(val1, val2 interface{}) bool {
-	// MapItem
-	if mapItem1, ok := val1.(yaml.MapItem); ok {
-		if mapItem2, ok := val2.(yaml.MapItem); ok {
-			return mapItem1.Key == mapItem2.Key && deepEqual(mapItem1.Value, mapItem2.Value)
-		}
+func deepEqual(val1, val2 *yaml.Node) bool {
+	if val1.Kind != val2.Kind {
 		return false
 	}
 
-	// SequenceItem
-	if seqItem1, ok := val1.(yaml.SequenceItem); ok {
-		if seqItem2, ok := val2.(yaml.SequenceItem); ok {
-			return deepEqual(seqItem1.Value, seqItem2.Value)
-		}
-		return false
-	}
-
-	// MapSlice
-	if map1, ok := val1.(yaml.MapSlice); ok {
-		if map2, ok := val2.(yaml.MapSlice); ok {
-			numValues1, numValues2 := 0, 0
-			for _, item1 := range map1 {
-				if !isComment(item1) {
-					numValues1++
-				}
-			}
-			for _, item2 := range map2 {
-				if !isComment(item2) {
-					numValues2++
-				}
-			}
-			if numValues1 != numValues2 {
-				return false
-			}
-			for _, item1 := range map1 {
-				if isComment(item1) {
-					continue
-				}
-				item2, index2 := findItemInMapSlice(item1.Key, map2)
-				if index2 == -1 || !deepEqual(item1.Value, item2.Value) {
-					return false
-				}
-			}
-			return true
-		}
-		return false
-	}
-
-	// []SequenceItem
-	if seq1, ok := val1.([]yaml.SequenceItem); ok {
-		if seq2, ok := val2.([]yaml.SequenceItem); ok {
-			index1, index2 := 0, 0
-			len1, len2 := len(seq1), len(seq2)
-			for index1 < len1 || index2 < len2 {
-				for index1 < len1 && isComment(seq1[index1]) {
-					index1++
-				}
-				for index2 < len2 && isComment(seq1[index2]) {
-					index2++
-				}
-				if (index1 == len1 && index2 < len2) || (index2 == len2 && index1 < len1) ||
-					!deepEqual(seq1[index1].Value, seq2[index2].Value) {
-					return false
-				}
-				index1++
-				index2++
-			}
-			return true
-		}
-		return false
-	}
-
-	return val1 == val2
-}
-
-// isComment returns true if the value is a standalone comment (ie. not an end-of-line comment)
-func isComment(val interface{}) bool {
-	// MapItem
-	if m, ok := val.(yaml.MapItem); ok {
-		_, ok = m.Key.(yaml.PreDoc)
-		return ok || (m.Key == nil && m.Value == nil && len(m.Comment) > 0)
-	}
-
-	// SequenceItem
-	if s, ok := val.(yaml.SequenceItem); ok {
-		return s.Value == nil && len(s.Comment) > 0
+	switch val1.Kind {
+	case yaml.ScalarNode:
+		return equalScalar(val1, val2)
+	case yaml.MappingNode:
+		return equalMap(val1, val2)
+	case yaml.SequenceNode:
+		return equalSequence(val1, val2)
 	}
 
 	return false
+}
+
+func equalScalar(val1, val2 *yaml.Node) bool {
+	if val1.Kind != yaml.ScalarNode || val2.Kind != yaml.ScalarNode {
+		return false
+	}
+	return val1.Tag == val2.Tag && val1.Value == val2.Value
+}
+
+func equalSequence(seq1, seq2 *yaml.Node) bool {
+	if seq1.Kind != yaml.SequenceNode || seq2.Kind != yaml.SequenceNode {
+		return false
+	}
+
+	content1 := seq1.Content
+	content2 := seq2.Content
+	if len(content1) != len(content2) {
+		return false
+	}
+
+	for _, val1 := range content1 {
+		if !isItemInSequence("", val1, seq2) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func equalMap(map1, map2 *yaml.Node) bool {
+	if map1.Kind != yaml.MappingNode || map2.Kind != yaml.MappingNode {
+		return false
+	}
+
+	content1 := map1.Content
+	content2 := map2.Content
+	if len(content1) != len(content2) {
+		return false
+	}
+
+	for i := 0; i < len(content1); i += 2 {
+		key1 := content1[i]
+		index2 := findKeyInMap(key1, map2)
+		if index2 == -1 {
+			return false
+		}
+
+		value1 := content1[i+1]
+		value2 := content2[index2+1]
+		if !deepEqual(value1, value2) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // isFirstLineSeparator returns true if the first line in the manifest file is a yaml separator
@@ -242,10 +237,14 @@ func isCommentSlice(b []byte) bool {
 }
 
 // equalValueForKey returns true if map1 and map2 have the same key-value pair for the given key
-func equalValueForKey(key string, map1, map2 yaml.MapSlice) bool {
-	if item1, index1 := findItemInMapSlice(key, map1); index1 != -1 {
-		if item2, index2 := findItemInMapSlice(key, map2); index2 != -1 {
-			return deepEqual(item1.Value, item2.Value)
+func equalValueForKey(findKey string, map1, map2 *yaml.Node) bool {
+	if map1.Kind != yaml.MappingNode || map2.Kind != yaml.MappingNode {
+		return false
+	}
+
+	if val1, index1 := findValInMap(findKey, map1); index1 != -1 {
+		if val2, index2 := findValInMap(findKey, map2); index2 != -1 {
+			return deepEqual(val1, val2)
 		}
 	}
 	return false
@@ -255,145 +254,201 @@ func equalValueForKey(key string, map1, map2 yaml.MapSlice) bool {
 // (origFile) and merges fixedFile into origFile such that the resulting byte array is autofixed YAML but with the
 // same order and comments as the original.
 func mergeYAML(origFile, fixedFile string) ([]byte, error) {
+	var origYaml yaml.Node
+	var fixedYaml yaml.Node
+
 	origData, err := ioutil.ReadFile(origFile)
 	if err != nil {
 		return nil, err
 	}
-	origYaml, err := yaml.CommentUnmarshal(origData)
-	if err != nil {
+	if err = yaml.Unmarshal(origData, &origYaml); err != nil {
 		return nil, err
 	}
+	if len(origYaml.Content) != 1 {
+		return nil, fmt.Errorf("expected original yaml document to have one child but got %v", len(origYaml.Content))
+	}
+	if origYaml.Content[0].Kind != yaml.MappingNode {
+		return nil, fmt.Errorf("expected mapping node as child of original yaml document node but got %v", origYaml.Content[0].Kind)
+	}
+
 	fixedData, err := ioutil.ReadFile(fixedFile)
 	if err != nil {
 		return nil, err
 	}
-	fixedYaml, err := yaml.CommentUnmarshal(fixedData)
-	if err != nil {
+	if err = yaml.Unmarshal(fixedData, &fixedYaml); err != nil {
 		return nil, err
 	}
-
-	// Take out post-doc comments
-	commentStart := len(origYaml)
-	for origYaml[commentStart-1].Key == nil && len(origYaml[commentStart-1].Comment) > 0 {
-		commentStart--
+	if len(fixedYaml.Content) != 1 {
+		return nil, fmt.Errorf("expected fixed yaml document to have one child but got %v", len(fixedYaml.Content))
 	}
-	comments := make(yaml.MapSlice, 0, len(origYaml)-commentStart)
-	comments = append(comments, origYaml[commentStart:]...)
-	origYaml = origYaml[:commentStart]
+	if fixedYaml.Content[0].Kind != yaml.MappingNode {
+		return nil, fmt.Errorf("expected mapping node as child of fixed yaml document node but got %v", fixedYaml.Content[0].Kind)
+	}
 
-	// Merge fixed YAML into original YAML
-	mergedYaml := mergeMapSlices(origYaml, fixedYaml)
-
-	// Put back post-doc comments
-	mergedYaml = append(mergedYaml, comments...)
+	// Create a new document node that contains the merged maps for the original and fixed yaml
+	mergedYaml := shallowCopyNode(&origYaml)
+	mergedYaml.Content = []*yaml.Node{
+		mergeMaps(origYaml.Content[0], fixedYaml.Content[0]),
+	}
 
 	// Convert YAML to byte array
-	data, err := yaml.Marshal(&mergedYaml)
-	if err != nil {
-		return nil, err
+	data := bytes.NewBuffer(nil)
+	encoder := yaml.NewEncoder(data)
+	encoder.SetIndent(2)
+	defer encoder.Close()
+	if err = encoder.Encode(mergedYaml); err != nil {
+		return nil, fmt.Errorf("error marshaling merged yaml: %v", err)
 	}
 
-	return data, nil
+	return data.Bytes(), nil
 }
 
-// mergeMapSlices recursively merges fixedSlice and origSlice.
-// Keys which exist in origSlice but not fixedSlice are excluded.
-// Keys which exist in fixedSlice but not origSlice are included.
-// If keys exist in both fixedSlice and origSlice then the value from fixedSlice is used unless both values are complex
-// (MapSlices or SequenceItem arrays), in which case they are merged recursively.
-func mergeMapSlices(origSlice, fixedSlice yaml.MapSlice) yaml.MapSlice {
-	var mergedSlice yaml.MapSlice
+// mergeMaps recursively merges orig and fixed.
+// Key-value pairs which exist in orig but not fixed are excluded (as determined by matching the key).
+// Key-value pairs which exist in fixed but not orig are included.
+// If keys exist in both orig and fixed then the key-value pair from fixed is used unless both values are complex
+// (maps or sequences), in which case they are merged recursively.
+func mergeMaps(orig, fixed *yaml.Node) *yaml.Node {
+	merged := shallowCopyNode(orig)
+	origContent := orig.Content
+	fixedContent := fixed.Content
 
-	// Keep comments, and items which are present in both the original and fixed yaml
-	for _, item := range origSlice {
-		if _, index := findItemInMapSlice(item.Key, fixedSlice); index != -1 || isComment(item) {
-			mergedSlice = append(mergedSlice, item)
-			continue
+	// Drop items from original if they are not in fixed
+	for i := 0; i < len(origContent); i += 2 {
+		origKey := origContent[i]
+		if isKeyInMap(origKey, fixed) {
+			origVal := origContent[i+1]
+			merged.Content = append(merged.Content, origKey)
+			merged.Content = append(merged.Content, origVal)
 		}
 	}
 
 	// Update or add items from the fixed yaml which are not in the original
-	for _, fixedItem := range fixedSlice {
-		_, mergedItemIndex := findItemInMapSlice(fixedItem.Key, mergedSlice)
-		if mergedItemIndex == -1 {
-			mergedSlice = append(mergedSlice, fixedItem)
-			continue
-		}
+	for i := 0; i < len(fixedContent); i += 2 {
+		fixedKey := fixedContent[i]
+		fixedVal := fixedContent[i+1]
+		if mergedKeyIndex := findKeyInMap(fixedKey, merged); mergedKeyIndex == -1 {
+			// Add item
+			merged.Content = append(merged.Content, fixedKey)
+			merged.Content = append(merged.Content, fixedVal)
+		} else {
+			// Update item
+			mergedValIndex := mergedKeyIndex + 1
+			mergedVal := merged.Content[mergedValIndex]
 
-		mergedItem := &mergedSlice[mergedItemIndex]
-		if fixedMap, ok := fixedItem.Value.(yaml.MapSlice); ok {
-			if origMap, ok := mergedItem.Value.(yaml.MapSlice); ok {
-				mergedItem.Value = mergeMapSlices(origMap, fixedMap)
+			if fixedVal.Kind != mergedVal.Kind {
+				merged.Content[mergedValIndex] = fixedVal
 				continue
 			}
-		}
-		if fixedSeq, ok := fixedItem.Value.([]yaml.SequenceItem); ok {
-			if origSeq, ok := mergedItem.Value.([]yaml.SequenceItem); ok {
-				mergedItem.Value = mergeSequences(mergedItem.Key.(string), origSeq, fixedSeq)
-				continue
+
+			switch fixedVal.Kind {
+			case yaml.ScalarNode:
+				merged.Content[mergedValIndex].Value = fixedVal.Value
+			case yaml.MappingNode:
+				merged.Content[mergedValIndex] = mergeMaps(mergedVal, fixedVal)
+			case yaml.SequenceNode:
+				merged.Content[mergedValIndex] = mergeSequences(fixedKey.Value, mergedVal, fixedVal)
+			default:
+				log.Error("Unexpected yaml node kind", fixedVal.Kind)
 			}
 		}
-		mergedItem.Value = fixedItem.Value
 	}
 
-	return mergedSlice
+	return merged
 }
 
-// mergeSequences recursively merges fixedSlice and origSlice.
-// Values which exist in origSlice but not fixedSlice are excluded.
-// Values which exist in fixedSlice but not origSlice are included.
-// If values exist in both fixedSlice and origSlice then the value from fixedSlice is used unless both values are
-// complex (MapSlices or SequenceItem arrays), in which case they are merged recursively.
-func mergeSequences(sequenceKey string, origSlice, fixedSlice []yaml.SequenceItem) []yaml.SequenceItem {
-	var mergedSlice []yaml.SequenceItem
+// mergeSequences recursively merges orig and fixed.
+// Items which exist in orig but not fixed are excluded.
+// Items which exist in fixed but not orig are included.
+// If items exist in both orig and fixed then the item from fixed is used unless both items are complex
+// (maps or sequences), in which case they are merged recursively.
+func mergeSequences(sequenceKey string, orig, fixed *yaml.Node) *yaml.Node {
+	merged := shallowCopyNode(orig)
+	origContent := orig.Content
+	fixedContent := fixed.Content
 
-	// Keep comments, and items which are present in both the original and fixed yaml
-	for _, item := range origSlice {
-		if _, index := findItemInSequence(sequenceKey, item, fixedSlice); index != -1 || isComment(item) {
-			mergedSlice = append(mergedSlice, item)
+	// Drop items from original if they are not in fixed
+	for _, origItem := range origContent {
+		if isItemInSequence(sequenceKey, origItem, fixed) {
+			merged.Content = append(merged.Content, origItem)
 		}
 	}
 
 	// Update or add items from the fixed yaml which are not in the original
-	for _, fixedItem := range fixedSlice {
-		_, mergedItemIndex := findItemInSequence(sequenceKey, fixedItem, mergedSlice)
-		if mergedItemIndex == -1 {
-			mergedSlice = append(mergedSlice, fixedItem)
-			continue
-		}
-
-		mergedItem := &mergedSlice[mergedItemIndex]
-		if _, ok := fixedItem.Value.(yaml.MapSlice); ok {
-			if _, ok = mergedItem.Value.(yaml.MapSlice); ok {
-				mergedItem.Value = mergeMapSlices(mergedItem.Value.(yaml.MapSlice), fixedItem.Value.(yaml.MapSlice))
-				continue
+	for _, fixedItem := range fixedContent {
+		if mergedItemIndex := findItemInSequence(sequenceKey, fixedItem, merged); mergedItemIndex == -1 {
+			// Add item
+			merged.Content = append(merged.Content, fixedItem)
+		} else {
+			// Update item
+			mergedItem := merged.Content[mergedItemIndex]
+			switch {
+			case fixedItem.Kind != mergedItem.Kind:
+				merged.Content[mergedItemIndex] = fixedItem
+			case fixedItem.Kind == yaml.MappingNode:
+				merged.Content[mergedItemIndex] = mergeMaps(mergedItem, fixedItem)
+			case fixedItem.Kind == yaml.SequenceNode:
+				merged.Content[mergedItemIndex] = mergeSequences(sequenceKey, mergedItem, fixedItem)
 			}
 		}
-		mergedItem.Value = fixedItem.Value
 	}
-
-	return mergedSlice
+	return merged
 }
 
-// findItemInMapSlice returns the item in the MapSlice with the given key, and its index
-func findItemInMapSlice(key interface{}, slice yaml.MapSlice) (yaml.MapItem, int) {
-	for i, item := range slice {
-		if item.Key != nil && deepEqual(item.Key, key) {
-			return item, i
-		}
-	}
-	return yaml.MapItem{}, -1
+// isKeyInMap returns true if findKey is a child of mapNode
+func isKeyInMap(findKey *yaml.Node, mapNode *yaml.Node) bool {
+	return findKeyInMap(findKey, mapNode) != -1
 }
 
-// findItemInSequence returns the item in slice which "matches" val and its index. See sequenceItemMatch for what
-// is considered a "match".
-func findItemInSequence(sequenceKey string, val yaml.SequenceItem, slice []yaml.SequenceItem) (yaml.SequenceItem, int) {
-	for i, item := range slice {
-		if item.Value != nil && sequenceItemMatch(sequenceKey, val, item) {
-			return item, i
+// findKeyInMap returns the index of findKey in mapNode's list of children, or -1 if it isn't found
+func findKeyInMap(findKey *yaml.Node, mapNode *yaml.Node) int {
+	if mapNode.Kind != yaml.MappingNode {
+		return -1
+	}
+
+	children := mapNode.Content
+	for i := 0; i < len(children); i += 2 {
+		key := children[i]
+		if deepEqual(key, findKey) {
+			return i
 		}
 	}
-	return yaml.SequenceItem{}, -1
+
+	return -1
+}
+
+// findValInMap returns the child of mapNode which is value corresponding to the given key, and its index
+func findValInMap(key string, mapNode *yaml.Node) (*yaml.Node, int) {
+	findKey := &yaml.Node{
+		Kind:  yaml.ScalarNode,
+		Value: key,
+		Tag:   strTag,
+	}
+
+	keyIndex := findKeyInMap(findKey, mapNode)
+	if keyIndex == -1 {
+		return nil, -1
+	}
+
+	valIndex := keyIndex + 1
+	return mapNode.Content[valIndex], valIndex
+}
+
+// isItemInSequence returns true if findVal is a child of sequenceNode
+func isItemInSequence(sequenceKey string, findVal *yaml.Node, sequenceNode *yaml.Node) bool {
+	return findItemInSequence(sequenceKey, findVal, sequenceNode) != -1
+}
+
+// findItemInSequence returns the index of the child in sequenceNode which "matches" findVal. See sequenceItemMatch for
+// what is considered a "match". Returns -1 if there is no match found.
+func findItemInSequence(sequenceKey string, findVal *yaml.Node, sequenceNode *yaml.Node) int {
+	children := sequenceNode.Content
+	for i, val := range children {
+		if sequenceItemMatch(sequenceKey, val, findVal) {
+			return i
+		}
+	}
+	return -1
 }
 
 var identifyingKey = map[string]string{
@@ -450,46 +505,48 @@ var identifyingKey = map[string]string{
 //     sequenceKey:
 //     - item1
 //     - item2
-func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool {
-	switch item1.Value.(type) {
-	case string, int, bool:
-		return item1.Value == item2.Value
-	}
-	map1, ok1 := item1.Value.(yaml.MapSlice)
-	map2, ok2 := item2.Value.(yaml.MapSlice)
-	if !ok1 || !ok2 {
+func sequenceItemMatch(sequenceKey string, item1, item2 *yaml.Node) bool {
+	if item1.Kind != item2.Kind {
 		return false
+	}
+
+	if sequenceKey == "" || item1.Kind != yaml.MappingNode {
+		return deepEqual(item1, item2)
+	}
+
+	if idKey, ok := identifyingKey[sequenceKey]; ok {
+		return equalValueForKey(idKey, item1, item2)
 	}
 
 	switch sequenceKey {
 	// EndpointSubset.addresses : EndpointAddress.[hostname OR ip]
 	// EndpointSubset.notReadyAddresses : EndpointAddress.[hostname OR ip]
 	case "addresses", "notReadyAddresses":
-		if equalValueForKey("hostname", map1, map2) {
+		if equalValueForKey("hostname", item1, item2) {
 			return true
 		}
-		return equalValueForKey("ip", map1, map2)
+		return equalValueForKey("ip", item1, item2)
 
 	// Container.envFrom : EnvFromSource.[configMapRef OR secretRef].name
 	case "envFrom":
-		if val1, index1 := findItemInMapSlice("configMapRef", map1); index1 != -1 {
-			if val2, index2 := findItemInMapSlice("configMapRef", map2); index2 != -1 {
-				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+		if val1, index1 := findValInMap("configMapRef", item1); index1 != -1 {
+			if val2, index2 := findValInMap("configMapRef", item2); index2 != -1 {
+				return equalValueForKey("name", val1, val2)
 			}
 		}
-		if val1, index1 := findItemInMapSlice("secretRef", map1); index1 != -1 {
-			if val2, index2 := findItemInMapSlice("secretRef", map2); index2 != -1 {
-				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+		if val1, index1 := findValInMap("secretRef", item1); index1 != -1 {
+			if val2, index2 := findValInMap("secretRef", item2); index2 != -1 {
+				return equalValueForKey("name", val1, val2)
 			}
 		}
 		return false
 
 	// NetworkPolicySpec.ingress : NetworkPolicyIngressRule.[ports OR from]
 	case "ingress":
-		if equalValueForKey("ports", map1, map2) {
+		if equalValueForKey("ports", item1, item2) {
 			return true
 		}
-		return equalValueForKey("from", map1, map2)
+		return equalValueForKey("from", item1, item2)
 
 	// ConfigMapProjection.items : KeyToPath.key
 	// ConfigMapVolumeSource.items : KeyToPath.key
@@ -499,11 +556,11 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	case "items":
 		// ConfigMapVolumeSource.items : KeyToPath.key
 		// SecretVolumeSource.items : KeyToPath.key
-		if equalValueForKey("key", map1, map2) {
+		if equalValueForKey("key", item1, item2) {
 			return true
 		}
 		// DownwardAPIVolumeSource.items : DownwardAPIVolumeFile.path
-		return equalValueForKey("path", map1, map2)
+		return equalValueForKey("path", item1, item2)
 
 	// NodeSelector.nodeSelectorTerms : NodeSelectorTerm.[matchExpressions OR matchFields]
 	case "nodeSelectorTerms":
@@ -511,17 +568,17 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 		// See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#nodeselector-v1-core
 		// For now, only match if there is an exact match for the complex value of either the "matchExpressions" or
 		// "matchFields" fields.
-		if equalValueForKey("matchExpressions", map1, map2) {
+		if equalValueForKey("matchExpressions", item1, item2) {
 			return true
 		}
-		return equalValueForKey("matchFields", map1, map2)
+		return equalValueForKey("matchFields", item1, item2)
 
 	// ObjectMeta.ownerReferences : OwnerReference.[uid OR name]
 	case "ownerReferences":
-		if equalValueForKey("uid", map1, map2) {
+		if equalValueForKey("uid", item1, item2) {
 			return true
 		}
-		return equalValueForKey("name", map1, map2)
+		return equalValueForKey("name", item1, item2)
 
 	// NodeAffinity.preferredDuringSchedulingIgnoredDuringExecution : PreferredSchedulingTerm.preference
 	// PodAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
@@ -536,24 +593,24 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 		// The value for the "weight" field can be updated.
 
 		// NodeAffinity.preferredDuringSchedulingIgnoredDuringExecution : PreferredSchedulingTerm.preference
-		if equalValueForKey("preference", map1, map2) {
+		if equalValueForKey("preference", item1, item2) {
 			return true
 		}
 		// PodAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
 		// PodAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution : WeightedPodAffinityTerm.podAffinityTerm
-		return equalValueForKey("podAffinityTerm", map1, map2)
+		return equalValueForKey("podAffinityTerm", item1, item2)
 
 	// Container.ports : ContainerPort.containerPort
 	// EndpointSubset.ports : EndpointPort.port
 	// ServiceSpec.ports : ServicePort.port
 	case "ports":
 		// Container.ports : ContainerPort.containerPort
-		if equalValueForKey("containerPort", map1, map2) {
+		if equalValueForKey("containerPort", item1, item2) {
 			return true
 		}
 		// EndpointSubset.ports : EndpointPort.port
 		// ServiceSpec.ports : ServicePort.port
-		return equalValueForKey("port", map1, map2)
+		return equalValueForKey("port", item1, item2)
 
 	// ClusterRole.rules : PolicyRule.resources
 	// IngressSpec.rules : IngressRule.host
@@ -561,65 +618,61 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	case "rules":
 		// ClusterRole.rules : PolicyRule.resources
 		// Role.rules : PolicyRule.resources
-		if equalValueForKey("resources", map1, map2) {
+		if equalValueForKey("resources", item1, item2) {
 			return true
 		}
-
 		// IngressSpec.rules : IngressRule.host
-		if equalValueForKey("host", map1, map2) {
+		if equalValueForKey("host", item1, item2) {
 			return true
 		}
+		return deepEqual(item1, item2)
 
 	// ProjectedVolumeSource.sources
 	case "sources":
 		// ProjectedVolumeSource.sources : VolumeProjection.configMap.name
-		if val1, index1 := findItemInMapSlice("configMap", map1); index1 != -1 {
-			if val2, index2 := findItemInMapSlice("configMap", map2); index2 != -1 {
-				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+		if val1, index1 := findValInMap("configMap", item1); index1 != -1 {
+			if val2, index2 := findValInMap("configMap", item2); index2 != -1 {
+				return equalValueForKey("name", val1, val2)
 			}
 			return false
 		}
 		// ProjectedVolumeSource.sources : VolumeProjection.downwardAPI.items
-		if val1, index1 := findItemInMapSlice("downwardAPI", map1); index1 != -1 {
-			if val2, index2 := findItemInMapSlice("downwardAPI", map2); index2 != -1 {
-				return equalValueForKey("items", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+		if val1, index1 := findValInMap("downwardAPI", item1); index1 != -1 {
+			if val2, index2 := findValInMap("downwardAPI", item2); index2 != -1 {
+				return equalValueForKey("items", val1, val2)
 			}
 			return false
 		}
 		// ProjectedVolumeSource.sources : VolumeProjection.secret.name
-		if val1, index1 := findItemInMapSlice("secret", map1); index1 != -1 {
-			if val2, index2 := findItemInMapSlice("secret", map2); index2 != -1 {
-				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+		if val1, index1 := findValInMap("secret", item1); index1 != -1 {
+			if val2, index2 := findValInMap("secret", item2); index2 != -1 {
+				return equalValueForKey("name", val1, val2)
 			}
 			return false
 		}
 		// ProjectedVolumeSource.sources : VolumeProjection.serviceAccountToken.name
-		if val1, index1 := findItemInMapSlice("serviceAccountToken", map1); index1 != -1 {
-			if val2, index2 := findItemInMapSlice("serviceAccountToken", map2); index2 != -1 {
-				return equalValueForKey("path", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+		if val1, index1 := findValInMap("serviceAccountToken", item1); index1 != -1 {
+			if val2, index2 := findValInMap("serviceAccountToken", item2); index2 != -1 {
+				return equalValueForKey("path", val1, val2)
 			}
 		}
 		return false
 
 	// IngressSpec.tls : IngressTLS.[secretName OR hosts]
 	case "tls":
-		if equalValueForKey("secretName", map1, map2) {
+		if equalValueForKey("secretName", item1, item2) {
 			return true
 		}
-		return equalValueForKey("hosts", map1, map2)
+		return equalValueForKey("hosts", item1, item2)
 
 	// StatefulSetSpec.volumeClaimTemplates : PersistentVolumeClaim.metadata.name
 	case "volumeClaimTemplates":
-		if val1, index1 := findItemInMapSlice("metadata", map1); index1 != -1 {
-			if val2, index2 := findItemInMapSlice("metadata", map2); index2 != -1 {
-				return equalValueForKey("name", val1.Value.(yaml.MapSlice), val2.Value.(yaml.MapSlice))
+		if val1, index1 := findValInMap("metadata", item1); index1 != -1 {
+			if val2, index2 := findValInMap("metadata", item2); index2 != -1 {
+				return equalValueForKey("name", val1, val2)
 			}
 		}
 		return false
-	}
-
-	if idKey, ok := identifyingKey[sequenceKey]; ok {
-		return equalValueForKey(idKey, map1, map2)
 	}
 
 	// FSGroupStrategyOptions.ranges : IDRange
@@ -628,12 +681,11 @@ func sequenceItemMatch(sequenceKey string, item1, item2 yaml.SequenceItem) bool 
 	// SupplementalGroupsStrategyOptions.ranges : IDRange
 	// PodSecurityPolicySpec.hostPorts : HostPortRange
 	// PodSpec.tolerations : Toleration
-	return deepEqual(map1, map2)
+	return deepEqual(item1, item2)
 }
 
 // SplitYamlResource splits the yaml file into byte slices for each resource in the yaml file and checks if the first resource
-// is only comments, in which case it deletes the first resource in the slice and add's the comment to the final file and updates toAppend flag
-
+// is only comments, in which case it deletes the first resource in the slice and adds the comment to the final file and updates toAppend flag
 func splitYamlResources(filename string, toWriteFile string) (splitDecoded [][]byte, toAppend bool, err error) {
 	buf, err := ioutil.ReadFile(rootConfig.manifest)
 
@@ -717,4 +769,23 @@ func cleanupManifest(origFile string, finalData []byte) ([]byte, error) {
 	}
 
 	return finalData, nil
+}
+
+// Returns a new *yaml.Node with the same values as the original node except for the Content field, which is initialized
+// to an empty array
+func shallowCopyNode(orig *yaml.Node) *yaml.Node {
+	return &yaml.Node{
+		Kind:        orig.Kind,
+		Style:       orig.Style,
+		Tag:         orig.Tag,
+		Value:       orig.Value,
+		Anchor:      orig.Anchor,
+		Alias:       orig.Alias,
+		Content:     []*yaml.Node{},
+		HeadComment: orig.HeadComment,
+		LineComment: orig.LineComment,
+		FootComment: orig.FootComment,
+		Line:        orig.Line,
+		Column:      orig.Column,
+	}
 }

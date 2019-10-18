@@ -6,9 +6,9 @@ import (
 
 	"io/ioutil"
 
-	"github.com/Shopify/yaml"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const defaultDropCapConfig = `

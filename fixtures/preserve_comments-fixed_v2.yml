@@ -35,10 +35,7 @@ spec:
   containers:
   - name: test-container
     image: k8s.gcr.io/busybox
-    command:
-    - /bin/sh
-    - -c
-    - ls /etc/config/
+    command: ["/bin/sh", "-c", "ls /etc/config/"]
     volumeMounts:
     - name: config-volume
       mountPath: /etc/config
@@ -155,7 +152,7 @@ spec:
   selector:
     matchLabels:
       app: nginx # has to match .spec.template.metadata.labels
-  serviceName: nginx
+  serviceName: "nginx"
   replicas: 3 # by default is 1
   template:
     metadata:

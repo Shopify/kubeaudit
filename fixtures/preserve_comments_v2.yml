@@ -120,8 +120,10 @@ spec:
   - metadata: # This is also comment #2
       name: www  # This is also comment #3
     spec: # This is also comment #4
-      accessModes: [ "ReadWriteOnce" ] # This is also comment #5
-      storageClassName: "my-storage-class" # This is also comment #6
+      # This is also comment #5
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: my-storage-class # This is also comment #6
       resources: # This is also comment #7
         requests: # This is also comment #8
           storage: 1Gi # This is also comment #9

@@ -9,9 +9,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	yaml "gopkg.in/yaml.v3"
 	apiv1 "k8s.io/api/core/v1"
-
-	"github.com/Shopify/yaml"
 )
 
 var rootConfig rootFlags
