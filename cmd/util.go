@@ -271,8 +271,11 @@ func getResources() (resources []Resource, err error) {
 	if rootConfig.manifest != "" {
 		resources, err = getKubeResourcesManifest(rootConfig.manifest)
 	} else {
-		if kube, err := kubeClient(); err == nil {
+		kube, err := kubeClient()
+		if err == nil {
 			resources = getKubeResources(kube)
+		} else {
+			log.Fatal("Could not get a kube client: ", err)
 		}
 	}
 	return
