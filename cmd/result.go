@@ -61,11 +61,10 @@ func createFields(res Result, occ Occurrence) (fields log.Fields) {
 	if len(occ.container) != 0 {
 		fields["Container"] = occ.container
 	}
-
 	if occ.id == ErrorRunAsNonRootPSCFalseCSCNil && len(occ.podHost) != 0 {
 		fields["Pod"] = occ.podHost
 	}
-
+	fields["FindingID"] = errorName[occ.id]
 	return
 }
 

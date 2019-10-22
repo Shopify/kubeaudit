@@ -36,5 +36,5 @@ func TestCreateFields(t *testing.T) {
 	assert.Equal(t, 1, len(results))
 	assert.Equal(t, 1, len(results[0].Occurrences))
 	fields := createFields(results[0], results[0].Occurrences[0])
-	assert.Equal(t, 5, len(fields))
+	assert.Equal(t, 6, len(fields))
 }
