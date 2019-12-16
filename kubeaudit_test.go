@@ -7,6 +7,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/all"
 	"github.com/Shopify/kubeaudit/internal/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNew(t *testing.T) {
@@ -47,9 +48,7 @@ func TestUnknownResource(t *testing.T) {
 	for _, file := range files {
 		t.Run(file, func(t *testing.T) {
 			_, report := test.FixSetupMultiple(t, "internal/test/fixtures", file, all.Auditors())
-			if !assert.NotNil(t, report) {
-				return
-			}
+			require.NotNil(t, report)
 			for _, result := range report.Results() {
 				for _, auditResult := range result.GetAuditResults() {
 					assert.Equal(t, kubeaudit.Warn, auditResult.Severity)

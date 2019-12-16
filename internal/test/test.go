@@ -9,6 +9,7 @@ import (
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/k8stypes"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // SharedFixturesDir contains fixtures used by multiple tests
@@ -20,12 +21,8 @@ func Audit(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditab
 }
 
 func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable, expectedErrors []string) []kubeaudit.Result {
-	assert := assert.New(t)
-
 	report := AuditManifest(t, fixtureDir, fixture, auditables)
-	if !assert.NotNil(t, report) {
-		return nil
-	}
+	require.NotNil(t, report)
 
 	errors := make(map[string]bool)
 	for _, result := range report.Results() {
@@ -39,7 +36,7 @@ func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeau
 		expected[err] = true
 	}
 
-	assert.Equal(expected, errors)
+	assert.Equal(t, expected, errors)
 
 	return report.Results()
 }
@@ -50,12 +47,10 @@ func FixSetup(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Audi
 
 // FixSetup runs Fix() on a given manifest and returns the resulting resources
 func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable) (fixedResources []k8stypes.Resource, report *kubeaudit.Report) {
-	assert := assert.New(t)
+	require := require.New(t)
 
 	report = AuditManifest(t, fixtureDir, fixture, auditables)
-	if !assert.NotNil(report) {
-		return
-	}
+	require.NotNil(report)
 
 	// This increases code coverage by calling the Plan() method on each PendingFix object. Plan() returns a human
 	// readable description of what Apply() will do and does not need to be otherwise tested for correct logic
@@ -66,19 +61,13 @@ func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kub
 	// resource and parsed into a Result
 	fixedManifest := bytes.NewBuffer(nil)
 	err := report.Fix(fixedManifest)
-	if !assert.Nil(err) {
-		return
-	}
+	require.Nil(err)
 
 	auditor, err := kubeaudit.New(auditables)
-	if !assert.Nil(err) {
-		return
-	}
+	require.Nil(err)
 
 	report, err = auditor.AuditManifest(fixedManifest)
-	if !assert.Nil(err) {
-		return
-	}
+	require.Nil(err)
 
 	results := report.RawResults()
 	fixedResources = make([]k8stypes.Resource, 0, len(results))
@@ -94,23 +83,17 @@ func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kub
 }
 
 func AuditManifest(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable) *kubeaudit.Report {
-	assert := assert.New(t)
+	require := require.New(t)
 
 	fixture = filepath.Join(fixtureDir, fixture)
 	manifest, err := os.Open(fixture)
-	if !assert.Nil(err) {
-		return nil
-	}
+	require.Nil(err)
 
 	auditor, err := kubeaudit.New(auditables)
-	if !assert.Nil(err) {
-		return nil
-	}
+	require.Nil(err)
 
 	report, err := auditor.AuditManifest(manifest)
-	if !assert.Nil(err) {
-		return nil
-	}
+	require.Nil(err)
 
 	return report
 }
