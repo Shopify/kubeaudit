@@ -17,8 +17,8 @@ const (
 	AppArmorDisabled = "AppArmorDisabled"
 )
 
-// As of Oct 1, 2018 these constants are not in the K8s API package, but once they are they should be replaced
-// https://github.com/kubernetes/kubernetes/blob/7f23a743e8c23ac6489340bbb34fa6f1d392db9d/pkg/security/apparmor/helpers.go#L25
+// As of Jan 14, 2020 these constants are not in the K8s API package, but once they are they should be replaced
+// https://github.com/kubernetes/kubernetes/blob/master/pkg/security/apparmor/helpers.go#L25
 const (
 	// The prefix to an annotation key specifying a container profile.
 	ContainerAnnotationKeyPrefix = "container.apparmor.security.beta.kubernetes.io/"
