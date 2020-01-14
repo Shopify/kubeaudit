@@ -127,9 +127,10 @@ func GetPodSpec(resource k8stypes.Resource) *k8stypes.PodSpecV1 {
 	switch kubeType := resource.(type) {
 	case *k8stypes.PodV1:
 		return &kubeType.Spec
+	case *k8stypes.NamespaceV1:
+		return nil
 	}
 
-	// Namespace
 	return nil
 }
 
@@ -161,8 +162,9 @@ func GetPodTemplateSpec(resource k8stypes.Resource) *v1.PodTemplateSpec {
 		return &kubeType.Spec.Template
 	case *k8stypes.StatefulSetV1Beta1:
 		return &kubeType.Spec.Template
+	case *k8stypes.PodV1, *k8stypes.NamespaceV1:
+		return nil
 	}
 
-	// Pod, Namespace
 	return nil
 }
