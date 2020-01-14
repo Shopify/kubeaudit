@@ -67,10 +67,6 @@ func GetLabels(resource k8stypes.Resource) map[string]string {
 	return nil
 }
 
-type hasObjectMeta interface {
-	GetObjectMeta() *k8stypes.ObjectMetaV1
-}
-
 // GetObjectMeta returns the highest-level ObjectMeta
 func GetObjectMeta(resource k8stypes.Resource) *metav1.ObjectMeta {
 	switch kubeType := resource.(type) {

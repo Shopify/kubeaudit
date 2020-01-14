@@ -91,7 +91,8 @@ func TestLogAuditResult(t *testing.T) {
 		// This writes the log to the variable out, parses the JSON into the logEntry struct, and checks the struct
 		logAuditResult(auditResult, logger)
 		got := logEntry{}
-		json.Unmarshal(out.Bytes(), &got)
+		err := json.Unmarshal(out.Bytes(), &got)
+		assert.NoError(t, err)
 		assert.Equal(t, expected, got)
 		out.Reset()
 	}

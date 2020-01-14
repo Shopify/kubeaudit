@@ -105,6 +105,6 @@ func getContainerAnnotation(container *k8stypes.ContainerV1) string {
 }
 
 func getProfileName(apparmorAnnotation string, annotations map[string]string) string {
-	profileName, _ := annotations[apparmorAnnotation]
+	profileName := annotations[apparmorAnnotation]
 	return profileName
 }

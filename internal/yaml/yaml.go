@@ -10,16 +10,9 @@ import (
 
 // src https://github.com/go-yaml/yaml/blob/v3/resolve.go#L70
 const (
-	nullTag      = "!!null"
-	boolTag      = "!!bool"
-	strTag       = "!!str"
-	intTag       = "!!int"
-	floatTag     = "!!float"
-	timestampTag = "!!timestamp"
-	seqTag       = "!!seq"
-	mapTag       = "!!map"
-	binaryTag    = "!!binary"
-	mergeTag     = "!!merge"
+	strTag = "!!str"
+	seqTag = "!!seq"
+	mapTag = "!!map"
 )
 
 // Merge merges the original YAML with the fixed YAML such that the resulting YAML is autofixed but with the

@@ -430,7 +430,7 @@ func TestFindItemInMapSlice(t *testing.T) {
 		{Kind: yaml.ScalarNode, Tag: strTag, Value: "k", HeadComment: "Comment"},
 		{Kind: yaml.ScalarNode, Tag: strTag, Value: "v", LineComment: "Comment 2"},
 	}}
-	item, index = findValInMap("k2", m)
+	_, index = findValInMap("k2", m)
 	assert.Equal(-1, index)
 }
 
@@ -678,7 +678,7 @@ func TestDeepEqual(t *testing.T) {
 			}},
 		}},
 	}}
-	v1 = &yaml.Node{Kind: yaml.MappingNode, Tag: mapTag, Content: []*yaml.Node{
+	v2 = &yaml.Node{Kind: yaml.MappingNode, Tag: mapTag, Content: []*yaml.Node{
 		{Kind: yaml.ScalarNode, Tag: strTag, Value: "matchExpressions"},
 		{Kind: yaml.SequenceNode, Tag: seqTag, Content: []*yaml.Node{
 			{Kind: yaml.MappingNode, Tag: mapTag, Content: []*yaml.Node{

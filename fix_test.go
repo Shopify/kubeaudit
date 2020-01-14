@@ -1,6 +1,6 @@
 package kubeaudit_test
 
-const fixtureDir = "internal/test/fixtures"
+// const fixtureDir = "internal/test/fixtures"
 
 // TODO Reenable once all auditors have been added
 // func TestFix(t *testing.T) {
