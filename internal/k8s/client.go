@@ -16,18 +16,18 @@ import (
 // ErrNoReadableKubeConfig represents any error that prevents the client from opening a kubeconfig file.
 var ErrNoReadableKubeConfig = errors.New("unable to open kubeconfig file")
 
-var DefaultClient = K8sClient{}
+var DefaultClient = k8sClient{}
 
 // Client abstracts the API to allow testing.
 type Client interface {
 	InClusterConfig() (*rest.Config, error)
 }
 
-// K8sClient wraps kubernetes client-go so it can be mocked.
-type K8sClient struct{}
+// k8sClient wraps kubernetes client-go so it can be mocked.
+type k8sClient struct{}
 
 // InClusterConfig wraps the client-go method with the same name.
-func (kc K8sClient) InClusterConfig() (*rest.Config, error) {
+func (kc k8sClient) InClusterConfig() (*rest.Config, error) {
 	return rest.InClusterConfig()
 }
 
