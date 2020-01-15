@@ -2,10 +2,10 @@ package kubeaudit
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/k8stypes"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"k8s.io/client-go/kubernetes"
@@ -34,7 +34,7 @@ func getResourcesFromManifest(data []byte) ([]KubeResource, error) {
 			}
 			resources = append(resources, source)
 		} else if err := yaml.Unmarshal(data, &yaml.Node{}); err != nil {
-			return nil, errors.Wrap(err, "Invalid yaml")
+			return nil, fmt.Errorf("Invalid yaml: %w", err)
 		} else {
 			resources = append(resources, &kubeResource{bytes: b})
 		}

@@ -6,9 +6,7 @@ require (
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jetstack/cert-manager v0.7.0
 	github.com/json-iterator/go v1.1.5 // indirect
-	github.com/pkg/errors v0.8.0
 	github.com/sirupsen/logrus v1.3.0
-	github.com/spf13/cobra v0.0.0-20181127133106-d2d81d9a96e2
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/stretchr/testify v1.2.2
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6 // indirect

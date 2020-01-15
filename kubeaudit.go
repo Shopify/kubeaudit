@@ -1,6 +1,7 @@
 package kubeaudit
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -9,8 +10,6 @@ import (
 	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/k8stypes"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/pkg/errors"
 )
 
 // Kubeaudit provides functions to audit and fix Kubernetes manifests
@@ -44,7 +43,7 @@ func (a *Kubeaudit) AuditManifest(manifest io.Reader) (*Report, error) {
 
 	resources, err := getResourcesFromManifest(manifestBytes)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get resources from manifest")
+		return nil, fmt.Errorf("failed to get resources from manifest: %w", err)
 	}
 
 	results, err := auditResources(resources, a.auditors)
