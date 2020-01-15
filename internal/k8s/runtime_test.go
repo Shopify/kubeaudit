@@ -27,28 +27,14 @@ func TestEncodeDecode(t *testing.T) {
 	deployment.ObjectMeta = k8stypes.ObjectMetaV1{Namespace: "foo"}
 	deployment.Spec.Template.Spec.Containers = []k8stypes.ContainerV1{{Name: "bar"}}
 
-	expectedManifest := `apiVersion: apps/v1
-kind: Deployment
-metadata:
-  creationTimestamp: null
-  namespace: foo
-spec:
-  selector: null
-  strategy: {}
-  template:
-    metadata:
-      creationTimestamp: null
-    spec:
-      containers:
-      - name: bar
-        resources: {}
-status: {}
-`
+	expectedManifest, err := ioutil.ReadFile("fixtures/test_encode_decode.yml")
+	assert.NoError(err)
+
 	encoded, err := EncodeResource(deployment)
 	assert.Nil(err)
-	assert.Equal(expectedManifest, string(encoded))
+	assert.Equal(string(expectedManifest), string(encoded))
 
-	decoded, err := DecodeResource([]byte(expectedManifest))
+	decoded, err := DecodeResource(expectedManifest)
 	assert.Nil(err)
 	assert.Equal(deployment, decoded)
 }
