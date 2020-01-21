@@ -21,7 +21,7 @@ endif
 all: setup test build
 
 build:
-	$(GOBUILD) -o $(BINARY_NAME) -v -ldflags=all="$(LDFLAGS)"
+	$(GOBUILD) -o $(BINARY_NAME) -v -ldflags=all="$(LDFLAGS)" cmd/main.go
 
 install:
 	cp $(BINARY_NAME) $(GOPATH)/bin/kubeaudit
