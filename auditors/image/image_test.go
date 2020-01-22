@@ -38,7 +38,9 @@ func TestAuditImage(t *testing.T) {
 		expectedErrors []string
 	}{
 		{"image_tag_missing_v1.yml", "fakeContainerImg:1.6", []string{ImageTagMissing}},
+		{"image_tag_missing_v1.yml", "", []string{ImageTagMissing}},
 		{"image_tag_present_v1.yml", "fakeContainerImg:1.6", []string{ImageTagIncorrect}},
+		{"image_tag_present_v1.yml", "", []string{}},
 		{"image_tag_present_v1.yml", "fakeContainerImg:1.5", []string{ImageCorrect}},
 	}
 
