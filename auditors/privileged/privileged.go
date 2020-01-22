@@ -41,7 +41,6 @@ func (a *Privileged) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([
 
 func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource) *kubeaudit.AuditResult {
 	if isPrivilegedNil(container) {
-		// TODO:  should "warning" results include a fix?
 		return &kubeaudit.AuditResult{
 			Name:     PrivilegedNil,
 			Severity: kubeaudit.Warn,
