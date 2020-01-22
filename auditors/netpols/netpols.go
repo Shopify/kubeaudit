@@ -176,7 +176,6 @@ func auditNetworkPoliciesForDenyAll(resource k8stypes.Resource, resources []k8st
 
 	// At this point there is exactly one override label for either ingress or egress which means one needs to be
 	// fixed and the other is overridden
-
 	auditResult := &kubeaudit.AuditResult{
 		Name:     MissingDefaultDenyIngressNetworkPolicy,
 		Severity: kubeaudit.Error,

@@ -15,13 +15,7 @@ type fixByAddingNetworkPolicy struct {
 }
 
 func (f *fixByAddingNetworkPolicy) Plan() string {
-	var policyType string
-	if len(f.policyList) == 2 {
-		policyType = fmt.Sprintf("%s and %s", strings.ToLower(f.policyList[0]), strings.ToLower(f.policyList[1]))
-	} else {
-		policyType = strings.ToLower(f.policyList[0])
-	}
-	return fmt.Sprintf("Create a new NetworkPolicy resource which denies all %s traffic", policyType)
+	return fmt.Sprintf("Create a new NetworkPolicy resource which denies all %s traffic", strings.Join(f.policyList, " and "))
 }
 
 func (f *fixByAddingNetworkPolicy) Apply(resource k8stypes.Resource) []k8stypes.Resource {
