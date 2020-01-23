@@ -1,6 +1,7 @@
 package capabilities
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
@@ -76,7 +77,7 @@ func auditContainerForCapability(container *k8stypes.ContainerV1, capability str
 		auditResult := &kubeaudit.AuditResult{
 			Name:     CapabilityAdded,
 			Severity: kubeaudit.Error,
-			Message:  "Capability added. It should be removed from the capability add list.",
+			Message:  fmt.Sprintf("Capability added. It should be removed from the capability add list. If you need this capability, add an override label such as '%s: SomeReason'.", override.GetContainerOverrideLabel(container.Name, getOverrideLabel(capability))),
 			PendingFix: &fixCapabilityAdded{
 				container:  container,
 				capability: capability,
