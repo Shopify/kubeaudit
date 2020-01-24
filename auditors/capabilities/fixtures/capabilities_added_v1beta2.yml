@@ -1,0 +1,38 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: cababilitiesAdded
+  namespace: fakeDeploymentSC
+spec:
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        apps: fakeSecurityContext
+    spec:
+      containers:
+      - name: fakeContainerSC
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+            - SYS_TIME
+            drop:
+            - AUDIT_WRITE
+            - CHOWN
+            - DAC_OVERRIDE
+            - FOWNER
+            - FSETID
+            - KILL
+            - MKNOD
+            - NET_BIND_SERVICE
+            - NET_RAW
+            - SETFCAP
+            - SETGID
+            - SETUID
+            - SETPCAP
+            - SYS_CHROOT
+status: {}
