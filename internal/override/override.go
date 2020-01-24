@@ -76,8 +76,7 @@ func GetContainerOverrideReason(containerName string, resource k8stypes.Resource
 	labels := k8s.GetLabels(resource)
 
 	if containerName != "" {
-		containerOverrideLabel := ContainerOverrideLabelPrefix + containerName + "." + overrideLabel
-		if reason, hasOverride = labels[containerOverrideLabel]; hasOverride {
+		if reason, hasOverride = labels[GetContainerOverrideLabel(containerName, overrideLabel)]; hasOverride {
 			return
 		}
 	}
@@ -93,17 +92,29 @@ func GetContainerOverrideReason(containerName string, resource k8stypes.Resource
 // Namespace override labels disable the auditor for the namespace resource and have the following format:
 // 		audit.kubernetes.io/namespace.[auditor override label]
 func GetResourceOverrideReason(resource k8stypes.Resource, auditorOverrideLabel string) (hasOverride bool, reason string) {
-	prefixes := []string{
-		PodOverrideLabelPrefix,
-		NamespaceOverrideLabelPrefix,
+	labelFuncs := []func(overrideLabel string) string{
+		GetPodOverrideLabel,
+		GetNamespaceOverrideLabel,
 	}
 
 	labels := k8s.GetLabels(resource)
-	for _, prefix := range prefixes {
-		if reason, hasOverride = labels[prefix+auditorOverrideLabel]; hasOverride {
+	for _, getLabel := range labelFuncs {
+		if reason, hasOverride = labels[getLabel(auditorOverrideLabel)]; hasOverride {
 			return
 		}
 	}
 
 	return false, ""
+}
+
+func GetPodOverrideLabel(overrideLabel string) string {
+	return PodOverrideLabelPrefix + overrideLabel
+}
+
+func GetNamespaceOverrideLabel(overrideLabel string) string {
+	return NamespaceOverrideLabelPrefix + overrideLabel
+}
+
+func GetContainerOverrideLabel(containerName, overrideLabel string) string {
+	return ContainerOverrideLabelPrefix + containerName + "." + overrideLabel
 }

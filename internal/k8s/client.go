@@ -54,8 +54,7 @@ func NewKubeClientCluster(client Client) (*kubernetes.Clientset, error) {
 }
 
 func IsRunningInCluster(client Client) bool {
-	config, err := client.InClusterConfig()
-	fmt.Println("Config ", config)
+	_, err := client.InClusterConfig()
 	return err == nil
 }
 
