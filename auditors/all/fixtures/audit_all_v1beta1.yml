@@ -1,0 +1,18 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: allAudits
+  namespace: fakeDeploymentSC
+spec:
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        apps: fakeSecurityContext
+    spec:
+      containers:
+      - name: fakeContainerSC
+        resources: {}
+status: {}

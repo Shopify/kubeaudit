@@ -1,31 +1,41 @@
 package kubeaudit_test
 
-// const fixtureDir = "internal/test/fixtures"
+import (
+	"bytes"
+	"io/ioutil"
+	"path/filepath"
+	"testing"
 
-// TODO Reenable once all auditors have been added
-// func TestFix(t *testing.T) {
-// 	cases := []struct {
-// 		origFile  string
-// 		fixedFile string
-// 	}{
-// 		{"all-resources_v1.yml", "all-resources-fixed_v1.yml"},
-// 		{"all-resources_v1beta1.yml", "all-resources-fixed_v1beta1.yml"},
-// 		{"all-resources_v1beta2.yml", "all-resources-fixed_v1beta2.yml"},
-// 	}
+	"github.com/Shopify/kubeaudit/auditors/all"
+	"github.com/Shopify/kubeaudit/internal/test"
+	"github.com/stretchr/testify/assert"
+)
 
-// 	for _, tt := range cases {
-// 		t.Run(tt.origFile+" <=> "+tt.fixedFile, func(t *testing.T) {
-// 			assert := assert.New(t)
+const fixtureDir = "internal/test/fixtures"
 
-// 			report := test.AuditManifest(t, fixtureDir, tt.origFile, all.Auditors())
+func TestFix(t *testing.T) {
+	cases := []struct {
+		origFile  string
+		fixedFile string
+	}{
+		{"all-resources_v1.yml", "all-resources-fixed_v1.yml"},
+		{"all-resources_v1beta1.yml", "all-resources-fixed_v1beta1.yml"},
+		{"all-resources_v1beta2.yml", "all-resources-fixed_v1beta2.yml"},
+	}
 
-// 			fixed := bytes.NewBuffer(nil)
-// 			report.Fix(fixed)
+	for _, tt := range cases {
+		t.Run(tt.origFile+" <=> "+tt.fixedFile, func(t *testing.T) {
+			assert := assert.New(t)
 
-// 			expected, err := ioutil.ReadFile(filepath.Join(fixtureDir, tt.fixedFile))
-// 			assert.Nil(err)
+			report := test.AuditManifest(t, fixtureDir, tt.origFile, all.Auditors())
 
-// 			assert.Equal(string(expected), fixed.String())
-// 		})
-// 	}
-// }
+			fixed := bytes.NewBuffer(nil)
+			report.Fix(fixed)
+
+			expected, err := ioutil.ReadFile(filepath.Join(fixtureDir, tt.fixedFile))
+			assert.Nil(err)
+
+			assert.Equal(string(expected), fixed.String())
+		})
+	}
+}
