@@ -7,9 +7,6 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
-// TODO this check used to only work on Pod resources, but now it works on any resource that has pods (including
-// pods themselves). Is that ok or is there a reason it only worked on Pod before?
-
 const (
 	// NamespaceHostNetworkTrue occurs when hostNetwork is set to true in the container podspec
 	NamespaceHostNetworkTrue = "NamespaceHostNetworkTrue"
