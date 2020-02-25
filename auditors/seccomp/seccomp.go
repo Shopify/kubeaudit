@@ -11,6 +11,8 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
+const Name = "seccomp"
+
 const (
 	// SeccompAnnotationMissing occurs when there are no seccomp annotations (pod nor container level)
 	SeccompAnnotationMissing = "SeccompAnnotationMissing"

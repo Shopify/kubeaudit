@@ -7,6 +7,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "hostns"
+
 const (
 	// NamespaceHostNetworkTrue occurs when hostNetwork is set to true in the container podspec
 	NamespaceHostNetworkTrue = "NamespaceHostNetworkTrue"
@@ -31,15 +33,20 @@ const HostPIDOverrideLabel = "allow-namespace-host-PID"
 func (a *HostNamespaces) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
+	podSpec := k8s.GetPodSpec(resource)
+	if podSpec == nil {
+		return nil, nil
+	}
+
 	for _, check := range []struct {
-		auditFunc     func(k8stypes.Resource) *kubeaudit.AuditResult
+		auditFunc     func(*k8stypes.PodSpecV1) *kubeaudit.AuditResult
 		overrideLabel string
 	}{
 		{auditHostNetwork, HostNetworkOverrideLabel},
 		{auditHostIPC, HostIPCOverrideLabel},
 		{auditHostPID, HostPIDOverrideLabel},
 	} {
-		auditResult := check.auditFunc(resource)
+		auditResult := check.auditFunc(podSpec)
 		auditResult = override.ApplyOverride(auditResult, "", resource, check.overrideLabel)
 		if auditResult != nil {
 			auditResults = append(auditResults, auditResult)
@@ -49,12 +56,7 @@ func (a *HostNamespaces) Audit(resource k8stypes.Resource, _ []k8stypes.Resource
 	return auditResults, nil
 }
 
-func auditHostNetwork(resource k8stypes.Resource) *kubeaudit.AuditResult {
-	podSpec := k8s.GetPodSpec(resource)
-	if podSpec == nil {
-		return nil
-	}
-
+func auditHostNetwork(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostNetwork {
 		return &kubeaudit.AuditResult{
 			Name:     NamespaceHostNetworkTrue,
@@ -72,12 +74,7 @@ func auditHostNetwork(resource k8stypes.Resource) *kubeaudit.AuditResult {
 	return nil
 }
 
-func auditHostIPC(resource k8stypes.Resource) *kubeaudit.AuditResult {
-	podSpec := k8s.GetPodSpec(resource)
-	if podSpec == nil {
-		return nil
-	}
-
+func auditHostIPC(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostIPC {
 		return &kubeaudit.AuditResult{
 			Name:     NamespaceHostIPCTrue,
@@ -95,12 +92,7 @@ func auditHostIPC(resource k8stypes.Resource) *kubeaudit.AuditResult {
 	return nil
 }
 
-func auditHostPID(resource k8stypes.Resource) *kubeaudit.AuditResult {
-	podSpec := k8s.GetPodSpec(resource)
-	if podSpec == nil {
-		return nil
-	}
-
+func auditHostPID(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostPID {
 		return &kubeaudit.AuditResult{
 			Name:     NamespaceHostPIDTrue,

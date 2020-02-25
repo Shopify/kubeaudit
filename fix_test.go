@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Shopify/kubeaudit/auditors/all"
+	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/test"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,11 +24,14 @@ func TestFix(t *testing.T) {
 		{"all-resources_v1beta2.yml", "all-resources-fixed_v1beta2.yml"},
 	}
 
+	allAuditors, err := all.Auditors(config.KubeauditConfig{})
+	assert.NoError(t, err)
+
 	for _, tt := range cases {
 		t.Run(tt.origFile+" <=> "+tt.fixedFile, func(t *testing.T) {
 			assert := assert.New(t)
 
-			report := test.AuditManifest(t, fixtureDir, tt.origFile, all.Auditors())
+			report := test.AuditManifest(t, fixtureDir, tt.origFile, allAuditors)
 
 			fixed := bytes.NewBuffer(nil)
 			report.Fix(fixed)

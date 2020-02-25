@@ -7,6 +7,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "privesc"
+
 const (
 	// AllowPrivilegeEscalationNil occurs when the AllowPrivilegeEscalation field is missing or unset in the
 	// container SecurityContext

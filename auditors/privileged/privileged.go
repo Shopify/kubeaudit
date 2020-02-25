@@ -7,6 +7,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "privileged"
+
 const (
 	// PrivilegedTrue occurs when privileged is set to true in the container SecurityContext
 	PrivilegedTrue = "PrivilegedTrue"

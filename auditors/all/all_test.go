@@ -17,6 +17,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/privileged"
 	"github.com/Shopify/kubeaudit/auditors/rootfs"
 	"github.com/Shopify/kubeaudit/auditors/seccomp"
+	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/test"
 	"github.com/stretchr/testify/assert"
 )
@@ -38,9 +39,12 @@ func TestAuditAll(t *testing.T) {
 		seccomp.SeccompAnnotationMissing,
 	}
 
+	allAuditors, err := Auditors(config.KubeauditConfig{})
+	assert.NoError(t, err)
+
 	for _, file := range files {
 		t.Run(file, func(t *testing.T) {
-			test.AuditMultiple(t, fixtureDir, file, Auditors(), allErrors)
+			test.AuditMultiple(t, fixtureDir, file, allAuditors, allErrors)
 		})
 	}
 }
@@ -51,6 +55,9 @@ func TestAllForRegression(t *testing.T) {
 	if !assert.Nil(t, err) {
 		return
 	}
+
+	allAuditors, err := Auditors(config.KubeauditConfig{})
+	assert.NoError(t, err)
 
 	for _, auditorDir := range auditorDirs {
 		if !auditorDir.IsDir() {
@@ -68,7 +75,7 @@ func TestAllForRegression(t *testing.T) {
 
 		for _, fixture := range fixtureFiles {
 			t.Run(filepath.Join(fixturesDirPath, fixture.Name()), func(t *testing.T) {
-				_, report := test.FixSetupMultiple(t, fixturesDirPath, fixture.Name(), Auditors())
+				_, report := test.FixSetupMultiple(t, fixturesDirPath, fixture.Name(), allAuditors)
 				for _, result := range report.Results() {
 					for _, auditResult := range result.GetAuditResults() {
 						if !assert.NotEqual(t, kubeaudit.Error, auditResult.Severity) {
