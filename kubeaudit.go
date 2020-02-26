@@ -106,7 +106,8 @@ type Report struct {
 	results []Result
 }
 
-// RawResults returns all of the results for each Kubernetes resource
+// RawResults returns all of the results for each Kubernetes resource, including ones that had no audit results.
+// Generally, you will want to use Results() instead.
 func (r *Report) RawResults() []Result {
 	return r.results
 }
@@ -158,7 +159,6 @@ func (r *Report) Fix(writer io.Writer) error {
 
 // PrintPlan writes the actions that will be performed by the Fix() function in a human-readable way to the
 // provided writer. Only applies when audit was performed on a manifest (not local or cluster)
-// TODO include metadata with the plan?
 func (r *Report) PrintPlan(writer io.Writer) {
 	for _, result := range r.Results() {
 		for _, auditResult := range result.GetAuditResults() {
