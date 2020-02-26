@@ -30,16 +30,17 @@ type KubeauditConfig struct {
 	AuditorConfig   AuditorConfig   `yaml:"auditors"`
 }
 
-func (conf *KubeauditConfig) GetEnabledAuditors() (enabledAuditors []string) {
+func (conf *KubeauditConfig) GetEnabledAuditors() []string {
 	if conf == nil {
 		return []string{}
 	}
+	enabledAuditors := make([]string, 0, len(conf.EnabledAuditors))
 	for auditorName, enabled := range conf.EnabledAuditors {
 		if enabled {
 			enabledAuditors = append(enabledAuditors, auditorName)
 		}
 	}
-	return
+	return enabledAuditors
 }
 
 func (conf *KubeauditConfig) GetAuditorConfigs() AuditorConfig {

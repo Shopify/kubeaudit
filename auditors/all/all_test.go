@@ -87,3 +87,38 @@ func TestAllForRegression(t *testing.T) {
 		}
 	}
 }
+
+// Test all auditors with config
+func TestAllWithConfig(t *testing.T) {
+	files := []string{"audit_all_v1.yml", "audit_all_v1beta1.yml"}
+	enabledAuditors := []string{
+		apparmor.Name, seccomp.Name,
+	}
+	expectedErrors := []string{
+		apparmor.AppArmorAnnotationMissing,
+		seccomp.SeccompAnnotationMissing,
+	}
+
+	conf := config.KubeauditConfig{
+		EnabledAuditors: enabledAuditorsToMap(enabledAuditors),
+	}
+	auditors, err := Auditors(conf)
+	assert.NoError(t, err)
+
+	for _, file := range files {
+		t.Run(file, func(t *testing.T) {
+			test.AuditMultiple(t, fixtureDir, file, auditors, expectedErrors)
+		})
+	}
+}
+
+func enabledAuditorsToMap(enabledAuditors []string) map[string]bool {
+	enabledAuditorMap := map[string]bool{}
+	for _, auditorName := range AuditorNames {
+		enabledAuditorMap[auditorName] = false
+	}
+	for _, auditorName := range enabledAuditors {
+		enabledAuditorMap[auditorName] = true
+	}
+	return enabledAuditorMap
+}

@@ -22,8 +22,9 @@ func (conf customCapabilitiesConfig) ToConfig() capabilities.Config {
 }
 
 var capabilitiesCmd = &cobra.Command{
-	Use:   "caps",
-	Short: "Audit containers not dropping capabilities",
+	Use:     "capabilities",
+	Aliases: []string{"caps"},
+	Short:   "Audit containers not dropping capabilities",
 	Long: fmt.Sprintf(`This command determines which pods have capabilities which they should not according to
 the drop list. If no drop list is provided, the following capabilities are dropped:
 %s
@@ -31,8 +32,8 @@ the drop list. If no drop list is provided, the following capabilities are dropp
 An ERROR result is generated when a pod has a capability which is on the drop list.
 
 Example usage:
-kubeaudit caps
-kubeaudit caps --drop "%s"`, formatDropList(), strings.Join(capabilities.DefaultDropList[:3], " ")),
+kubeaudit capabilities
+kubeaudit capabilities --drop "%s"`, formatDropList(), strings.Join(capabilities.DefaultDropList[:3], " ")),
 	Run: runAudit(capabilities.New(capabilitiesConfig.ToConfig())),
 }
 
