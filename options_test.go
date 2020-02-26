@@ -8,23 +8,24 @@ import (
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWithLogger(t *testing.T) {
 	assert := assert.New(t)
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
-	assert.NoError(err)
+	require.NoError(t, err)
 
 	formatter := logrus.Formatter(&logrus.JSONFormatter{})
 	_, err = kubeaudit.New(allAuditors, kubeaudit.WithLogger(formatter))
-	assert.Nil(err)
+	assert.NoError(err)
 	assert.Equal(formatter, logrus.StandardLogger().Formatter)
 
 	formatter = logrus.Formatter(&logrus.TextFormatter{})
 	assert.NotEqual(formatter, logrus.StandardLogger().Formatter)
 
 	_, err = kubeaudit.New(allAuditors, kubeaudit.WithLogger(formatter))
-	assert.Nil(err)
+	assert.NoError(err)
 	assert.Equal(formatter, logrus.StandardLogger().Formatter)
 }

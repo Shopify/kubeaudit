@@ -10,6 +10,7 @@ import (
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const fixtureDir = "internal/test/fixtures"
@@ -25,7 +26,7 @@ func TestFix(t *testing.T) {
 	}
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	for _, tt := range cases {
 		t.Run(tt.origFile+" <=> "+tt.fixedFile, func(t *testing.T) {
@@ -37,7 +38,7 @@ func TestFix(t *testing.T) {
 			report.Fix(fixed)
 
 			expected, err := ioutil.ReadFile(filepath.Join(fixtureDir, tt.fixedFile))
-			assert.Nil(err)
+			assert.NoError(err)
 
 			assert.Equal(string(expected), fixed.String())
 		})

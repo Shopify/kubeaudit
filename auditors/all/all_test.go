@@ -20,6 +20,7 @@ import (
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const fixtureDir = "fixtures"
@@ -40,7 +41,7 @@ func TestAuditAll(t *testing.T) {
 	}
 
 	allAuditors, err := Auditors(config.KubeauditConfig{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	for _, file := range files {
 		t.Run(file, func(t *testing.T) {
@@ -57,7 +58,7 @@ func TestAllForRegression(t *testing.T) {
 	}
 
 	allAuditors, err := Auditors(config.KubeauditConfig{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	for _, auditorDir := range auditorDirs {
 		if !auditorDir.IsDir() {
@@ -103,7 +104,7 @@ func TestAllWithConfig(t *testing.T) {
 		EnabledAuditors: enabledAuditorsToMap(enabledAuditors),
 	}
 	auditors, err := Auditors(conf)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	for _, file := range files {
 		t.Run(file, func(t *testing.T) {

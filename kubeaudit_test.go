@@ -12,44 +12,44 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	assert := assert.New(t)
+	require := require.New(t)
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
-	assert.NoError(err)
+	require.NoError(err)
 
 	auditor, err := kubeaudit.New(allAuditors)
-	assert.Nil(err)
-	assert.NotNil(auditor)
+	require.NoError(err)
+	assert.NotNil(t, auditor)
 
 	_, err = kubeaudit.New(nil)
-	assert.NotNil(err)
+	require.NotNil(err)
 
 }
 
 func TestAuditLocal(t *testing.T) {
-	assert := assert.New(t)
+	require := require.New(t)
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
-	assert.NoError(err)
+	require.NoError(err)
 
 	auditor, err := kubeaudit.New(allAuditors)
-	assert.Nil(err)
+	require.NoError(err)
 
 	_, err = auditor.AuditLocal("path")
-	assert.NotNil(err)
+	require.NotNil(err)
 }
 
 func TestAuditCluster(t *testing.T) {
-	assert := assert.New(t)
+	require := require.New(t)
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
-	assert.NoError(err)
+	require.NoError(err)
 
 	auditor, err := kubeaudit.New(allAuditors)
-	assert.Nil(err)
+	require.NoError(err)
 
 	_, err = auditor.AuditCluster("")
-	assert.NotNil(err)
+	require.NotNil(err)
 }
 
 func TestUnknownResource(t *testing.T) {
@@ -57,7 +57,7 @@ func TestUnknownResource(t *testing.T) {
 	files := []string{"unknown_type_v1.yml", "custom_resource_definition.yml"}
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	for _, file := range files {
 		t.Run(file, func(t *testing.T) {

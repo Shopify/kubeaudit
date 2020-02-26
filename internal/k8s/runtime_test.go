@@ -8,6 +8,7 @@ import (
 
 	"github.com/Shopify/kubeaudit/k8stypes"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const fixtureDir = "../test/fixtures"
@@ -22,20 +23,21 @@ func TestNewFalse(t *testing.T) {
 
 func TestEncodeDecode(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	deployment := k8stypes.NewDeployment()
 	deployment.ObjectMeta = k8stypes.ObjectMetaV1{Namespace: "foo"}
 	deployment.Spec.Template.Spec.Containers = []k8stypes.ContainerV1{{Name: "bar"}}
 
 	expectedManifest, err := ioutil.ReadFile("fixtures/test_encode_decode.yml")
-	assert.NoError(err)
+	require.NoError(err)
 
 	encoded, err := EncodeResource(deployment)
-	assert.Nil(err)
+	require.NoError(err)
 	assert.Equal(string(expectedManifest), string(encoded))
 
 	decoded, err := DecodeResource(expectedManifest)
-	assert.Nil(err)
+	require.NoError(err)
 	assert.Equal(deployment, decoded)
 }
 
@@ -124,7 +126,7 @@ func getResourcesFromManifest(t *testing.T, manifest string) (resources []k8styp
 	assert := assert.New(t)
 
 	data, err := ioutil.ReadFile(manifest)
-	assert.Nil(err)
+	require.NoError(t, err)
 
 	bufSlice := bytes.Split(data, []byte("---"))
 

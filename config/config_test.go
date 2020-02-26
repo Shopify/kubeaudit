@@ -8,16 +8,17 @@ import (
 	"github.com/Shopify/kubeaudit/config"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Test that the sample config includes all auditors
 func TestConfig(t *testing.T) {
 	configFile := "config.yaml"
 	reader, err := os.Open(configFile)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	conf, err := config.New(reader)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, len(all.AuditorNames), len(conf.GetEnabledAuditors()), "Config is missing auditors")
 }
