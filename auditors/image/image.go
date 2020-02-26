@@ -9,6 +9,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "image"
+
 const (
 	ImageTagMissing   = "ImageTagMissing"
 	ImageTagIncorrect = "ImageTagIncorrect"
@@ -20,9 +22,9 @@ type Image struct {
 	image string
 }
 
-func New(image string) *Image {
+func New(config Config) *Image {
 	return &Image{
-		image: image,
+		image: config.GetImage(),
 	}
 }
 

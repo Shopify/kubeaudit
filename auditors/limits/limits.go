@@ -10,6 +10,8 @@ import (
 	k8sResource "k8s.io/apimachinery/pkg/api/resource"
 )
 
+const Name = "limits"
+
 const (
 	// LimitsNotSet occurs when there are no cpu and memory limits specified for a container
 	LimitsNotSet = "LimitsNotSet"
@@ -29,8 +31,13 @@ type Limits struct {
 	maxMemory k8sResource.Quantity
 }
 
-func New(cpuArg, memoryArg string) (*Limits, error) {
-	maxCPU, maxMemory, err := parseArgs(cpuArg, memoryArg)
+func New(config Config) (*Limits, error) {
+	maxCPU, err := config.GetCPU()
+	if err != nil {
+		return nil, fmt.Errorf("error creating Limits auditor: %w", err)
+	}
+
+	maxMemory, err := config.GetMemory()
 	if err != nil {
 		return nil, fmt.Errorf("error creating Limits auditor: %w", err)
 	}
@@ -162,24 +169,4 @@ func getLimits(container *k8stypes.ContainerV1) v1.ResourceList {
 	}
 
 	return container.Resources.Limits
-}
-
-func parseArgs(cpuArg, memoryArg string) (maxCPU, maxMemory k8sResource.Quantity, err error) {
-	if len(cpuArg) != 0 {
-		maxCPU, err = k8sResource.ParseQuantity(cpuArg)
-		if err != nil {
-			err = fmt.Errorf("Limits: Error parsing max CPU limit: %w", err)
-			return
-		}
-	}
-
-	if len(memoryArg) != 0 {
-		maxMemory, err = k8sResource.ParseQuantity(memoryArg)
-		if err != nil {
-			err = fmt.Errorf("Limits: Error parsing max memory limit: %w", err)
-			return
-		}
-	}
-
-	return
 }

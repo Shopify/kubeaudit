@@ -28,17 +28,17 @@ func TestAuditLimits(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.file, func(t *testing.T) {
-			auditor, err := New(tt.maxCPU, tt.maxMemory)
+			auditor, err := New(Config{CPU: tt.maxCPU, Memory: tt.maxMemory})
 			assert.Nil(t, err)
 			test.Audit(t, fixtureDir, tt.file, auditor, tt.expectedErrors)
 		})
 	}
 
 	t.Run("Bad arguments", func(t *testing.T) {
-		_, err := New("badvalue", "")
+		_, err := New(Config{CPU: "badvalue", Memory: ""})
 		assert.NotNil(t, err)
 
-		_, err = New("", "badvalue")
+		_, err = New(Config{CPU: "", Memory: "badvalue"})
 		assert.NotNil(t, err)
 	})
 }

@@ -10,6 +10,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "apparmor"
+
 const (
 	// AppArmorAnnotationMissing occurs when the apparmor annotation is missing
 	AppArmorAnnotationMissing = "AppArmorAnnotationMissing"

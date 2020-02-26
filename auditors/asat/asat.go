@@ -7,6 +7,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "asat"
+
 const (
 	// AutomountServiceAccountTokenDeprecated occurs when the deprecated serviceAccount field is non-empty
 	AutomountServiceAccountTokenDeprecated = "AutomountServiceAccountTokenDeprecated"
@@ -46,7 +48,7 @@ func auditResource(resource k8stypes.Resource) *kubeaudit.AuditResult {
 		return &kubeaudit.AuditResult{
 			Name:     AutomountServiceAccountTokenDeprecated,
 			Severity: kubeaudit.Warn,
-			Message:  "serviceAccount is a deprecated alias for ServiceAccountName. serviceAccountName should be used instead.",
+			Message:  "serviceAccount is a deprecated alias for serviceAccountName. serviceAccountName should be used instead.",
 			PendingFix: &fixDeprecatedServiceAccountName{
 				podSpec: podSpec,
 			},

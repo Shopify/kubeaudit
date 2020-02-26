@@ -17,8 +17,10 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/privileged"
 	"github.com/Shopify/kubeaudit/auditors/rootfs"
 	"github.com/Shopify/kubeaudit/auditors/seccomp"
+	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const fixtureDir = "fixtures"
@@ -38,9 +40,12 @@ func TestAuditAll(t *testing.T) {
 		seccomp.SeccompAnnotationMissing,
 	}
 
+	allAuditors, err := Auditors(config.KubeauditConfig{})
+	require.NoError(t, err)
+
 	for _, file := range files {
 		t.Run(file, func(t *testing.T) {
-			test.AuditMultiple(t, fixtureDir, file, Auditors(), allErrors)
+			test.AuditMultiple(t, fixtureDir, file, allAuditors, allErrors)
 		})
 	}
 }
@@ -51,6 +56,9 @@ func TestAllForRegression(t *testing.T) {
 	if !assert.Nil(t, err) {
 		return
 	}
+
+	allAuditors, err := Auditors(config.KubeauditConfig{})
+	require.NoError(t, err)
 
 	for _, auditorDir := range auditorDirs {
 		if !auditorDir.IsDir() {
@@ -68,7 +76,7 @@ func TestAllForRegression(t *testing.T) {
 
 		for _, fixture := range fixtureFiles {
 			t.Run(filepath.Join(fixturesDirPath, fixture.Name()), func(t *testing.T) {
-				_, report := test.FixSetupMultiple(t, fixturesDirPath, fixture.Name(), Auditors())
+				_, report := test.FixSetupMultiple(t, fixturesDirPath, fixture.Name(), allAuditors)
 				for _, result := range report.Results() {
 					for _, auditResult := range result.GetAuditResults() {
 						if !assert.NotEqual(t, kubeaudit.Error, auditResult.Severity) {
@@ -79,4 +87,39 @@ func TestAllForRegression(t *testing.T) {
 			})
 		}
 	}
+}
+
+// Test all auditors with config
+func TestAllWithConfig(t *testing.T) {
+	files := []string{"audit_all_v1.yml", "audit_all_v1beta1.yml"}
+	enabledAuditors := []string{
+		apparmor.Name, seccomp.Name,
+	}
+	expectedErrors := []string{
+		apparmor.AppArmorAnnotationMissing,
+		seccomp.SeccompAnnotationMissing,
+	}
+
+	conf := config.KubeauditConfig{
+		EnabledAuditors: enabledAuditorsToMap(enabledAuditors),
+	}
+	auditors, err := Auditors(conf)
+	require.NoError(t, err)
+
+	for _, file := range files {
+		t.Run(file, func(t *testing.T) {
+			test.AuditMultiple(t, fixtureDir, file, auditors, expectedErrors)
+		})
+	}
+}
+
+func enabledAuditorsToMap(enabledAuditors []string) map[string]bool {
+	enabledAuditorMap := map[string]bool{}
+	for _, auditorName := range AuditorNames {
+		enabledAuditorMap[auditorName] = false
+	}
+	for _, auditorName := range enabledAuditors {
+		enabledAuditorMap[auditorName] = true
+	}
+	return enabledAuditorMap
 }
