@@ -34,7 +34,7 @@ func TestMerge(t *testing.T) {
 
 	// valid yaml
 	merged, err := Merge([]byte("a: b"), []byte("a: b"))
-	assert.Nil(err)
+	assert.NoError(err)
 	assert.Equal("a: b\n", string(merged))
 }
 

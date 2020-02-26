@@ -50,7 +50,7 @@ func TestKubeClientConfigCluster(t *testing.T) {
 	client.On("InClusterConfig").Return(&rest.Config{}, nil)
 	clientset, err = NewKubeClientCluster(client)
 	assert.NotNil(clientset)
-	assert.Nil(err)
+	assert.NoError(err)
 }
 
 func TestIsRunningInCluster(t *testing.T) {

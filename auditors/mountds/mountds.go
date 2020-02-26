@@ -8,6 +8,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "mountds"
+
 const (
 	// DockerSocketMounted occurs when a container has Docker socket mounted
 	DockerSocketMounted = "DockerSocketMounted"

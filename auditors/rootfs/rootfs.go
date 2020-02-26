@@ -7,6 +7,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "rootfs"
+
 const (
 	// ReadOnlyRootFilesystemFalse occurs when readOnlyRootFilesystem is set to false in the container SecurityContext
 	ReadOnlyRootFilesystemFalse = "ReadOnlyRootFilesystemFalse"

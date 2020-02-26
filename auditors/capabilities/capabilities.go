@@ -10,6 +10,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "capabilities"
+
 // DefaultDropList is the list of capabilities that will be dropped if no drop list is specified
 // https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
 var DefaultDropList = []string{
@@ -43,11 +45,10 @@ type Capabilities struct {
 	dropList []string
 }
 
-func New(dropList []string) *Capabilities {
-	if len(dropList) == 0 {
-		dropList = DefaultDropList
+func New(config Config) *Capabilities {
+	return &Capabilities{
+		dropList: config.GetDropList(),
 	}
-	return &Capabilities{dropList}
 }
 
 // Audit checks that bad capabilities are dropped and no capabilities are added

@@ -7,6 +7,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "nonroot"
+
 const (
 	// RunAsNonRootCSCFalse occurs when runAsNonRoot is set to false in the container SecurityContext
 	RunAsNonRootCSCFalse = "RunAsNonRootCSCFalse"

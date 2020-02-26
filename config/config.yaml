@@ -1,0 +1,23 @@
+# Sample config
+enabledAuditors:
+    apparmor: true
+    asat: true
+    capabilities: true 
+    hostns: true 
+    image: true 
+    limits: true 
+    mountds: true 
+    netpols: true 
+    nonroot: true 
+    privesc: true 
+    privileged: true 
+    rootfs: true 
+    seccomp: true 
+auditors:
+    capabilities:
+        drop: []
+    image:
+        image: "myimage:mytag"
+    limits:
+        cpu: "750m"
+        memory: "500m"

@@ -46,7 +46,7 @@ func TestAuditImage(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.file, func(t *testing.T) {
-			test.Audit(t, fixtureDir, tt.file, New(tt.image), tt.expectedErrors)
+			test.Audit(t, fixtureDir, tt.file, New(Config{Image: tt.image}), tt.expectedErrors)
 		})
 	}
 }

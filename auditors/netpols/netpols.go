@@ -8,6 +8,8 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const Name = "netpols"
+
 const (
 	// MissingDefaultDenyIngressAndEgressNetworkPolicy occurs when there is no default deny network policy for
 	// ingress and egress traffic

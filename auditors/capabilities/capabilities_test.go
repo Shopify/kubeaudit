@@ -51,7 +51,7 @@ func TestAuditCapabilities(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.file, func(t *testing.T) {
-			test.Audit(t, tt.fixtureDir, tt.file, New(nil), tt.expectedErrors)
+			test.Audit(t, tt.fixtureDir, tt.file, New(Config{}), tt.expectedErrors)
 		})
 	}
 }
