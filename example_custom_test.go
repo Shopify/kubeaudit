@@ -1,12 +1,14 @@
-// This file shows how to define a custom auditor
-
-package main
+package kubeaudit_test
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/k8stypes"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func NewCustomAuditor() kubeaudit.Auditable {
@@ -23,7 +25,7 @@ type myAuditor struct{}
 //   resources: Read-only. A reference to all resources. Can be used for context.
 //
 // Return
-//   audit results: The results for the audit. Each result can optionally include a PendingFix object to
+//   auditResults: The results for the audit. Each result can optionally include a PendingFix object to
 //     define autofix behaviour (see below).
 func (a *myAuditor) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
 	return []*kubeaudit.AuditResult{
@@ -65,6 +67,7 @@ func (f *myAuditorFix) Apply(resource k8stypes.Resource) []k8stypes.Resource {
 	return nil
 }
 
+// This is just a helper function
 func setLabel(resource k8stypes.Resource, key, value string) {
 	switch kubeType := resource.(type) {
 	case *k8stypes.PodV1:
@@ -72,4 +75,35 @@ func setLabel(resource k8stypes.Resource, key, value string) {
 	case *k8stypes.DeploymentV1:
 		kubeType.Labels[key] = value
 	}
+}
+
+// A sample Kubernetes manifest file
+var manifest = `
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myAuditor 
+spec:
+  template:
+    spec:
+      containers:
+      - name: myContainer
+`
+
+// ExampleCustomAuditor shows how to use a custom auditor
+func Example_customAuditor() {
+	// Initialize kubeaudit with your custom auditor
+	auditor, err := kubeaudit.New([]kubeaudit.Auditable{NewCustomAuditor()})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Run the audit in the mode of your choosing. Here we use manifest mode.
+	report, err := auditor.AuditManifest(strings.NewReader(manifest))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Print the results to screen
+	report.PrintResults(os.Stdout, kubeaudit.Info, nil)
 }
