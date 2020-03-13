@@ -17,11 +17,11 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	json       bool
-	kubeConfig string
-	manifest   string
-	namespace  string
-	verbose    string
+	json        bool
+	kubeConfig  string
+	manifest    string
+	namespace   string
+	minSeverity string
 }
 
 // RootCmd defines the shell command usage for kubeaudit.
@@ -31,10 +31,10 @@ var RootCmd = &cobra.Command{
 	Long: `kubeaudit is a program that makes sure all your containers are secure #patcheswelcome
 
 kubeaudit has three modes:
-1. Manifest mode: If a Kubernetes manifest file is provided using the --manifest/-f flag, kubeaudit will audit the manifest file.
+1. Manifest mode: If a Kubernetes manifest file is provided using the -f/--manifest flag, kubeaudit will audit the manifest file.
 2. Cluster mode: If kubeaudit detects it is running within a container, it will try to audit the cluster it is contained in.
 3. Local mode: kubeaudit will audit the resources specified by the local kubeconfig file ($HOME/.kube/config). A different
-     kubeaconfig location can be specified using the --kubeconfig/-c flag
+     kubeaconfig location can be specified using the -c/--kubeconfig flag
 `,
 }
 
@@ -46,11 +46,11 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Path to local Kubernetes config file (default is $HOME/.kube/config)")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.verbose, "verbose", "v", "INFO", "Set the debug level (one of \"ERROR\", \"WARN\", \"INFO\")")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Path to local Kubernetes config file. Only used in local mode (default is $HOME/.kube/config)")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.minSeverity, "minseverity", "m", "INFO", "Set the lowest severity level to report (one of \"ERROR\", \"WARN\", \"INFO\")")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Output audit results in JSON")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "Path to the yaml configuration to audit")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace. Only used in cluster mode.")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "Path to the yaml configuration to audit. Only used in manifest mode.")
 }
 
 // KubeauditLogLevels represents an enum for the supported log levels.
@@ -64,14 +64,14 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 	return func(cmd *cobra.Command, args []string) {
 		report := getReport(auditable...)
 
-		logLevel := KubeauditLogLevels[rootConfig.verbose]
+		minSeverity := KubeauditLogLevels[rootConfig.minSeverity]
 
 		var formatter log.Formatter
 		if rootConfig.json {
 			formatter = &log.JSONFormatter{}
 		}
 
-		report.PrintResults(os.Stdout, logLevel, formatter)
+		report.PrintResults(os.Stdout, minSeverity, formatter)
 	}
 }
 

@@ -1,21 +1,12 @@
 package commands
 
 import (
-	kubeaudit "github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/limits"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var limitsConfig limits.Config
-
-func limitsAuditor() kubeaudit.Auditable {
-	auditor, err := limits.New(limitsConfig)
-	if err != nil {
-		log.Fatal("failed to create limits auditor")
-	}
-	return auditor
-}
 
 var limitsCmd = &cobra.Command{
 	Use:   "limits",
@@ -29,15 +20,21 @@ A WARN result is generated for each of the following cases:
 Example usage:
 kubeaudit limits
 kubeaudit limits --cpu 500m --memory 256Mi`,
-	Run: runAudit(limitsAuditor()),
-}
-
-func init() {
-	RootCmd.AddCommand(limitsCmd)
-	setLimitsFlags(limitsCmd)
+	Run: func(cmd *cobra.Command, args []string) {
+		auditor, err := limits.New(limitsConfig)
+		if err != nil {
+			log.Fatal("failed to create limits auditor")
+		}
+		runAudit(auditor)(cmd, args)
+	},
 }
 
 func setLimitsFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&limitsConfig.CPU, "cpu", "", "Max CPU limit")
 	cmd.Flags().StringVar(&limitsConfig.Memory, "memory", "", "Max memory limit")
+}
+
+func init() {
+	RootCmd.AddCommand(limitsCmd)
+	setLimitsFlags(limitsCmd)
 }

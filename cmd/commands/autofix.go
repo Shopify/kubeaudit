@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"io"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -12,12 +13,22 @@ var autofixConfig struct {
 }
 
 func autofix(cmd *cobra.Command, args []string) {
-	f, err := os.Create(autofixConfig.outFile)
-	if err != nil {
-		log.WithError(err).Fatal("Error opening out file")
+	report := getReport()
+
+	var err error
+	var f io.Writer
+	if autofixConfig.outFile != "" {
+		f, err = os.Create(autofixConfig.outFile)
+		if err != nil {
+			log.WithError(err).Fatal("Error opening out file")
+		}
+	} else {
+		f, err = os.OpenFile(rootConfig.manifest, os.O_RDWR, 0755)
+		if err != nil {
+			log.WithError(err).Fatal("Error opening manifest file")
+		}
 	}
 
-	report := getReport()
 	err = report.Fix(f)
 	if err != nil {
 		log.WithError(err).Fatal("Error fixing manifest")
@@ -39,5 +50,5 @@ kubeaudit autofix -f /path/to/yaml -o /path/for/fixed/yaml`,
 
 func init() {
 	RootCmd.AddCommand(autofixCmd)
-	autofixCmd.Flags().StringVarP(&autofixConfig.outFile, "outfile", "o", "", "file to write fixed manifest to")
+	autofixCmd.Flags().StringVarP(&autofixConfig.outFile, "outfile", "o", "", "File to write fixed manifest to")
 }

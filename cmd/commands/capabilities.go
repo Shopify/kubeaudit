@@ -9,16 +9,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var capabilitiesConfig customCapabilitiesConfig
+var capabilitiesConfig capabilities.Config
 
-type customCapabilitiesConfig struct {
-	dropList string
-}
-
-func (conf customCapabilitiesConfig) ToConfig() capabilities.Config {
-	return capabilities.Config{
-		DropList: strings.Split(capabilitiesConfig.dropList, " "),
+func formatDropList() string {
+	var buffer bytes.Buffer
+	for _, cap := range capabilities.DefaultDropList {
+		buffer.WriteString("\n- ")
+		buffer.WriteString(cap)
 	}
+	return buffer.String()
 }
 
 var capabilitiesCmd = &cobra.Command{
@@ -34,24 +33,17 @@ An ERROR result is generated when a pod has a capability which is on the drop li
 Example usage:
 kubeaudit capabilities
 kubeaudit capabilities --drop "%s"`, formatDropList(), strings.Join(capabilities.DefaultDropList[:3], " ")),
-	Run: runAudit(capabilities.New(capabilitiesConfig.ToConfig())),
+	Run: func(cmd *cobra.Command, args []string) {
+		runAudit(capabilities.New(capabilitiesConfig))(cmd, args)
+	},
 }
 
-func formatDropList() string {
-	var buffer bytes.Buffer
-	for _, cap := range capabilities.DefaultDropList {
-		buffer.WriteString("\n- ")
-		buffer.WriteString(cap)
-	}
-	return buffer.String()
+func setCapabilitiesFlags(cmd *cobra.Command) {
+	cmd.Flags().VarP(newStringSliceValue(strings.Join(capabilities.DefaultDropList, " "), &capabilitiesConfig.DropList), "drop", "d",
+		"List of capabilities that should be dropped")
 }
 
 func init() {
 	RootCmd.AddCommand(capabilitiesCmd)
 	setCapabilitiesFlags(capabilitiesCmd)
-}
-
-func setCapabilitiesFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&capabilitiesConfig.dropList, "drop", "d", strings.Join(capabilities.DefaultDropList, " "),
-		"List of capabilities that should be dropped")
 }
