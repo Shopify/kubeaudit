@@ -2,14 +2,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: fakeDeploymentImg1
   namespace: fakeDeploymentImg
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeImage
       annotations:
@@ -19,7 +16,6 @@ spec:
       containers:
       - image: fakeContainerImg
         name: fakeContainerImg
-        resources: {}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -42,5 +38,3 @@ spec:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
       automountServiceAccountToken: false
-  selector: null
-status: {}

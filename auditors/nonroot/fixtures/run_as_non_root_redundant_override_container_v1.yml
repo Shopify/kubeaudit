@@ -4,17 +4,13 @@ metadata:
   name: allow_run_as_root
   namespace: fakeDeploymentRANR
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeSecurityContext
         audit.kubernetes.io/pod.allow-run-as-root: "SuperuserPrivilegesNeeded"
     spec:
       containers:
       - name: fakeContainerRANR
-        resources: {}
         securityContext:
           runAsNonRoot: true
-status: {}

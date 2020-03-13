@@ -1,19 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: run_as_non_root_nil
   namespace: fakeDeploymentRANR
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeRunAsNonRoot
     spec:
       containers:
       - name: fakeContainerRANR
-        resources: {}
-        securityContext: {}
-status: {}
+        

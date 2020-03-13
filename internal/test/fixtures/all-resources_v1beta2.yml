@@ -55,14 +55,11 @@ apiVersion: apps/v1beta2 # The latest api version for Deployment
 # This is a deployment
 kind: Deployment
 metadata:
-  creationTimestamp: null # This is autopopulated
   name: cababilitiesAdded # capabilitiesAdded comment
   namespace: fakeDeploymentSC
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null # This is also autopopulated
       labels:
         apps: fakeSecurityContext
     spec:

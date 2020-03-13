@@ -25,8 +25,6 @@ spec:
     spec:
       containers:
       - name: fakeContainer
-status:
-  replicas: 0
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
@@ -41,8 +39,6 @@ spec:
     spec:
       containers:
       - name: fakeContainer
-status:
-  replicas: 0
 ---
 apiVersion: apps/v1beta2
 kind: DaemonSet
@@ -57,84 +53,62 @@ spec:
     spec:
       containers:
       - name: fakeContainer
-status:
-  replicas: 0
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: fakeReplicationController 1
   namespace: fakeReplicationController
 spec:
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeAutomountServiceAccountToken
     spec:
       containers:
       - name: fakeContainer
-        resources: {}
-status:
-  replicas: 0
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: fakeReplicationController1
   namespace: fakeReplicationController
 spec:
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeAutomountServiceAccountToken
     spec:
       containers:
       - name: fakeContainer
-        resources: {}
-status:
-  replicas: 0
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: fakeReplicationController1
   namespace: fakeReplicationController
 spec:
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeAutomountServiceAccountToken
     spec:
       containers:
       - name: fakeContainer
-        resources: {}
-status:
-  replicas: 0
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: fakeReplicationController1
   namespace: fakeReplicationController
 spec:
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeAutomountServiceAccountToken
     spec:
       containers:
       - name: fakeContainer
-        resources: {}
-status:
-  replicas: 0
 ---
 apiVersion: v1
 kind: Pod
@@ -148,56 +122,41 @@ spec:
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  creationTimestamp: null
   name: fakeReplicationController1
   namespace: fakeReplicationController
 spec:
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeAutomountServiceAccountToken
     spec:
       containers:
       - name: fakeContainer
-        resources: {}
-status:
-  replicas: 0
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  creationTimestamp: null
   name: fakeReplicationController1
   namespace: fakeReplicationController
 spec:
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeAutomountServiceAccountToken
     spec:
       containers:
       - name: fakeContainerASAT
-        resources: {}
-status:
-  replicas: 0
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  creationTimestamp: null
   name: fakeReplicationController1
   namespace: fakeReplicationController
 spec:
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeAutomountServiceAccountToken
     spec:
       containers:
       - name: fakeContainerASAT
-        resources: {}
-status:
-  replicas: 0

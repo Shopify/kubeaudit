@@ -8,7 +8,7 @@ metadata:
 spec:
   hostname: fakeRANR
   securityContext:
-    runAsNonRoot: false
+    runAsNonRoot: true
   containers:
   - name: fakeContainerRANR
     
