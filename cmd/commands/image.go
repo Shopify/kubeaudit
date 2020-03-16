@@ -21,14 +21,16 @@ This command is also a root command, check 'kubeaudit image --help'.
 Example usage:
 kubeaudit image --image gcr.io/google_containers/echoserver:1.7
 kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
-	Run: runAudit(image.New(imageConfig)),
+	Run: func(cmd *cobra.Command, args []string) {
+		runAudit(image.New(imageConfig))(cmd, args)
+	},
+}
+
+func setImageFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVarP(&imageConfig.Image, "image", "i", "", "Image to check against")
 }
 
 func init() {
 	RootCmd.AddCommand(imageCmd)
 	setImageFlags(imageCmd)
-}
-
-func setImageFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&imageConfig.Image, "image", "i", "", "Image to check against")
 }
