@@ -57,7 +57,7 @@ func TestFixRunAsNonRoot(t *testing.T) {
 			for _, container := range containers {
 				switch container.Name {
 				case "fakeContainerRANR":
-					assert.Nil(t, container.SecurityContext.RunAsNonRoot)
+					assert.True(t, (container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil))
 				case "fakeContainerRANR2":
 					assert.True(t, *container.SecurityContext.RunAsNonRoot)
 				}

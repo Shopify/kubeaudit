@@ -1,18 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: allAudits 
   namespace: fakeDeploymentSC
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeSecurityContext
     spec:
+      hostPID: true
+      hostIPC: true
+      hostNetwork: true
       containers:
       - name: fakeContainerSC
-        resources: {}
-status: {}
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "fakeDeploymentSC"

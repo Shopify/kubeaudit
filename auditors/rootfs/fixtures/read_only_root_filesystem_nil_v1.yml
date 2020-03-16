@@ -1,20 +1,17 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  creationTimestamp: null
   name: fakeStatefulSetRORF2
   namespace: fakeStatefulSetRORF
 spec:
   serviceName: ""
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeReadOnlyRootFilesystem
     spec:
       containers:
       - name: fakeContainerRORF
-        resources: {}
         securityContext:
           capabilities:
             drop:
@@ -32,6 +29,3 @@ spec:
             - SETUID
             - SETPCAP
             - SYS_CHROOT
-  updateStrategy: {}
-status:
-  replicas: 0

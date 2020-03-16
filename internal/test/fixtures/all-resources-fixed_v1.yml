@@ -21,14 +21,11 @@ apiVersion: apps/v1 # The latest api version for Deployment
 # This is a deployment
 kind: Deployment
 metadata:
-  creationTimestamp: null # This is autopopulated
   name: cababilitiesAdded # capabilitiesAdded comment
   namespace: fakeDeploymentSC
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null # This is also autopopulated
       labels:
         apps: fakeSecurityContext
       annotations:
@@ -85,6 +82,7 @@ spec:
           runAsNonRoot: true
       automountServiceAccountToken: false
   selector: null
+  strategy: {}
 
 # Post doc comment
 
@@ -94,9 +92,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: default
-  creationTimestamp: null
 spec: {}
-status: {}
 
 ---
 

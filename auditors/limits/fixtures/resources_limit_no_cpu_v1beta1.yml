@@ -1,14 +1,11 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: resources_limit_no_cpu
   namespace: fakeDeploymentQuota
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeNoLimitQuota
     spec:
@@ -17,4 +14,3 @@ spec:
         resources:
           limits:
             memory: 512Mi
-status: {}
