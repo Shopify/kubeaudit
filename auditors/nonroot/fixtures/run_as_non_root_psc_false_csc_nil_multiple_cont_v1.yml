@@ -12,4 +12,3 @@ spec:
     securityContext:
       runAsNonRoot: true
   - name: fakeContainerRANR2
-    

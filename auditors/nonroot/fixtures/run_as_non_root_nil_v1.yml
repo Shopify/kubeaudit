@@ -11,4 +11,3 @@ spec:
     spec:
       containers:
       - name: fakeContainerRANR
-        

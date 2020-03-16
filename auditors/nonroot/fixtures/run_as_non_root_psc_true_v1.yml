@@ -11,4 +11,3 @@ spec:
     runAsNonRoot: true
   containers:
   - name: fakeContainerRANR
-    
