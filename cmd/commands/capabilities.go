@@ -32,14 +32,14 @@ An ERROR result is generated when a pod has a capability which is on the drop li
 
 Example usage:
 kubeaudit capabilities
-kubeaudit capabilities --drop "%s"`, formatDropList(), strings.Join(capabilities.DefaultDropList[:3], " ")),
+kubeaudit capabilities --drop "%s"`, formatDropList(), strings.Join(capabilities.DefaultDropList[:3], ",")),
 	Run: func(cmd *cobra.Command, args []string) {
 		runAudit(capabilities.New(capabilitiesConfig))(cmd, args)
 	},
 }
 
 func setCapabilitiesFlags(cmd *cobra.Command) {
-	cmd.Flags().VarP(newStringSliceValue(strings.Join(capabilities.DefaultDropList, " "), &capabilitiesConfig.DropList), "drop", "d",
+	cmd.Flags().StringSliceVarP(&capabilitiesConfig.DropList, "drop", "d", capabilities.DefaultDropList,
 		"List of capabilities that should be dropped")
 }
 
