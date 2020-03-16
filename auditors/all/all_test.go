@@ -10,8 +10,10 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/asat"
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
+	"github.com/Shopify/kubeaudit/auditors/hostns"
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/auditors/limits"
+	"github.com/Shopify/kubeaudit/auditors/netpols"
 	"github.com/Shopify/kubeaudit/auditors/nonroot"
 	"github.com/Shopify/kubeaudit/auditors/privesc"
 	"github.com/Shopify/kubeaudit/auditors/privileged"
@@ -28,15 +30,19 @@ const fixtureDir = "fixtures"
 func TestAuditAll(t *testing.T) {
 	files := []string{"audit_all_v1.yml", "audit_all_v1beta1.yml"}
 	allErrors := []string{
-		privesc.AllowPrivilegeEscalationNil,
+		apparmor.AppArmorAnnotationMissing,
 		asat.AutomountServiceAccountTokenTrueAndDefaultSA,
 		capabilities.CapabilityNotDropped,
+		hostns.NamespaceHostNetworkTrue,
+		hostns.NamespaceHostIPCTrue,
+		hostns.NamespaceHostPIDTrue,
 		image.ImageTagMissing,
+		limits.LimitsNotSet,
+		netpols.MissingDefaultDenyIngressAndEgressNetworkPolicy,
+		nonroot.RunAsNonRootPSCNilCSCNil,
+		privesc.AllowPrivilegeEscalationNil,
 		privileged.PrivilegedNil,
 		rootfs.ReadOnlyRootFilesystemNil,
-		limits.LimitsNotSet,
-		nonroot.RunAsNonRootPSCNilCSCNil,
-		apparmor.AppArmorAnnotationMissing,
 		seccomp.SeccompAnnotationMissing,
 	}
 

@@ -1,17 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: resources_limit_nil
   namespace: fakeDeploymentQuota
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeNoLimitQuota
     spec:
       containers:
       - name: fakeContainerNoLimit
-status: {}

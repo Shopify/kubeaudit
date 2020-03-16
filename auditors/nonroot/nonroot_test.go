@@ -22,6 +22,7 @@ func TestAuditRunAsNonRoot(t *testing.T) {
 		{"run_as_non_root_redundant_override_container_v1.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
 		{"run_as_non_root_redundant_override_pod_v1.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
 		{"run_as_non_root_psc_false_v1.yml", fixtureDir, []string{RunAsNonRootPSCFalseCSCNil}},
+		{"run_as_non_root_psc_true_v1.yml", fixtureDir, []string{}},
 		{"run_as_non_root_psc_true_csc_false_v1.yml", fixtureDir, []string{RunAsNonRootCSCFalse}},
 		{"run_as_non_root_psc_false_csc_false_v1.yml", fixtureDir, []string{RunAsNonRootCSCFalse}},
 		{"run_as_non_root_psc_false_allowed_v1.yml", fixtureDir, []string{override.GetOverriddenResultName(RunAsNonRootPSCFalseCSCNil)}},

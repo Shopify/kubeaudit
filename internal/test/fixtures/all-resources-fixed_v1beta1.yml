@@ -10,14 +10,11 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: cababilitiesAdded
   namespace: fakeDeploymentSC
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeSecurityContext
       annotations:
@@ -73,20 +70,18 @@ spec:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
       automountServiceAccountToken: false
+  strategy: {}
 
 ---
 
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: cababilitiesAdded
   namespace: fakeDeploymentSC
 spec:
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         apps: fakeSecurityContext
       annotations:
@@ -142,6 +137,7 @@ spec:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
       automountServiceAccountToken: false
+  strategy: {}
 
 ---
 
