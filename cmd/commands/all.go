@@ -4,8 +4,6 @@ import (
 	"os"
 
 	"github.com/Shopify/kubeaudit/auditors/all"
-	"github.com/Shopify/kubeaudit/auditors/image"
-	"github.com/Shopify/kubeaudit/auditors/limits"
 	"github.com/Shopify/kubeaudit/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -19,7 +17,7 @@ func auditAll(cmd *cobra.Command, args []string) {
 	conf := loadConfigFromFile(auditAllConfig.configFile)
 
 	// Config options set via flags override the config file
-	conf = setConfigFromFlags(conf)
+	conf = setConfigFromFlags(cmd, conf)
 
 	allAuditors, err := all.Auditors(conf)
 	if err != nil {
@@ -29,17 +27,24 @@ func auditAll(cmd *cobra.Command, args []string) {
 	runAudit(allAuditors...)(cmd, args)
 }
 
-func setConfigFromFlags(conf config.KubeauditConfig) config.KubeauditConfig {
-	if imageConfig != (image.Config{}) {
-		conf.AuditorConfig.Image = imageConfig
+func setConfigFromFlags(cmd *cobra.Command, conf config.KubeauditConfig) config.KubeauditConfig {
+	flagset := cmd.Flags()
+	for _, item := range []struct {
+		flag      string
+		flagVal   string
+		configVal *string
+	}{
+		{"image", imageConfig.Image, &conf.AuditorConfig.Image.Image},
+		{"cpu", limitsConfig.CPU, &conf.AuditorConfig.Limits.CPU},
+		{"memory", limitsConfig.Memory, &conf.AuditorConfig.Limits.Memory},
+	} {
+		if flagset.Changed(item.flag) {
+			*item.configVal = item.flagVal
+		}
 	}
 
-	if limitsConfig != (limits.Config{}) {
-		conf.AuditorConfig.Limits = limitsConfig
-	}
-
-	if capabilitiesConfig != (customCapabilitiesConfig{}) {
-		conf.AuditorConfig.Capabilities = capabilitiesConfig.ToConfig()
+	if flagset.Changed("drop") {
+		conf.AuditorConfig.Capabilities.DropList = capabilitiesConfig.DropList
 	}
 
 	return conf
