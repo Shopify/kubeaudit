@@ -4,18 +4,19 @@ Automatically fixes security issues.
 
 **Note**: `autofix` can only be used in manifest mode.
 
-## Flags
-| Short   | Long       | Description                               | Default                                  |
-| :------ | :--------- | :---------------------------------------- | :--------------------------------------- |
-| -o      | --outfile  | File to write fixed manifest to           |                                          |
-
-Also see [Global Flags](/README.md#global-flags)
-
 ## General Usage
 
 ```
 kubeaudit autofix -f [manifest] [flags]
 ```
+
+## Flags
+
+| Short   | Long       | Description                               | Default                                  |
+| :------ | :--------- | :---------------------------------------- | :--------------------------------------- |
+| -o      | --outfile  | File to write fixed manifest to           |                                          |
+
+Also see [Global Flags](/README.md#global-flags)
 
 ## Examples
 

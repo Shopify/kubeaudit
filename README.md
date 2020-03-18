@@ -8,7 +8,7 @@
 # kubeaudit :cloud: :lock: :muscle:
 
 `kubeaudit` is a command line tool and a Go package to audit Kubernetes clusters for various
-different security concerns:
+different security concerns, such as:
 * run as non-root
 * use a read-only root filesystem
 * drop scary capabilities, don't add new ones
@@ -35,7 +35,7 @@ The rest of this README will focus on how to use kubeaudit as a command line too
  
 ### Download a binary
 
-Kubeaudit has official releases that are blessed and stable here:
+Kubeaudit has official releases that are blessed and stable:
 [Official releases](https://github.com/Shopify/kubeaudit/releases)
 
 ### DIY build
@@ -81,13 +81,14 @@ kubeaudit has three modes:
 
 ### Manifest Mode
 
-If a Kubernetes manifest file is provided using the `-f/--manifest` flag, kubeaudit will audit the manifest file:
+If a Kubernetes manifest file is provided using the `-f/--manifest` flag, kubeaudit will audit the manifest file.
 
+Example command:
 ```
 kubeaudit all -f "/path/to/manifest.yml"
 ```
 
-Example with output:
+Example output:
 ```
 $ kubeaudit all -f auditors/all/fixtures/audit_all_v1.yml
 ERRO[0000] AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/fakeContainerSC' should be added.  AuditResultName=AppArmorAnnotationMissing Container=fakeContainerSC MissingAnnotation=container.apparmor.security.beta.kubernetes.io/fakeContainerSC
@@ -123,15 +124,14 @@ kubeaudit autofix -f "/path/to/manifest.yml" -o "/path/to/fixed"
 If a kubeconfig file is provided using the `-c/--kubeconfig` flag, kubeaudit will audit the resources specified in the kubeconfig file. If no kubeconfig file is specified, `$HOME/.kube/config` is used by default:
 
 ```
-kubeaudit all --kubeconfig "/path/to/config"
+kubeaudit all -c "/path/to/config"
 ```
 
 For more information on kubernetes config files, see https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/
 
 ### Cluster Mode
 
-If kubeaudit detects it is running within a container, it will try to audit the cluster it is contained in:
-
+Kubeaudit can detect if it is running within a container in a cluster. If so, it will try to audit all Kubernetes resources in that cluster:
 ```
 kubeaudit all
 ```
