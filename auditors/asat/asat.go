@@ -62,7 +62,7 @@ func auditResource(resource k8stypes.Resource) *kubeaudit.AuditResult {
 		return &kubeaudit.AuditResult{
 			Name:     AutomountServiceAccountTokenTrueAndDefaultSA,
 			Severity: kubeaudit.Error,
-			Message:  "Default serviceAccount with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.",
+			Message:  "Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.",
 			PendingFix: &fixDefaultServiceAccountWithAutomountToken{
 				podSpec: podSpec,
 			},
