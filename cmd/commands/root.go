@@ -32,6 +32,8 @@ var RootCmd = &cobra.Command{
 
 kubeaudit has three modes:
 1. Manifest mode: If a Kubernetes manifest file is provided using the -f/--manifest flag, kubeaudit will audit the manifest file.
+	 Kubeaudit also supports autofixing in manifest mode using the 'autofix' command. This will fix the manifest in-place.
+	 The fixed manfiest can be written to a different file using the -o/--out flag.
 2. Cluster mode: If kubeaudit detects it is running within a container, it will try to audit the cluster it is contained in.
 3. Local mode: kubeaudit will audit the resources specified by the local kubeconfig file ($HOME/.kube/config). A different
      kubeaconfig location can be specified using the -c/--kubeconfig flag
