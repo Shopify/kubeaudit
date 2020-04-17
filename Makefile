@@ -3,6 +3,7 @@ GOCMD=go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
+GOMOD=$(GOCMD) mod
 BINARY_NAME=kubeaudit
 BINARY_UNIX=$(BINARY_NAME)_unix
 LDFLAGS=$(shell build/ldflags.sh)
@@ -40,13 +41,9 @@ clean:
 	rm -f $(BINARY_NAME)
 	rm -f $(BINARY_UNIX)
 
-check_version:
-	$(GOBUILD) -o $(BINARY_NAME)
-	./$(BINARY_NAME) version
-
 setup:
-	go mod download
-	go mod tidy
+	$(GOMOD) download
+	$(GOMOD) tidy
 
 # Cross Compilation
 build-linux:
@@ -55,7 +52,4 @@ build-linux:
 docker-build:
 	docker run --rm -it -v "$(GOPATH)":/go -w /go/src/github.com/Shopify/kubeaudit golang:1.12 go build -o "$(BINARY_UNIX)" -v
 
-run-demo:
-	go run demo/*.go
-
-.PHONY: build clean test check_version build-linux docker-build
+.PHONY: all build install plugin test show-coverage clean setup build-linux docker-build
