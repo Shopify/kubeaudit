@@ -9,8 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"  // auth for GKE clusters
-	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc" // auth for OIDC
+	_ "k8s.io/client-go/plugin/pkg/client/auth/azure" // auth for AKS clusters
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"   // auth for GKE clusters
+	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"  // auth for OIDC
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
