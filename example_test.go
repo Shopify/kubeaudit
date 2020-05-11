@@ -77,7 +77,7 @@ func Example_auditLocal() {
 	}
 
 	// Run the audit in local mode
-	report, err := auditor.AuditLocal("/path/to/kubeconfig.yml")
+	report, err := auditor.AuditLocal("/path/to/kubeconfig.yml", "")
 	if err != nil {
 		log.Fatal(err)
 	}

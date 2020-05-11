@@ -35,7 +35,7 @@ func TestAuditLocal(t *testing.T) {
 	auditor, err := kubeaudit.New(allAuditors)
 	require.NoError(err)
 
-	_, err = auditor.AuditLocal("path")
+	_, err = auditor.AuditLocal("path", "")
 	require.NotNil(err)
 }
 
