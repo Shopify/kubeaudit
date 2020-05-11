@@ -146,8 +146,7 @@ func GetNamespaces(clientset kubernetes.Interface, namespace string) *k8stypes.N
 
 	if namespace != "" {
 		// Select only the specified namespace
-		// TODO this doesn't work??
-		listOptions.FieldSelector = fmt.Sprintf("objectmeta.name=%s", namespace)
+		listOptions.FieldSelector = fmt.Sprintf("metadata.name=%s", namespace)
 	}
 
 	namespaces, err := namespaceClient.List(listOptions)

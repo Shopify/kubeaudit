@@ -90,8 +90,11 @@ func TestGetAllResources(t *testing.T) {
 	clientset := fakeclientset.NewSimpleClientset(resources...)
 	assert.Len(t, GetAllResources(clientset, ""), len(resourceTemplates)*len(namespaces))
 
-	// TODO uncomment this when GetNamespaces() is fixed
-	// assert.Len(t, GetAllResources(clientset, namespaces[0]), len(resourceTemplates))
+	// Because field selectors are handled server-side, the fake clientset does not support them
+	// which means the Namespace resources don't get filtered (this is not a problem when using
+	// a real clientset)
+	// See https://github.com/kubernetes/client-go/issues/326
+	assert.Len(t, GetAllResources(clientset, namespaces[0]), len(resourceTemplates)+(len(namespaces)-1))
 }
 
 func setNamespace(resource k8stypes.Resource, namespace string) {
