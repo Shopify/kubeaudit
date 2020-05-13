@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
-
+    
 set -e
+
+function finish {
+    make test-teardown
+}
+trap finish EXIT
+
+make test-setup
+
 touch coverage.txt
 
 for d in $(go list ./... | grep -v vendor); do

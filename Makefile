@@ -13,6 +13,10 @@ GOVERSION:=$(shell go version | awk '{print $$3}')
 GOVERSION_MIN:=go1.12
 GOVERSION_CHECK=$(shell printf "%s\n%s\n" "$(GOVERSION)" "$(GOVERSION_MIN)" | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n | head -n 1)
 
+# Test parameters
+CLUSTER_NAME="kubeaudit-test"
+NAMESPACE="kubeaudit-test" # Namespace used in test fixtures
+
 export GO111MODULE=on
 
 ifneq ($(GOVERSION_MIN), $(GOVERSION_CHECK))
@@ -33,6 +37,12 @@ plugin:
 test:
 	./test.sh
 
+test-setup:
+	kind create cluster --name ${CLUSTER_NAME} --image kindest/node:v1.15.0 && kubectl create namespace ${NAMESPACE}
+
+test-teardown:
+	kind delete cluster --name ${CLUSTER_NAME}
+
 show-coverage: test
 	go tool cover -html=coverage.txt
 
@@ -52,4 +62,4 @@ build-linux:
 docker-build:
 	docker run --rm -it -v "$(GOPATH)":/go -w /go/src/github.com/Shopify/kubeaudit golang:1.12 go build -o "$(BINARY_UNIX)" -v
 
-.PHONY: all build install plugin test show-coverage clean setup build-linux docker-build
+.PHONY: all build install plugin test test-setup test-teardown show-coverage clean setup build-linux docker-build
