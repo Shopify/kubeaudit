@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: seccomp-deprecated
+  annotations:
+    container.seccomp.security.alpha.kubernetes.io/container: docker/default
+spec:
+  containers:
+    - name: container
+      image: scratch

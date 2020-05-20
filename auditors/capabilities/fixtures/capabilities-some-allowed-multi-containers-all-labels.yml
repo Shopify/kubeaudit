@@ -1,0 +1,61 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: capabilities-some-allowed-multi-containers-all-labels
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+        container.audit.kubernetes.io/container1.allow-capability-chown: "SomeReason"
+        container.audit.kubernetes.io/container1.allow-capability-sys-time: "SomeReason"
+        container.audit.kubernetes.io/container2.allow-capability-chown: "SomeReason"
+        container.audit.kubernetes.io/container2.allow-capability-sys-time: "SomeReason"
+    spec:
+      containers:
+        - name: container1
+          image: scratch
+          securityContext:
+            capabilities:
+              add:
+                - SYS_TIME
+                - SYS_MODULE
+              drop:
+                - AUDIT_WRITE
+                - DAC_OVERRIDE
+                - FOWNER
+                - FSETID
+                - KILL
+                - MKNOD
+                - NET_BIND_SERVICE
+                - NET_RAW
+                - SETFCAP
+                - SETGID
+                - SETUID
+                - SETPCAP
+                - SYS_CHROOT
+        - name: container2
+          image: scratch
+          securityContext:
+            capabilities:
+              add:
+                - SYS_TIME
+                - SYS_MODULE
+              drop:
+                - AUDIT_WRITE
+                - DAC_OVERRIDE
+                - FOWNER
+                - FSETID
+                - KILL
+                - MKNOD
+                - NET_BIND_SERVICE
+                - NET_RAW
+                - SETFCAP
+                - SETGID
+                - SETUID
+                - SETPCAP
+                - SYS_CHROOT

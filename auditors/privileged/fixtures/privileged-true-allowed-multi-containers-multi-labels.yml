@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: daemonset
+  namespace: privileged-true-allowed-multi-containers-multi-labels
+spec:
+  selector:
+    matchLabels:
+      name: daemonset
+  template:
+    metadata:
+      labels:
+        name: daemonset
+        container.audit.kubernetes.io/container1.allow-privileged: "SomeReason"
+        container.audit.kubernetes.io/container2.allow-privileged: "SomeReason"
+    spec:
+      containers:
+        - name: container1
+          image: scratch
+          securityContext:
+            privileged: true
+        - name: container2
+          image: scratch
+          securityContext:
+            privileged: true

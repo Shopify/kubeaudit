@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  labels:
+    name: pod
+    container.audit.kubernetes.io/container1.allow-run-as-root: "SuperuserPrivilegesNeeded"
+  namespace: run-as-non-root-psc-false-allowed-multi-containers-single-label
+spec:
+  securityContext:
+    runAsNonRoot: false
+  containers:
+    - name: container1
+      image: scratch
+      securityContext:
+        runAsNonRoot: true
+    - name: container2
+      image: scratch
+      securityContext:
+        runAsNonRoot: false

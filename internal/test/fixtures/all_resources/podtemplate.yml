@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: podtemplate
+
+---
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: templatespec
+  namespace: podtemplate
+template:
+  metadata:
+    labels:
+      name: templatespec
+  spec:
+    hostPID: true
+    hostIPC: true
+    hostNetwork: true
+    containers:
+      - name: container
+        image: scratch

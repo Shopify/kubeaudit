@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  labels:
+    name: pod
+    audit.kubernetes.io/pod.allow-run-as-root: "SuperuserPrivilegesNeeded"
+  namespace: run-as-non-root-psc-false-allowed
+spec:
+  securityContext:
+    runAsNonRoot: false
+  containers:
+    - name: container
+      image: scratch

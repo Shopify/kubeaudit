@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: host-ipc-true
+spec:
+  hostIPC: true
+  containers:
+    - name: container
+      image: scratch

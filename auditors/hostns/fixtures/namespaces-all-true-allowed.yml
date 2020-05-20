@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: namespaces-all-true-allowed
+  labels:
+    audit.kubernetes.io/pod.allow-namespace-host-network: "SomeReason"
+    audit.kubernetes.io/pod.allow-namespace-host-IPC: "SomeReason"
+    audit.kubernetes.io/pod.allow-namespace-host-PID: "SomeReason"
+spec:
+  hostPID: true
+  hostIPC: true
+  hostNetwork: true
+  containers:
+    - name: container
+      image: scratch

@@ -1,0 +1,21 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: capabilities-dropped-all
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            capabilities:
+              drop:
+                - all
