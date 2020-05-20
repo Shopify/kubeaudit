@@ -1,6 +1,7 @@
 package rootfs
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
@@ -16,23 +17,23 @@ func TestAuditReadOnlyRootFilesystem(t *testing.T) {
 		fixtureDir     string
 		expectedErrors []string
 	}{
-		{"read_only_root_filesystem_nil_v1.yml", fixtureDir, []string{ReadOnlyRootFilesystemNil}},
-		{"read_only_root_filesystem_false_v1.yml", fixtureDir, []string{ReadOnlyRootFilesystemFalse}},
-		{"read_only_root_filesystem_false_allowed_v1.yml", fixtureDir, []string{override.GetOverriddenResultName(ReadOnlyRootFilesystemFalse)}},
-		{"read_only_root_filesystem_redundant_override_v1.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
-		{"read_only_root_filesystem_false_allowed_multi_container_multi_labels_v1.yml", fixtureDir, []string{override.GetOverriddenResultName(ReadOnlyRootFilesystemFalse)}},
-		{"read_only_root_filesystem_false_allowed_multi_container_single_label_v1.yml", fixtureDir, []string{
+		{"read-only-root-filesystem-nil.yml", fixtureDir, []string{ReadOnlyRootFilesystemNil}},
+		{"read-only-root-filesystem-false.yml", fixtureDir, []string{ReadOnlyRootFilesystemFalse}},
+		{"read-only-root-filesystem-false-allowed.yml", fixtureDir, []string{override.GetOverriddenResultName(ReadOnlyRootFilesystemFalse)}},
+		{"read-only-root-filesystem-redundant-override.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
+		{"read-only-root-filesystem-false-allowed-multi-labels.yml", fixtureDir, []string{override.GetOverriddenResultName(ReadOnlyRootFilesystemFalse)}},
+		{"read-only-root-filesystem-false-allowed-single-label.yml", fixtureDir, []string{
 			override.GetOverriddenResultName(ReadOnlyRootFilesystemFalse), ReadOnlyRootFilesystemFalse,
 		}},
-
-		// Shared fixtures
-		{"security_context_nil_v1.yml", test.SharedFixturesDir, []string{ReadOnlyRootFilesystemNil}},
-		{"security_context_nil_v1beta1.yml", test.SharedFixturesDir, []string{ReadOnlyRootFilesystemNil}},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			test.Audit(t, tt.fixtureDir, tt.file, New(), tt.expectedErrors)
+	for _, tc := range cases {
+		// This line is needed because of how scopes work with parallel tests (see https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
+		tc := tc
+		t.Run(tc.file, func(t *testing.T) {
+			t.Parallel()
+			test.AuditManifest(t, tc.fixtureDir, tc.file, New(), tc.expectedErrors)
+			test.AuditLocal(t, tc.fixtureDir, tc.file, New(), strings.Split(tc.file, ".")[0], tc.expectedErrors)
 		})
 	}
 }

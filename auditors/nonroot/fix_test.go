@@ -14,42 +14,38 @@ func TestFixRunAsNonRoot(t *testing.T) {
 		fixtureDir    string
 		expectedValue *bool
 	}{
-		{"run_as_non_root_nil_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_false_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_false_allowed_v1.yml", fixtureDir, k8s.NewFalse()},
-		{"run_as_non_root_redundant_override_container_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_redundant_override_pod_v1.yml", fixtureDir, nil},
-		{"run_as_non_root_psc_false_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_psc_true_csc_false_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_psc_false_csc_false_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_psc_false_allowed_v1.yml", fixtureDir, nil},
-		{"run_as_non_root_psc_false_csc_true_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_psc_false_csc_nil_multiple_cont_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_psc_false_csc_true_multiple_cont_v1.yml", fixtureDir, k8s.NewTrue()},
-		{"run_as_non_root_psc_false_allowed_multi_containers_single_label_v1.yml", fixtureDir, k8s.NewTrue()},
-
-		// Shared fixtures
-		{"security_context_nil_v1.yml", test.SharedFixturesDir, k8s.NewTrue()},
-		{"security_context_nil_v1beta1.yml", test.SharedFixturesDir, k8s.NewTrue()},
+		{"run-as-non-root-nil.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-false.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-false-allowed.yml", fixtureDir, k8s.NewFalse()},
+		{"run-as-non-root-redundant-override-container.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-redundant-override-pod.yml", fixtureDir, nil},
+		{"run-as-non-root-psc-false.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-psc-true-csc-false.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-psc-false-csc-false.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-psc-false-allowed.yml", fixtureDir, nil},
+		{"run-as-non-root-psc-false-csc-true.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-psc-false-csc-nil-multiple-cont.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-psc-false-csc-true-multiple-cont.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-non-root-psc-false-allowed-multi-containers-single-label.yml", fixtureDir, k8s.NewTrue()},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			resources, _ := test.FixSetup(t, tt.fixtureDir, tt.file, New())
+	for _, tc := range cases {
+		t.Run(tc.file, func(t *testing.T) {
+			resources, _ := test.FixSetup(t, tc.fixtureDir, tc.file, New())
 			for _, resource := range resources {
 				containers := k8s.GetContainers(resource)
 				for _, container := range containers {
-					if tt.expectedValue == nil {
+					if tc.expectedValue == nil {
 						assert.True(t, (container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil))
 					} else {
-						assert.Equal(t, *tt.expectedValue, *container.SecurityContext.RunAsNonRoot)
+						assert.Equal(t, *tc.expectedValue, *container.SecurityContext.RunAsNonRoot)
 					}
 				}
 			}
 		})
 	}
 
-	file := "run_as_non_root_psc_false_allowed_multi_containers_multi_labels_v1.yml"
+	file := "run-as-non-root-psc-false-allowed-multi-containers-multi-labels.yml"
 	t.Run(file, func(t *testing.T) {
 		resources, _ := test.FixSetup(t, fixtureDir, file, New())
 		for _, resource := range resources {

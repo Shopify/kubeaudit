@@ -14,40 +14,38 @@ func TestFixReadOnlyRootFilesystem(t *testing.T) {
 		fixtureDir    string
 		expectedValue bool
 	}{
-		{"read_only_root_filesystem_nil_v1.yml", fixtureDir, true},
-		{"read_only_root_filesystem_false_v1.yml", fixtureDir, true},
-		{"read_only_root_filesystem_false_allowed_v1.yml", fixtureDir, false},
-		{"read_only_root_filesystem_redundant_override_v1.yml", fixtureDir, true},
-		{"read_only_root_filesystem_false_allowed_multi_container_multi_labels_v1.yml", fixtureDir, false},
-
-		// Shared fixtures
-		{"security_context_nil_v1.yml", test.SharedFixturesDir, true},
-		{"security_context_nil_v1beta1.yml", test.SharedFixturesDir, true},
+		{"read-only-root-filesystem-nil.yml", fixtureDir, true},
+		{"read-only-root-filesystem-false.yml", fixtureDir, true},
+		{"read-only-root-filesystem-false-allowed.yml", fixtureDir, false},
+		{"read-only-root-filesystem-redundant-override.yml", fixtureDir, true},
+		{"read-only-root-filesystem-false-allowed-multi-labels.yml", fixtureDir, false},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			resources, _ := test.FixSetup(t, tt.fixtureDir, tt.file, New())
+	for _, tc := range cases {
+		t.Run(tc.file, func(t *testing.T) {
+			resources, _ := test.FixSetup(t, tc.fixtureDir, tc.file, New())
 			for _, resource := range resources {
 				containers := k8s.GetContainers(resource)
 				for _, container := range containers {
-					assert.Equal(t, tt.expectedValue, *container.SecurityContext.ReadOnlyRootFilesystem)
+					assert.Equal(t, tc.expectedValue, *container.SecurityContext.ReadOnlyRootFilesystem)
 				}
 			}
 		})
 	}
 
-	file := "read_only_root_filesystem_false_allowed_multi_container_single_label_v1.yml"
+	file := "read-only-root-filesystem-false-allowed-single-label.yml"
 	t.Run(file, func(t *testing.T) {
 		resources, _ := test.FixSetup(t, fixtureDir, file, New())
 		for _, resource := range resources {
 			containers := k8s.GetContainers(resource)
 			for _, container := range containers {
 				switch container.Name {
-				case "fakeContainerRORF1":
+				case "container1":
 					assert.False(t, *container.SecurityContext.ReadOnlyRootFilesystem)
-				case "fakeContainerRORF2":
+				case "container2":
 					assert.True(t, *container.SecurityContext.ReadOnlyRootFilesystem)
+				default:
+					assert.Failf(t, "unexpected container name", container.Name)
 				}
 			}
 		}

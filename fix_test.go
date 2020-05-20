@@ -1,11 +1,12 @@
 package kubeaudit_test
 
 import (
-	"bytes"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/all"
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/test"
@@ -13,34 +14,41 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureDir = "internal/test/fixtures"
-
+// Test that fixing all fixtures in auditors/* results in manifests that pass all audits
 func TestFix(t *testing.T) {
-	cases := []struct {
-		origFile  string
-		fixedFile string
-	}{
-		{"all-resources_v1.yml", "all-resources-fixed_v1.yml"},
-		{"all-resources_v1beta1.yml", "all-resources-fixed_v1beta1.yml"},
-		{"all-resources_v1beta2.yml", "all-resources-fixed_v1beta2.yml"},
+	auditorDirs, err := ioutil.ReadDir("auditors")
+	if !assert.Nil(t, err) {
+		return
 	}
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
 	require.NoError(t, err)
 
-	for _, tt := range cases {
-		t.Run(tt.origFile+" <=> "+tt.fixedFile, func(t *testing.T) {
-			assert := assert.New(t)
+	for _, auditorDir := range auditorDirs {
+		if !auditorDir.IsDir() {
+			continue
+		}
 
-			report := test.AuditManifest(t, fixtureDir, tt.origFile, allAuditors)
+		fixturesDirPath := filepath.Join("..", auditorDir.Name(), "fixtures")
+		fixtureFiles, err := ioutil.ReadDir(fixturesDirPath)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if !assert.Nil(t, err) {
+			return
+		}
 
-			fixed := bytes.NewBuffer(nil)
-			report.Fix(fixed)
-
-			expected, err := ioutil.ReadFile(filepath.Join(fixtureDir, tt.fixedFile))
-			assert.NoError(err)
-
-			assert.Equal(string(expected), fixed.String())
-		})
+		for _, fixture := range fixtureFiles {
+			t.Run(filepath.Join(fixturesDirPath, fixture.Name()), func(t *testing.T) {
+				_, report := test.FixSetupMultiple(t, fixturesDirPath, fixture.Name(), allAuditors)
+				for _, result := range report.Results() {
+					for _, auditResult := range result.GetAuditResults() {
+						if !assert.NotEqual(t, kubeaudit.Error, auditResult.Severity) {
+							return
+						}
+					}
+				}
+			})
+		}
 	}
 }

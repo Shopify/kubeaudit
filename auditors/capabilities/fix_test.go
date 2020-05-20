@@ -91,9 +91,9 @@ func TestFixCapabilities(t *testing.T) {
 
 	auditor := New(Config{DropList: customDropList})
 
-	for _, tt := range cases {
-		t.Run(tt.testName, func(t *testing.T) {
-			resource := newPod(tt.add, tt.drop, tt.overrides)
+	for _, tc := range cases {
+		t.Run(tc.testName, func(t *testing.T) {
+			resource := newPod(tc.add, tc.drop, tc.overrides)
 			auditResults, err := auditor.Audit(resource, nil)
 			if !assert.Nil(t, err) {
 				return
@@ -108,15 +108,15 @@ func TestFixCapabilities(t *testing.T) {
 			}
 
 			capabilities := k8s.GetContainers(resource)[0].SecurityContext.Capabilities
-			assertCapabilitiesEqual(t, capabilities.Add, tt.expectedAdd)
-			assertCapabilitiesEqual(t, capabilities.Drop, tt.expectedDrop)
+			assertCapabilitiesEqual(t, capabilities.Add, tc.expectedAdd)
+			assertCapabilitiesEqual(t, capabilities.Drop, tc.expectedDrop)
 		})
 	}
 
 	t.Run("Nil security context", func(t *testing.T) {
 		resource := &k8stypes.PodV1{
 			Spec: v1.PodSpec{
-				Containers: []k8stypes.ContainerV1{k8stypes.ContainerV1{}},
+				Containers: []k8stypes.ContainerV1{{}},
 			},
 		}
 		auditResults, err := auditor.Audit(resource, nil)

@@ -1,6 +1,8 @@
 package image
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit/internal/test"
@@ -22,11 +24,11 @@ func TestSplitImageString(t *testing.T) {
 		{"Empty string", "", "", ""},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.testName, func(t *testing.T) {
-			image, tag := splitImageString(tt.image)
-			assert.Equal(t, tt.expectedName, image)
-			assert.Equal(t, tt.expectedTag, tag)
+	for _, tc := range cases {
+		t.Run(tc.testName, func(t *testing.T) {
+			image, tag := splitImageString(tc.image)
+			assert.Equal(t, tc.expectedName, image)
+			assert.Equal(t, tc.expectedTag, tag)
 		})
 	}
 }
@@ -37,16 +39,21 @@ func TestAuditImage(t *testing.T) {
 		image          string
 		expectedErrors []string
 	}{
-		{"image_tag_missing_v1.yml", "fakeContainerImg:1.6", []string{ImageTagMissing}},
-		{"image_tag_missing_v1.yml", "", []string{ImageTagMissing}},
-		{"image_tag_present_v1.yml", "fakeContainerImg:1.6", []string{ImageTagIncorrect}},
-		{"image_tag_present_v1.yml", "", []string{}},
-		{"image_tag_present_v1.yml", "fakeContainerImg:1.5", []string{ImageCorrect}},
+		{"image-tag-missing.yml", "scratch:1.6", []string{ImageTagMissing}},
+		{"image-tag-missing.yml", "", []string{ImageTagMissing}},
+		{"image-tag-present.yml", "scratch:1.6", []string{ImageTagIncorrect}},
+		{"image-tag-present.yml", "", []string{}},
+		{"image-tag-present.yml", "scratch:1.5", []string{ImageCorrect}},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			test.Audit(t, fixtureDir, tt.file, New(Config{Image: tt.image}), tt.expectedErrors)
+	for i, tc := range cases {
+		// These lines are needed because of how scopes work with parallel tests (see https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
+		tc := tc
+		i := i
+		t.Run(tc.file+" "+tc.image, func(t *testing.T) {
+			t.Parallel()
+			test.AuditManifest(t, fixtureDir, tc.file, New(Config{Image: tc.image}), tc.expectedErrors)
+			test.AuditLocal(t, fixtureDir, tc.file, New(Config{Image: tc.image}), fmt.Sprintf("%s%d", strings.Split(tc.file, ".")[0], i), tc.expectedErrors)
 		})
 	}
 }

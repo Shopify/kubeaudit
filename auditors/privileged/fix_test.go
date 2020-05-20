@@ -14,40 +14,38 @@ func TestFixPrivileged(t *testing.T) {
 		fixtureDir    string
 		expectedValue bool
 	}{
-		{"privileged_nil_v1.yml", fixtureDir, false},
-		{"privileged_true_v1.yml", fixtureDir, false},
-		{"privileged_true_allowed_v1.yml", fixtureDir, true},
-		{"privileged_redundant_override_v1.yml", fixtureDir, false},
-		{"privileged_true_allowed_multi_containers_multi_labels_v1.yml", fixtureDir, true},
-
-		// Shared fixtures
-		{"security_context_nil_v1.yml", test.SharedFixturesDir, false},
-		{"security_context_nil_v1beta1.yml", test.SharedFixturesDir, false},
+		{"privileged-nil.yml", fixtureDir, false},
+		{"privileged-true.yml", fixtureDir, false},
+		{"privileged-true-allowed.yml", fixtureDir, true},
+		{"privileged-redundant-override.yml", fixtureDir, false},
+		{"privileged-true-allowed-multi-containers-multi-labels.yml", fixtureDir, true},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			resources, _ := test.FixSetup(t, tt.fixtureDir, tt.file, New())
+	for _, tc := range cases {
+		t.Run(tc.file, func(t *testing.T) {
+			resources, _ := test.FixSetup(t, tc.fixtureDir, tc.file, New())
 			for _, resource := range resources {
 				containers := k8s.GetContainers(resource)
 				for _, container := range containers {
-					assert.Equal(t, tt.expectedValue, *container.SecurityContext.Privileged)
+					assert.Equal(t, tc.expectedValue, *container.SecurityContext.Privileged)
 				}
 			}
 		})
 	}
 
-	file := "privileged_true_allowed_multi_containers_single_label_v1.yml"
+	file := "privileged-true-allowed-multi-containers-single-label.yml"
 	t.Run(file, func(t *testing.T) {
 		resources, _ := test.FixSetup(t, fixtureDir, file, New())
 		for _, resource := range resources {
 			containers := k8s.GetContainers(resource)
 			for _, container := range containers {
 				switch container.Name {
-				case "fakeContainerPrivileged":
+				case "container1":
 					assert.False(t, *container.SecurityContext.Privileged)
-				case "fakeContainerPrivileged2":
+				case "container2":
 					assert.True(t, *container.SecurityContext.Privileged)
+				default:
+					assert.Failf(t, "unexpected container name", container.Name)
 				}
 			}
 		}

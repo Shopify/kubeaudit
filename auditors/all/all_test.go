@@ -1,9 +1,7 @@
 package all
 
 import (
-	"io/ioutil"
-	"os"
-	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
@@ -25,10 +23,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureDir = "fixtures"
+const fixtureDir = "../../internal/test/fixtures/all_resources"
 
 func TestAuditAll(t *testing.T) {
-	files := []string{"audit_all_v1.yml", "audit_all_v1beta1.yml"}
 	allErrors := []string{
 		apparmor.AppArmorAnnotationMissing,
 		asat.AutomountServiceAccountTokenTrueAndDefaultSA,
@@ -49,55 +46,37 @@ func TestAuditAll(t *testing.T) {
 	allAuditors, err := Auditors(config.KubeauditConfig{})
 	require.NoError(t, err)
 
-	for _, file := range files {
+	for _, file := range test.GetAllFileNames(t, fixtureDir) {
+		// This line is needed because of how scopes work with parallel tests (see https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
+		file := file
 		t.Run(file, func(t *testing.T) {
-			test.AuditMultiple(t, fixtureDir, file, allAuditors, allErrors)
+			t.Parallel()
+			test.AuditMultiple(t, fixtureDir, file, allAuditors, allErrors, "", test.MANIFEST_MODE)
+			test.AuditMultiple(t, fixtureDir, file, allAuditors, allErrors, strings.Split(file, ".")[0], test.LOCAL_MODE)
 		})
 	}
 }
 
-// Test that fixing all fixtures in auditors/* results in manifests that pass all audits
-func TestAllForRegression(t *testing.T) {
-	auditorDirs, err := ioutil.ReadDir("../")
-	if !assert.Nil(t, err) {
-		return
-	}
-
+func TestFixAll(t *testing.T) {
 	allAuditors, err := Auditors(config.KubeauditConfig{})
 	require.NoError(t, err)
 
-	for _, auditorDir := range auditorDirs {
-		if !auditorDir.IsDir() {
-			continue
-		}
-
-		fixturesDirPath := filepath.Join("..", auditorDir.Name(), "fixtures")
-		fixtureFiles, err := ioutil.ReadDir(fixturesDirPath)
-		if os.IsNotExist(err) {
-			continue
-		}
-		if !assert.Nil(t, err) {
-			return
-		}
-
-		for _, fixture := range fixtureFiles {
-			t.Run(filepath.Join(fixturesDirPath, fixture.Name()), func(t *testing.T) {
-				_, report := test.FixSetupMultiple(t, fixturesDirPath, fixture.Name(), allAuditors)
-				for _, result := range report.Results() {
-					for _, auditResult := range result.GetAuditResults() {
-						if !assert.NotEqual(t, kubeaudit.Error, auditResult.Severity) {
-							return
-						}
+	for _, file := range test.GetAllFileNames(t, fixtureDir) {
+		t.Run(file, func(t *testing.T) {
+			_, report := test.FixSetupMultiple(t, fixtureDir, file, allAuditors)
+			for _, result := range report.Results() {
+				for _, auditResult := range result.GetAuditResults() {
+					if !assert.NotEqual(t, kubeaudit.Error, auditResult.Severity) {
+						return
 					}
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
 // Test all auditors with config
 func TestAllWithConfig(t *testing.T) {
-	files := []string{"audit_all_v1.yml", "audit_all_v1beta1.yml"}
 	enabledAuditors := []string{
 		apparmor.Name, seccomp.Name,
 	}
@@ -112,9 +91,9 @@ func TestAllWithConfig(t *testing.T) {
 	auditors, err := Auditors(conf)
 	require.NoError(t, err)
 
-	for _, file := range files {
+	for _, file := range test.GetAllFileNames(t, fixtureDir) {
 		t.Run(file, func(t *testing.T) {
-			test.AuditMultiple(t, fixtureDir, file, auditors, expectedErrors)
+			test.AuditMultiple(t, fixtureDir, file, auditors, expectedErrors, "", test.MANIFEST_MODE)
 		})
 	}
 }

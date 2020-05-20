@@ -93,7 +93,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 	}
 
 	if k8s.IsRunningInCluster(k8s.DefaultClient) {
-		report, err := auditor.AuditCluster(rootConfig.namespace)
+		report, err := auditor.AuditCluster(k8s.ClientOptions{Namespace: rootConfig.namespace})
 		if err != nil {
 			log.WithError(err).Fatal("Error auditing cluster")
 		}
@@ -101,7 +101,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 	}
 
 	if rootConfig.kubeConfig != "" {
-		report, err := auditor.AuditLocal(rootConfig.kubeConfig, rootConfig.namespace)
+		report, err := auditor.AuditLocal(rootConfig.kubeConfig, k8s.ClientOptions{Namespace: rootConfig.namespace})
 		if err != nil {
 			log.WithError(err).Fatal("Error auditing using local kube config")
 		}
@@ -113,7 +113,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 		log.Fatal("Local mode selected but $HOME not set.")
 	}
 
-	report, err := auditor.AuditLocal(filepath.Join(home, ".kube", "config"), rootConfig.namespace)
+	report, err := auditor.AuditLocal(filepath.Join(home, ".kube", "config"), k8s.ClientOptions{Namespace: rootConfig.namespace})
 	if err != nil {
 		log.WithError(err).Fatal("Error auditing using local kube config")
 	}

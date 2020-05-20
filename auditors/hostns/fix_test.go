@@ -15,25 +15,25 @@ func TestFixHostNamespaces(t *testing.T) {
 		expectedHostIPC     bool
 		expectedHostPID     bool
 	}{
-		{"host_network_true_v1.yml", false, false, false},
-		{"host_IPC_true_v1.yml", false, false, false},
-		{"host_PID_true_v1.yml", false, false, false},
-		{"host_network_true_allowed_v1.yml", true, false, false},
-		{"host_IPC_true_allowed_v1.yml", false, true, false},
-		{"host_PID_true_allowed_v1.yml", false, false, true},
-		{"namespaces_redundant_override_v1.yml", false, false, false},
-		{"namespaces_all_true_v1.yml", false, false, false},
-		{"namespaces_all_true_allowed_v1.yml", true, true, true},
+		{"host-network-true.yml", false, false, false},
+		{"host-ipc-true.yml", false, false, false},
+		{"host-pid-true.yml", false, false, false},
+		{"host-network-true-allowed.yml", true, false, false},
+		{"host-ipc-true-allowed.yml", false, true, false},
+		{"host-pid-true-allowed.yml", false, false, true},
+		{"namespaces-redundant-override.yml", false, false, false},
+		{"namespaces-all-true.yml", false, false, false},
+		{"namespaces-all-true-allowed.yml", true, true, true},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			resources, _ := test.FixSetup(t, fixtureDir, tt.file, New())
+	for _, tc := range cases {
+		t.Run(tc.file, func(t *testing.T) {
+			resources, _ := test.FixSetup(t, fixtureDir, tc.file, New())
 			for _, resource := range resources {
 				podSpec := k8s.GetPodSpec(resource)
-				assert.Equal(t, tt.expectedHostNetwork, podSpec.HostNetwork)
-				assert.Equal(t, tt.expectedHostIPC, podSpec.HostIPC)
-				assert.Equal(t, tt.expectedHostPID, podSpec.HostPID)
+				assert.Equal(t, tc.expectedHostNetwork, podSpec.HostNetwork)
+				assert.Equal(t, tc.expectedHostIPC, podSpec.HostIPC)
+				assert.Equal(t, tc.expectedHostPID, podSpec.HostPID)
 			}
 		})
 	}

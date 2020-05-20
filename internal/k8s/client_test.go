@@ -75,6 +75,8 @@ func TestGetAllResources(t *testing.T) {
 		k8stypes.NewNetworkPolicy(),
 		k8stypes.NewReplicationController(),
 		k8stypes.NewStatefulSet(),
+		k8stypes.NewPodTemplate(),
+		k8stypes.NewCronJob(),
 	}
 	namespaces := []string{"foo", "bar"}
 
@@ -88,13 +90,13 @@ func TestGetAllResources(t *testing.T) {
 	}
 
 	clientset := fakeclientset.NewSimpleClientset(resources...)
-	assert.Len(t, GetAllResources(clientset, ""), len(resourceTemplates)*len(namespaces))
+	assert.Len(t, GetAllResources(clientset, ClientOptions{}), len(resourceTemplates)*len(namespaces))
 
 	// Because field selectors are handled server-side, the fake clientset does not support them
 	// which means the Namespace resources don't get filtered (this is not a problem when using
 	// a real clientset)
 	// See https://github.com/kubernetes/client-go/issues/326
-	assert.Len(t, GetAllResources(clientset, namespaces[0]), len(resourceTemplates)+(len(namespaces)-1))
+	assert.Len(t, GetAllResources(clientset, ClientOptions{Namespace: namespaces[0]}), len(resourceTemplates)+(len(namespaces)-1))
 }
 
 func setNamespace(resource k8stypes.Resource, namespace string) {

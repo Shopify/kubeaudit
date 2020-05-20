@@ -7,7 +7,7 @@ import (
 func getNetworkPolicies(resources []k8stypes.Resource, namespace string) (networkPolicies []*k8stypes.NetworkPolicyV1) {
 	for _, resource := range resources {
 		networkPolicy, ok := resource.(*k8stypes.NetworkPolicyV1)
-		if ok && getResourceNamespace(resource) == namespace {
+		if ok && (namespace == "" || getResourceNamespace(resource) == namespace) {
 			networkPolicies = append(networkPolicies, networkPolicy)
 		}
 	}
@@ -64,38 +64,68 @@ func allEgressTrafficAllowed(networkPolicy *k8stypes.NetworkPolicyV1) bool {
 
 func hasCatchAllNetworkPolicy(networkPolicies []*k8stypes.NetworkPolicyV1) (bool, *k8stypes.NetworkPolicyV1) {
 	for _, networkPolicy := range networkPolicies {
-		// No PodSelector is set via MatchLabels -> Catch all pods
-		if len(networkPolicy.Spec.PodSelector.MatchLabels) > 0 {
-			continue
+		if isCatchAllNetworkPolicy(networkPolicy) {
+			return true, networkPolicy
 		}
-
-		// No PodSelector is set via MatchExpressions -> Catch all Pods
-		if len(networkPolicy.Spec.PodSelector.MatchExpressions) > 0 {
-			continue
-		}
-
-		return true, networkPolicy
 	}
 
 	return false, nil
 }
 
-func hasDenyAllIngress(networkPolicy *k8stypes.NetworkPolicyV1) bool {
-	if networkPolicy == nil {
+func isCatchAllNetworkPolicy(networkPolicy *k8stypes.NetworkPolicyV1) bool {
+	// No PodSelector is set via MatchLabels -> Catch all pods
+	if len(networkPolicy.Spec.PodSelector.MatchLabels) > 0 {
 		return false
 	}
-	if len(networkPolicy.Spec.Ingress) != 0 {
+
+	// No PodSelector is set via MatchExpressions -> Catch all Pods
+	if len(networkPolicy.Spec.PodSelector.MatchExpressions) > 0 {
 		return false
 	}
-	return isNetworkPolicyType(networkPolicy, Ingress)
+
+	return true
 }
 
-func hasDenyAllEgress(networkPolicy *k8stypes.NetworkPolicyV1) bool {
-	if networkPolicy == nil {
-		return false
+func hasDenyAllIngress(networkPolicies []*k8stypes.NetworkPolicyV1) bool {
+	for _, networkPolicy := range networkPolicies {
+		if networkPolicy == nil {
+			continue
+		}
+
+		if len(networkPolicy.Spec.Ingress) != 0 {
+			continue
+		}
+
+		if !isNetworkPolicyType(networkPolicy, Ingress) {
+			continue
+		}
+
+		if isCatchAllNetworkPolicy(networkPolicy) {
+			return true
+		}
 	}
-	if len(networkPolicy.Spec.Egress) != 0 {
-		return false
+
+	return false
+}
+
+func hasDenyAllEgress(networkPolicies []*k8stypes.NetworkPolicyV1) bool {
+	for _, networkPolicy := range networkPolicies {
+		if networkPolicy == nil {
+			continue
+		}
+
+		if len(networkPolicy.Spec.Egress) != 0 {
+			continue
+		}
+
+		if !isNetworkPolicyType(networkPolicy, Egress) {
+			continue
+		}
+
+		if isCatchAllNetworkPolicy(networkPolicy) {
+			return true
+		}
 	}
-	return isNetworkPolicyType(networkPolicy, Egress)
+
+	return false
 }

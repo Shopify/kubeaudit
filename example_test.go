@@ -10,6 +10,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/config"
+	"github.com/Shopify/kubeaudit/internal/k8s"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -77,7 +78,7 @@ func Example_auditLocal() {
 	}
 
 	// Run the audit in local mode
-	report, err := auditor.AuditLocal("/path/to/kubeconfig.yml", "")
+	report, err := auditor.AuditLocal("/path/to/kubeconfig.yml", k8s.ClientOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -101,7 +102,7 @@ func Example_auditCluster() {
 	}
 
 	// Run the audit in cluster mode. Note this will fail if kubeaudit is not running within a cluster.
-	report, err := auditor.AuditCluster("")
+	report, err := auditor.AuditCluster(k8s.ClientOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -101,9 +101,9 @@ func auditNetworkPoliciesForDenyAll(resource k8stypes.Resource, resources []k8st
 	var auditResults []*kubeaudit.AuditResult
 	namespace := getResourceNamespace(resource)
 	networkPolicies := getNetworkPolicies(resources, namespace)
-	hasCatchAllNetPol, networkPolicy := hasCatchAllNetworkPolicy(networkPolicies)
-	hasDefaultDenyIngress := hasDenyAllIngress(networkPolicy)
-	hasDefaultDenyEgress := hasDenyAllEgress(networkPolicy)
+	hasCatchAllNetPol, catchAllNetPol := hasCatchAllNetworkPolicy(networkPolicies)
+	hasDefaultDenyIngress := hasDenyAllIngress(networkPolicies)
+	hasDefaultDenyEgress := hasDenyAllEgress(networkPolicies)
 
 	if hasCatchAllNetPol {
 		if !hasDefaultDenyIngress {
@@ -115,7 +115,7 @@ func auditNetworkPoliciesForDenyAll(resource k8stypes.Resource, resources []k8st
 					"Namespace": namespace,
 				},
 				PendingFix: &fixByAddingPolicyToNetPol{
-					networkPolicy: networkPolicy,
+					networkPolicy: catchAllNetPol,
 					policyType:    Ingress,
 				},
 			}
@@ -132,7 +132,7 @@ func auditNetworkPoliciesForDenyAll(resource k8stypes.Resource, resources []k8st
 					"Namespace": namespace,
 				},
 				PendingFix: &fixByAddingPolicyToNetPol{
-					networkPolicy: networkPolicy,
+					networkPolicy: catchAllNetPol,
 					policyType:    Egress,
 				},
 			}

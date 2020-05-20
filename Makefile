@@ -15,7 +15,6 @@ GOVERSION_CHECK=$(shell printf "%s\n%s\n" "$(GOVERSION)" "$(GOVERSION_MIN)" | so
 
 # Test parameters
 CLUSTER_NAME="kubeaudit-test"
-NAMESPACE="kubeaudit-test" # Namespace used in test fixtures
 
 export GO111MODULE=on
 
@@ -38,7 +37,7 @@ test:
 	./test.sh
 
 test-setup:
-	kind create cluster --name ${CLUSTER_NAME} --image kindest/node:v1.15.0 && kubectl create namespace ${NAMESPACE}
+	kind create cluster --name ${CLUSTER_NAME} --image kindest/node:v1.15.0
 
 test-teardown:
 	kind delete cluster --name ${CLUSTER_NAME}

@@ -2,6 +2,7 @@ package seccomp
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit/internal/k8s"
@@ -16,19 +17,26 @@ func TestAuditSeccomp(t *testing.T) {
 	cases := []struct {
 		file           string
 		expectedErrors []string
+		testLocalMode  bool
 	}{
-		{"seccomp_annotation_missing_v1.yml", []string{SeccompAnnotationMissing}},
-		{"seccomp_deprecated_pod_v1.yml", []string{SeccompDeprecatedPod}},
-		{"seccomp_deprecated_v1.yml", []string{SeccompDeprecatedContainer, SeccompAnnotationMissing}},
-		{"seccomp_disabled_pod_v1.yml", []string{SeccompDisabledPod}},
-		{"seccomp_disabled_v1.yml", []string{SeccompDisabledContainer}},
-		{"seccomp_enabled_pod_v1.yml", nil},
-		{"seccomp_enabled_v1.yml", nil},
+		{"seccomp-annotation-missing.yml", []string{SeccompAnnotationMissing}, true},
+		{"seccomp-deprecated-pod.yml", []string{SeccompDeprecatedPod}, true},
+		{"seccomp-deprecated.yml", []string{SeccompDeprecatedContainer, SeccompAnnotationMissing}, true},
+		{"seccomp-disabled-pod.yml", []string{SeccompDisabledPod}, true},
+		{"seccomp-disabled.yml", []string{SeccompDisabledContainer}, false},
+		{"seccomp-enabled-pod.yml", nil, true},
+		{"seccomp-enabled.yml", nil, true},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			test.Audit(t, fixtureDir, tt.file, New(), tt.expectedErrors)
+	for _, tc := range cases {
+		// This line is needed because of how scopes work with parallel tests (see https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
+		tc := tc
+		t.Run(tc.file, func(t *testing.T) {
+			t.Parallel()
+			test.AuditManifest(t, fixtureDir, tc.file, New(), tc.expectedErrors)
+			if tc.testLocalMode {
+				test.AuditLocal(t, fixtureDir, tc.file, New(), strings.Split(tc.file, ".")[0], tc.expectedErrors)
+			}
 		})
 	}
 }
@@ -145,9 +153,9 @@ func TestFixSeccomp(t *testing.T) {
 	}
 
 	auditor := New()
-	for _, tt := range cases {
-		t.Run(tt.testName, func(t *testing.T) {
-			resource := newPod(tt.containerNames, tt.annotations)
+	for _, tc := range cases {
+		t.Run(tc.testName, func(t *testing.T) {
+			resource := newPod(tc.containerNames, tc.annotations)
 			auditResults, err := auditor.Audit(resource, nil)
 			if !assert.Nil(t, err) {
 				return
@@ -162,7 +170,7 @@ func TestFixSeccomp(t *testing.T) {
 			}
 
 			fixedAnnotations := k8s.GetAnnotations(resource)
-			assert.Equal(t, tt.expectedAnnotations, fixedAnnotations)
+			assert.Equal(t, tc.expectedAnnotations, fixedAnnotations)
 		})
 	}
 }

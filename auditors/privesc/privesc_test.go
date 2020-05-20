@@ -1,6 +1,7 @@
 package privesc
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
@@ -16,25 +17,21 @@ func TestAuditPrivilegeEscalation(t *testing.T) {
 		fixtureDir     string
 		expectedErrors []string
 	}{
-		{"allow_privilege_escalation_nil_v1.yml", fixtureDir, []string{AllowPrivilegeEscalationNil}},
-		{"allow_privilege_escalation_true_v1.yml", fixtureDir, []string{AllowPrivilegeEscalationTrue}},
-		{"allow_privilege_escalation_true_allowed_v1.yml", fixtureDir, []string{override.GetOverriddenResultName(AllowPrivilegeEscalationTrue)}},
-		{"allow_privilege_escalation_redundant_override_v1.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
-		{"allow_privilege_escalation_nil_v1beta1.yml", fixtureDir, []string{AllowPrivilegeEscalationNil}},
-		{"allow_privilege_escalation_true_v1beta1.yml", fixtureDir, []string{AllowPrivilegeEscalationTrue}},
-		{"allow_privilege_escalation_true_allowed_v1beta1.yml", fixtureDir, []string{override.GetOverriddenResultName(AllowPrivilegeEscalationTrue)}},
-		{"allow_privilege_escalation_redundant_override_v1beta1.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
-		{"allow_privilege_escalation_true_multiple_allowed_multiple_containers_v1beta.yml", fixtureDir, []string{override.GetOverriddenResultName(AllowPrivilegeEscalationTrue)}},
-		{"allow_privilege_escalation_true_single_allowed_multiple_containers_v1beta.yml", fixtureDir, []string{AllowPrivilegeEscalationTrue, override.GetOverriddenResultName(AllowPrivilegeEscalationTrue)}},
-
-		// Shared fixtures
-		{"security_context_nil_v1.yml", test.SharedFixturesDir, []string{AllowPrivilegeEscalationNil}},
-		{"security_context_nil_v1beta1.yml", test.SharedFixturesDir, []string{AllowPrivilegeEscalationNil}},
+		{"allow-privilege-escalation-nil.yml", fixtureDir, []string{AllowPrivilegeEscalationNil}},
+		{"allow-privilege-escalation-redundant-override.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
+		{"allow-privilege-escalation-true-allowed.yml", fixtureDir, []string{override.GetOverriddenResultName(AllowPrivilegeEscalationTrue)}},
+		{"allow-privilege-escalation-true-multi-allowed-multi-containers.yml", fixtureDir, []string{override.GetOverriddenResultName(AllowPrivilegeEscalationTrue)}},
+		{"allow-privilege-escalation-true-single-allowed-multi-containers.yml", fixtureDir, []string{AllowPrivilegeEscalationTrue, override.GetOverriddenResultName(AllowPrivilegeEscalationTrue)}},
+		{"allow-privilege-escalation-true.yml", fixtureDir, []string{AllowPrivilegeEscalationTrue}},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			test.Audit(t, tt.fixtureDir, tt.file, New(), tt.expectedErrors)
+	for _, tc := range cases {
+		// This line is needed because of how scopes work with parallel tests (see https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
+		tc := tc
+		t.Run(tc.file, func(t *testing.T) {
+			t.Parallel()
+			test.AuditManifest(t, tc.fixtureDir, tc.file, New(), tc.expectedErrors)
+			test.AuditLocal(t, tc.fixtureDir, tc.file, New(), strings.Split(tc.file, ".")[0], tc.expectedErrors)
 		})
 	}
 }

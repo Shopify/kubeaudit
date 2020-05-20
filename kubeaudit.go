@@ -154,7 +154,7 @@ func (a *Kubeaudit) AuditManifest(manifest io.Reader) (*Report, error) {
 }
 
 // AuditCluster audits the Kubernetes resources found in the cluster in which Kubeaudit is running
-func (a *Kubeaudit) AuditCluster(namespace string) (*Report, error) {
+func (a *Kubeaudit) AuditCluster(options k8s.ClientOptions) (*Report, error) {
 	if !k8s.IsRunningInCluster(k8s.DefaultClient) {
 		return nil, errors.New("failed to audit resources in cluster mode: not running in cluster")
 	}
@@ -164,7 +164,7 @@ func (a *Kubeaudit) AuditCluster(namespace string) (*Report, error) {
 		return nil, err
 	}
 
-	resources := getResourcesFromClientset(clientset, namespace)
+	resources := getResourcesFromClientset(clientset, options)
 	results, err := auditResources(resources, a.auditors)
 	if err != nil {
 		return nil, err
@@ -176,7 +176,7 @@ func (a *Kubeaudit) AuditCluster(namespace string) (*Report, error) {
 }
 
 // AuditLocal audits the Kubernetes resources found in the provided Kubernetes config file
-func (a *Kubeaudit) AuditLocal(configpath string, namespace string) (*Report, error) {
+func (a *Kubeaudit) AuditLocal(configpath string, options k8s.ClientOptions) (*Report, error) {
 	if _, err := os.Stat(configpath); err != nil {
 		err = fmt.Errorf("failed to open kubeconfig file %s", configpath)
 		return nil, err
@@ -187,7 +187,7 @@ func (a *Kubeaudit) AuditLocal(configpath string, namespace string) (*Report, er
 		return nil, err
 	}
 
-	resources := getResourcesFromClientset(clientset, namespace)
+	resources := getResourcesFromClientset(clientset, options)
 	results, err := auditResources(resources, a.auditors)
 	if err != nil {
 		return nil, err

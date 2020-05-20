@@ -2,26 +2,42 @@ package test
 
 import (
 	"bytes"
+	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
+	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/k8stypes"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/client-go/util/homedir"
 )
 
 // SharedFixturesDir contains fixtures used by multiple tests
 const SharedFixturesDir = "../../internal/test/fixtures"
 
-// Audit audits a given manifest using the given auditor and returns the results
-func Audit(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable, expectedErrors []string) []kubeaudit.Result {
-	return AuditMultiple(t, fixtureDir, fixture, []kubeaudit.Auditable{auditable}, expectedErrors)
+const MANIFEST_MODE = "manifest"
+const LOCAL_MODE = "local"
+
+func AuditManifest(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable, expectedErrors []string) {
+	AuditMultiple(t, fixtureDir, fixture, []kubeaudit.Auditable{auditable}, expectedErrors, "", MANIFEST_MODE)
 }
 
-func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable, expectedErrors []string) []kubeaudit.Result {
-	report := AuditManifest(t, fixtureDir, fixture, auditables)
+func AuditLocal(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable, namespace string, expectedErrors []string) {
+	AuditMultiple(t, fixtureDir, fixture, []kubeaudit.Auditable{auditable}, expectedErrors, namespace, LOCAL_MODE)
+}
+
+func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable, expectedErrors []string, namespace string, mode string) {
+	expected := make(map[string]bool, len(expectedErrors))
+	for _, err := range expectedErrors {
+		expected[err] = true
+	}
+
+	report := GetReport(t, fixtureDir, fixture, auditables, namespace, mode)
 	require.NotNil(t, report)
 
 	errors := make(map[string]bool)
@@ -31,14 +47,7 @@ func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeau
 		}
 	}
 
-	expected := make(map[string]bool, len(expectedErrors))
-	for _, err := range expectedErrors {
-		expected[err] = true
-	}
-
 	assert.Equal(t, expected, errors)
-
-	return report.Results()
 }
 
 func FixSetup(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable) (fixedResources []k8stypes.Resource, report *kubeaudit.Report) {
@@ -49,7 +58,7 @@ func FixSetup(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Audi
 func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable) (fixedResources []k8stypes.Resource, report *kubeaudit.Report) {
 	require := require.New(t)
 
-	report = AuditManifest(t, fixtureDir, fixture, auditables)
+	report = GetReport(t, fixtureDir, fixture, auditables, "", MANIFEST_MODE)
 	require.NotNil(report)
 
 	// This increases code coverage by calling the Plan() method on each PendingFix object. Plan() returns a human
@@ -82,18 +91,66 @@ func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kub
 	return fixedResources, report
 }
 
-func AuditManifest(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable) *kubeaudit.Report {
+func GetReport(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable, namespace string, mode string) *kubeaudit.Report {
 	require := require.New(t)
 
 	fixture = filepath.Join(fixtureDir, fixture)
-	manifest, err := os.Open(fixture)
-	require.Nil(err)
-
 	auditor, err := kubeaudit.New(auditables)
-	require.Nil(err)
+	require.NoError(err)
 
-	report, err := auditor.AuditManifest(manifest)
-	require.Nil(err)
+	var report *kubeaudit.Report
+	switch mode {
+	case MANIFEST_MODE:
+		manifest, err := os.Open(fixture)
+		require.NoError(err)
+		report, err = auditor.AuditManifest(manifest)
+	case LOCAL_MODE:
+		defer func() {
+			deleteNamespace(t, namespace)
+		}()
+		createNamespace(t, namespace)
+		applyManifest(t, fixture, namespace)
+		kubePath := filepath.Join(homedir.HomeDir(), ".kube", "config")
+		report, err = auditor.AuditLocal(kubePath, k8s.ClientOptions{Namespace: namespace, ExcludeGenerated: true})
+	}
+
+	require.NoError(err)
 
 	return report
+}
+
+// GetAllFileNames returns all file names in the given directory
+// It can be used to retrieve all of the resource manifests fro mthe test/fixtures/all_resources directory
+// This directory is not hardcoded because the working directory for tests relative to the test
+func GetAllFileNames(t *testing.T, directory string) []string {
+	files, err := ioutil.ReadDir(directory)
+	require.Nil(t, err)
+
+	fileNames := make([]string, 0, len(files))
+	for _, file := range files {
+		fileNames = append(fileNames, file.Name())
+	}
+	return fileNames
+}
+
+func applyManifest(t *testing.T, manifestPath, namespace string) {
+	t.Helper()
+	runCmd(t, exec.Command("kubectl", "apply", "-f", manifestPath, "-n", namespace))
+}
+
+func createNamespace(t *testing.T, namespace string) {
+	t.Helper()
+	runCmd(t, exec.Command("kubectl", "create", "namespace", namespace))
+}
+
+func deleteNamespace(t *testing.T, namespace string) {
+	t.Helper()
+	runCmd(t, exec.Command("kubectl", "delete", "namespace", namespace))
+}
+
+func runCmd(t *testing.T, cmd *exec.Cmd) {
+	t.Helper()
+	stdoutStderr, err := cmd.CombinedOutput()
+	fmt.Printf("%s\n", stdoutStderr)
+	require.NoError(t, err)
 }

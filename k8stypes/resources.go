@@ -96,3 +96,32 @@ func NewNetworkPolicy() *NetworkPolicyV1 {
 	networkPolicy.APIVersion = "networking.k8s.io/v1"
 	return networkPolicy
 }
+
+// NewPodTemplate creates a new PodTemplate resource
+func NewPodTemplate() *PodTemplateV1 {
+	podTemplate := &PodTemplateV1{
+		ObjectMeta: ObjectMetaV1{},
+		Template:   podTemplateSpec,
+	}
+
+	podTemplate.Kind = "PodTemplate"
+	podTemplate.APIVersion = "core/v1"
+	return podTemplate
+}
+
+// NewCronJob creates a new CronJob resource
+func NewCronJob() *CronJobV1Beta1 {
+	cronJob := &CronJobV1Beta1{
+		Spec: CronJobSpecV1Beta1{
+			JobTemplate: JobTemplateSpecV1Beta1{
+				Spec: JobSpecV1{
+					Template: podTemplateSpec,
+				},
+			},
+		},
+	}
+
+	cronJob.Kind = "CronJob"
+	cronJob.APIVersion = "batch/v1beta1"
+	return cronJob
+}

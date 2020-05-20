@@ -4,6 +4,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
+	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
@@ -21,8 +22,14 @@ type CapabilityV1 = apiv1.Capability
 // ContainerV1 is a type alias for the v1 version of the k8s API.
 type ContainerV1 = apiv1.Container
 
+// CronJobListV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
+type CronJobListV1Beta1 = batchv1beta1.CronJobList
+
 // CronJobV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
 type CronJobV1Beta1 = batchv1beta1.CronJob
+
+// CronJobSpecV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
+type CronJobSpecV1Beta1 = batchv1beta1.CronJobSpec
 
 // DaemonSetListV1 is a type alias for the v1 version of the k8s apps API.
 type DaemonSetListV1 = appsv1.DaemonSetList
@@ -57,6 +64,12 @@ type DeploymentV1Beta1 = appsv1beta1.Deployment
 // DeploymentV1Beta2 is a type alias for the v1beta2 version of the k8s apps API.
 type DeploymentV1Beta2 = appsv1beta2.Deployment
 
+// JobTemplateSpecV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
+type JobTemplateSpecV1Beta1 = batchv1beta1.JobTemplateSpec
+
+// JobSpecV1 is a type alias for the v1 version of the k8s batch API.
+type JobSpecV1 = batchv1.JobSpec
+
 // ListOptionsV1 is a type alias for the v1 version of the k8s meta API.
 type ListOptionsV1 = metav1.ListOptions
 
@@ -89,6 +102,9 @@ type PodSpecV1 = apiv1.PodSpec
 
 // PodTemplateSpecV1 is a type alias for the v1 version of the k8s API.
 type PodTemplateSpecV1 = apiv1.PodTemplateSpec
+
+// PodTemplateListV1 is a type alias for the v1 version of the k8s API.
+type PodTemplateListV1 = apiv1.PodTemplateList
 
 // PodTemplateV1 is a type alias for the v1 version of the k8s API.
 type PodTemplateV1 = apiv1.PodTemplate

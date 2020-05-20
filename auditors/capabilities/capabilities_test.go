@@ -1,6 +1,7 @@
 package capabilities
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
@@ -16,42 +17,42 @@ func TestAuditCapabilities(t *testing.T) {
 		fixtureDir     string
 		expectedErrors []string
 	}{
-		{"capabilities_nil_v1beta2.yml", fixtureDir, []string{CapabilityNotDropped}},
-		{"capabilities_added_v1beta2.yml", fixtureDir, []string{CapabilityAdded}},
-		{"capabilities_added_not_dropped_v1beta2.yml", fixtureDir, []string{CapabilityAdded, CapabilityNotDropped}},
-		{"capabilities_some_allowed_v1beta2.yml", fixtureDir, []string{
+		{"capabilities-nil.yml", fixtureDir, []string{CapabilityNotDropped}},
+		{"capabilities-added.yml", fixtureDir, []string{CapabilityAdded}},
+		{"capabilities-added-not-dropped.yml", fixtureDir, []string{CapabilityAdded, CapabilityNotDropped}},
+		{"capabilities-some-allowed.yml", fixtureDir, []string{
 			CapabilityAdded,
 			override.GetOverriddenResultName(CapabilityAdded),
 			override.GetOverriddenResultName(CapabilityNotDropped),
 		}},
-		{"capabilities_some_dropped_v1beta2.yml", fixtureDir, []string{CapabilityNotDropped}},
-		{"capabilities_dropped_all_v1beta2.yml", fixtureDir, []string{}},
-		{"capabilities_redundant_override_v1beta2.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
-		{"capabilities_some_allowed_multi_containers_all_container_labels_v1beta2.yml", fixtureDir, []string{
+		{"capabilities-some-dropped.yml", fixtureDir, []string{CapabilityNotDropped}},
+		{"capabilities-dropped-all.yml", fixtureDir, []string{}},
+		{"capabilities-redundant-override.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
+		{"capabilities-some-allowed-multi-containers-all-labels.yml", fixtureDir, []string{
 			CapabilityAdded,
 			override.GetOverriddenResultName(CapabilityAdded),
 			override.GetOverriddenResultName(CapabilityNotDropped),
 		}},
-		{"capabilities_some_allowed_multi_containers_some_container_labels_v1beta2.yml", fixtureDir, []string{
+		{"capabilities-some-allowed-multi-containers-some-labels.yml", fixtureDir, []string{
 			CapabilityAdded,
 			CapabilityNotDropped,
 			override.GetOverriddenResultName(CapabilityAdded),
 			override.GetOverriddenResultName(CapabilityNotDropped),
 		}},
-		{"capabilities_some_allowed_multi_containers_mix_labels_v1beta2.yml", fixtureDir, []string{
+		{"capabilities-some-allowed-multi-containers-mix-labels.yml", fixtureDir, []string{
 			CapabilityAdded,
 			override.GetOverriddenResultName(CapabilityAdded),
 			override.GetOverriddenResultName(CapabilityNotDropped),
 		}},
-
-		// Shared fixtures
-		{"security_context_nil_v1.yml", test.SharedFixturesDir, []string{CapabilityNotDropped}},
-		{"security_context_nil_v1beta1.yml", test.SharedFixturesDir, []string{CapabilityNotDropped}},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			test.Audit(t, tt.fixtureDir, tt.file, New(Config{}), tt.expectedErrors)
+	for _, tc := range cases {
+		// This line is needed because of how scopes work with parallel tests (see https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
+		tc := tc
+		t.Run(tc.file, func(t *testing.T) {
+			t.Parallel()
+			test.AuditManifest(t, tc.fixtureDir, tc.file, New(Config{}), tc.expectedErrors)
+			test.AuditLocal(t, tc.fixtureDir, tc.file, New(Config{}), strings.Split(tc.file, ".")[0], tc.expectedErrors)
 		})
 	}
 }
