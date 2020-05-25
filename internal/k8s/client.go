@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -120,7 +121,7 @@ func excludeGenerated(resources []k8stypes.Resource) []k8stypes.Resource {
 // GetDaemonSets gets all DaemonSet resources from the cluster
 func GetDaemonSets(clientset kubernetes.Interface, options ClientOptions) *k8stypes.DaemonSetListV1 {
 	daemonSetClient := clientset.AppsV1().DaemonSets(options.Namespace)
-	daemonSets, err := daemonSetClient.List(k8stypes.ListOptionsV1{})
+	daemonSets, err := daemonSetClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -130,7 +131,7 @@ func GetDaemonSets(clientset kubernetes.Interface, options ClientOptions) *k8sty
 // GetDeployments gets all Deployment resources from the cluster
 func GetDeployments(clientset kubernetes.Interface, options ClientOptions) *k8stypes.DeploymentListV1 {
 	deploymentClient := clientset.AppsV1().Deployments(options.Namespace)
-	deployments, err := deploymentClient.List(k8stypes.ListOptionsV1{})
+	deployments, err := deploymentClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -140,7 +141,7 @@ func GetDeployments(clientset kubernetes.Interface, options ClientOptions) *k8st
 // GetPods gets all Pod resources from the cluster
 func GetPods(clientset kubernetes.Interface, options ClientOptions) *k8stypes.PodListV1 {
 	podClient := clientset.CoreV1().Pods(options.Namespace)
-	pods, err := podClient.List(k8stypes.ListOptionsV1{})
+	pods, err := podClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -150,7 +151,7 @@ func GetPods(clientset kubernetes.Interface, options ClientOptions) *k8stypes.Po
 // GetPodTemplates gets all PodTemplate resources from the cluster
 func GetPodTemplates(clientset kubernetes.Interface, options ClientOptions) *k8stypes.PodTemplateListV1 {
 	podTemplateClient := clientset.CoreV1().PodTemplates(options.Namespace)
-	podTemplates, err := podTemplateClient.List(k8stypes.ListOptionsV1{})
+	podTemplates, err := podTemplateClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -160,7 +161,7 @@ func GetPodTemplates(clientset kubernetes.Interface, options ClientOptions) *k8s
 // GetReplicationControllers gets all ReplicationController resources from the cluster
 func GetReplicationControllers(clientset kubernetes.Interface, options ClientOptions) *k8stypes.ReplicationControllerListV1 {
 	replicationControllerClient := clientset.CoreV1().ReplicationControllers(options.Namespace)
-	replicationControllers, err := replicationControllerClient.List(k8stypes.ListOptionsV1{})
+	replicationControllers, err := replicationControllerClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -170,7 +171,7 @@ func GetReplicationControllers(clientset kubernetes.Interface, options ClientOpt
 // GetStatefulSets gets all StatefulSet resources from the cluster
 func GetStatefulSets(clientset kubernetes.Interface, options ClientOptions) *k8stypes.StatefulSetListV1 {
 	statefulSetClient := clientset.AppsV1().StatefulSets(options.Namespace)
-	statefulSets, err := statefulSetClient.List(k8stypes.ListOptionsV1{})
+	statefulSets, err := statefulSetClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -180,7 +181,7 @@ func GetStatefulSets(clientset kubernetes.Interface, options ClientOptions) *k8s
 // GetNetworkPolicies gets all NetworkPolicy resources from the cluster
 func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) *k8stypes.CronJobListV1Beta1 {
 	cronJobClient := clientset.BatchV1beta1().CronJobs(options.Namespace)
-	cronJobs, err := cronJobClient.List(k8stypes.ListOptionsV1{})
+	cronJobs, err := cronJobClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -190,7 +191,7 @@ func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) *
 // GetCronJobs gets all CronJob resources from the cluster
 func GetCronJobs(clientset kubernetes.Interface, options ClientOptions) *k8stypes.NetworkPolicyListV1 {
 	netPolClient := clientset.NetworkingV1().NetworkPolicies(options.Namespace)
-	netPols, err := netPolClient.List(k8stypes.ListOptionsV1{})
+	netPols, err := netPolClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
 		log.Error(err)
 	}
@@ -207,7 +208,7 @@ func GetNamespaces(clientset kubernetes.Interface, options ClientOptions) *k8sty
 		listOptions.FieldSelector = fmt.Sprintf("metadata.name=%s", options.Namespace)
 	}
 
-	namespaces, err := namespaceClient.List(listOptions)
+	namespaces, err := namespaceClient.List(context.Background(), listOptions)
 
 	if err != nil {
 		log.Error(err)
