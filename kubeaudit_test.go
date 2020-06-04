@@ -36,7 +36,10 @@ func TestAuditLocal(t *testing.T) {
 	auditor, err := kubeaudit.New(allAuditors)
 	require.NoError(err)
 
-	_, err = auditor.AuditLocal("path", k8s.ClientOptions{})
+	_, err = auditor.AuditLocal("", k8s.ClientOptions{})
+	require.NoError(err)
+
+	_, err = auditor.AuditLocal("invalid_path", k8s.ClientOptions{})
 	require.NotNil(err)
 }
 

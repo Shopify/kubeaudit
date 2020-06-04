@@ -102,7 +102,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 
 	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/k8stypes"
@@ -177,13 +176,10 @@ func (a *Kubeaudit) AuditCluster(options k8s.ClientOptions) (*Report, error) {
 
 // AuditLocal audits the Kubernetes resources found in the provided Kubernetes config file
 func (a *Kubeaudit) AuditLocal(configpath string, options k8s.ClientOptions) (*Report, error) {
-	if _, err := os.Stat(configpath); err != nil {
-		err = fmt.Errorf("failed to open kubeconfig file %s", configpath)
-		return nil, err
-	}
-
 	clientset, err := k8s.NewKubeClientLocal(configpath)
-	if err != nil {
+	if err == k8s.ErrNoReadableKubeConfig {
+		return nil, fmt.Errorf("failed to open kubeconfig file %s", configpath)
+	} else if err != nil {
 		return nil, err
 	}
 

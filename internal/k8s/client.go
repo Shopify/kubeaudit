@@ -12,6 +12,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+
+	// add GCP authentication support to the kubernetes code
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
 // ErrNoReadableKubeConfig represents any error that prevents the client from opening a kubeconfig file.
@@ -34,14 +38,28 @@ func (kc k8sClient) InClusterConfig() (*rest.Config, error) {
 
 // NewKubeClientLocal creates a new kube client for local mode
 func NewKubeClientLocal(configPath string) (*kubernetes.Clientset, error) {
-	if _, err := os.Stat(configPath); err != nil {
-		return nil, ErrNoReadableKubeConfig
+	var kubeconfig *rest.Config
+	if configPath == "" {
+		var err error
+		kubeconfig, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+			clientcmd.NewDefaultClientConfigLoadingRules(),
+			&clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: ""}},
+		).ClientConfig()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		if _, err := os.Stat(configPath); err != nil {
+			return nil, ErrNoReadableKubeConfig
+		}
+		var err error
+		kubeconfig, err = clientcmd.BuildConfigFromFlags("", configPath)
+		if err != nil {
+			return nil, err
+		}
 	}
-	config, err := clientcmd.BuildConfigFromFlags("", configPath)
-	if err != nil {
-		return nil, err
-	}
-	kube, err := kubernetes.NewForConfig(config)
+
+	kube, err := kubernetes.NewForConfig(kubeconfig)
 	return kube, err
 }
 

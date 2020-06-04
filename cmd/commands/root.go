@@ -2,13 +2,12 @@ package commands
 
 import (
 	"os"
-	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	apiv1 "k8s.io/api/core/v1"
 
-	kubeaudit "github.com/Shopify/kubeaudit"
+	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/all"
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/k8s"
@@ -100,24 +99,10 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 		return report
 	}
 
-	if rootConfig.kubeConfig != "" {
-		report, err := auditor.AuditLocal(rootConfig.kubeConfig, k8s.ClientOptions{Namespace: rootConfig.namespace})
-		if err != nil {
-			log.WithError(err).Fatal("Error auditing using local kube config")
-		}
-		return report
-	}
-
-	home, ok := os.LookupEnv("HOME")
-	if !ok {
-		log.Fatal("Local mode selected but $HOME not set.")
-	}
-
-	report, err := auditor.AuditLocal(filepath.Join(home, ".kube", "config"), k8s.ClientOptions{Namespace: rootConfig.namespace})
+	report, err := auditor.AuditLocal(rootConfig.kubeConfig, k8s.ClientOptions{Namespace: rootConfig.namespace})
 	if err != nil {
-		log.WithError(err).Fatal("Error auditing using local kube config")
+		log.WithError(err).Fatal("Error auditing cluster in local mode")
 	}
-
 	return report
 }
 

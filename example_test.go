@@ -78,7 +78,7 @@ func Example_auditLocal() {
 	}
 
 	// Run the audit in local mode
-	report, err := auditor.AuditLocal("/path/to/kubeconfig.yml", k8s.ClientOptions{})
+	report, err := auditor.AuditLocal("", k8s.ClientOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -14,7 +14,6 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"k8s.io/client-go/util/homedir"
 )
 
 // SharedFixturesDir contains fixtures used by multiple tests
@@ -110,8 +109,7 @@ func GetReport(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.
 		}()
 		createNamespace(t, namespace)
 		applyManifest(t, fixture, namespace)
-		kubePath := filepath.Join(homedir.HomeDir(), ".kube", "config")
-		report, err = auditor.AuditLocal(kubePath, k8s.ClientOptions{Namespace: namespace, ExcludeGenerated: true})
+		report, err = auditor.AuditLocal("", k8s.ClientOptions{Namespace: namespace, ExcludeGenerated: true})
 	}
 
 	require.NoError(err)
