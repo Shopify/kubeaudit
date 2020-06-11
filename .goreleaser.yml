@@ -12,6 +12,11 @@ brew:
   install: bin.install "kubeaudit"
   homepage: "https://github.com/Shopify/kubeaudit"
   description: "kubeaudit audits Kubernetes clusters for common security controls"
+dockers:
+  - image_templates:
+    - "shopify/kubeaudit:latest"
+    - "shopify/kubeaudit:{{ .Tag }}"
+    - "shopify/kubeaudit:v{{ .Major }}"
 builds:
 - goos:
   - linux
