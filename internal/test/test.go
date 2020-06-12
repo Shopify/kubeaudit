@@ -104,9 +104,7 @@ func GetReport(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.
 		require.NoError(err)
 		report, err = auditor.AuditManifest(manifest)
 	case LOCAL_MODE:
-		defer func() {
-			deleteNamespace(t, namespace)
-		}()
+		defer deleteNamespace(t, namespace)
 		createNamespace(t, namespace)
 		applyManifest(t, fixture, namespace)
 		report, err = auditor.AuditLocal("", k8s.ClientOptions{Namespace: namespace, ExcludeGenerated: true})

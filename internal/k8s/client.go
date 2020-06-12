@@ -39,24 +39,22 @@ func (kc k8sClient) InClusterConfig() (*rest.Config, error) {
 // NewKubeClientLocal creates a new kube client for local mode
 func NewKubeClientLocal(configPath string) (*kubernetes.Clientset, error) {
 	var kubeconfig *rest.Config
+	var err error
+
 	if configPath == "" {
-		var err error
 		kubeconfig, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 			clientcmd.NewDefaultClientConfigLoadingRules(),
 			&clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: ""}},
 		).ClientConfig()
-		if err != nil {
-			return nil, err
-		}
 	} else {
-		if _, err := os.Stat(configPath); err != nil {
+		if _, err = os.Stat(configPath); err != nil {
 			return nil, ErrNoReadableKubeConfig
 		}
-		var err error
 		kubeconfig, err = clientcmd.BuildConfigFromFlags("", configPath)
-		if err != nil {
-			return nil, err
-		}
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	kube, err := kubernetes.NewForConfig(kubeconfig)

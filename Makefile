@@ -14,7 +14,7 @@ GOVERSION_MIN:=go1.12
 GOVERSION_CHECK=$(shell printf "%s\n%s\n" "$(GOVERSION)" "$(GOVERSION_MIN)" | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n | head -n 1)
 
 # Test parameters
-CLUSTER_NAME="kubeaudit-test"
+TEST_CLUSTER_NAME="kubeaudit-test"
 
 export GO111MODULE=on
 
@@ -37,10 +37,10 @@ test:
 	./test.sh
 
 test-setup:
-	kind create cluster --name ${CLUSTER_NAME} --image kindest/node:v1.15.0
+	kind create cluster --name ${TEST_CLUSTER_NAME} --image kindest/node:v1.15.0
 
 test-teardown:
-	kind delete cluster --name ${CLUSTER_NAME}
+	kind delete cluster --name ${TEST_CLUSTER_NAME}
 
 show-coverage: test
 	go tool cover -html=coverage.txt

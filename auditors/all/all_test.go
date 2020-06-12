@@ -19,7 +19,6 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/seccomp"
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/test"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -61,14 +60,13 @@ func TestFixAll(t *testing.T) {
 	allAuditors, err := Auditors(config.KubeauditConfig{})
 	require.NoError(t, err)
 
-	for _, file := range test.GetAllFileNames(t, fixtureDir) {
+	files := test.GetAllFileNames(t, fixtureDir)
+	for _, file := range files {
 		t.Run(file, func(t *testing.T) {
 			_, report := test.FixSetupMultiple(t, fixtureDir, file, allAuditors)
 			for _, result := range report.Results() {
 				for _, auditResult := range result.GetAuditResults() {
-					if !assert.NotEqual(t, kubeaudit.Error, auditResult.Severity) {
-						return
-					}
+					require.NotEqual(t, kubeaudit.Error, auditResult.Severity)
 				}
 			}
 		})
