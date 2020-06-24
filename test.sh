@@ -2,12 +2,18 @@
     
 set -e
 
+echo "Starting tests. This may take a while..."
+
 function finish {
-    make test-teardown
+    if [ "$USE_KIND" != "false" ] ; then
+        make test-teardown
+    fi
 }
 trap finish EXIT
 
-make test-setup
+if [ "$USE_KIND" != "false" ] ; then
+    make test-setup
+fi
 
 touch coverage.txt
 

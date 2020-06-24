@@ -1,6 +1,7 @@
 package kubeaudit_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
@@ -28,6 +29,10 @@ func TestNew(t *testing.T) {
 }
 
 func TestAuditLocal(t *testing.T) {
+	if os.Getenv("USE_KIND") == "false" {
+		return
+	}
+
 	require := require.New(t)
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
