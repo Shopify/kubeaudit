@@ -4,10 +4,12 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
+const AllNamespaces = ""
+
 func getNetworkPolicies(resources []k8stypes.Resource, namespace string) (networkPolicies []*k8stypes.NetworkPolicyV1) {
 	for _, resource := range resources {
 		networkPolicy, ok := resource.(*k8stypes.NetworkPolicyV1)
-		if ok && (namespace == "" || getResourceNamespace(resource) == namespace) {
+		if ok && (namespace == AllNamespaces || getResourceNamespace(resource) == namespace) {
 			networkPolicies = append(networkPolicies, networkPolicy)
 		}
 	}
