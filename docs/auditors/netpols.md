@@ -19,7 +19,7 @@ ERRO[0000] Namespace is missing a default deny ingress and egress NetworkPolicy.
 
 ## Explanation
 
-Just like with firewall rules, the best practice is to deny all internet traffic by default and explicitly allow expected traffic (that is, whitelist expected traffic rather than blacklist unexpected traffic).
+Just like with firewall rules, the best practice is to deny all internet traffic by default and explicitly allow expected traffic (that is, allow expected traffic rather than deny unexpected traffic).
 
 This can be done by creating a Network Policy for each namespace which denies all ingress (incoming) and egress (outgoing) traffic. This Network Policy should have an empty pod selector:
 
