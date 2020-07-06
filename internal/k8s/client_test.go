@@ -11,8 +11,9 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	fakeclientset "k8s.io/client-go/kubernetes/fake"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/azure" // auth for AKS clusters
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"   // auth for GKE clusters
+	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"  // auth for OIDC
 	"k8s.io/client-go/rest"
 )
 
