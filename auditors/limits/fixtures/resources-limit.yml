@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+spec:
+  containers:
+    - name: container
+      image: scratch
+      resources:
+        limits:
+          cpu: 750m
+          memory: 512Mi
+        requests:
+          cpu: 500m
+          memory: 256Mi

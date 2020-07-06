@@ -11,10 +11,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func getResourcesFromClientset(clientset kubernetes.Interface, namespace string) []KubeResource {
+func getResourcesFromClientset(clientset kubernetes.Interface, options k8s.ClientOptions) []KubeResource {
 	var resources []KubeResource
 
-	for _, resource := range k8s.GetAllResources(clientset, namespace) {
+	for _, resource := range k8s.GetAllResources(clientset, options) {
 		resources = append(resources, &kubeResource{object: resource})
 	}
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/k8stypes"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +33,7 @@ func TestGetResourcesFromClientset(t *testing.T) {
 		expected = append(expected, &kubeResource{object: resource})
 	}
 
-	got := getResourcesFromClientset(fakeclientset.NewSimpleClientset(resources...), "")
+	got := getResourcesFromClientset(fakeclientset.NewSimpleClientset(resources...), k8s.ClientOptions{})
 	assert.Equal(t, expected, got)
 }
 

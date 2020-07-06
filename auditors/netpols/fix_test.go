@@ -1,6 +1,7 @@
 package netpols
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit/internal/test"
@@ -9,33 +10,27 @@ import (
 
 func TestFixDefaultDenyNetworkPolicies(t *testing.T) {
 	cases := []struct {
-		file string
-		// There should be a catch-all network policy (either newly added or pre-existing)
-		expectedHasDefaultDenyPolicy bool
-		// The catch-all policy should deny all ingress
+		file                   string
 		expectedDenyAllIngress bool
-		// The catch-all policy should deny all egress
-		expectedDenyAllEgress bool
+		expectedDenyAllEgress  bool
 	}{
-		{"namespace_missing_default_deny_netpol.yml", true, true, true},
-		{"namespace_missing_default_deny_egress_netpol.yml", true, true, true},
-		{"namespace_missing_default_deny_ingress_netpol.yml", true, true, true},
-		{"namespace_has_default_deny_netpol.yml", true, true, true},
-		{"namespace_has_default_deny_and_allow_all_netpol.yml", true, true, true},
-		{"namespace_missing_default_deny_netpol_allowed.yml", false, false, false},
-		{"namespace_missing_default_deny_egress_netpol_allowed.yml", true, true, false},
-		{"namespace_missing_default_deny_ingress_netpol_allowed.yml", true, false, true},
+		{"namespace-missing-default-deny-netpol.yml", true, true},
+		{"namespace-missing-default-deny-egress-netpol.yml", true, true},
+		{"namespace-missing-default-deny-ingress-netpol.yml", true, true},
+		{"namespace-has-default-deny-netpol.yml", true, true},
+		{"namespace-has-default-deny-and-allow-all-netpol.yml", true, true},
+		{"namespace-missing-default-deny-netpol-allowed.yml", false, false},
+		{"namespace-missing-default-deny-egress-netpol-allowed.yml", true, false},
+		{"namespace-missing-default-deny-ingress-netpol-allowed.yml", false, true},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
+	for _, tc := range cases {
+		t.Run(tc.file, func(t *testing.T) {
 			assert := assert.New(t)
-			resources, _ := test.FixSetup(t, fixtureDir, tt.file, New())
-			networkPolicies := getNetworkPolicies(resources, "default")
-			hasCatchAllNetPol, networkPolicy := hasCatchAllNetworkPolicy(networkPolicies)
-			assert.Equal(tt.expectedHasDefaultDenyPolicy, hasCatchAllNetPol)
-			assert.Equal(tt.expectedDenyAllIngress, hasDenyAllIngress(networkPolicy))
-			assert.Equal(tt.expectedDenyAllEgress, hasDenyAllEgress(networkPolicy))
+			resources, _ := test.FixSetup(t, fixtureDir, tc.file, New())
+			networkPolicies := getNetworkPolicies(resources, strings.Split(tc.file, ".")[0])
+			assert.Equal(tc.expectedDenyAllIngress, hasDenyAllIngress(networkPolicies))
+			assert.Equal(tc.expectedDenyAllEgress, hasDenyAllEgress(networkPolicies))
 		})
 	}
 }

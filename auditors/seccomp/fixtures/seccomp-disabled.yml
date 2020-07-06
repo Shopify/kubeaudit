@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: seccomp-disabled
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: runtime/default
+    container.seccomp.security.alpha.kubernetes.io/container1: badval
+    container.seccomp.security.alpha.kubernetes.io/container2: unconfined
+spec:
+  containers:
+    - name: container1
+      image: scratch
+    - name: container2
+      image: scratch
+    - name: container3
+      image: scratch

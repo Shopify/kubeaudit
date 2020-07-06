@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: namespace-missing-default-deny-egress-netpol-allowed
+  labels:
+    audit.kubernetes.io/namespace.allow-non-default-deny-egress-network-policy: "SomeReason"
+---
+# https://kubernetes.io/docs/concepts/services-networking/network-policies/#default-deny-all-ingress-traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: namespace-missing-default-deny-egress-netpol-allowed
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress

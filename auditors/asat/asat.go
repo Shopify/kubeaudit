@@ -44,7 +44,7 @@ func auditResource(resource k8stypes.Resource) *kubeaudit.AuditResult {
 		return nil
 	}
 
-	if isDeprecatedServiceAccountName(podSpec) {
+	if isDeprecatedServiceAccountName(podSpec) && !isServiceAccountName(podSpec) {
 		return &kubeaudit.AuditResult{
 			Name:     AutomountServiceAccountTokenDeprecated,
 			Severity: kubeaudit.Warn,
@@ -74,6 +74,10 @@ func auditResource(resource k8stypes.Resource) *kubeaudit.AuditResult {
 
 func isDeprecatedServiceAccountName(podSpec *k8stypes.PodSpecV1) bool {
 	return podSpec.DeprecatedServiceAccount != ""
+}
+
+func isServiceAccountName(podSpec *k8stypes.PodSpecV1) bool {
+	return podSpec.ServiceAccountName != ""
 }
 
 func isDefaultServiceAccountWithAutomountToken(podSpec *k8stypes.PodSpecV1) bool {

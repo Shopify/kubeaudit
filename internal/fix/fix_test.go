@@ -55,13 +55,13 @@ func TestFix(t *testing.T) {
 		},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.testName, func(t *testing.T) {
+	for _, tc := range cases {
+		t.Run(tc.testName, func(t *testing.T) {
 			resource := &k8stypes.PodV1{Spec: v1.PodSpec{}}
-			tt.preFix(resource)
-			assert.NotEmpty(t, tt.pendingFix.Plan())
-			tt.pendingFix.Apply(resource)
-			tt.assertFixed(t, resource)
+			tc.preFix(resource)
+			assert.NotEmpty(t, tc.pendingFix.Plan())
+			tc.pendingFix.Apply(resource)
+			tc.assertFixed(t, resource)
 		})
 	}
 }

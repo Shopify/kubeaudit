@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: namespace-missing-default-deny-netpol-allowed
+  labels:
+    audit.kubernetes.io/namespace.allow-non-default-deny-egress-network-policy: "SomeReason"
+    audit.kubernetes.io/namespace.allow-non-default-deny-ingress-network-policy: "SomeReason"
+---
+# https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/07-allow-traffic-from-some-pods-in-another-namespace.md
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: web-allow-all-ns-monitoring
+  namespace: namespace-missing-default-deny-netpol-allowed
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  ingress:
+    - from:
+        - namespaceSelector: # chooses all pods in namespaces labelled with team=operations
+            matchLabels:
+              team: operations
+          podSelector: # chooses pods with type=monitoring
+            matchLabels:
+              type: monitoring

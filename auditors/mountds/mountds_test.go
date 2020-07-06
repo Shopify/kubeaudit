@@ -1,6 +1,7 @@
 package mountds
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit/internal/test"
@@ -14,16 +15,13 @@ func TestAuditDockerSockMounted(t *testing.T) {
 		fixtureDir     string
 		expectedErrors []string
 	}{
-		{"docker_sock_mounted.yml", fixtureDir, []string{DockerSocketMounted}},
-
-		// Shared fixtures
-		{"security_context_nil_v1.yml", test.SharedFixturesDir, []string{}},
-		{"security_context_nil_v1beta1.yml", test.SharedFixturesDir, []string{}},
+		{"docker-sock-mounted.yml", fixtureDir, []string{DockerSocketMounted}},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			test.Audit(t, tt.fixtureDir, tt.file, New(), tt.expectedErrors)
+	for _, tc := range cases {
+		t.Run(tc.file, func(t *testing.T) {
+			test.AuditManifest(t, tc.fixtureDir, tc.file, New(), tc.expectedErrors)
+			test.AuditLocal(t, tc.fixtureDir, tc.file, New(), strings.Split(tc.file, ".")[0], tc.expectedErrors)
 		})
 	}
 }

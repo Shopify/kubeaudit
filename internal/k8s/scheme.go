@@ -1,7 +1,7 @@
 package k8s
 
 import (
-	certmanagerv1alpha1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha1"
+	certmanagerv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
@@ -50,7 +50,7 @@ var scheme = runtime.NewScheme()
 var codecs = serializer.NewCodecFactory(scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
 	admissionregistrationv1beta1.AddToScheme,
-	certmanagerv1alpha1.AddToScheme,
+	certmanagerv1alpha2.AddToScheme,
 	appsv1.AddToScheme,
 	appsv1beta1.AddToScheme,
 	appsv1beta2.AddToScheme,

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: statefulset-v1
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset
+  namespace: statefulset-v1
+spec:
+  serviceName: statefulset
+  selector:
+    matchLabels:
+      name: statefulset
+  template:
+    metadata:
+      labels:
+        name: statefulset
+    spec:
+      hostPID: true
+      hostIPC: true
+      hostNetwork: true
+      containers:
+        - name: container
+          image: scratch

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: host-network-true-allowed
+  labels:
+    audit.kubernetes.io/pod.allow-namespace-host-network: "SomeReason"
+spec:
+  hostNetwork: true
+  containers:
+    - name: container
+      image: scratch

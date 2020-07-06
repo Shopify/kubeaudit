@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: seccomp-enabled-pod
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: localhost/bla
+spec:
+  containers:
+    - name: container
+      image: scratch

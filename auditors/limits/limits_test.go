@@ -1,6 +1,8 @@
 package limits
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit/internal/test"
@@ -16,21 +18,26 @@ func TestAuditLimits(t *testing.T) {
 		maxMemory      string
 		expectedErrors []string
 	}{
-		{"resources_limit_nil_v1beta1.yml", "", "", []string{LimitsNotSet}},
-		{"resources_limit_no_cpu_v1beta1.yml", "", "", []string{LimitsCPUNotSet}},
-		{"resources_limit_no_memory_v1beta1.yml", "", "", []string{LimitsMemoryNotSet}},
-		{"resources_limit_v1beta1.yml", "", "", []string{}},
-		{"resources_limit_v1beta1.yml", "600m", "", []string{LimitsCPUExceeded}},
-		{"resources_limit_v1beta1.yml", "", "384", []string{LimitsMemoryExceeded}},
-		{"resources_limit_v1beta1.yml", "600m", "384", []string{LimitsCPUExceeded, LimitsMemoryExceeded}},
-		{"resources_limit_v1beta1.yml", "750m", "512Mi", []string{}},
+		{"resources-limit-nil.yml", "", "", []string{LimitsNotSet}},
+		{"resources-limit-no-cpu.yml", "", "", []string{LimitsCPUNotSet}},
+		{"resources-limit-no-memory.yml", "", "", []string{LimitsMemoryNotSet}},
+		{"resources-limit.yml", "", "", []string{}},
+		{"resources-limit.yml", "600m", "", []string{LimitsCPUExceeded}},
+		{"resources-limit.yml", "", "384", []string{LimitsMemoryExceeded}},
+		{"resources-limit.yml", "600m", "384", []string{LimitsCPUExceeded, LimitsMemoryExceeded}},
+		{"resources-limit.yml", "750m", "512Mi", []string{}},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.file, func(t *testing.T) {
-			auditor, err := New(Config{CPU: tt.maxCPU, Memory: tt.maxMemory})
+	for i, tc := range cases {
+		// These lines are needed because of how scopes work with parallel tests (see https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
+		tc := tc
+		i := i
+		t.Run(fmt.Sprintf("%s %s %s", tc.file, tc.maxCPU, tc.maxMemory), func(t *testing.T) {
+			t.Parallel()
+			auditor, err := New(Config{CPU: tc.maxCPU, Memory: tc.maxMemory})
 			assert.Nil(t, err)
-			test.Audit(t, fixtureDir, tt.file, auditor, tt.expectedErrors)
+			test.AuditManifest(t, fixtureDir, tc.file, auditor, tc.expectedErrors)
+			test.AuditLocal(t, fixtureDir, tc.file, auditor, fmt.Sprintf("%s%d", strings.Split(tc.file, ".")[0], i), tc.expectedErrors)
 		})
 	}
 

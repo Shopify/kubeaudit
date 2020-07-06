@@ -216,7 +216,8 @@ If you'd like to fix a bug, contribute a feature or just correct a typo, please 
 1. Go to the source: `cd $GOPATH/src/github.com/Shopify/kubeaudit`
 1. Add your forked repo as a fork: `git remote add fork https://github.com/you-are-awesome/kubeaudit`
 1. Create your feature branch: `git checkout -b awesome-new-feature`
-1. Run the tests to see everything is working as expected: `make test`
+1. Install [Kind](https://kind.sigs.k8s.io/#installation-and-usage)
+1. Run the tests to see everything is working as expected: `make test` (to run tests without Kind: `USE_KIND=false make test`)
 1. Commit your changes: `git commit -am 'Adds awesome feature'`
 1. Push to the branch: `git push fork`
 1. Sign the [Contributor License Agreement](https://cla.shopify.com/)
