@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: run-as-non-root-psc-false-csc-nil-multiple-cont
+spec:
+  securityContext:
+    runAsNonRoot: false
+  containers:
+    - name: container1
+      image: scratch
+      securityContext:
+        runAsNonRoot: true
+    - name: container2
+      image: scratch

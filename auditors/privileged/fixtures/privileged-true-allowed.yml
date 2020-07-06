@@ -1,0 +1,21 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: daemonset
+  namespace: privileged-true-allowed
+spec:
+  selector:
+    matchLabels:
+      name: daemonset
+  template:
+    metadata:
+      labels:
+        name: daemonset
+        audit.kubernetes.io/pod.allow-privileged: "SomeReason"
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            privileged: true

@@ -1,0 +1,22 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset
+  namespace: read-only-root-filesystem-redundant-override
+spec:
+  serviceName: statefulset
+  selector:
+    matchLabels:
+      name: statefulset
+  template:
+    metadata:
+      labels:
+        name: statefulset
+        audit.kubernetes.io/pod.allow-read-only-root-filesystem-false: "SomeReason"
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            readOnlyRootFilesystem: true

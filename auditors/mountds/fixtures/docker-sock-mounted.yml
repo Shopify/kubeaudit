@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: docker-sock-mounted
+spec:
+  containers:
+    - name: container
+      image: scratch
+      volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-sock-volume
+  volumes:
+    - name: docker-sock-volume
+      hostPath:
+        path: /var/run/docker.sock

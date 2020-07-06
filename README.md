@@ -2,44 +2,54 @@
 [![codecov](https://codecov.io/gh/Shopify/kubeaudit/branch/master/graph/badge.svg)](https://codecov.io/gh/Shopify/kubeaudit)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Shopify/kubeaudit)](https://goreportcard.com/report/github.com/Shopify/kubeaudit)
 [![GoDoc](https://godoc.org/github.com/Shopify/kubeaudit?status.png)](https://godoc.org/github.com/Shopify/kubeaudit)
+
+> Kubeaudit can now be used as both a command line tool (CLI) and as a Go package!
+
 # kubeaudit :cloud: :lock: :muscle:
 
-`kubeaudit` is a command line tool to audit Kubernetes clusters for various
-different security concerns: run the container as a non-root user, use a read
-only root filesystem, drop scary capabilities, don't add new ones, don't run
-privileged, ... You get the gist of it and more on that later. Just know:
+`kubeaudit` is a command line tool and a Go package to audit Kubernetes clusters for various
+different security concerns, such as:
+* run as non-root
+* use a read-only root filesystem
+* drop scary capabilities, don't add new ones
+* don't run privileged
+* and more!
 
-## `kubeaudit` makes sure you deploy secure containers!
+**tldr. `kubeaudit` makes sure you deploy secure containers!**
 
-- [Installation](#installation)
-- [General instructions](#general)
-- [Autofix](#autofix)
-- [Audits](#audits)
-- [Override Labels](#labels)
-- [Audit Configuration](#audit-configuration)
-- [Contribute!](#contribute)
+## Package
+To use kubeaudit as a Go package, see the [package docs](https://pkg.go.dev/github.com/Shopify/kubeaudit).
 
-<a name="installation" />
+The rest of this README will focus on how to use kubeaudit as a command line tool.
+
+## Command Line Interface (CLI)
+
+* [Installation](#installation)
+* [Quick Start](#quick-start)
+* [Commands](#commands)
+* [Configuration File](#configuration-file)
+* [Override Errors](#override-errors)
+* [Contributing](#contributing)
 
 ## Installation
+ 
+### Download a binary
 
-#### Download a binary
-
-Kubeaudit has official releases that are blessed and stable here:
+Kubeaudit has official releases that are blessed and stable:
 [Official releases](https://github.com/Shopify/kubeaudit/releases)
 
-#### DIY build
+### DIY build
 
 Master will have newer features than the stable releases. If you need a newer
 feature not yet included in a release you can do the following to get
 kubeaudit:
 
-For go 1.12 and higher:
+**For go 1.12 and higher:**
 ```sh
 GO111MODULE=on go get -v github.com/Shopify/kubeaudit
 ```
 
-For older versions of go:
+**For older versions of go:**
 ```sh
 git clone https://github.com/Shopify/kubeaudit.git
 cd kubeaudit
@@ -47,671 +57,155 @@ make
 make install
 ```
 
-Now you can just call `kubeaudit` with one of commands from [here](#audits)
+Start using `kubeaudit` with the [Quick Start](#quick-start) or view all the [supported  commands](#commands).
 
-#### Kubectl Plugin
+### Kubectl Plugin
 
 Prerequisite: kubectl v1.12.0 or later
 
-With kubectl v1.12.0 introducing [easy pluggability](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) of external functions, kubeaudit can be invoked as `kubectl audit` just by
-- running `make plugin` and having $GOPATH/bin available in your path.
+With kubectl v1.12.0 introducing [easy pluggability](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) of external functions, kubeaudit can be invoked as `kubectl audit` by
+
+- running `make plugin` and having `$GOPATH/bin` available in your path.
 
 or
 
 - renaming the binary to `kubectl-audit` and having it available in your path.
 
+## Quick Start
 
+kubeaudit has three modes:
 
-<a name="general" />
-
-## General instructions
-
-`kubeaudit` has three different modes for its audits:
-1. Cluster mode
-  If kubeaudit detects that it's running in a container, `kubeaudit cmd` will
-  attempt to audit the cluster it's running in.
-1. Local config mode
-  If kubeaudit is not running in a container, `kubeaudit cmd` will audit the
-  resources specified by your local kubeconfig (`$HOME/.kube/config`) file.
-  You can force kubeaudit to use a specific local config file with the switch
-  `-c/--kubeconfig /config/path`
 1. Manifest mode
-  If you wish to audit a manifest file, use the command
-  `kubeaudit -f/--manifest /path/to/manifest.yml`
+1. Local mode
+1. Cluster mode
 
-`kubeaudit` supports two different output types:
-1. just running `kubeaudit` will log human readable output
-1. if run with `-j/--json` it will log output json formatted so that its output
-   can be used by other programs easily
+### Manifest Mode
 
-`kubeaudit` supports using manual audit configuration provided by the user, use the command
-`kubeaudit -f/--manifest /path/to/manifest.yml -k/--auditconfig /path/to/config.yml`
-For more details on audit config check out [Audit Configuration](#audit-configuration).
+If a Kubernetes manifest file is provided using the `-f/--manifest` flag, kubeaudit will audit the manifest file.
 
-`kubeaudit` has four different log levels `INFO, WARN, ERROR` controlled by
-`-v/--verbose LEVEL` and for those who counted and want to work on `kubeaudit`
-`DEBUG`
-1. by default the debug level is set to `ERROR` and will log `INFO`, `WARN` and
-   `ERROR`
-1. if you only care about `ERROR` set it to `ERROR`
-1. if you care about `ERROR` and `WARN` set it to `WARN`
+Example command:
+```
+kubeaudit all -f "/path/to/manifest.yml"
+```
 
-But wait! Which version am I actually running? `kubeaudit version` will tell you.
+Example output:
+```
+$ kubeaudit all -f auditors/all/fixtures/audit_all_v1.yml
+ERRO[0000] AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/fakeContainerSC' should be added.  AuditResultName=AppArmorAnnotationMissing Container=fakeContainerSC MissingAnnotation=container.apparmor.security.beta.kubernetes.io/fakeContainerSC
+ERRO[0000] Default serviceAccount with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.  AuditResultName=AutomountServiceAccountTokenTrueAndDefaultSA
+WARN[0000] Image tag is missing.                         AuditResultName=ImageTagMissing Container=fakeContainerSC
+WARN[0000] Resource limits not set.                      AuditResultName=LimitsNotSet Container=fakeContainerSC
+ERRO[0000] runAsNonRoot is not set in container SecurityContext nor the PodSecurityContext. It should be set to 'true' in at least one of the two.  AuditResultName=RunAsNonRootPSCNilCSCNil Container=fakeContainerSC
+ERRO[0000] allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.  AuditResultName=AllowPrivilegeEscalationNil Container=fakeContainerSC
+WARN[0000] privileged is not set in container SecurityContext. Privileged defaults to 'false' but it should be explicitly set to 'false'.  AuditResultName=PrivilegedNil Container=fakeContainerSC
+ERRO[0000] readOnlyRootFilesystem is not set in container SecurityContext. It should be set to 'true'.  AuditResultName=ReadOnlyRootFilesystemNil Container=fakeContainerSC
+ERRO[0000] Seccomp annotation is missing. The annotation seccomp.security.alpha.kubernetes.io/pod: runtime/default should be added.  AuditResultName=SeccompAnnotationMissing MissingAnnotation=seccomp.security.alpha.kubernetes.io/pod
+ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=AUDIT_WRITE Container=fakeContainerSC
+ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=CHOWN Container=fakeContainerSC
+...
+```
 
-I need help! Run `kubeaudit help` every audit has its own help so you can run
-`kubeaudit help sc`
+#### Autofix
 
-Last but not least before we look at the audits: `kubeaudit -a/--allPods`
-audits against pods in all the phases (default Running Phase)
+Manifest mode also supports autofixing all security issues using the `autofix` command:
 
-<a name="autofix" />
+```
+kubeaudit autofix -f "/path/to/manifest.yml"
+```
 
-## Autofix
+To write the fixed manifest to a new file instead of modifying the source file, use the `-o/--output` flag.
 
-As humans we are lazy and `kubeaudit` knows that so it comes with the functionality to `autofix` workload manifests. Point it at your workload manifests and it will automagically fix everything so that manifests are as secure as it gets.
+```
+kubeaudit autofix -f "/path/to/manifest.yml" -o "/path/to/fixed"
+```
 
-`kubeaudit autofix -f path/to/manifest.yml`
+### Local Mode
 
-The manifest might end up a little too secure for the work it is supposed to do. If that is the case check out [labels](#labels) to opt out of certain checks.
+If a kubeconfig file is provided using the `-c/--kubeconfig` flag, kubeaudit will audit the resources specified in the kubeconfig file. If no kubeconfig file is specified, `$HOME/.kube/config` is used by default:
 
-<a name="audits" />
+```
+kubeaudit all -c "/path/to/config"
+```
 
-## Audits
+For more information on kubernetes config files, see https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/
 
-`kubeaudit` has multiple checks:
-- [Audit all](#all)
-- [Audit security context](#sc)
-  - [Audit readOnlyRootFilesystem](#rootfs)
-  - [Audit runAsNonRoot](#root)
-  - [Audit allowPrivilegeEscalation](#allowpe)
-  - [Audit privileged](#priv)
-  - [Audit capabilities](#caps)
-- [Audit image](#image)
-- [Audit Service Accounts](#sat)
-- [Audit network policies](#netpol)
-- [Audit resources](#resources)
-- [Audit mounting Docker Socket](#dockersock)
-- [Audit AppArmor](#apparmor)
-- [Audit Seccomp](#seccomp)
-- [Audit namespaces](#namespaces)
+### Cluster Mode
 
-<a name="all" />
-
-### Audit all
-Runs all the above checks.
-
-```sh
+Kubeaudit can detect if it is running within a container in a cluster. If so, it will try to audit all Kubernetes resources in that cluster:
+```
 kubeaudit all
-ERRO[0000] RunAsNonRoot is not set, which results in root user being allowed!
-ERRO[0000] Default serviceAccount with token mounted. Please set automountServiceAccountToken to false
-WARN[0000] Privileged defaults to false, which results in non privileged, which is okay.
-ERRO[0000] Capability not dropped     CapName=AUDIT_WRITE
 ```
 
-<a name="sc" />
+## Commands
 
-#### Audit security contexts
+| Command          | Description                                                  | Documentation                     |
+| :--------------- | :----------------------------------------------------------- | :-------------------------------- |
+| `all`            | Runs all available auditors, or those specified using a kubeaudit config. | [docs](docs/all.md)  |
+| `autofix`        | Automatically fixes security issues.                         | [docs](docs/autofix.md)           |
 
-The security context holds a couple of different security related
-configurations. For convenience, `kubeaudit` will always log the following
-information when it creates a log:
-```sh
-kubeaudit command
-LOG[0000] KubeType=deployment Name=THEdeployment Namespace=deploymentNS
+### Auditors
+
+Auditors can also be run individually.
+
+| Command          | Description                                                              | Documentation                     |
+| :--------------- | :----------------------------------------------------------------------- | :-------------------------------- |
+| `apparmor`       | Finds containers running without AppArmor.                               | [docs](docs/auditors/apparmor.md) |
+| `asat`           | Finds pods using an automatically mounted default service account        | [docs](docs/auditors/asat.md) |
+| `capabilities`   | Finds containers that do not drop the recommended capabilities or add new ones. | [docs](docs/auditors/capabilities.md) |
+| `hostns`         | Finds containers that have HostPID, HostIPC or HostNetwork enabled.      | [docs](docs/auditors/hostns.md) |
+| `image`          | Finds containers which do not use the desired version of an image (via the tag) or use an image without a tag. | [docs](docs/auditors/image.md) |
+| `limits`         | Finds containers which exceed the specified CPU and memory limits or do not specify any. | [docs](docs/auditors/limits.md) |
+| `mountds`        | Finds containers that have docker socket mounted.                        | [docs](docs/auditors/mountds.md) |
+| `netpols`        | Finds namespaces that do not have a default-deny network policy.         | [docs](docs/auditors/netpols.md) |
+| `nonroot`        | Finds containers running as root.                                        | [docs](docs/auditors/nonroot.md) |
+| `privesc`        | Finds containers that allow privilege escalation.                        | [docs](docs/auditors/privesc.md) |
+| `privileged`     | Finds containers running as privileged.                                  | [docs](docs/auditors/privileged.md) |
+| `rootfs`         | Finds containers which do not have a read-only filesystem.               | [docs](docs/auditors/rootfs.md) |
+| `seccomp`        | Finds containers running without Seccomp.                                | [docs](docs/auditors/seccomp.md) |
+
+### Global Flags
+
+| Short   | Long           | Description                                                                                         |
+| :------ | :------------- | :-------------------------------------------------------------------------------------------------- |
+| -j      | --json         | Output audit results in JSON                                                                        |
+| -c      | --kubeconfig   | Path to local Kubernetes config file. Only used in local mode (default is `$HOME/.kube/config`)     |
+| -f      | --manifest     | Path to the yaml configuration to audit. Only used in manifest mode.                                |
+| -n      | --namespace    | Only audit resources in the specified namespace. Only used in cluster mode.                         |
+| -m      | --minseverity  | Set the lowest severity level to report (one of "ERROR", "WARN", "INFO") (default "INFO")           |
+
+## Configuration File
+
+Kubeaudit can be used with a configuration file instead of flags. See the [all command](docs/all.md).
+
+## Override Errors
+
+Security issues can be ignored for specific containers or pods by adding override labels. This means the auditor will produce `WARN` results instead of `ERROR` results. The labels are documented in each auditor's documentation, but the general format for auditors that support overrides is as follows:
+
+An override label consists of a `key` and a `value`.
+
+The `key` is a combination of the override type (container or pod) and an `override identifier` which is unique to each auditor (see the [docs](#auditors) for the specific auditor). The `key` can take one of two forms depending on the override type:
+
+1. **Container overrides**, which override the auditor for that specific container, are formatted as follows:
+```yaml
+container.audit.kubernetes.io/[container name].[override identifier]
 ```
-And for brevity, the information will not be shown in the commands below.
-
-Currently, `kubeaudit` is able to check for the following fields in the security context:
-
-<a name="rootfs" />
-
-#### Audit readOnlyRootFilesystem
-
-`kubeaudit` will detect whether `readOnlyRootFilesystem` is either not set `nil` or explicitly set to `false`
-
-```sh
-kubeaudit rootfs
-ERRO[0000] ReadOnlyRootFilesystem not set which results in a writable rootFS, please set to true
-ERRO[0000] ReadOnlyRootFilesystem set to false, please set to true
-```
-
-<a name="root" />
-
-#### Audit runAsNonRoot
-
-`kubeaudit` will detect whether the container is to be run as root:
-
-```sh
-kubeaudit nonroot
-ERRO[0000] RunAsNonRoot is set to false (root user allowed), please set to true!
-ERRO[0000] RunAsNonRoot is not set, which results in root user being allowed!
-```
-
-<a name="allowpe" />
-
-#### Audit allowPrivilegeEscalation
-
-`kubeaudit` will detect whether `allowPrivilegeEscalation` is either set to `nil` or explicitly set to `false`
-
-```sh
-kubeaudit allowpe
-ERRO[0000] AllowPrivilegeEscalation set to true, please set to false
-ERRO[0000] AllowPrivilegeEscalation not set which allows privilege escalation, please set to false
-```
-
-<a name="priv" />
-
-#### Audit privileged
-
-`kubeaudit` will detect whether the container is to be run privileged:
-
-```sh
-kubeaudit priv
-ERRO[0000] Privileged set to true! Please change it to false!
+2. **Pod overrides**, which override the auditor for all containers within the pod, are formatted as follows:
+```yaml
+audit.kubernetes.io/pod.[override identifier]
 ```
 
-Since we want to make sure everything is intentionally configured correctly `kubeaudit` warns about `privileged` not being set:
-
-```sh
-kubeaudit priv
-WARN[0000] Privileged defaults to false, which results in non privileged, which is okay.
+If the `value` is set to a non-empty string, it will be displayed in the `WARN` result as the `OverrideReason`:
+```
+WARN[0000] ... AuditResultName=DockerSocketMounted OverrideReason=AppNeedsAccessToDocker
 ```
 
-<a name="caps" />
+As per Kubernetes spec, `value` must be 63 characters or less and must be empty or begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.
 
-#### Audit capabilities
+Multiple override labels (for multiple auditors) can be added to the same resource.
 
-Docker comes with a couple of capabilities that shouldn't be needed and
-therefore should be dropped. `kubeaudit` will also complain about added capabilities.
+See the specific [auditor docs](#auditors) for the auditor you wish to override for examples.
 
-If the capabilities field doesn't exist within the security context:
-
-```sh
-kubeaudit caps
-ERRO[0000] Capabilities field not defined!
-```
-
-When capabilities were added:
-
-```sh
-kubeaudit caps
-ERRO[0000] Capability added  CapName=NET_ADMIN
-```
-
-[`config/caps`](configs/custom_capabilities_to_be_dropped_v1.yml)
-holds a list of capabilities that we recommend be dropped, change it if you
-want to keep some of the capabilities otherwise `kubeaudit` will complain about
-them not being dropped:
-
-```sh
-kubeaudit caps
-ERRO[0000] Capability not dropped  CapName=AUDIT_WRITE
-```
-
-<a name="image" />
-
-### Audit container image tags
-
-`kubeaudit` can check for image names and image tags:
-
-1. If the image tag is incorrect an ERROR will issued
-   ```sh
-   kubeaudit image -i gcr.io/google_containers/echoserver:1.7
-   ERRO[0000] Image tag was incorrect
-   ```
-
-1. If the image doesn't have a tag but an image of the name was found a WARNING
-   will be created:
-   ```sh
-   kubeaudit image -i gcr.io/google_containers/echoserver:1.7
-   WARN[0000] Image tag was missing
-   ```
-
-1. If the image was found with correct tag `kubeaudit` notifies with an INFO message:
-   ```sh
-   kubeaudit image -i gcr.io/google_containers/echoserver:1.7
-   INFO[0000] Image tag was correct
-   ```
-
-<a name="sat" />
-
-### Audit Service Accounts
-
-It audits against the following scenarios:
-
-1. A default serviceAccount mounted with a token:
-   ```sh
-   kubeaudit sat
-   ERRO[0000] Default serviceAccount with token mounted. Please set AutomountServiceAccountToken to false
-   ```
-
-1. A deprecated service account:
-   ```sh
-   kubeaudit sat
-   WARN[0000] serviceAccount is a deprecated alias for ServiceAccountName, use that one instead  DSA=DeprecatedServiceAccount
-   ```
-
-<a name="netpol" />
-
-### Audit network policies
-
-It checks that every namespace should have a default deny network policy
-installed. See [Kubernetes Network Policies](https://Kubernetes.io/docs/concepts/services-networking/network-policies/)
-for more information:
-
-```sh
-kubeaudit np
-WARN[0000] Default allow mode on test/testing
-```
-
-<a name="resources" />
-
-### Audit resources limits
-
-It checks that every resource has a CPU and memory limit. See [Kubernetes Resource Quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/)
-for more information:
-
-```sh
-kubeaudit limits
-WARN[0000] CPU limit not set, please set it!
-WARN[0000] Memory limit not set, please set it!
-```
-
-With the `--cpu` and `--memory` parameters, `kubeaudit` can check the limits not to be exceeded.
-
-```sh
-kubeaudit limits --cpu 500m --memory 125Mi
-WARN[0000] CPU limit exceeded, it is set to 1 but it must not exceed 500m. Please adjust it! !
-WARN[0000] Memory limit exceeded, it is set to 512Mi but it must not exceed 125Mi. Please adjust it!
-```
-
-<a name="dockersock" />
-
-## Audit Mounting Docker Socket
-
-It checks that no container in the pod mounts `/var/run/docker.sock`, as this can be a [very dangerous practice](https://dev.to/petermbenjamin/docker-security-best-practices-45ih). 
-If a container does this, it will be indicated as such:
-
-```
-containers:
-      - image: <image name>
-        name: <container name>
-        volumeMounts:
-        - mountPath: /var/run/docker.sock
-          name: <volume name>
-volumes:
-      - name: <volume name>
-        hostPath:
-          path: /var/run/docker.sock
-```
-
-If `/var/run/docker.sock` is being mounted by a container:
-
-```sh
-kubeaudit mountds
-WARN[0000] /var/run/docker.sock is being mounted, please avoid this practice. Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace
-```
-
-<a name="apparmor" />
-
-## Audit AppArmor
-
-It checks that AppArmor is enabled for all containers by making sure the following annotation exists on the pod.
-There must be an annotation for each container in the pod:
-
-```
-container.apparmor.security.beta.kubernetes.io/<container name>: <profile>
-```
-
-where profile can be "runtime/default" or start with "localhost/" to be considered valid.
-
-If the AppArmor annotation is missing:
-
-```sh
-kubeaudit apparmor
-ERRO[0000] AppArmor annotation missing. Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace
-```
-
-When AppArmor annotations are misconfigured:
-
-```sh
-kubeaudit apparmor
-ERRO[0000] AppArmor disabled. Annotation=container.apparmor.security.beta.kubernetes.io/myContainer
-  Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace Reason=badval
-```
-
-<a name="seccomp" />
-
-## Audit Seccomp
-
-It checks that Seccomp is enabled for all containers by making sure one or both of the following annotations exists
-on the pod. If no pod annotation is used, then there must be an annotation for each container. Container annotations
-override the pod annotation:
-
-```
-# pod annotation
-seccomp.security.alpha.kubernetes.io/pod: <profile>
-
-# container annotation
-container.seccomp.security.alpha.kubernetes.io/<container name>: <profile>
-```
-
-where profile can be "runtime/default" or start with "localhost/" to be considered valid. "docker/default" is
-deprecated and will show a warning. It should be replaced with "runtime/default".
-
-If the Seccomp annotation is missing:
-
-```sh
-kubeaudit seccomp
-ERRO[0000] Seccomp annotation missing. Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace
-```
-
-When Seccomp annotations are misconfigured for a container:
-
-```sh
-kubeaudit seccomp
-ERRO[0000] Seccomp disabled for container. Annotation=container.seccomp.security.alpha.kubernetes.io/myContainer
-  Container=myContainer KubeType=pod Name=myPod Namespace=myNamespace Reason=badval
-```
-
-When Seccomp annotations are misconfigured for a pod:
-```sh
-kubeaudit seccomp
-ERRO[0000] Seccomp disabled for pod. Annotation=seccomp.security.alpha.kubernetes.io/pod Container= KubeType=pod
-  Name=myPod Namespace=myNamespace Reason=unconfined
-```
-
-<a name="namespaces" />
-
-## Audit namespaces
-
-`kubeaudit` will detect whether `hostNetwork`,`hostIPC` or `hostPID` is either set to `true` in `podSpec` for `Pod` workloads 
-
-```sh
-kubeaudit namespaces
-ERRO[0000] hostNetwork is set to true  in podSpec, please set to false!
-ERRO[0000] hostIPC is set to true  in podSpec, please set to false!
-ERRO[0000] hostPID is set to true  in podSpec, please set to false!
-```
-
-<a name="labels" />
-
-## Override Labels
-
-Override labels give you the ability to have `kubeaudit` allow certain audits to fail.
-For example, if you want `kubeaudit` to ignore the fact that `AllowPrivilegeEscalation` was set to `true`, you can add the following label:
-
-```sh
-spec:
-  template:
-    metadata:
-      labels:
-        apps: YourAppNameHere
-        container.audit.kubernetes.io/<container-name>.allow-privilege-escalation: "YourReasonForOverrideHere"
-```
-
-Any label with a non-nil reason string will prevent `kubeaudit` from throwing the corresponding error and issue a warning instead. Note that the reason may only contain alphanumeric characters and `.`, `_`, `-`, per Kubernetes label specification.
-Reasons matching `"true"` (not case sensitive) will be displayed as `Unspecified`.
-
-`kubeaudit` can skip certain audits by applying override labels to containers. If you want skip an audit for a specific container inside a pod, you can add an container override label. For example, if you use `kubeaudit` to ignore `allow-run-as-root` check for container "MyContainer1", you can add the following label:
-
-```sh
-spec:
-  template:
-    metadata:
-      labels:
-        apps: YourAppNameHere
-        container.audit.kubernetes.io/MyContainer1.allow-run-as-root: "YourReasonForOverrideHere"
-```
-
-Similarly, you can have `kubeaudit` to skip a specific audit for all containers inside the pod by adding a pod override label. For example, if you use `kubeaudit` to ignore `allow-run-as-root` check for all containers inside the pod, you can add the following label:
-
-```sh
-spec:
-  template:
-    metadata:
-      labels:
-        apps: YourAppNameHere
-        audit.kubernetes.io/pod.allow-run-as-root: "YourReasonForOverrideHere"
-```
-
-`kubeaudit` can also skip a specific audit for all network policies associated with a namespace resource
-by adding a namespace override label. For example, if you use `kubeaudit` to ignore the `allow-non-default-deny-egress-network-policy` check for the namespace `namespaceName1` you can add the following label to the namespace:
-
-```sh
-metadata:
-  name: namespaceName1
-  labels:
-    audit.kubernetes.io/namespaceName1.allow-non-default-deny-egress-network-policy: "YourReasonForOverrideHere"
-```
-
-`kubeaudit` supports many labels on pod, namespace or container level:
-- [audit.kubernetes.io/pod.allow-privilege-escalation](#allowpe_label)
-- [container.audit.kubernetes.io/\<container-name\>.allow-privilege-escalation](#allowpe_label)
-- [audit.kubernetes.io/pod.allow-privileged](#priv_label)
-- [container.audit.kubernetes.io/\<container-name\>.allow-privileged](#priv_label)
-- [audit.kubernetes.io/pod.allow-capability](#caps_label)
-- [container.audit.kubernetes.io/\<container-name\>.allow-capability](#caps_label)
-- [audit.kubernetes.io/pod.allow-run-as-root](#nonroot_label)
-- [container.audit.kubernetes.io/\<container-name\>.allow-run-as-root](#nonroot_label)
-- [audit.kubernetes.io/pod.allow-automount-service-account-token](#sat_label)
-- [audit.kubernetes.io/pod.allow-read-only-root-filesystem-false](#rootfs_label)
-- [container.audit.kubernetes.io/\<container-name\>.allow-read-only-root-filesystem-false](#rootfs_label)
-- [audit.kubernetes.io/\<namespace-name\>.allow-non-default-deny-egress-network-policy](#egress_label)
-- [audit.kubernetes.io/\<namespace-name\>.allow-non-default-deny-ingress-network-policy](#ingress_label)
-- [audit.kubernetes.io/pod.allow-namespace-host-network](#namespacenetwork_label)
-- [audit.kubernetes.io/pod.allow-namespace-host-IPC](#namespaceipc_label)
-- [audit.kubernetes.io/pod.allow-namespace-host-PID](#namespacepid_label)
-
-<a name="allowpe_label"/>
-
-### container.audit.kubernetes.io/\<container-name\>.allow-privilege-escalation
-
-Allow `allowPrivilegeEscalation` to be set to `true` to a specific container.
-
-### audit.kubernetes.io/pod.allow-privilege-escalation
-
-Allows `allowPrivilegeEscalation` to be set to `true` to all the containers in a pod.
-
-```sh
-kubeaudit.allow.privilegeEscalation: "SuperuserPrivilegesNeeded"
-
-WARN[0000] Allowed setting AllowPrivilegeEscalation to true  Reason="SuperuserPrivilegesNeeded"
-```
-
-<a name="priv_label"/>
-
-### container.audit.kubernetes.io/\<container-name\>.allow-privileged
-
-Allow `privileged` to be set to `true` to a specific container.
-
-### audit.kubernetes.io/pod.allow-privileged
-
-Allows `privileged` to be set to `true` to all the containers in a pod.
-
-```sh
-kubeaudit.allow.privileged: "PrivilegedExecutionRequired"
-
-WARN[0000] Allowed setting privileged to true                Reason="PrivilegedExecutionRequired"
-```
-
-<a name="caps_label"/>
-
-### container.audit.kubernetes.io/\<container-name\>.allow-capability
-
-Allows adding a capability or keeping one that would otherwise be dropped to a specific container.
-
-### audit.kubernetes.io/pod.allow-capability
-
-Allows adding a capability or keeping one that would otherwise be dropped to all the containers in a pod.
-
-```sh
-kubeaudit.allow.capability.chown: "true"
-
-WARN[0000] Capability allowed                                CapName=CHOWN Reason=Unspecified
-```
-
-<a name="nonroot_label"/>
-
-### container.audit.kubernetes.io/\<container-name\>.allow-run-as-root
-
-Allows setting `runAsNonRoot` to `false` to a specific container.
-
-### audit.kubernetes.io/pod.allow-run-as-root
-
-Allows setting `runAsNonRoot` to `false` to all the containers in a pod.
-
-```sh
-kubeaudit.allow.runAsRoot: "RootPrivilegesNeeded"
-
-WARN[0000] Allowed setting RunAsNonRoot to false             Reason="RootPrivilegesNeeded"
-```
-
-<a name="sat_label"/>
-
-### audit.kubernetes.io/pod.allow-automount-service-account-token
-
-Allows setting `automountServiceAccountToken` to `true` to a pod.
-
-```sh
-kubeaudit.allow.autmountServiceAccountToken: "True"
-
-WARN[0000] Allowed setting automountServiceAccountToken to true  Reason=Unspecified
-```
-
-<a name="rootfs_label"/>
-
-### container.audit.kubernetes.io/\<container-name\>.allow-read-only-root-filesystem-false
-
-Allows setting `readOnlyRootFilesystem` to `false` to a specific container.
-
-### audit.kubernetes.io/pod.allow-read-only-root-filesystem-false
-
-Allows setting `readOnlyRootFilesystem` to `false` to all containers in a pod.
-
-```sh
-kubeaudit.allow.readOnlyRootFilesystemFalse: "WritePermissionsNeeded"
-
-WARN[0000] Allowed setting readOnlyRootFilesystem to false Reason="WritePermissionsNeeded"
-```
-
-<a name="egress_label"/>
-
-### audit.kubernetes.io/\<namespace-name\>.allow-non-default-deny-egress-network-policy
-
-Allows absense of `default-deny` egress network policy for that specific namespace.
-
-<a name="ingress_label"/>
-
-### audit.kubernetes.io/\<namespace-name\>.allow-non-default-deny-ingress-network-policy
-
-Allows absense of `default-deny` ingress network policy for that specific namespace.
-
-```sh
-audit.kubernetes.io/default.allow-non-default-deny-egress-network-policy: "EgressIsAllowed"
-
-WARN[0000] Allowed Namespace without a default deny egress NetworkPolicy  KubeType=namespace Name=default Reason="EgressIsAllowed"
-```
-
-<a name="namespacenetwork_label"/>
-
-### audit.kubernetes.io/pod.allow-namespace-host-network
-
-```sh
-audit.kubernetes.io/pod.allow-namespace-host-network: "HostNetworkIsAllowed"
-
-WARN[0000] Allowed setting hostNetwork to true           KubeType=pod Name=Pod Namespace=PodNamespace Reason="HostNetworkIsAllowed"
-```
-
-<a name="namespaceipc_label"/>
-
-### audit.kubernetes.io/pod.allow-namespace-host-IPC
-
-```sh
-audit.kubernetes.io/pod.allow-namespace-host-IPC: "HostIPCIsAllowed"
-
-WARN[0000] Allowed setting hostIPC to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="HostIPCIsAllowed"
-```
-
-<a name="namespacepid_label"/>
-
-### audit.kubernetes.io/pod.allow-namespace-host-PID
-
-```sh
-audit.kubernetes.io/pod.allow-namespace-host-PID: "HOSTPIDIsAllowed"
-
-WARN[0000] Allowed setting hostPID to true               KubeType=pod Name=Pod Namespace=PodNamespace Reason="HOSTPIDIsAllowed"
-```
-
-<a name="contribute" />
-
-## Drop capabilities list
-
-Allows configuring the audit against drop capabilities. Sane defaults are as follows:
-
-```
-# SANE DEFAULTS:
-capabilitiesToBeDropped:
-  # https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
-  - SETPCAP #Modify process capabilities.
-  - MKNOD #Create special files using mknod(2).
-  - AUDIT_WRITE #Write records to kernel auditing log.
-  - CHOWN #Make arbitrary changes to file UIDs and GIDs (see chown(2)).
-  - NET_RAW #Use RAW and PACKET sockets.
-  - DAC_OVERRIDE #Bypass file read, write, and execute permission checks.
-  - FOWNER #Bypass permission checks on operations that normally require the file system UID of the process to match the UID of the file.
-  - FSETID #Don’t clear set-user-ID and set-group-ID permission bits when a file is modified.
-  - KILL #Bypass permission checks for sending signals.
-  - SETGID #Make arbitrary manipulations of process GIDs and supplementary GID list.
-  - SETUID #Make arbitrary manipulations of process UIDs.
-  - NET_BIND_SERVICE #Bind a socket to internet domain privileged ports (port numbers less than 1024).
-  - SYS_CHROOT #Use chroot(2), change root directory.
-  - SETFCAP #Set file capabilities.
-```
-
-This can be overridden by using `-k` flag and providing your own defaults in the yaml format as shown below.
-
-<a name="audit-configuration" />
-
-## Audit Configuration
-
-Allows configuring your own audit settings for kubeaudit. By default following configuration is used:
-
-```
-apiVersion: v1
-kind: kubeauditConfig
-audit: true  # Set to false if you want kubeaudit to not audit your k8s manifests
-spec:
-  capabilities: # List of all supported capabilities
-    NET_ADMIN: drop         # Set to `keep` to keep capability
-    SETPCAP: drop           # Set to `keep` to keep capability
-    MKNOD: drop             # Set to `keep` to keep capability
-    AUDIT_WRITE: drop       # Set to `keep` to keep capability
-    CHOWN: drop             # Set to `keep` to keep capability
-    NET_RAW: drop           # Set to `keep` to keep capability
-    DAC_OVERRIDE: drop      # Set to `keep` to keep capability
-    FOWNER: drop            # Set to `keep` to keep capability
-    FSETID: drop            # Set to `keep` to keep capability
-    KILL: drop              # Set to `keep` to keep capability
-    SETGID: drop            # Set to `keep` to keep capability
-    SETUID: drop            # Set to `keep` to keep capability
-    NET_BIND_SERVICE: drop  # Set to `keep` to keep capability
-    SYS_CHROOT: drop        # Set to `keep` to keep capability
-    SETFCAP: drop           # Set to `keep` to keep capability
-  overrides: # List of all supported overrides
-    privilege-escalation: deny                      # Set to `allow` to skip auditing potential vulnerability
-    privileged: deny                                # Set to `allow` to skip auditing potential vulnerability
-    run-as-root: deny                               # Set to `allow` to skip auditing potential vulnerability
-    automount-service-account-token: deny           # Set to `allow` to skip auditing potential vulnerability
-    read-only-root-filesystem-false: deny           # Set to `allow` to skip auditing potential vulnerability
-    non-default-deny-ingress-network-policy: deny   # Set to `allow` to skip auditing potential vulnerability
-    non-default-deny-egress-network-policy: deny    # Set to `allow` to skip auditing potential vulnerability
-    namespace-host-network: deny                    # Set to `allow` to skip auditing potential vulnerability
-    namespace-host-IPC: deny                        # Set to `allow` to skip auditing potential vulnerability
-    namespace-host-PID: deny                        # Set to `allow` to skip auditing potential vulnerability
-```
-
-<a name="contribute" />
+To learn more about labels, see https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 
 ## Contributing
 
@@ -722,7 +216,8 @@ If you'd like to fix a bug, contribute a feature or just correct a typo, please 
 1. Go to the source: `cd $GOPATH/src/github.com/Shopify/kubeaudit`
 1. Add your forked repo as a fork: `git remote add fork https://github.com/you-are-awesome/kubeaudit`
 1. Create your feature branch: `git checkout -b awesome-new-feature`
-1. Run the tests to see everything is working as expected: `make test`
+1. Install [Kind](https://kind.sigs.k8s.io/#installation-and-usage)
+1. Run the tests to see everything is working as expected: `make test` (to run tests without Kind: `USE_KIND=false make test`)
 1. Commit your changes: `git commit -am 'Adds awesome feature'`
 1. Push to the branch: `git push fork`
 1. Sign the [Contributor License Agreement](https://cla.shopify.com/)

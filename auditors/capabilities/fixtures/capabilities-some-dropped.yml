@@ -1,0 +1,33 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: capabilities-some-dropped
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            capabilities:
+              drop:
+                - CHOWN
+                - DAC_OVERRIDE
+                - FOWNER
+                - FSETID
+                - KILL
+                - MKNOD
+                - NET_BIND_SERVICE
+                - NET_RAW
+                - SETFCAP
+                - SETGID
+                - SETUID
+                - SETPCAP
+                - SYS_CHROOT

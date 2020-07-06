@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: host-network-true
+spec:
+  hostNetwork: true
+  containers:
+    - name: container
+      image: scratch

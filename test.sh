@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
-
+    
 set -e
+
+echo "Starting tests. This may take a while..."
+
+function finish {
+    if [ "$USE_KIND" != "false" ] ; then
+        make test-teardown
+    fi
+}
+trap finish EXIT
+
+if [ "$USE_KIND" != "false" ] ; then
+    make test-setup
+fi
+
 touch coverage.txt
 
 for d in $(go list ./... | grep -v vendor); do
@@ -10,26 +24,3 @@ for d in $(go list ./... | grep -v vendor); do
         rm profile.out
     fi
 done
-
-go build -o kubeaudit main.go
-
-cp -r fixtures/ fixtures_temp
-
-for f in fixtures_temp/*; do
-    ./kubeaudit autofix -f $f 2>> /dev/null
-done
-
-for f in fixtures_temp/*; do
-    echo $f >> result_file
-    ./kubeaudit all -f $f 2>> result_file
-done
-
-if (( $(grep -c 'level=error' result_file) > 0 )); then
-    echo ERROR: Regression Test Failed
-    sed -n '/^fixtures_temp/{ x; /level=error/p; d; }; /level=error/H; ${ x; /level=error/p; }' result_file
-    rm result_file
-    rm -r fixtures_temp
-    exit 1 # terminate and indicate error
-fi
-
-rm -r ./result_file ./fixtures_temp

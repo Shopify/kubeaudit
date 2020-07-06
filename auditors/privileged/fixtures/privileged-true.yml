@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: daemonset
+  namespace: privileged-true
+spec:
+  selector:
+    matchLabels:
+      name: daemonset
+  template:
+    metadata:
+      labels:
+        name: daemonset
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            privileged: true

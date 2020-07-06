@@ -1,0 +1,37 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: capabilities-added
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - SYS_TIME
+              drop:
+                - AUDIT_WRITE
+                - CHOWN
+                - DAC_OVERRIDE
+                - FOWNER
+                - FSETID
+                - KILL
+                - MKNOD
+                - NET_BIND_SERVICE
+                - NET_RAW
+                - SETFCAP
+                - SETGID
+                - SETUID
+                - SETPCAP
+                - SYS_CHROOT

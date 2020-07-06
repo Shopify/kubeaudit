@@ -1,0 +1,20 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/container: runtime/default
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+    spec:
+      containers:
+        - name: container
+          image: scratch

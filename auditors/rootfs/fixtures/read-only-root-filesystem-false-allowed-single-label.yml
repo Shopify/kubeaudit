@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset
+  namespace: read-only-root-filesystem-false-allowed-single-label
+spec:
+  serviceName: statefulset
+  selector:
+    matchLabels:
+      name: statefulset
+  template:
+    metadata:
+      labels:
+        name: statefulset
+        container.audit.kubernetes.io/container1.allow-read-only-root-filesystem-false: "SomeReason"
+    spec:
+      containers:
+        - name: container1
+          image: scratch
+          securityContext:
+            readOnlyRootFilesystem: false
+        - name: container2
+          image: scratch
+          securityContext:
+            readOnlyRootFilesystem: false

@@ -1,0 +1,38 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: capabilities-some-allowed
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+        audit.kubernetes.io/pod.allow-capability-chown: "True"
+        audit.kubernetes.io/pod.allow-capability-sys-time: "SomeReason"
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            capabilities:
+              add:
+                - SYS_TIME
+                - SYS_MODULE
+              drop:
+                - AUDIT_WRITE
+                - DAC_OVERRIDE
+                - FOWNER
+                - FSETID
+                - KILL
+                - MKNOD
+                - NET_BIND_SERVICE
+                - NET_RAW
+                - SETFCAP
+                - SETGID
+                - SETUID
+                - SETPCAP
+                - SYS_CHROOT

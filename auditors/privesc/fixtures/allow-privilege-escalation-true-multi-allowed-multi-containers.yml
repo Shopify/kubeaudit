@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset
+  namespace: allow-privilege-escalation-true-multi-allowed-multi-containers
+spec:
+  serviceName: statefulset
+  selector:
+    matchLabels:
+      name: statefulset
+  template:
+    metadata:
+      labels:
+        name: statefulset
+        container.audit.kubernetes.io/container1.allow-privilege-escalation: "SuperuserPrivilegesNeeded"
+        container.audit.kubernetes.io/container2.allow-privilege-escalation: "SuperuserPrivilegesNeeded"
+    spec:
+      containers:
+        - name: container1
+          image: scratch
+          securityContext:
+            allowPrivilegeEscalation: true
+        - name: container2
+          image: scratch
+          securityContext:
+            allowPrivilegeEscalation: true
