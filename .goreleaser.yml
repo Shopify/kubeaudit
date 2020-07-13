@@ -5,8 +5,8 @@ release:
     name: kubeaudit
   draft: true
   name_template: "{{.ProjectName}}-v{{.Version}}"
-brew:
-  github:
+brews:
+- github:
     owner: Shopify
     name: homebrew-shopify
   install: bin.install "kubeaudit"
@@ -19,23 +19,20 @@ builds:
   goarm:
   - 6
   - 7
-  main: .
+  main: ./cmd/main.go
   binary: kubeaudit
   ldflags:
   - -s -w -X github.com/Shopify/kubeaudit/cmd.Version={{.Version}} -X github.com/Shopify/kubeaudit/cmd.Commit={{.Commit}} -X github.com/Shopify/kubeaudit/cmd.BuildDate={{.Date}}
-archive:
-  format: tar.gz
+archives:
+- format: tar.gz
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{.Arm }}{{ end }}'
   files:
   - licence*
   - LICENCE*
-  - license*
-  - LICENSE*
   - readme*
   - README*
   - changelog*
   - CHANGELOG*
-  - config/*
 snapshot:
   name_template: SNAPSHOT-{{ .Commit }}
 checksum:
