@@ -50,7 +50,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Path to local Kubernetes config file. Only used in local mode (default is $HOME/.kube/config)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.minSeverity, "minseverity", "m", "INFO", "Set the lowest severity level to report (one of \"ERROR\", \"WARN\", \"INFO\")")
 	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Output audit results in JSON")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace. Only used in cluster mode.")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace. Not currently supported in manifest mode.")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "Path to the yaml configuration to audit. Only used in manifest mode.")
 }
 
