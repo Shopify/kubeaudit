@@ -207,6 +207,11 @@ See the specific [auditor docs](#auditors) for the auditor you wish to override 
 
 To learn more about labels, see https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 
+## CI/CD usage
+
+kubeaudit will return exit code `2` whenever any errors are being found, so it can stop your pipeline.
+If you do not want this to happen, run it as `kubeaudit all || true`
+
 ## Contributing
 
 If you'd like to fix a bug, contribute a feature or just correct a typo, please feel free to do so as long as you follow our [Code of Conduct](https://github.com/Shopify/kubeaudit/blob/master/CODE_OF_CONDUCT.md).
