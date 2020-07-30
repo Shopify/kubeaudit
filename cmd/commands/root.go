@@ -73,6 +73,10 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 		}
 
 		report.PrintResults(os.Stdout, minSeverity, formatter)
+
+		if report.HasErrors() {
+			os.Exit(2)
+		}
 	}
 }
 
