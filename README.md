@@ -29,6 +29,7 @@ The rest of this README will focus on how to use kubeaudit as a command line too
 * [Commands](#commands)
 * [Configuration File](#configuration-file)
 * [Override Errors](#override-errors)
+* [CI/CD Usage](#cicd-usage)
 * [Contributing](#contributing)
 
 ## Installation
