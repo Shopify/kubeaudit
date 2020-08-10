@@ -216,6 +216,18 @@ func (r *Report) Results() []Result {
 	return results
 }
 
+// HasErrors returns true if any findings have the level of Error
+func (r *Report) HasErrors() (errorsFound bool) {
+	for _, workloadResult := range r.Results() {
+		for _, auditResult := range workloadResult.GetAuditResults() {
+			if auditResult.Severity >= Error {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // PrintResults writes the audit results with a severity greater than or matching minSeverity in a human-readable
 // way to the provided writer
 func (r *Report) PrintResults(writer io.Writer, minSeverity int, formatter log.Formatter) {

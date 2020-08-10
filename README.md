@@ -29,6 +29,7 @@ The rest of this README will focus on how to use kubeaudit as a command line too
 * [Commands](#commands)
 * [Configuration File](#configuration-file)
 * [Override Errors](#override-errors)
+* [CI/CD Usage](#cicd-usage)
 * [Contributing](#contributing)
 
 ## Installation
@@ -206,6 +207,11 @@ Multiple override labels (for multiple auditors) can be added to the same resour
 See the specific [auditor docs](#auditors) for the auditor you wish to override for examples.
 
 To learn more about labels, see https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+
+## CI/CD usage
+
+kubeaudit will return exit code `2` whenever any errors are being found, so it can stop your pipeline.
+If you do not want this to happen, run it as `kubeaudit all || true`
 
 ## Contributing
 
