@@ -19,8 +19,9 @@ func TestAuditAppArmor(t *testing.T) {
 	}{
 		{"apparmor-enabled.yml", nil, true},
 		{"apparmor-annotation-missing.yml", []string{AppArmorAnnotationMissing}, true},
-		// This is an invalid manifest so we should only test it in manifest mode as kubernetes will fail to apply it
+		// These are invalid manifests so we should only test it in manifest mode as kubernetes will fail to apply it
 		{"apparmor-disabled.yml", []string{AppArmorDisabled}, false},
+		{"apparmor-invalid-annotation.yml", []string{AppArmorInvalidAnnotation}, false},
 	}
 
 	for _, tc := range cases {
@@ -44,6 +45,7 @@ func TestFixAppArmor(t *testing.T) {
 		{"apparmor-enabled.yml", "localhost/something"},
 		{"apparmor-annotation-missing.yml", ProfileRuntimeDefault},
 		{"apparmor-disabled.yml", ProfileRuntimeDefault},
+		{"apparmor-invalid-annotation.yml", ProfileRuntimeDefault},
 	}
 
 	for _, tc := range cases {
