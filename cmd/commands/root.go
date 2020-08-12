@@ -55,7 +55,7 @@ func init() {
 }
 
 // KubeauditLogLevels represents an enum for the supported log levels.
-var KubeauditLogLevels = map[string]int{
+var KubeauditLogLevels = map[string]kubeaudit.SeverityLevel{
 	"ERROR": kubeaudit.Error,
 	"WARN":  kubeaudit.Warn,
 	"INFO":  kubeaudit.Info,
@@ -65,14 +65,15 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 	return func(cmd *cobra.Command, args []string) {
 		report := getReport(auditable...)
 
-		minSeverity := KubeauditLogLevels[rootConfig.minSeverity]
-
-		var formatter log.Formatter
-		if rootConfig.json {
-			formatter = &log.JSONFormatter{}
+		printOptions := []kubeaudit.PrintOption{
+			kubeaudit.WithMinSeverity(KubeauditLogLevels[rootConfig.minSeverity]),
 		}
 
-		report.PrintResults(os.Stdout, minSeverity, formatter)
+		if rootConfig.json {
+			printOptions = append(printOptions, kubeaudit.WithFormatter(&log.JSONFormatter{}))
+		}
+
+		report.PrintResults(printOptions...)
 
 		if report.HasErrors() {
 			os.Exit(2)

@@ -2,7 +2,6 @@ package kubeaudit_test
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
@@ -105,5 +104,5 @@ func Example_customAuditor() {
 	}
 
 	// Print the results to screen
-	report.PrintResults(os.Stdout, kubeaudit.Info, nil)
+	report.PrintResults()
 }
