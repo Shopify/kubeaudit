@@ -216,11 +216,11 @@ Fixed manifest:
 
 apiVersion: apps/v1
 kind: Deployment
-# DeploymentSpec
+# PodSpec
 spec:
-  # PodTemplateSpec
+  # PodTemplate
   template:
-    # PodSpec
+    # ContainerSpec
     spec:
       containers:
       - name: myContainer # this is a sample container
@@ -253,6 +253,8 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
   selector: null
   strategy: {}
+metadata:
+
 ```
 
 ### Example with Custom Output File
