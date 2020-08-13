@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: apparmor-enabled
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/container: runtime/default
+    container.apparmor.security.beta.kubernetes.io/container2: runtime/default
+spec:
+  containers:
+    - name: container
+      image: scratch

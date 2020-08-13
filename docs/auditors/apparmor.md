@@ -17,6 +17,13 @@ $ kubeaudit apparmor -f "auditors/apparmor/fixtures/apparmor_annotation_missing_
 ERRO[0000] AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/AAcontainer' should be added.  AuditResultName=AppArmorAnnotationMissing Container=AAcontainer MissingAnnotation=container.apparmor.security.beta.kubernetes.io/AAcontainer
 ```
 
+If an apparmor annotation refers to a container which doesn't exist, `kubectl apply` will fail. Kubeaudit produces an error for this case:
+
+```
+$ kubeaudit apparmor -f "auditors/apparmor/fixtures/apparmor-invalid-annotation.yml"
+ERRO[0000] AppArmor annotation key refers to a container that doesn't exist. Remove the annotation 'container.apparmor.security.beta.kubernetes.io/container2: runtime/default'.  Annotation="container.apparmor.security.beta.kubernetes.io/container2: runtime/default" AuditResultName=AppArmorInvalidAnnotation Container=container
+```
+
 ## Explanation
 
 AppArmor is a Mandatory Access Control (MAC) system used by Linux.
