@@ -109,7 +109,7 @@ func auditPodAnnotations(resource k8stypes.Resource, containerNames []string) []
 		if !contains(containerNames, containerName) {
 			auditResults = append(auditResults, &kubeaudit.AuditResult{
 				Name:     AppArmorInvalidAnnotation,
-				Severity: kubeaudit.Warn,
+				Severity: kubeaudit.Error,
 				Message:  fmt.Sprintf("AppArmor annotation key refers to a container that doesn't exist. Remove the annotation '%s: %s'.", annotationKey, annotationValue),
 				Metadata: kubeaudit.Metadata{
 					"Container":  containerName,
