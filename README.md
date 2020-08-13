@@ -26,6 +26,7 @@ The rest of this README will focus on how to use kubeaudit as a command line too
 
 * [Installation](#installation)
 * [Quick Start](#quick-start)
+* [Audit Results](#audit-results)
 * [Commands](#commands)
 * [Configuration File](#configuration-file)
 * [Override Errors](#override-errors)
@@ -41,7 +42,7 @@ Kubeaudit has official releases that are blessed and stable:
 
 ### DIY build
 
-Master will have newer features than the stable releases. If you need a newer
+Master may have newer features than the stable releases. If you need a newer
 feature not yet included in a release you can do the following to get
 kubeaudit:
 
@@ -151,6 +152,16 @@ Kubeaudit can detect if it is running within a container in a cluster. If so, it
 kubeaudit all
 ```
 
+## Audit Results
+
+Kubeaudit produces results with three levels of severity:
+
+`Error`: A security issue
+`Warning`: A best practice recommendation
+`Info`: Informational, no action required. This includes results that are [overridden](#override-errors)
+
+The minimum severity level can be set using the `--minSeverity/-m` flag. See [Global Flags](#global-flags) for a more detailed description.
+
 ## Commands
 
 | Command          | Description                                                  | Documentation                     |
@@ -194,7 +205,7 @@ Kubeaudit can be used with a configuration file instead of flags. See the [all c
 
 ## Override Errors
 
-Security issues can be ignored for specific containers or pods by adding override labels. This means the auditor will produce `warning` results instead of `error` results. The labels are documented in each auditor's documentation, but the general format for auditors that support overrides is as follows:
+Security issues can be ignored for specific containers or pods by adding override labels. This means the auditor will produce `info` results instead of `error` results and the audit result name will have `Allowed` appended to it. The labels are documented in each auditor's documentation, but the general format for auditors that support overrides is as follows:
 
 An override label consists of a `key` and a `value`.
 
@@ -209,10 +220,22 @@ container.audit.kubernetes.io/[container name].[override identifier]
 audit.kubernetes.io/pod.[override identifier]
 ```
 
-If the `value` is set to a non-empty string, it will be displayed in the `warning` result as the `OverrideReason`:
+If the `value` is set to a non-empty string, it will be displayed in the `info` result as the `OverrideReason`:
 ```
--- [warning] AutomountServiceAccountTokenTrueAndDefaultSAAllowed
-   Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
+$ kubeaudit asat -f "auditors/asat/fixtures/service-account-token-true-allowed.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    name: replicationcontroller
+    namespace: service-account-token-true-allowed
+
+--------------------------------------------
+
+-- [info] AutomountServiceAccountTokenTrueAndDefaultSAAllowed
+   Message: Audit result overridden: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
    Metadata:
       OverrideReason: SomeReason
 ```
