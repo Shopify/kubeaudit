@@ -16,7 +16,7 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	json        bool
+	format      string
 	kubeConfig  string
 	manifest    string
 	namespace   string
@@ -49,7 +49,7 @@ func Execute() {
 func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Path to local Kubernetes config file. Only used in local mode (default is $HOME/.kube/config)")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.minSeverity, "minseverity", "m", "INFO", "Set the lowest severity level to report (one of \"ERROR\", \"WARN\", \"INFO\")")
-	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Output audit results in JSON")
+	RootCmd.PersistentFlags().StringVar(&rootConfig.format, "format", "pretty", "The output format to use (one of \"pretty\", \"logrus\", \"json\")")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace. Not currently supported in manifest mode.")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "Path to the yaml configuration to audit. Only used in manifest mode.")
 }
@@ -69,8 +69,11 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 			kubeaudit.WithMinSeverity(KubeauditLogLevels[rootConfig.minSeverity]),
 		}
 
-		if rootConfig.json {
+		switch rootConfig.format {
+		case "json":
 			printOptions = append(printOptions, kubeaudit.WithFormatter(&log.JSONFormatter{}))
+		case "logrus":
+			printOptions = append(printOptions, kubeaudit.WithFormatter(&log.TextFormatter{}))
 		}
 
 		report.PrintResults(printOptions...)
