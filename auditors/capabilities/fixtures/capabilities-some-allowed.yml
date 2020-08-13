@@ -11,7 +11,7 @@ spec:
     metadata:
       labels:
         name: deployment
-        audit.kubernetes.io/pod.allow-capability-chown: "True"
+        audit.kubernetes.io/pod.allow-capability-chown: "SomeReason"
         audit.kubernetes.io/pod.allow-capability-sys-time: "SomeReason"
     spec:
       containers:

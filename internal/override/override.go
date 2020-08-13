@@ -1,6 +1,8 @@
 package override
 
 import (
+	"strings"
+
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/k8stypes"
@@ -50,12 +52,10 @@ func ApplyOverride(auditResult *kubeaudit.AuditResult, containerName string, res
 
 	auditResult.Name = GetOverriddenResultName(auditResult.Name)
 	auditResult.PendingFix = nil
+	auditResult.Severity = kubeaudit.Info
+	auditResult.Message = "Audit result overridden: " + auditResult.Message
 
-	if auditResult.Severity == kubeaudit.Error {
-		auditResult.Severity = kubeaudit.Warn
-	}
-
-	if overrideReason != "" && overrideReason != "true" {
+	if overrideReason != "" && strings.ToLower(overrideReason) != "true" {
 		if auditResult.Metadata == nil {
 			auditResult.Metadata = make(kubeaudit.Metadata)
 		}
