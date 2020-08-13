@@ -37,21 +37,31 @@ Also see [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities_nil_v1beta2.yml"
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=AUDIT_WRITE Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=CHOWN Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=DAC_OVERRIDE Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=FOWNER Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=FSETID Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=KILL Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=MKNOD Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=NET_BIND_SERVICE Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=NET_RAW Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SETFCAP Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SETGID Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SETPCAP Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SETUID Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SYS_CHROOT Container=fakeContainerSC
+$ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: capabilities-nil
+
+--------------------------------------------
+
+-- [error] CapabilityNotDropped
+   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
+   Metadata:
+      Container: container
+      Capability: AUDIT_WRITE
+
+-- [error] CapabilityNotDropped
+   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
+   Metadata:
+      Container: container
+      Capability: CHOWN
+
+...
 ```
 
 ### Example with Custom Drop List
@@ -59,9 +69,23 @@ ERRO[0000] Capability not dropped. Ideally, the capability drop list should incl
 A custom drop list can be provided as a space-separated list of capabilities using the `-d/--drop` flag:
 
 ```
-$ kubeaudit capabilities --drop "MAC_ADMIN AUDIT_WRITE" -f "auditors/capabilities/fixtures/capabilities_nil_v1beta2.yml"
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=MAC_ADMIN Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=AUDIT_WRITE Container=fakeContainerSC
+$ kubeaudit capabilities --drop "MAC_ADMIN AUDIT_WRITE" -f "auditors/capabilities/fixtures/capabilities-nil.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: capabilities-nil
+
+--------------------------------------------
+
+-- [error] CapabilityNotDropped
+   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
+   Metadata:
+      Container: container
+      Capability: MAC_ADMIN AUDIT_WRITE
 ```
 
 **Note**: if using http://man7.org/linux/man-pages/man7/capabilities.7.html as a reference for capability names, drop the `CAP_` prefix.

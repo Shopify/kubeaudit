@@ -13,8 +13,22 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit nonroot -f "auditors/nonroot/fixtures/run_as_non_root_nil_v1.yml"
-ERRO[0000] runAsNonRoot is not set in container SecurityContext nor the PodSecurityContext. It should be set to 'true' in at least one of the two.  AuditResultName=RunAsNonRootPSCNilCSCNil Container=fakeContainerRANR
+$ kubeaudit nonroot -f "auditors/nonroot/fixtures/run-as-non-root-nil.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: run-as-non-root-nil
+
+--------------------------------------------
+
+-- [error] RunAsNonRootPSCNilCSCNil
+   Message: runAsNonRoot is not set in container SecurityContext nor the PodSecurityContext. It should be set to 'true' in at least one of the two.
+   Metadata:
+      Container: container
 ```
 
 ## Explanation

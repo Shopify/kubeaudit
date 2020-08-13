@@ -13,8 +13,21 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit netpols -f "auditors/netpols/fixtures/namespace_missing_default_deny_netpol.yml"
-ERRO[0000] Namespace is missing a default deny ingress and egress NetworkPolicy.  AuditResultName=MissingDefaultDenyIngressAndEgressNetworkPolicy Namespace=default
+$ kubeaudit netpols -f "auditors/netpols/fixtures/namespace-missing-default-deny-netpol.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: namespace-missing-default-deny-netpol
+
+--------------------------------------------
+
+-- [error] MissingDefaultDenyIngressAndEgressNetworkPolicy
+   Message: Namespace is missing a default deny ingress and egress NetworkPolicy.
+   Metadata:
+      Namespace: namespace-missing-default-deny-netpol
 ```
 
 ## Explanation
@@ -79,11 +92,30 @@ spec:
   podSelector: {}
   policyTypes:
   - Egress
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-namespace
 ```
 
 The `netpols` auditor will produce an error because there is no `deny-all` Network Policy for ingress traffic:
 ```
-ERRO[0000] All ingress traffic should be blocked by default for namespace my-namespace.  AuditResultName=MissingDefaultDenyIngressNetworkPolicy Namespace=my-namespace
+--------- Results for ---------------------
+
+  apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: my-namespace
+
+--------------------------------------------
+
+-- [error] MissingDefaultDenyIngressNetworkPolicy
+   Message: All ingress traffic should be blocked by default for namespace my-namespace.
+   Metadata:
+      Namespace: my-namespace
 ```
 
 This error can be overridden by adding the `audit.kubernetes.io/namespace.allow-non-default-deny-ingress-network-policy: ""` label to the corresponding Namespace resource:
@@ -98,5 +130,17 @@ metadata:
 
 The auditor will now produce a warning instead of an error:
 ```
-WARN[0000] All ingress traffic should be blocked by default for namespace my-namespace.  AuditResultName=MissingDefaultDenyIngressNetworkPolicyAllowed Namespace=my-namespace
+--------- Results for ---------------------
+
+  apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: my-namespace
+
+--------------------------------------------
+
+-- [warning] MissingDefaultDenyIngressNetworkPolicyAllowed
+   Message: All ingress traffic should be blocked by default for namespace my-namespace.
+   Metadata:
+      Namespace: my-namespace
 ```

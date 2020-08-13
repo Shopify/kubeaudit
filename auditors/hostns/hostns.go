@@ -58,6 +58,10 @@ func (a *HostNamespaces) Audit(resource k8stypes.Resource, _ []k8stypes.Resource
 
 func auditHostNetwork(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostNetwork {
+		metadata := kubeaudit.Metadata{}
+		if podSpec.Hostname != "" {
+			metadata["PodHost"] = podSpec.Hostname
+		}
 		return &kubeaudit.AuditResult{
 			Name:     NamespaceHostNetworkTrue,
 			Severity: kubeaudit.Error,
@@ -65,9 +69,7 @@ func auditHostNetwork(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 			PendingFix: &fixHostNetworkTrue{
 				podSpec: podSpec,
 			},
-			Metadata: kubeaudit.Metadata{
-				"PodHost": podSpec.Hostname,
-			},
+			Metadata: metadata,
 		}
 	}
 
@@ -76,6 +78,10 @@ func auditHostNetwork(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 
 func auditHostIPC(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostIPC {
+		metadata := kubeaudit.Metadata{}
+		if podSpec.Hostname != "" {
+			metadata["PodHost"] = podSpec.Hostname
+		}
 		return &kubeaudit.AuditResult{
 			Name:     NamespaceHostIPCTrue,
 			Severity: kubeaudit.Error,
@@ -83,9 +89,7 @@ func auditHostIPC(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 			PendingFix: &fixHostIPCTrue{
 				podSpec: podSpec,
 			},
-			Metadata: kubeaudit.Metadata{
-				"PodHost": podSpec.Hostname,
-			},
+			Metadata: metadata,
 		}
 	}
 
@@ -94,6 +98,10 @@ func auditHostIPC(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 
 func auditHostPID(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostPID {
+		metadata := kubeaudit.Metadata{}
+		if podSpec.Hostname != "" {
+			metadata["PodHost"] = podSpec.Hostname
+		}
 		return &kubeaudit.AuditResult{
 			Name:     NamespaceHostPIDTrue,
 			Severity: kubeaudit.Error,
@@ -101,9 +109,7 @@ func auditHostPID(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 			PendingFix: &fixHostPIDTrue{
 				podSpec: podSpec,
 			},
-			Metadata: kubeaudit.Metadata{
-				"PodHost": podSpec.Hostname,
-			},
+			Metadata: metadata,
 		}
 	}
 

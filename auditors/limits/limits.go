@@ -99,7 +99,7 @@ func (limits *Limits) auditContainer(container *k8stypes.ContainerV1) (auditResu
 			Metadata: kubeaudit.Metadata{
 				"Container":         container.Name,
 				"ContainerCpuLimit": cpu,
-				"maxCPU":            maxCPU,
+				"MaxCPU":            maxCPU,
 			},
 		}
 		auditResults = append(auditResults, auditResult)
