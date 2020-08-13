@@ -13,8 +13,22 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit privileged -f "auditors/privileged/fixtures/privileged_true_v1.yml"
-ERRO[0000] privileged is set to 'true' in container SecurityContext. It should be set to 'false'.  AuditResultName=PrivilegedTrue Container=fakeContainerPrivileged
+$ kubeaudit privileged -f "auditors/privileged/fixtures/privileged-true.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: apps/v1
+  kind: DaemonSet
+  metadata:
+    name: daemonset
+    namespace: privileged-true
+
+--------------------------------------------
+
+-- [error] PrivilegedTrue
+   Message: privileged is set to 'true' in container SecurityContext. It should be set to 'false'.
+   Metadata:
+      Container: container
 ```
 
 ## Explanation

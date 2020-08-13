@@ -13,8 +13,22 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit rootfs -f "auditors/rootfs/fixtures/read_only_root_filesystem_nil_v1.yml"
-ERRO[0000] readOnlyRootFilesystem is not set in container SecurityContext. It should be set to 'true'.  AuditResultName=ReadOnlyRootFilesystemNil Container=fakeContainerRORF
+$ kubeaudit rootfs -f "auditors/rootfs/fixtures/read-only-root-filesystem-nil.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: statefulset
+    namespace: read-only-root-filesystem-nil
+
+--------------------------------------------
+
+-- [error] ReadOnlyRootFilesystemNil
+   Message: readOnlyRootFilesystem is not set in container SecurityContext. It should be set to 'true'.
+   Metadata:
+      Container: container
 ```
 
 ## Explanation

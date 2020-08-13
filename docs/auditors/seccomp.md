@@ -13,8 +13,22 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit seccomp -f "auditors/seccomp/fixtures/seccomp_annotation_missing_v1.yml"
-ERRO[0000] Seccomp annotation is missing. The annotation seccomp.security.alpha.kubernetes.io/pod: runtime/default should be added.  AuditResultName=SeccompAnnotationMissing MissingAnnotation=seccomp.security.alpha.kubernetes.io/pod
+$ kubeaudit seccomp -f "auditors/seccomp/fixtures/seccomp-annotation-missing.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod
+    namespace: seccomp-annotation-missing
+
+--------------------------------------------
+
+-- [error] SeccompAnnotationMissing
+   Message: Seccomp annotation is missing. The annotation seccomp.security.alpha.kubernetes.io/pod: runtime/default should be added.
+   Metadata:
+      MissingAnnotation: seccomp.security.alpha.kubernetes.io/pod
 ```
 
 ## Explanation

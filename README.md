@@ -91,18 +91,32 @@ kubeaudit all -f "/path/to/manifest.yml"
 
 Example output:
 ```
-$ kubeaudit all -f auditors/all/fixtures/audit_all_v1.yml
-ERRO[0000] AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/fakeContainerSC' should be added.  AuditResultName=AppArmorAnnotationMissing Container=fakeContainerSC MissingAnnotation=container.apparmor.security.beta.kubernetes.io/fakeContainerSC
-ERRO[0000] Default serviceAccount with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.  AuditResultName=AutomountServiceAccountTokenTrueAndDefaultSA
-WARN[0000] Image tag is missing.                         AuditResultName=ImageTagMissing Container=fakeContainerSC
-WARN[0000] Resource limits not set.                      AuditResultName=LimitsNotSet Container=fakeContainerSC
-ERRO[0000] runAsNonRoot is not set in container SecurityContext nor the PodSecurityContext. It should be set to 'true' in at least one of the two.  AuditResultName=RunAsNonRootPSCNilCSCNil Container=fakeContainerSC
-ERRO[0000] allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.  AuditResultName=AllowPrivilegeEscalationNil Container=fakeContainerSC
-WARN[0000] privileged is not set in container SecurityContext. Privileged defaults to 'false' but it should be explicitly set to 'false'.  AuditResultName=PrivilegedNil Container=fakeContainerSC
-ERRO[0000] readOnlyRootFilesystem is not set in container SecurityContext. It should be set to 'true'.  AuditResultName=ReadOnlyRootFilesystemNil Container=fakeContainerSC
-ERRO[0000] Seccomp annotation is missing. The annotation seccomp.security.alpha.kubernetes.io/pod: runtime/default should be added.  AuditResultName=SeccompAnnotationMissing MissingAnnotation=seccomp.security.alpha.kubernetes.io/pod
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=AUDIT_WRITE Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=CHOWN Container=fakeContainerSC
+$ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
+
+--------- Results for ---------------------
+
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: deployment-apps-v1
+
+--------------------------------------------
+
+-- [error] AppArmorAnnotationMissing
+   Message: AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/container' should be added.
+   Metadata:
+      Container: container
+      MissingAnnotation: container.apparmor.security.beta.kubernetes.io/container
+
+-- [error] AutomountServiceAccountTokenTrueAndDefaultSA
+   Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
+
+-- [error] CapabilityNotDropped
+   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
+   Metadata:
+      Container: container
+      Capability: AUDIT_WRITE
 ...
 ```
 
@@ -171,7 +185,7 @@ Auditors can also be run individually.
 | -j      | --json         | Output audit results in JSON                                                                        |
 | -c      | --kubeconfig   | Path to local Kubernetes config file. Only used in local mode (default is `$HOME/.kube/config`)     |
 | -f      | --manifest     | Path to the yaml configuration to audit. Only used in manifest mode.                                |
-| -n      | --namespace    | Only audit resources in the specified namespace. Only used in cluster mode.                         |
+| -n      | --namespace    | Only audit resources in the specified namespace. Not currently supported in manifest mode.                         |
 | -m      | --minseverity  | Set the lowest severity level to report (one of "ERROR", "WARN", "INFO") (default "INFO")           |
 
 ## Configuration File
@@ -180,7 +194,7 @@ Kubeaudit can be used with a configuration file instead of flags. See the [all c
 
 ## Override Errors
 
-Security issues can be ignored for specific containers or pods by adding override labels. This means the auditor will produce `WARN` results instead of `ERROR` results. The labels are documented in each auditor's documentation, but the general format for auditors that support overrides is as follows:
+Security issues can be ignored for specific containers or pods by adding override labels. This means the auditor will produce `warning` results instead of `error` results. The labels are documented in each auditor's documentation, but the general format for auditors that support overrides is as follows:
 
 An override label consists of a `key` and a `value`.
 
@@ -195,9 +209,12 @@ container.audit.kubernetes.io/[container name].[override identifier]
 audit.kubernetes.io/pod.[override identifier]
 ```
 
-If the `value` is set to a non-empty string, it will be displayed in the `WARN` result as the `OverrideReason`:
+If the `value` is set to a non-empty string, it will be displayed in the `warning` result as the `OverrideReason`:
 ```
-WARN[0000] ... AuditResultName=DockerSocketMounted OverrideReason=AppNeedsAccessToDocker
+-- [warning] AutomountServiceAccountTokenTrueAndDefaultSAAllowed
+   Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
+   Metadata:
+      OverrideReason: SomeReason
 ```
 
 As per Kubernetes spec, `value` must be 63 characters or less and must be empty or begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.
