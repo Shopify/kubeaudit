@@ -215,7 +215,7 @@ func (r *Report) Results() []Result {
 	return results
 }
 
-// Results returns the audit results for each Kubernetes resource with a minimum severity
+// ResultsWithMinSeverity returns the audit results for each Kubernetes resource with a minimum severity
 func (r *Report) ResultsWithMinSeverity(minSeverity SeverityLevel) []Result {
 	var results []Result
 	for _, result := range r.results {

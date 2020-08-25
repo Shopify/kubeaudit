@@ -197,7 +197,7 @@ Auditors can also be run individually.
 | -c      | --kubeconfig   | Path to local Kubernetes config file. Only used in local mode (default is `$HOME/.kube/config`)     |
 | -f      | --manifest     | Path to the yaml configuration to audit. Only used in manifest mode.                                |
 | -n      | --namespace    | Only audit resources in the specified namespace. Not currently supported in manifest mode.                         |
-| -m      | --minseverity  | Set the lowest severity level to report (one of "ERROR", "WARN", "INFO") (default "INFO")           |
+| -m      | --minseverity  | Set the lowest severity level to report (one of "error", "warning", "info") (default "info")           |
 
 ## Configuration File
 

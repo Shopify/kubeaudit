@@ -71,7 +71,7 @@ func (p *Printer) prettyPrintReport(report *Report) {
 		resourceName := k8s.GetObjectMeta(resource).GetName()
 		resourceNamespace := k8s.GetObjectMeta(resource).GetNamespace()
 
-		p.printColor(color.CyanColor, "\n--------- Results for ---------------------\n\n")
+		p.printColor(color.CyanColor, "\n---------------- Results for ---------------\n\n")
 		p.printColor(color.CyanColor, "  apiVersion: ")
 		if groupVersionKind.Group != "" {
 			p.printColor(color.CyanColor, groupVersionKind.Group+"/")

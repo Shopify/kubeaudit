@@ -2,6 +2,7 @@ package commands
 
 import (
 	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -48,17 +49,18 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Path to local Kubernetes config file. Only used in local mode (default is $HOME/.kube/config)")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.minSeverity, "minseverity", "m", "INFO", "Set the lowest severity level to report (one of \"ERROR\", \"WARN\", \"INFO\")")
-	RootCmd.PersistentFlags().StringVar(&rootConfig.format, "format", "pretty", "The output format to use (one of \"pretty\", \"logrus\", \"json\")")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.minSeverity, "minseverity", "m", "info", "Set the lowest severity level to report (one of \"error\", \"warning\", \"info\")")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.format, "format", "p", "pretty", "The output format to use (one of \"pretty\", \"logrus\", \"json\")")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace. Not currently supported in manifest mode.")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "Path to the yaml configuration to audit. Only used in manifest mode.")
 }
 
 // KubeauditLogLevels represents an enum for the supported log levels.
 var KubeauditLogLevels = map[string]kubeaudit.SeverityLevel{
-	"ERROR": kubeaudit.Error,
-	"WARN":  kubeaudit.Warn,
-	"INFO":  kubeaudit.Info,
+	"error":   kubeaudit.Error,
+	"warn":    kubeaudit.Warn,
+	"warning": kubeaudit.Warn,
+	"info":    kubeaudit.Info,
 }
 
 func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []string) {
@@ -66,7 +68,7 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 		report := getReport(auditable...)
 
 		printOptions := []kubeaudit.PrintOption{
-			kubeaudit.WithMinSeverity(KubeauditLogLevels[rootConfig.minSeverity]),
+			kubeaudit.WithMinSeverity(KubeauditLogLevels[strings.ToLower(rootConfig.minSeverity)]),
 		}
 
 		switch rootConfig.format {
