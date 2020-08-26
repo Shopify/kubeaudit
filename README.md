@@ -94,7 +94,7 @@ Example output:
 ```
 $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1
   kind: Deployment
@@ -224,7 +224,7 @@ If the `value` is set to a non-empty string, it will be displayed in the `info` 
 ```
 $ kubeaudit asat -f "auditors/asat/fixtures/service-account-token-true-allowed.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: ReplicationController

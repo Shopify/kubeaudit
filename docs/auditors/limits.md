@@ -22,7 +22,7 @@ The max CPU is specified using the `--cpu` flag:
 ```
 $ kubeaudit limits --cpu 600m -f "auditors/limits/fixtures/resources-limit.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Pod
@@ -43,7 +43,7 @@ The max memory is specified using the `--memory` flag:
 ```
 $ kubeaudit limits --memory 384 -f "auditors/limits/fixtures/resources-limit.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Pod
@@ -64,7 +64,7 @@ The CPU and memory can be audited at the same time by including both the `--cpu`
 ```
 $ kubeaudit limits --cpu 600m --memory 384 -f "auditors/limits/fixtures/resources-limit.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Pod
@@ -92,7 +92,7 @@ The `limits` auditor can be used to find all containers which do not specify a m
 ```
 $ kubeaudit limits  -f "auditors/limits/fixtures/resources-limit-nil.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Pod

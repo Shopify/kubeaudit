@@ -15,7 +15,7 @@ See [Global Flags](/README.md#global-flags)
 ```
 $ kubeaudit rootfs -f "auditors/rootfs/fixtures/read-only-root-filesystem-nil.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1
   kind: StatefulSet

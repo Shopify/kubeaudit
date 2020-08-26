@@ -15,7 +15,7 @@ See [Global Flags](/README.md#global-flags)
 ```
 $ kubeaudit nonroot -f "auditors/nonroot/fixtures/run-as-non-root-nil.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1
   kind: Deployment

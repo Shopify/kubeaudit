@@ -15,7 +15,7 @@ See [Global Flags](/README.md#global-flags)
 ```
 $ kubeaudit hostns -f "auditors/hostns/fixtures/namespaces-all-true.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Pod

@@ -16,7 +16,7 @@ See [Global Flags](/README.md#global-flags)
 ```
 kubeaudit asat -f "auditors/asat/fixtures/service-account-token-true-and-no-name.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: ReplicationController

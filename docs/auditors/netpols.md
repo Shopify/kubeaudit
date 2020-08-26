@@ -15,7 +15,7 @@ See [Global Flags](/README.md#global-flags)
 ```
 $ kubeaudit netpols -f "auditors/netpols/fixtures/namespace-missing-default-deny-netpol.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Namespace
@@ -103,7 +103,7 @@ metadata:
 
 The `netpols` auditor will produce an error because there is no `deny-all` Network Policy for ingress traffic:
 ```
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Namespace
@@ -130,7 +130,7 @@ metadata:
 
 The auditor will now produce a warning instead of an error:
 ```
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Namespace

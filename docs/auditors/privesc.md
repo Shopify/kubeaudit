@@ -15,7 +15,7 @@ See [Global Flags](/README.md#global-flags)
 ```
 $ kubeaudit privesc -f "auditors/privesc/fixtures/allow-privilege-escalation-nil.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1
   kind: StatefulSet

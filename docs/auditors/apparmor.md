@@ -15,7 +15,7 @@ See [Global Flags](/README.md#global-flags)
 ```
 $ kubeaudit apparmor -f "auditors/apparmor/fixtures/apparmor-annotation-missing.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Pod
@@ -37,7 +37,7 @@ If an apparmor annotation refers to a container which doesn't exist, `kubectl ap
 ```
 $ kubeaudit apparmor -f "auditors/apparmor/fixtures/apparmor-invalid-annotation.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Pod

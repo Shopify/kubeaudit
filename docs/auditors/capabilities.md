@@ -39,7 +39,7 @@ Also see [Global Flags](/README.md#global-flags)
 ```
 $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1beta2
   kind: Deployment
@@ -71,7 +71,7 @@ A custom drop list can be provided as a space-separated list of capabilities usi
 ```
 $ kubeaudit capabilities --drop "MAC_ADMIN AUDIT_WRITE" -f "auditors/capabilities/fixtures/capabilities-nil.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1beta2
   kind: Deployment

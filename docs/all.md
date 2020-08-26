@@ -67,7 +67,7 @@ For more details about each auditor, including a description of the auditor-spec
 ```
 $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: v1
   kind: Namespace
@@ -82,7 +82,7 @@ $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
       Namespace: deployment-apps-v1
 
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1
   kind: Deployment

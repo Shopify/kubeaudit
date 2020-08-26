@@ -22,7 +22,7 @@ The image and tag to look for are specified using the `-i/--image image:tag` fla
 ```
 $ kubeaudit image -i "scratch:1.6" -f "auditors/image/fixtures/image-tag-present.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1
   kind: Deployment
@@ -41,7 +41,7 @@ If the container image matches the provided image but the container image has no
 ```
 $ kubeaudit image -i "scratch:1.6" -f "auditors/image/fixtures/image-tag-missing.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1
   kind: Deployment
@@ -60,7 +60,7 @@ The `image` auditor can be used to find all containers that use an image without
 ```
 $ kubeaudit image -f "auditors/image/fixtures/image-tag-missing.yml"
 
---------- Results for ---------------------
+---------------- Results for ---------------
 
   apiVersion: apps/v1
   kind: Deployment
