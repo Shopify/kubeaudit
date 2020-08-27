@@ -13,15 +13,45 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit apparmor -f "auditors/apparmor/fixtures/apparmor_annotation_missing_v1.yml"
-ERRO[0000] AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/AAcontainer' should be added.  AuditResultName=AppArmorAnnotationMissing Container=AAcontainer MissingAnnotation=container.apparmor.security.beta.kubernetes.io/AAcontainer
+$ kubeaudit apparmor -f "auditors/apparmor/fixtures/apparmor-annotation-missing.yml"
+
+---------------- Results for ---------------
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod
+    namespace: apparmor-annotation-missing
+
+--------------------------------------------
+
+-- [error] AppArmorAnnotationMissing
+   Message: AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/container' should be added.
+   Metadata:
+      MissingAnnotation: container.apparmor.security.beta.kubernetes.io/container
+      Container: container
 ```
 
 If an apparmor annotation refers to a container which doesn't exist, `kubectl apply` will fail. Kubeaudit produces an error for this case:
 
 ```
 $ kubeaudit apparmor -f "auditors/apparmor/fixtures/apparmor-invalid-annotation.yml"
-ERRO[0000] AppArmor annotation key refers to a container that doesn't exist. Remove the annotation 'container.apparmor.security.beta.kubernetes.io/container2: runtime/default'.  Annotation="container.apparmor.security.beta.kubernetes.io/container2: runtime/default" AuditResultName=AppArmorInvalidAnnotation Container=container
+
+---------------- Results for ---------------
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod
+    namespace: apparmor-enabled
+
+--------------------------------------------
+
+-- [error] AppArmorInvalidAnnotation
+   Message: AppArmor annotation key refers to a container that doesn't exist. Remove the annotation 'container.apparmor.security.beta.kubernetes.io/container2: runtime/default'.
+   Metadata:
+      Container: container2
+      Annotation: container.apparmor.security.beta.kubernetes.io/container2: runtime/default
 ```
 
 ## Explanation

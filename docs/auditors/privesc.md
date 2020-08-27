@@ -13,8 +13,22 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit privesc -f "auditors/privesc/fixtures/allow_privilege_escalation_nil_v1.yml"
-ERRO[0000] allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.  AuditResultName=AllowPrivilegeEscalationNil Container=fakeContainerAPE
+$ kubeaudit privesc -f "auditors/privesc/fixtures/allow-privilege-escalation-nil.yml"
+
+---------------- Results for ---------------
+
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: statefulset
+    namespace: allow-privilege-escalation-nil
+
+--------------------------------------------
+
+-- [error] AllowPrivilegeEscalationNil
+   Message: allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.
+   Metadata:
+      Container: container
 ```
 
 ## Explanation

@@ -105,7 +105,6 @@ import (
 
 	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/k8stypes"
-	log "github.com/sirupsen/logrus"
 )
 
 // Kubeaudit provides functions to audit and fix Kubernetes manifests
@@ -216,6 +215,26 @@ func (r *Report) Results() []Result {
 	return results
 }
 
+// ResultsWithMinSeverity returns the audit results for each Kubernetes resource with a minimum severity
+func (r *Report) ResultsWithMinSeverity(minSeverity SeverityLevel) []Result {
+	var results []Result
+	for _, result := range r.results {
+		var filteredAuditResults []*AuditResult
+		for _, auditResult := range result.GetAuditResults() {
+			if auditResult.Severity >= minSeverity {
+				filteredAuditResults = append(filteredAuditResults, auditResult)
+			}
+		}
+		if len(filteredAuditResults) > 0 {
+			results = append(results, &workloadResult{
+				Resource:     result.GetResource(),
+				AuditResults: filteredAuditResults,
+			})
+		}
+	}
+	return results
+}
+
 // HasErrors returns true if any findings have the level of Error
 func (r *Report) HasErrors() (errorsFound bool) {
 	for _, workloadResult := range r.Results() {
@@ -228,26 +247,10 @@ func (r *Report) HasErrors() (errorsFound bool) {
 	return false
 }
 
-// PrintResults writes the audit results with a severity greater than or matching minSeverity in a human-readable
-// way to the provided writer
-func (r *Report) PrintResults(writer io.Writer, minSeverity int, formatter log.Formatter) {
-	resultLogger := log.New()
-
-	resultLogger.SetOutput(writer)
-	if formatter != nil {
-		resultLogger.SetFormatter(formatter)
-	}
-
-	// We manually manage what severity levels to log, lorgus should let everything through
-	resultLogger.SetLevel(log.DebugLevel)
-
-	for _, workloadResult := range r.Results() {
-		for _, auditResult := range workloadResult.GetAuditResults() {
-			if auditResult.Severity >= minSeverity {
-				logAuditResult(auditResult, resultLogger)
-			}
-		}
-	}
+// PrintResults writes the audit results to the specified writer. Defaults to printing results to stdout
+func (r *Report) PrintResults(printOptions ...PrintOption) {
+	printer := NewPrinter(printOptions...)
+	printer.PrintReport(r)
 }
 
 // Fix tries to automatically patch any security concerns and writes the resulting manifest to the provided writer.

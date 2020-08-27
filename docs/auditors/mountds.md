@@ -13,8 +13,22 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit mountds -f "auditors/mountds/fixtures/docker_sock_mounted.yml"
-WARN[0000] Docker socket is mounted. '/var/run/docker.sock' should be removed from the container's volume mount list.  AuditResultName=DockerSocketMounted Container=container
+$ kubeaudit mountds -f "auditors/mountds/fixtures/docker-sock-mounted.yml"
+
+---------------- Results for ---------------
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod
+    namespace: docker-sock-mounted
+
+--------------------------------------------
+
+-- [warning] DockerSocketMounted
+   Message: Docker socket is mounted. '/var/run/docker.sock' should be removed from the container's volume mount list.
+   Metadata:
+      Container: container
 ```
 
 ## Explanation

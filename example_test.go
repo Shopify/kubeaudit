@@ -12,6 +12,7 @@ import (
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/k8s"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -49,7 +50,7 @@ metadata:
 	}
 
 	// Print the audit results to screen
-	report.PrintResults(os.Stdout, kubeaudit.Error, nil)
+	report.PrintResults()
 
 	// Print the plan to screen. These are the steps that will be taken by calling "report.Fix()".
 	fmt.Println("\nPlan:")
@@ -84,7 +85,7 @@ func Example_auditLocal() {
 	}
 
 	// Print the audit results to screen
-	report.PrintResults(os.Stdout, kubeaudit.Info, nil)
+	report.PrintResults()
 }
 
 // ExampleAuditCluster shows how to run kubeaudit in cluster mode (only works if kubeaudit is being run from a container insdie of a cluster)
@@ -108,7 +109,7 @@ func Example_auditCluster() {
 	}
 
 	// Print the audit results to screen
-	report.PrintResults(os.Stdout, kubeaudit.Info, nil)
+	report.PrintResults()
 }
 
 // ExampleAuditorSubset shows how to run kubeaudit with a subset of auditors
@@ -129,7 +130,7 @@ func Example_auditorSubset() {
 	}
 
 	// Print the audit results to screen
-	report.PrintResults(os.Stdout, kubeaudit.Info, &log.JSONFormatter{})
+	report.PrintResults()
 }
 
 // ExampleConfig shows how to use a kubeaudit with a config file.
@@ -169,5 +170,33 @@ func Example_config() {
 	}
 
 	// Print the audit results to screen
-	report.PrintResults(os.Stdout, kubeaudit.Error, nil)
+	report.PrintResults()
+}
+
+// ExamplePrintOptions shows how to use different print options for printing audit results.
+func Example_printOptions() {
+	auditor, err := kubeaudit.New([]kubeaudit.Auditable{apparmor.New()})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	report, err := auditor.AuditLocal("", k8s.ClientOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Print the audit results to a file
+	f, err := os.Create("output.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	defer os.Remove("output.txt")
+	report.PrintResults(kubeaudit.WithWriter(f))
+
+	// Only print audit results with severity of Error (ignore info and warning)
+	report.PrintResults(kubeaudit.WithMinSeverity(kubeaudit.Error))
+
+	// Print results as JSON
+	report.PrintResults(kubeaudit.WithFormatter(&logrus.JSONFormatter{}))
 }

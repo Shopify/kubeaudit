@@ -13,10 +13,26 @@ See [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit hostns -f "auditors/hostns/fixtures/namespaces_all_true_v1.yml"
-ERRO[0000] hostNetwork is set to 'true' in PodSpec. It should be set to 'false'.  AuditResultName=NamespaceHostNetworkTrue
-ERRO[0000] hostIPC is set to 'true' in PodSpec. It should be set to 'false'.  AuditResultName=NamespaceHostIPCTrue
-ERRO[0000] hostPID is set to 'true' in PodSpec. It should be set to 'false'.  AuditResultName=NamespaceHostPIDTrue
+$ kubeaudit hostns -f "auditors/hostns/fixtures/namespaces-all-true.yml"
+
+---------------- Results for ---------------
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod
+    namespace: namespaces-all-true
+
+--------------------------------------------
+
+-- [error] NamespaceHostNetworkTrue
+   Message: hostNetwork is set to 'true' in PodSpec. It should be set to 'false'.
+
+-- [error] NamespaceHostIPCTrue
+   Message: hostIPC is set to 'true' in PodSpec. It should be set to 'false'.
+
+-- [error] NamespaceHostPIDTrue
+   Message: hostPID is set to 'true' in PodSpec. It should be set to 'false'.
 ```
 
 ## Explanation

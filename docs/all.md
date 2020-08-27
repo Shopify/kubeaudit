@@ -65,33 +65,97 @@ For more details about each auditor, including a description of the auditor-spec
 ## Examples
 
 ```
-$ kubeaudit all -f "auditors/all/fixtures/audit_all_v1.yml"
-ERRO[0000] AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/fakeContainerSC' should be added.  AuditResultName=AppArmorAnnotationMissing Container=fakeContainerSC MissingAnnotation=container.apparmor.security.beta.kubernetes.io/fakeContainerSC
-ERRO[0000] Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.  AuditResultName=AutomountServiceAccountTokenTrueAndDefaultSA
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=AUDIT_WRITE Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=CHOWN Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=DAC_OVERRIDE Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=FOWNER Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=FSETID Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=KILL Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=MKNOD Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=NET_BIND_SERVICE Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=NET_RAW Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SETFCAP Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SETGID Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SETPCAP Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SETUID Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=SYS_CHROOT Container=fakeContainerSC
-ERRO[0000] hostNetwork is set to 'true' in PodSpec. It should be set to 'false'.  AuditResultName=NamespaceHostNetworkTrue PodHost=
-ERRO[0000] hostIPC is set to 'true' in PodSpec. It should be set to 'false'.  AuditResultName=NamespaceHostIPCTrue PodHost=
-ERRO[0000] hostPID is set to 'true' in PodSpec. It should be set to 'false'.  AuditResultName=NamespaceHostPIDTrue PodHost=
-WARN[0000] Image tag is missing.                         AuditResultName=ImageTagMissing Container=fakeContainerSC
-WARN[0000] Resource limits not set.                      AuditResultName=LimitsNotSet Container=fakeContainerSC
-ERRO[0000] runAsNonRoot is not set in container SecurityContext nor the PodSecurityContext. It should be set to 'true' in at least one of the two.  AuditResultName=RunAsNonRootPSCNilCSCNil Container=fakeContainerSC
-ERRO[0000] allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.  AuditResultName=AllowPrivilegeEscalationNil Container=fakeContainerSC
-WARN[0000] privileged is not set in container SecurityContext. Privileged defaults to 'false' but it should be explicitly set to 'false'.  AuditResultName=PrivilegedNil Container=fakeContainerSC
-ERRO[0000] readOnlyRootFilesystem is not set in container SecurityContext. It should be set to 'true'.  AuditResultName=ReadOnlyRootFilesystemNil Container=fakeContainerSC
-ERRO[0000] Seccomp annotation is missing. The annotation seccomp.security.alpha.kubernetes.io/pod: runtime/default should be added.  AuditResultName=SeccompAnnotationMissing MissingAnnotation=seccomp.security.alpha.kubernetes.io/pod
+$ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
+
+---------------- Results for ---------------
+
+  apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: deployment-apps-v1
+
+--------------------------------------------
+
+-- [error] MissingDefaultDenyIngressAndEgressNetworkPolicy
+   Message: Namespace is missing a default deny ingress and egress NetworkPolicy.
+   Metadata:
+      Namespace: deployment-apps-v1
+
+
+---------------- Results for ---------------
+
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: deployment-apps-v1
+
+--------------------------------------------
+
+-- [error] AppArmorAnnotationMissing
+   Message: AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/container' should be added.
+   Metadata:
+      Container: container
+      MissingAnnotation: container.apparmor.security.beta.kubernetes.io/container
+
+-- [error] AutomountServiceAccountTokenTrueAndDefaultSA
+   Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
+
+-- [error] CapabilityNotDropped
+   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
+   Metadata:
+      Container: container
+      Capability: AUDIT_WRITE
+
+-- [error] NamespaceHostNetworkTrue
+   Message: hostNetwork is set to 'true' in PodSpec. It should be set to 'false'.
+   Metadata:
+      PodHost:
+
+-- [error] NamespaceHostIPCTrue
+   Message: hostIPC is set to 'true' in PodSpec. It should be set to 'false'.
+   Metadata:
+      PodHost:
+
+-- [error] NamespaceHostPIDTrue
+   Message: hostPID is set to 'true' in PodSpec. It should be set to 'false'.
+   Metadata:
+      PodHost:
+
+-- [warning] ImageTagMissing
+   Message: Image tag is missing.
+   Metadata:
+      Container: container
+
+-- [warning] LimitsNotSet
+   Message: Resource limits not set.
+   Metadata:
+      Container: container
+
+-- [error] RunAsNonRootPSCNilCSCNil
+   Message: runAsNonRoot is not set in container SecurityContext nor the PodSecurityContext. It should be set to 'true' in at least one of the two.
+   Metadata:
+      Container: container
+
+-- [error] AllowPrivilegeEscalationNil
+   Message: allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.
+   Metadata:
+      Container: container
+
+-- [warning] PrivilegedNil
+   Message: privileged is not set in container SecurityContext. Privileged defaults to 'false' but it should be explicitly set to 'false'.
+   Metadata:
+      Container: container
+
+-- [error] ReadOnlyRootFilesystemNil
+   Message: readOnlyRootFilesystem is not set in container SecurityContext. It should be set to 'true'.
+   Metadata:
+      Container: container
+
+-- [error] SeccompAnnotationMissing
+   Message: Seccomp annotation is missing. The annotation seccomp.security.alpha.kubernetes.io/pod: runtime/default should be added.
+   Metadata:
+      MissingAnnotation: seccomp.security.alpha.kubernetes.io/pod
 ```
 
 ### Example with Kubeaudit Config
@@ -111,16 +175,6 @@ auditors:
 The config can be passed to the `all` command using the `-k/--kconfig` flag:
 ```
 $ kubeaudit all -k "config.yaml" -f "auditors/all/fixtures/audit_all_v1.yml"
-ERRO[0000] allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.  AuditResultName=AllowPrivilegeEscalationNil Container=fakeContainerSC
-WARN[0000] privileged is not set in container SecurityContext. Privileged defaults to 'false' but it should be explicitly set to 'false'.  AuditResultName=PrivilegedNil Container=fakeContainerSC
-ERRO[0000] Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.  AuditResultName=AutomountServiceAccountTokenTrueAndDefaultSA
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=AUDIT_WRITE Container=fakeContainerSC
-ERRO[0000] Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.  AuditResultName=CapabilityNotDropped Capability=CHOWN Container=fakeContainerSC
-ERRO[0000] runAsNonRoot is not set in container SecurityContext nor the PodSecurityContext. It should be set to 'true' in at least one of the two.  AuditResultName=RunAsNonRootPSCNilCSCNil Container=fakeContainerSC
-ERRO[0000] AppArmor annotation missing. The annotation 'container.apparmor.security.beta.kubernetes.io/fakeContainerSC' should be added.  AuditResultName=AppArmorAnnotationMissing Container=fakeContainerSC MissingAnnotation=container.apparmor.security.beta.kubernetes.io/fakeContainerSC
-ERRO[0000] readOnlyRootFilesystem is not set in container SecurityContext. It should be set to 'true'.  AuditResultName=ReadOnlyRootFilesystemNil Container=fakeContainerSC
-ERRO[0000] Seccomp annotation is missing. The annotation seccomp.security.alpha.kubernetes.io/pod: runtime/default should be added.  AuditResultName=SeccompAnnotationMissing MissingAnnotation=seccomp.security.alpha.kubernetes.io/pod
-ERRO[0000] Namespace is missing a default deny ingress and egress NetworkPolicy.  AuditResultName=MissingDefaultDenyIngressAndEgressNetworkPolicy Namespace=fakeDeploymentSC
 ```
 
 ### Example with Flags

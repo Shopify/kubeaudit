@@ -5,13 +5,13 @@ import "github.com/Shopify/kubeaudit/k8stypes"
 // AuditResult severity levels. They also correspond to log levels
 const (
 	// Info is used for informational audit results where no action is required
-	Info = iota
+	Info SeverityLevel = 0
 	// Warn is used for audit results where there may be security concerns. If an auditor is disabled for a resource
 	// using an override label, the audit results will be warnings instead of errors. Kubeaudit will NOT attempt to
 	// fix these
-	Warn
+	Warn SeverityLevel = 1
 	// Error is used for audit results where action is required. Kubeaudit will attempt to fix these
-	Error
+	Error SeverityLevel = 2
 )
 
 // Result contains the audit results for a single Kubernetes resource
@@ -20,13 +20,28 @@ type Result interface {
 	GetAuditResults() []*AuditResult
 }
 
+type SeverityLevel int
+
+func (s SeverityLevel) String() string {
+	switch s {
+	case Info:
+		return "info"
+	case Warn:
+		return "warning"
+	case Error:
+		return "error"
+	default:
+		return "unknown"
+	}
+}
+
 // AuditResult represents a potential security issue. There may be multiple AuditResults per resource and audit
 type AuditResult struct {
-	Name       string     // Name uniquely identifies a type of audit result
-	Severity   int        // Severity is one of Error, Warn, or Info
-	Message    string     // Message is a human-readable description of the audit result
-	PendingFix PendingFix // PendingFix is the fix that will be applied to automatically fix the security issue
-	Metadata   Metadata   // Metadata includes additional context for an audit result
+	Name       string        // Name uniquely identifies a type of audit result
+	Severity   SeverityLevel // Severity is one of Error, Warn, or Info
+	Message    string        // Message is a human-readable description of the audit result
+	PendingFix PendingFix    // PendingFix is the fix that will be applied to automatically fix the security issue
+	Metadata   Metadata      // Metadata includes additional context for an audit result
 }
 
 func (result *AuditResult) Fix(resource k8stypes.Resource) (newResources []k8stypes.Resource) {

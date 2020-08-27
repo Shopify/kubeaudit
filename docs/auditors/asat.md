@@ -14,8 +14,20 @@ See [Global Flags](/README.md#global-flags)
 
 ## Examples
 ```
-kubeaudit asat -f "auditors/asat/fixtures/service_account_token_true_and_no_name_v1.yml"
-ERRO[0000] Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.  AuditResultName=AutomountServiceAccountTokenTrueAndDefaultSA
+kubeaudit asat -f "auditors/asat/fixtures/service-account-token-true-and-no-name.yml"
+
+---------------- Results for ---------------
+
+  apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    name: replicationcontroller
+    namespace: service-account-token-true-and-no-name
+
+--------------------------------------------
+
+-- [error] AutomountServiceAccountTokenTrueAndDefaultSA
+   Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
 ```
 
 ## Explanation

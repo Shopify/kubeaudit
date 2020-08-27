@@ -6,7 +6,6 @@ import (
 
 	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/k8stypes"
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"k8s.io/client-go/kubernetes"
 )
@@ -100,28 +99,4 @@ func unwrapResources(resources []KubeResource) []k8stypes.Resource {
 		unwrappedResources = append(unwrappedResources, resource.Object())
 	}
 	return unwrappedResources
-}
-
-func logAuditResult(result *AuditResult, baseLogger *log.Logger) {
-	logger := baseLogger.WithFields(getLogFieldsForResult(result))
-	switch result.Severity {
-	case Info:
-		logger.Info(result.Message)
-	case Warn:
-		logger.Warn(result.Message)
-	case Error:
-		logger.Error(result.Message)
-	}
-}
-
-func getLogFieldsForResult(result *AuditResult) log.Fields {
-	fields := log.Fields{
-		"AuditResultName": result.Name,
-	}
-
-	for k, v := range result.Metadata {
-		fields[k] = v
-	}
-
-	return fields
 }

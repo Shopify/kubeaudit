@@ -14,15 +14,14 @@ import (
 )
 
 type logEntry struct {
-	AuditResultName string
-	Foo             string
-	Level           string `json:"level"`
-}
-
-var levelString = map[int]string{
-	Error: "error",
-	Warn:  "warning",
-	Info:  "info",
+	AuditResultName   string
+	Foo               string
+	Level             string `json:"level"`
+	ResourceKind      string
+	ResourceGroup     string
+	ResourceVersion   string
+	ResourceName      string
+	ResourceNamespace string
 }
 
 func TestGetResourcesFromClientset(t *testing.T) {
@@ -46,27 +45,32 @@ func TestPrintResults(t *testing.T) {
 					newTestAuditResult(Warn),
 					newTestAuditResult(Info),
 				},
+				Resource: &kubeResource{
+					object: k8stypes.NewPod(),
+				},
 			},
 		},
 	}
 	out := bytes.NewBuffer(nil)
+	writerOption := WithWriter(out)
+	formatterOption := WithFormatter(&log.JSONFormatter{})
 
 	// Error results only
-	report.PrintResults(out, Error, &log.JSONFormatter{})
+	report.PrintResults(writerOption, WithMinSeverity(Error), formatterOption)
 	assert.Equal(t, 1, bytes.Count(out.Bytes(), []byte{'\n'}))
 	out.Reset()
 
 	// Error and warn results
-	report.PrintResults(out, Warn, &log.JSONFormatter{})
+	report.PrintResults(writerOption, WithMinSeverity(Warn), formatterOption)
 	assert.Equal(t, 2, bytes.Count(out.Bytes(), []byte{'\n'}))
 	out.Reset()
 
 	// Error, warn, and info results
-	report.PrintResults(out, Info, &log.JSONFormatter{})
+	report.PrintResults(writerOption, WithMinSeverity(Info), formatterOption)
 	assert.Equal(t, 3, bytes.Count(out.Bytes(), []byte{'\n'}))
 }
 
-func newTestAuditResult(severity int) *AuditResult {
+func newTestAuditResult(severity SeverityLevel) *AuditResult {
 	return &AuditResult{
 		Name:     "MyAuditResult",
 		Severity: severity,
@@ -75,22 +79,41 @@ func newTestAuditResult(severity int) *AuditResult {
 }
 
 func TestLogAuditResult(t *testing.T) {
-	// Send all log output as JSON to this byte buffer
-	out := bytes.NewBuffer(nil)
-	logger := log.New()
-	logger.SetFormatter(&log.JSONFormatter{})
-	logger.SetOutput(out)
+	for _, severity := range []SeverityLevel{Error, Warn, Info} {
+		// Send all log output as JSON to this byte buffer
+		out := bytes.NewBuffer(nil)
 
-	for _, severity := range []int{Error, Warn, Info} {
+		resource := k8stypes.NewDeployment()
+		resource.Name = "mydeployment"
+		resource.Namespace = "mynamespace"
+
 		auditResult := newTestAuditResult(severity)
+		report := &Report{
+			results: []Result{
+				&workloadResult{
+					AuditResults: []*AuditResult{
+						auditResult,
+					},
+					Resource: &kubeResource{
+						object: resource,
+					},
+				},
+			},
+		}
 		expected := logEntry{
-			AuditResultName: "MyAuditResult",
-			Level:           levelString[severity],
-			Foo:             auditResult.Metadata["Foo"],
+			AuditResultName:   "MyAuditResult",
+			Level:             severity.String(),
+			Foo:               auditResult.Metadata["Foo"],
+			ResourceKind:      resource.Kind,
+			ResourceVersion:   resource.GroupVersionKind().Version,
+			ResourceGroup:     resource.GroupVersionKind().Group,
+			ResourceName:      resource.GetName(),
+			ResourceNamespace: resource.GetNamespace(),
 		}
 
 		// This writes the log to the variable out, parses the JSON into the logEntry struct, and checks the struct
-		logAuditResult(auditResult, logger)
+		printer := NewPrinter(WithWriter(out), WithFormatter(&log.JSONFormatter{}))
+		printer.PrintReport(report)
 		got := logEntry{}
 		err := json.Unmarshal(out.Bytes(), &got)
 		assert.NoError(t, err)

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -16,7 +17,7 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	json        bool
+	format      string
 	kubeConfig  string
 	manifest    string
 	namespace   string
@@ -48,31 +49,36 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Path to local Kubernetes config file. Only used in local mode (default is $HOME/.kube/config)")
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.minSeverity, "minseverity", "m", "INFO", "Set the lowest severity level to report (one of \"ERROR\", \"WARN\", \"INFO\")")
-	RootCmd.PersistentFlags().BoolVarP(&rootConfig.json, "json", "j", false, "Output audit results in JSON")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.minSeverity, "minseverity", "m", "info", "Set the lowest severity level to report (one of \"error\", \"warning\", \"info\")")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.format, "format", "p", "pretty", "The output format to use (one of \"pretty\", \"logrus\", \"json\")")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace. Not currently supported in manifest mode.")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "Path to the yaml configuration to audit. Only used in manifest mode.")
 }
 
 // KubeauditLogLevels represents an enum for the supported log levels.
-var KubeauditLogLevels = map[string]int{
-	"ERROR": kubeaudit.Error,
-	"WARN":  kubeaudit.Warn,
-	"INFO":  kubeaudit.Info,
+var KubeauditLogLevels = map[string]kubeaudit.SeverityLevel{
+	"error":   kubeaudit.Error,
+	"warn":    kubeaudit.Warn,
+	"warning": kubeaudit.Warn,
+	"info":    kubeaudit.Info,
 }
 
 func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		report := getReport(auditable...)
 
-		minSeverity := KubeauditLogLevels[rootConfig.minSeverity]
-
-		var formatter log.Formatter
-		if rootConfig.json {
-			formatter = &log.JSONFormatter{}
+		printOptions := []kubeaudit.PrintOption{
+			kubeaudit.WithMinSeverity(KubeauditLogLevels[strings.ToLower(rootConfig.minSeverity)]),
 		}
 
-		report.PrintResults(os.Stdout, minSeverity, formatter)
+		switch rootConfig.format {
+		case "json":
+			printOptions = append(printOptions, kubeaudit.WithFormatter(&log.JSONFormatter{}))
+		case "logrus":
+			printOptions = append(printOptions, kubeaudit.WithFormatter(&log.TextFormatter{}))
+		}
+
+		report.PrintResults(printOptions...)
 
 		if report.HasErrors() {
 			os.Exit(2)
