@@ -191,8 +191,8 @@ func GetStatefulSets(clientset kubernetes.Interface, options ClientOptions) *k8s
 	return statefulSets
 }
 
-// GetNetworkPolicies gets all NetworkPolicy resources from the cluster
-func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) *k8stypes.CronJobListV1Beta1 {
+// GetCronJobs gets all CronJob resources from the cluster
+func GetCronJobs(clientset kubernetes.Interface, options ClientOptions) *k8stypes.CronJobListV1Beta1 {
 	cronJobClient := clientset.BatchV1beta1().CronJobs(options.Namespace)
 	cronJobs, err := cronJobClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
@@ -201,8 +201,8 @@ func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) *
 	return cronJobs
 }
 
-// GetCronJobs gets all CronJob resources from the cluster
-func GetCronJobs(clientset kubernetes.Interface, options ClientOptions) *k8stypes.NetworkPolicyListV1 {
+// GetNetworkPolicies gets all NetworkPolicy resources from the cluster
+func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) *k8stypes.NetworkPolicyListV1 {
 	netPolClient := clientset.NetworkingV1().NetworkPolicies(options.Namespace)
 	netPols, err := netPolClient.List(context.Background(), k8stypes.ListOptionsV1{})
 	if err != nil {
