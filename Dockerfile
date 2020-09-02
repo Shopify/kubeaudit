@@ -1,14 +1,14 @@
-FROM golang:1.15.0-alpine AS builder
+FROM golang:1.15.1 AS builder
 
 # no need to include cgo bindings
-ENV CGO_ENABLED=0
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 # add ca certificates and timezone data files
-# hadolint ignore=DL3018
-RUN apk add -U --no-cache ca-certificates tzdata
+# hadolint ignore=DL3008
+RUN apt-get install --yes --no-install-recommends ca-certificates tzdata
 
 # add unprivileged user
-RUN adduser -s /bin/true -u 1000 -D -h /app app \
+RUN adduser --shell /bin/true --uid 1000 --disabled-login --no-create-home --gecos '' app \
   && sed -i -r "/^(app|root)/!d" /etc/group /etc/passwd \
   && sed -i -r 's#^(.*):[^:]*$#\1:/sbin/nologin#' /etc/passwd
 
@@ -16,13 +16,14 @@ RUN adduser -s /bin/true -u 1000 -D -h /app app \
 WORKDIR /go/src/app/
 
 # download and cache our dependencies
+VOLUME /go/pkg/mod
 COPY go.mod go.sum ./
 RUN go mod download
 
 # compile kubeaudit
 COPY . ./
-RUN go build -ldflags '-w -s -extldflags "-static"' -o /go/bin/kubeaudit -v \
-  && chown +x /go/bin/kubeaudit
+RUN go build -a -ldflags '-w -s -extldflags "-static"' -o /go/bin/kubeaudit ./cmd/ \
+  && chmod +x /go/bin/kubeaudit
 
 #
 # ---
@@ -48,3 +49,4 @@ USER app
 
 # entrypoint
 ENTRYPOINT ["/kubeaudit"]
+CMD ["all"]
