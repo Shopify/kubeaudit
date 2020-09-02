@@ -14,7 +14,7 @@ RUN adduser -s /bin/true -u 1000 -D -h /app app \
 WORKDIR /go/src/app/
 
 COPY . ./
-RUN go build -ldflags '-w -s -extldflags "-static"' -o /go/bin/kubeaudit -v \
+RUN go build -ldflags '-w -s -extldflags "-static"' -o /go/bin/kubeaudit -v
 
 #
 # ---
