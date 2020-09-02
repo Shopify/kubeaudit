@@ -1,6 +1,7 @@
 FROM golang:1.15.0-alpine AS builder
 
-ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+# no need to include cgo bindings
+ENV CGO_ENABLED=0
 
 # add ca certificates and timezone data files
 # hadolint ignore=DL3018
@@ -11,10 +12,17 @@ RUN adduser -s /bin/true -u 1000 -D -h /app app \
   && sed -i -r "/^(app|root)/!d" /etc/group /etc/passwd \
   && sed -i -r 's#^(.*):[^:]*$#\1:/sbin/nologin#' /etc/passwd
 
+# this is where we build our app
 WORKDIR /go/src/app/
 
+# download and cache our dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# compile kubeaudit
 COPY . ./
-RUN go build -ldflags '-w -s -extldflags "-static"' -o /go/bin/kubeaudit -v
+RUN go build -ldflags '-w -s -extldflags "-static"' -o /go/bin/kubeaudit -v \
+  && chown +x /go/bin/kubeaudit
 
 #
 # ---
