@@ -15,7 +15,6 @@ const (
 	// AutomountServiceAccountTokenTrueAndDefaultSA occurs when automountServiceAccountToken is either not set
 	// (which defaults to true) or explicitly set to true, and serviceAccountName is either not set or set to "default"
 	AutomountServiceAccountTokenTrueAndDefaultSA = "AutomountServiceAccountTokenTrueAndDefaultSA"
-	AutomountServiceAccountTokenTrueForDefaultSA = "AutomountServiceAccountTokenTrueForDefaultSA"
 )
 
 const OverrideLabel = "allow-automount-service-account-token"
