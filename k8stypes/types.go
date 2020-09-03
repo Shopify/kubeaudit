@@ -22,17 +22,11 @@ type CapabilityV1 = apiv1.Capability
 // ContainerV1 is a type alias for the v1 version of the k8s API.
 type ContainerV1 = apiv1.Container
 
-// CronJobListV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
-type CronJobListV1Beta1 = batchv1beta1.CronJobList
-
 // CronJobV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
 type CronJobV1Beta1 = batchv1beta1.CronJob
 
 // CronJobSpecV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
 type CronJobSpecV1Beta1 = batchv1beta1.CronJobSpec
-
-// DaemonSetListV1 is a type alias for the v1 version of the k8s apps API.
-type DaemonSetListV1 = appsv1.DaemonSetList
 
 // DaemonSetSpecV1 is a type alias for the v1 version of the k8s apps API.
 type DaemonSetSpecV1 = appsv1.DaemonSetSpec
@@ -48,9 +42,6 @@ type DaemonSetV1Beta2 = appsv1beta2.DaemonSet
 
 // DeploymentExtensionsV1Beta1 is a type alias for the v1beta1 version of the k8s extensions API.
 type DeploymentExtensionsV1Beta1 = extensionsv1beta1.Deployment
-
-// DeploymentListV1 is a type alias for the v1 version of the k8s apps API.
-type DeploymentListV1 = appsv1.DeploymentList
 
 // DeploymentSpecV1 is a type alias for the v1 version of the k8s apps API.
 type DeploymentSpecV1 = appsv1.DeploymentSpec
@@ -79,12 +70,6 @@ type NamespaceV1 = apiv1.Namespace
 // NamespaceSpecV1 is a type alias for the v1 version of the k8s API.
 type NamespaceSpecV1 = apiv1.NamespaceSpec
 
-// NamespaceListV1 is a type alias for the v1 version of the k8s API.
-type NamespaceListV1 = apiv1.NamespaceList
-
-// NetworkPolicyListV1 is a type alias for the v1 version of the k8s networking API.
-type NetworkPolicyListV1 = networkingv1.NetworkPolicyList
-
 // NetworkPolicySpecV1 is a type alias for the v1 version of the k8s networking API.
 type NetworkPolicySpecV1 = networkingv1.NetworkPolicySpec
 
@@ -94,17 +79,11 @@ type NetworkPolicyV1 = networkingv1.NetworkPolicy
 // ObjectMetaV1 is a type alias for the v1 version of the k8s meta API.
 type ObjectMetaV1 = metav1.ObjectMeta
 
-// PodListV1 is a type alias for the v1 version of the k8s API.
-type PodListV1 = apiv1.PodList
-
 // PodSpecV1 is a type alias for the v1 version of the k8s API.
 type PodSpecV1 = apiv1.PodSpec
 
 // PodTemplateSpecV1 is a type alias for the v1 version of the k8s API.
 type PodTemplateSpecV1 = apiv1.PodTemplateSpec
-
-// PodTemplateListV1 is a type alias for the v1 version of the k8s API.
-type PodTemplateListV1 = apiv1.PodTemplateList
 
 // PodTemplateV1 is a type alias for the v1 version of the k8s API.
 type PodTemplateV1 = apiv1.PodTemplate
@@ -114,9 +93,6 @@ type PodV1 = apiv1.Pod
 
 // PolicyTypeV1 is a type alias for the v1 version of the k8s networking API.
 type PolicyTypeV1 = networkingv1.PolicyType
-
-// ReplicationControllerListV1 is a type alias for the v1 version of the k8s API.
-type ReplicationControllerListV1 = apiv1.ReplicationControllerList
 
 // ReplicationControllerSpecV1 is a type alias for the v1 version of the k8s API.
 type ReplicationControllerSpecV1 = apiv1.ReplicationControllerSpec
@@ -130,14 +106,8 @@ type Resource k8sRuntime.Object
 // SecurityContextV1 is a type alias for the v1 version of the k8s API.
 type SecurityContextV1 = apiv1.SecurityContext
 
-// ServiceAccountListV1 is a type alias for the v1 version of the k8s API.
-type ServiceAccountListV1 = apiv1.ServiceAccountList
-
 // ServiceAccountV1 is a type alias for the v1 version of the k8s API.
 type ServiceAccountV1 = apiv1.ServiceAccount
-
-// StatefulSetListV1 is a type alias for the v1 version of the k8s apps API.
-type StatefulSetListV1 = appsv1.StatefulSetList
 
 // StatefulSetSpecV1 is a type alias for the v1 version of the k8s apps API.
 type StatefulSetSpecV1 = appsv1.StatefulSetSpec
