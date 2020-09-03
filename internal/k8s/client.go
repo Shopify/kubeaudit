@@ -318,7 +318,8 @@ func GetServiceAccounts(clientset kubernetes.Interface, options ClientOptions) [
 	for _, serviceAccount := range serviceAccountList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		serviceAccount.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "NetworkPolicy",
+			Kind:    "ServiceAccount",
+			Version: "v1",
 		})
 		serviceAccounts = append(serviceAccounts, serviceAccount.DeepCopyObject())
 	}
