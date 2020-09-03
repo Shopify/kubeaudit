@@ -96,6 +96,7 @@ func GetAllResources(clientset kubernetes.Interface, options ClientOptions) []k8
 	resources = append(resources, GetStatefulSets(clientset, options)...)
 	resources = append(resources, GetNetworkPolicies(clientset, options)...)
 	resources = append(resources, GetCronJobs(clientset, options)...)
+	resources = append(resources, GetServiceAccounts(clientset, options)...)
 	resources = append(resources, GetNamespaces(clientset, options)...)
 
 	resources = excludeGenerated(resources)
@@ -301,6 +302,28 @@ func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) [
 	}
 
 	return netPols
+}
+
+// GetCronJobs gets all CronJob resources from the cluster
+func GetServiceAccounts(clientset kubernetes.Interface, options ClientOptions) []k8stypes.Resource {
+	serviceAccountClient := clientset.CoreV1().ServiceAccounts(options.Namespace)
+	serviceAccountList, err := serviceAccountClient.List(context.Background(), k8stypes.ListOptionsV1{})
+
+	if err != nil {
+		log.Error(err)
+		return nil
+	}
+
+	serviceAccounts := make([]k8stypes.Resource, 0, len(serviceAccountList.Items))
+	for _, serviceAccount := range serviceAccountList.Items {
+		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
+		serviceAccount.SetGroupVersionKind(schema.GroupVersionKind{
+			Kind: "NetworkPolicy",
+		})
+		serviceAccounts = append(serviceAccounts, serviceAccount.DeepCopyObject())
+	}
+
+	return serviceAccounts
 }
 
 // GetNamespaces gets all Namespace resources from the cluster

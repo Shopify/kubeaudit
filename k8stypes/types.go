@@ -130,6 +130,12 @@ type Resource k8sRuntime.Object
 // SecurityContextV1 is a type alias for the v1 version of the k8s API.
 type SecurityContextV1 = apiv1.SecurityContext
 
+// ServiceAccountListV1 is a type alias for the v1 version of the k8s API.
+type ServiceAccountListV1 = apiv1.ServiceAccountList
+
+// ServiceAccountV1 is a type alias for the v1 version of the k8s API.
+type ServiceAccountV1 = apiv1.ServiceAccount
+
 // StatefulSetListV1 is a type alias for the v1 version of the k8s apps API.
 type StatefulSetListV1 = appsv1.StatefulSetList
 
@@ -156,6 +162,7 @@ func IsSupportedResourceType(obj Resource) bool {
 		*PodV1,
 		*PodTemplateV1,
 		*ReplicationControllerV1,
+		*ServiceAccountV1,
 		*StatefulSetV1, *StatefulSetV1Beta1:
 		return true
 	default:

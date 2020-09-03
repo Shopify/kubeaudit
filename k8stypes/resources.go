@@ -125,3 +125,14 @@ func NewCronJob() *CronJobV1Beta1 {
 	cronJob.APIVersion = "batch/v1beta1"
 	return cronJob
 }
+
+// NewServiceAccount creates a new ServiceAccount resource
+func NewServiceAccount() *ServiceAccountV1 {
+	serviceAccount := &ServiceAccountV1{
+		ObjectMeta: ObjectMetaV1{},
+	}
+
+	serviceAccount.Kind = "ServiceAccount"
+	serviceAccount.APIVersion = "v1"
+	return serviceAccount
+}
