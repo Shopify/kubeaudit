@@ -128,7 +128,9 @@ func GetDaemonSets(clientset kubernetes.Interface, options ClientOptions) []k8st
 	for _, daemonSet := range daemonSetList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		daemonSet.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "DaemonSet",
+			Kind:    "DaemonSet",
+			Group:   "apps",
+			Version: "v1",
 		})
 		daemonSets = append(daemonSets, daemonSet.DeepCopyObject())
 	}
@@ -150,7 +152,9 @@ func GetDeployments(clientset kubernetes.Interface, options ClientOptions) []k8s
 	for _, deployment := range deploymentList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		deployment.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "Deployment",
+			Kind:    "Deployment",
+			Group:   "apps",
+			Version: "v1",
 		})
 		deployments = append(deployments, (&deployment).DeepCopyObject())
 	}
@@ -172,7 +176,8 @@ func GetPods(clientset kubernetes.Interface, options ClientOptions) []k8stypes.R
 	for _, pod := range podList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		pod.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "Pod",
+			Kind:    "Pod",
+			Version: "v1",
 		})
 		pods = append(pods, pod.DeepCopyObject())
 	}
@@ -194,7 +199,8 @@ func GetPodTemplates(clientset kubernetes.Interface, options ClientOptions) []k8
 	for _, podTemplate := range podTemplateList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		podTemplate.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "PodTemplate",
+			Kind:    "PodTemplate",
+			Version: "v1",
 		})
 		podTemplates = append(podTemplates, podTemplate.DeepCopyObject())
 	}
@@ -216,7 +222,8 @@ func GetReplicationControllers(clientset kubernetes.Interface, options ClientOpt
 	for _, replicationController := range replicationControllerList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		replicationController.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "ReplicationController",
+			Kind:    "ReplicationController",
+			Version: "v1",
 		})
 		replicationControllers = append(replicationControllers, replicationController.DeepCopyObject())
 	}
@@ -238,7 +245,9 @@ func GetStatefulSets(clientset kubernetes.Interface, options ClientOptions) []k8
 	for _, statefulSet := range statefulSetList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		statefulSet.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "StatefulSet",
+			Kind:    "StatefulSet",
+			Group:   "apps",
+			Version: "v1",
 		})
 		statefulSets = append(statefulSets, statefulSet.DeepCopyObject())
 	}
@@ -260,7 +269,9 @@ func GetCronJobs(clientset kubernetes.Interface, options ClientOptions) []k8styp
 	for _, cronJob := range cronJobList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		cronJob.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "CronJob",
+			Kind:    "CronJob",
+			Group:   "batch",
+			Version: "v1beta1",
 		})
 		cronJobs = append(cronJobs, cronJob.DeepCopyObject())
 	}
@@ -282,7 +293,9 @@ func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) [
 	for _, netPol := range netPolList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		netPol.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "NetworkPolicy",
+			Kind:    "NetworkPolicy",
+			Group:   "networking.k8s.io",
+			Version: "v1",
 		})
 		netPols = append(netPols, netPol.DeepCopyObject())
 	}
@@ -311,7 +324,8 @@ func GetNamespaces(clientset kubernetes.Interface, options ClientOptions) []k8st
 	for _, namespace := range namespaceList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
 		namespace.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind: "Namespace",
+			Kind:    "Namespace",
+			Version: "v1",
 		})
 		namespaces = append(namespaces, (&namespace).DeepCopyObject())
 	}

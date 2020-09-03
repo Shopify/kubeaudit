@@ -72,9 +72,7 @@ func (p *Printer) prettyPrintReport(report *Report) {
 		resouceApiVersion, resourceKind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
 
 		p.printColor(color.CyanColor, "\n---------------- Results for ---------------\n\n")
-		if resouceApiVersion != "" {
-			p.printColor(color.CyanColor, "  apiVersion: "+resouceApiVersion+"\n")
-		}
+		p.printColor(color.CyanColor, "  apiVersion: "+resouceApiVersion+"\n")
 		p.printColor(color.CyanColor, "  kind: "+resourceKind+"\n")
 		if resourceName != "" || resourceNamespace != "" {
 			p.printColor(color.CyanColor, "  metadata:\n")
@@ -156,13 +154,10 @@ func (p *Printer) getLogFieldsForResult(resource k8stypes.Resource, result *Audi
 	resourceMetadata := k8s.GetObjectMeta(resource)
 
 	fields := log.Fields{
-		"AuditResultName":   result.Name,
-		"ResourceKind":      kind,
-		"ResourceNamespace": resourceMetadata.GetNamespace(),
-	}
-
-	if apiVersion != "" {
-		fields["ResourceApiVersion"] = apiVersion
+		"AuditResultName":    result.Name,
+		"ResourceKind":       kind,
+		"ResourceApiVersion": apiVersion,
+		"ResourceNamespace":  resourceMetadata.GetNamespace(),
 	}
 
 	if resourceMetadata.GetName() != "" {
