@@ -1,0 +1,7 @@
+.*
+docs/
+Makefile
+LICENSE
+*.md
+*.sh
+Dockerfile
