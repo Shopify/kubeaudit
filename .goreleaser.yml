@@ -13,7 +13,8 @@ brews:
   homepage: "https://github.com/Shopify/kubeaudit"
   description: "kubeaudit audits Kubernetes clusters for common security controls"
 dockers:
-- image_templates:
+- dockerfile: goreleaser.Dockerfile
+  image_templates:
   - "shopify/kubeaudit:latest"
   - "shopify/kubeaudit:{{ .Tag }}"
   - "shopify/kubeaudit:v{{ .Major }}"
