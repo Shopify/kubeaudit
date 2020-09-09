@@ -304,7 +304,7 @@ func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) [
 	return netPols
 }
 
-// GetCronJobs gets all CronJob resources from the cluster
+// GetServiceAccounts gets all ServiceAccount resources from the cluster
 func GetServiceAccounts(clientset kubernetes.Interface, options ClientOptions) []k8stypes.Resource {
 	serviceAccountClient := clientset.CoreV1().ServiceAccounts(options.Namespace)
 	serviceAccountList, err := serviceAccountClient.List(context.Background(), k8stypes.ListOptionsV1{})
