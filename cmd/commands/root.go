@@ -22,21 +22,19 @@ type rootFlags struct {
 	manifest    string
 	namespace   string
 	minSeverity string
+	exitCode    int
 }
 
 // RootCmd defines the shell command usage for kubeaudit.
 var RootCmd = &cobra.Command{
 	Use:   "kubeaudit",
 	Short: "A Kubernetes security auditor",
-	Long: `kubeaudit is a program that makes sure all your containers are secure #patcheswelcome
+	Long: `Kubeaudit audits Kubernetes clusters for common security controls.
 
 kubeaudit has three modes:
-1. Manifest mode: If a Kubernetes manifest file is provided using the -f/--manifest flag, kubeaudit will audit the manifest file.
-	 Kubeaudit also supports autofixing in manifest mode using the 'autofix' command. This will fix the manifest in-place.
-	 The fixed manfiest can be written to a different file using the -o/--out flag.
-2. Cluster mode: If kubeaudit detects it is running within a container, it will try to audit the cluster it is contained in.
-3. Local mode: kubeaudit will audit the resources specified by the local kubeconfig file ($HOME/.kube/config). A different
-     kubeaconfig location can be specified using the -c/--kubeconfig flag
+  1. Manifest mode: If a Kubernetes manifest file is provided using the -f/--manifest flag, kubeaudit will audit the manifest file. Kubeaudit also supports autofixing in manifest mode using the 'autofix' command. This will fix the manifest in-place. The fixed manfiest can be written to a different file using the -o/--out flag.
+  2. Cluster mode: If kubeaudit detects it is running within a container, it will try to audit the cluster it is contained in.
+  3. Local mode: kubeaudit will audit the resources specified by the local kubeconfig file ($HOME/.kube/config). A different kubeaconfig location can be specified using the -c/--kubeconfig flag
 `,
 }
 
@@ -53,6 +51,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.format, "format", "p", "pretty", "The output format to use (one of \"pretty\", \"logrus\", \"json\")")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace. Not currently supported in manifest mode.")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "Path to the yaml configuration to audit. Only used in manifest mode.")
+	RootCmd.PersistentFlags().IntVarP(&rootConfig.exitCode, "exitcode", "e", 2, "Exit code to use if there are results with severity of \"error\". Conventionally, 0 is used for succes and all non-zero codes for an error.")
 }
 
 // KubeauditLogLevels represents an enum for the supported log levels.
@@ -81,7 +80,7 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 		report.PrintResults(printOptions...)
 
 		if report.HasErrors() {
-			os.Exit(2)
+			os.Exit(rootConfig.exitCode)
 		}
 	}
 }
