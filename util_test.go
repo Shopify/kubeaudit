@@ -14,14 +14,13 @@ import (
 )
 
 type logEntry struct {
-	AuditResultName   string
-	Foo               string
-	Level             string `json:"level"`
-	ResourceKind      string
-	ResourceGroup     string
-	ResourceVersion   string
-	ResourceName      string
-	ResourceNamespace string
+	AuditResultName    string
+	Foo                string
+	Level              string `json:"level"`
+	ResourceKind       string
+	ResourceApiVersion string
+	ResourceName       string
+	ResourceNamespace  string
 }
 
 func TestGetResourcesFromClientset(t *testing.T) {
@@ -33,7 +32,11 @@ func TestGetResourcesFromClientset(t *testing.T) {
 	}
 
 	got := getResourcesFromClientset(fakeclientset.NewSimpleClientset(resources...), k8s.ClientOptions{})
-	assert.Equal(t, expected, got)
+	assert.Len(t, got, len(expected), "Got an unexpected number of resources from clientset")
+	for i, resource := range got {
+		assert.Equal(t, expected[i].Object().GetObjectKind().GroupVersionKind().Kind,
+			resource.Object().GetObjectKind().GroupVersionKind().Kind)
+	}
 }
 
 func TestPrintResults(t *testing.T) {
@@ -100,15 +103,15 @@ func TestLogAuditResult(t *testing.T) {
 				},
 			},
 		}
+		expectedApiVersion, expectedKind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
 		expected := logEntry{
-			AuditResultName:   "MyAuditResult",
-			Level:             severity.String(),
-			Foo:               auditResult.Metadata["Foo"],
-			ResourceKind:      resource.Kind,
-			ResourceVersion:   resource.GroupVersionKind().Version,
-			ResourceGroup:     resource.GroupVersionKind().Group,
-			ResourceName:      resource.GetName(),
-			ResourceNamespace: resource.GetNamespace(),
+			AuditResultName:    "MyAuditResult",
+			Level:              severity.String(),
+			Foo:                auditResult.Metadata["Foo"],
+			ResourceKind:       expectedKind,
+			ResourceApiVersion: expectedApiVersion,
+			ResourceName:       resource.GetName(),
+			ResourceNamespace:  resource.GetNamespace(),
 		}
 
 		// This writes the log to the variable out, parses the JSON into the logEntry struct, and checks the struct

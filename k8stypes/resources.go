@@ -105,7 +105,7 @@ func NewPodTemplate() *PodTemplateV1 {
 	}
 
 	podTemplate.Kind = "PodTemplate"
-	podTemplate.APIVersion = "core/v1"
+	podTemplate.APIVersion = "v1"
 	return podTemplate
 }
 

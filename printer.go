@@ -67,17 +67,13 @@ func (p *Printer) PrintReport(report *Report) {
 func (p *Printer) prettyPrintReport(report *Report) {
 	for _, workloadResult := range report.ResultsWithMinSeverity(p.minSeverity) {
 		resource := workloadResult.GetResource().Object()
-		groupVersionKind := resource.GetObjectKind().GroupVersionKind()
 		resourceName := k8s.GetObjectMeta(resource).GetName()
 		resourceNamespace := k8s.GetObjectMeta(resource).GetNamespace()
+		resouceApiVersion, resourceKind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
 
 		p.printColor(color.CyanColor, "\n---------------- Results for ---------------\n\n")
-		p.printColor(color.CyanColor, "  apiVersion: ")
-		if groupVersionKind.Group != "" {
-			p.printColor(color.CyanColor, groupVersionKind.Group+"/")
-		}
-		p.printColor(color.CyanColor, groupVersionKind.Version+"\n")
-		p.printColor(color.CyanColor, ("  kind: " + groupVersionKind.Kind + "\n"))
+		p.printColor(color.CyanColor, "  apiVersion: "+resouceApiVersion+"\n")
+		p.printColor(color.CyanColor, "  kind: "+resourceKind+"\n")
 		if resourceName != "" || resourceNamespace != "" {
 			p.printColor(color.CyanColor, "  metadata:\n")
 			if resourceName != "" {
@@ -154,19 +150,14 @@ func (p *Printer) logAuditResult(resource k8stypes.Resource, result *AuditResult
 }
 
 func (p *Printer) getLogFieldsForResult(resource k8stypes.Resource, result *AuditResult) log.Fields {
-	groupVersionKind := resource.GetObjectKind().GroupVersionKind()
+	apiVersion, kind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
 	resourceMetadata := k8s.GetObjectMeta(resource)
 
 	fields := log.Fields{
-		"AuditResultName":   result.Name,
-		"ResourceVersion":   groupVersionKind.Version,
-		"ResourceKind":      groupVersionKind.Kind,
-		"ResourceGroup":     groupVersionKind.Group,
-		"ResourceNamespace": resourceMetadata.GetNamespace(),
-	}
-
-	if fields["ResourceGroup"] == "" {
-		fields["ResourceGroup"] = "core"
+		"AuditResultName":    result.Name,
+		"ResourceKind":       kind,
+		"ResourceApiVersion": apiVersion,
+		"ResourceNamespace":  resourceMetadata.GetNamespace(),
 	}
 
 	if resourceMetadata.GetName() != "" {
