@@ -42,7 +42,7 @@ func New() *DefaultDenyNetworkPolicies {
 
 // Audit checks that each namespace resource has a default deny NetworkPolicy for all ingress and egress traffic
 func (a *DefaultDenyNetworkPolicies) Audit(resource k8stypes.Resource, resources []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
-	if !isNamespaceResource(resource) {
+	if !k8stypes.IsNamespaceV1(resource) {
 		return nil, nil
 	}
 

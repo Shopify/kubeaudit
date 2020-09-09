@@ -100,6 +100,8 @@ func GetObjectMeta(resource k8stypes.Resource) *metav1.ObjectMeta {
 		return &kubeType.ObjectMeta
 	case *k8stypes.NetworkPolicyV1:
 		return &kubeType.ObjectMeta
+	case *k8stypes.ServiceAccountV1:
+		return &kubeType.ObjectMeta
 	}
 
 	return nil
@@ -116,8 +118,8 @@ func GetPodObjectMeta(resource k8stypes.Resource) *metav1.ObjectMeta {
 	return GetObjectMeta(resource)
 }
 
-// GetPodSpec gets the PodSpec for a resource. Avoid using this function if you need support for Namespace resources,
-// and write a helper functions in this package instead
+// GetPodSpec gets the PodSpec for a resource. Avoid using this function if you need support for Namespace or
+// ServiceAccount resources, and write a helper functions in this package instead
 func GetPodSpec(resource k8stypes.Resource) *k8stypes.PodSpecV1 {
 	podTemplateSpec := GetPodTemplateSpec(resource)
 	if podTemplateSpec != nil {
@@ -127,7 +129,7 @@ func GetPodSpec(resource k8stypes.Resource) *k8stypes.PodSpecV1 {
 	switch kubeType := resource.(type) {
 	case *k8stypes.PodV1:
 		return &kubeType.Spec
-	case *k8stypes.NamespaceV1:
+	case *k8stypes.NamespaceV1, *k8stypes.ServiceAccountV1:
 		return nil
 	}
 
@@ -135,7 +137,7 @@ func GetPodSpec(resource k8stypes.Resource) *k8stypes.PodSpecV1 {
 }
 
 // GetPodTemplateSpec gets the PodTemplateSpec for a resource. Avoid using this function if you need support for
-// Pod or Namespace resources, and write a helper functions in this package instead
+// Pod, Namespace, or ServiceAccount resources, and write a helper functions in this package instead
 func GetPodTemplateSpec(resource k8stypes.Resource) *v1.PodTemplateSpec {
 	switch kubeType := resource.(type) {
 	case *k8stypes.CronJobV1Beta1:

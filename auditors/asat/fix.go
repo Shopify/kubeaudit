@@ -22,14 +22,29 @@ func (f *fixDeprecatedServiceAccountName) Apply(resource k8stypes.Resource) []k8
 }
 
 type fixDefaultServiceAccountWithAutomountToken struct {
-	podSpec *k8stypes.PodSpecV1
+	podSpec               *k8stypes.PodSpecV1
+	defaultServiceAccount *k8stypes.ServiceAccountV1
 }
 
 func (f *fixDefaultServiceAccountWithAutomountToken) Plan() string {
-	return fmt.Sprintf("Set automountServiceAccountToken to 'false' in PodSpec")
+	if f.defaultServiceAccount != nil {
+		plan := "Set automountServiceAccountToken to 'false' in ServiceAccount"
+		if f.podSpec.AutomountServiceAccountToken != nil && *(f.podSpec.AutomountServiceAccountToken) {
+			plan += " and set automountServiceAccountToken to 'nil' in PodSpec"
+		}
+		return plan
+	}
+	return "Set automountServiceAccountToken to 'false' in PodSpec"
 }
 
 func (f *fixDefaultServiceAccountWithAutomountToken) Apply(resource k8stypes.Resource) []k8stypes.Resource {
-	f.podSpec.AutomountServiceAccountToken = k8s.NewFalse()
+	if f.defaultServiceAccount != nil {
+		f.defaultServiceAccount.AutomountServiceAccountToken = k8s.NewFalse()
+		if (f.podSpec.AutomountServiceAccountToken != nil) && *(f.podSpec.AutomountServiceAccountToken) {
+			f.podSpec.AutomountServiceAccountToken = nil
+		}
+	} else {
+		f.podSpec.AutomountServiceAccountToken = k8s.NewFalse()
+	}
 	return nil
 }

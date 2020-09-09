@@ -16,16 +16,6 @@ func getNetworkPolicies(resources []k8stypes.Resource, namespace string) (networ
 	return
 }
 
-func isNamespaceResource(resource k8stypes.Resource) bool {
-	_, ok := resource.(*k8stypes.NamespaceV1)
-	return ok
-}
-
-func isNetworkPolicyResource(resource k8stypes.Resource) bool {
-	_, ok := resource.(*k8stypes.NetworkPolicyV1)
-	return ok
-}
-
 // isNetworkPolicyType checks if the NetworkPolicy applies to the specified policy type (Ingress or Egress)
 func isNetworkPolicyType(netPol *k8stypes.NetworkPolicyV1, netPolType string) bool {
 	for _, polType := range netPol.Spec.PolicyTypes {

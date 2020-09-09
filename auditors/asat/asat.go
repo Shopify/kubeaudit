@@ -28,8 +28,8 @@ func New() *AutomountServiceAccountToken {
 
 // Audit checks that the deprecated serviceAccount field is not used and that the default service account is not
 // being automatically mounted
-func (a *AutomountServiceAccountToken) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
-	auditResult := auditResource(resource)
+func (a *AutomountServiceAccountToken) Audit(resource k8stypes.Resource, resources []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+	auditResult := auditResource(resource, resources)
 	auditResult = override.ApplyOverride(auditResult, "", resource, OverrideLabel)
 	if auditResult != nil {
 		return []*kubeaudit.AuditResult{auditResult}, nil
@@ -38,13 +38,13 @@ func (a *AutomountServiceAccountToken) Audit(resource k8stypes.Resource, _ []k8s
 	return nil, nil
 }
 
-func auditResource(resource k8stypes.Resource) *kubeaudit.AuditResult {
+func auditResource(resource k8stypes.Resource, resources []k8stypes.Resource) *kubeaudit.AuditResult {
 	podSpec := k8s.GetPodSpec(resource)
 	if podSpec == nil {
 		return nil
 	}
 
-	if isDeprecatedServiceAccountName(podSpec) && !isServiceAccountName(podSpec) {
+	if isDeprecatedServiceAccountName(podSpec) && !hasServiceAccountName(podSpec) {
 		return &kubeaudit.AuditResult{
 			Name:     AutomountServiceAccountTokenDeprecated,
 			Severity: kubeaudit.Warn,
@@ -58,13 +58,15 @@ func auditResource(resource k8stypes.Resource) *kubeaudit.AuditResult {
 		}
 	}
 
-	if isDefaultServiceAccountWithAutomountToken(podSpec) {
+	defaultServiceAccount := getDefaultServiceAccount(resources)
+	if usesDefaultServiceAccount(podSpec) && isAutomountTokenTrue(podSpec, defaultServiceAccount) {
 		return &kubeaudit.AuditResult{
 			Name:     AutomountServiceAccountTokenTrueAndDefaultSA,
 			Severity: kubeaudit.Error,
-			Message:  "Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.",
+			Message:  "Default service account with token mounted. automountServiceAccountToken should be set to 'false' on either the ServiceAccount or on the PodSpec or a non-default service account should be used.",
 			PendingFix: &fixDefaultServiceAccountWithAutomountToken{
-				podSpec: podSpec,
+				podSpec:               podSpec,
+				defaultServiceAccount: defaultServiceAccount,
 			},
 		}
 	}
@@ -76,18 +78,30 @@ func isDeprecatedServiceAccountName(podSpec *k8stypes.PodSpecV1) bool {
 	return podSpec.DeprecatedServiceAccount != ""
 }
 
-func isServiceAccountName(podSpec *k8stypes.PodSpecV1) bool {
+func hasServiceAccountName(podSpec *k8stypes.PodSpecV1) bool {
 	return podSpec.ServiceAccountName != ""
 }
 
-func isDefaultServiceAccountWithAutomountToken(podSpec *k8stypes.PodSpecV1) bool {
-	return isAutomountTokenTrue(podSpec) && isDefaultServiceAccount(podSpec)
+func isAutomountTokenTrue(podSpec *k8stypes.PodSpecV1, defaultServiceAccount *k8stypes.ServiceAccountV1) bool {
+	if podSpec.AutomountServiceAccountToken != nil {
+		return *podSpec.AutomountServiceAccountToken
+	}
+
+	return defaultServiceAccount == nil ||
+		defaultServiceAccount.AutomountServiceAccountToken == nil ||
+		*defaultServiceAccount.AutomountServiceAccountToken
 }
 
-func isAutomountTokenTrue(podSpec *k8stypes.PodSpecV1) bool {
-	return podSpec.AutomountServiceAccountToken == nil || *podSpec.AutomountServiceAccountToken
-}
-
-func isDefaultServiceAccount(podSpec *k8stypes.PodSpecV1) bool {
+func usesDefaultServiceAccount(podSpec *k8stypes.PodSpecV1) bool {
 	return podSpec.ServiceAccountName == "" || podSpec.ServiceAccountName == "default"
+}
+
+func getDefaultServiceAccount(resources []k8stypes.Resource) (serviceAccount *k8stypes.ServiceAccountV1) {
+	for _, resource := range resources {
+		serviceAccount, ok := resource.(*k8stypes.ServiceAccountV1)
+		if ok && (k8s.GetObjectMeta(serviceAccount).GetName() == "default") {
+			return serviceAccount
+		}
+	}
+	return
 }

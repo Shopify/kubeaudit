@@ -27,7 +27,7 @@ kubeaudit asat -f "auditors/asat/fixtures/service-account-token-true-and-no-name
 --------------------------------------------
 
 -- [error] AutomountServiceAccountTokenTrueAndDefaultSA
-   Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
+   Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' on either the ServiceAccount or on the PodSpec or a non-default service account should be used.
 ```
 
 ## Explanation
@@ -50,17 +50,39 @@ Automounting a default service account would allow any compromised pod to run AP
 
 To make sure a non-default service account is used, `serviceAccountName` must be set to a value other than `default`.
 
-To make sure a service account is not automatically mounted, `automountServiceAccountToken` must be explicitly set to `false` (it defaults to `true`).
+To make sure a service account is not automatically mounted, `automountServiceAccountToken` must be explicitly set to `false` (it defaults to `true`) on either the ServiceAccount (for kubernetes 1.6+) or on the PodSpec.
 
-Example of a resource which passes the `asat` audit:
+Example of disabling `automountServiceAccountToken` on the default ServiceAccount (kubernetes 1.6+):
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+automountServiceAccountToken: false
+```
+
+Example of disabling `automountServiceAccountToken` on the PodSpec of a Deployment:
 ```yaml
 apiVersion: v1
 kind: Deployment
 spec:
   template:
     spec:
-      serviceAccountName: myServiceAccount
       automountServiceAccountToken: false
+      containers:
+      - name: myContainer
+```
+
+Note that if `automountServiceAccountToken` is set on the PodSpec, this will take precedence over `automountServiceAccountToken` set on the ServiceAccount, so you should never set `automountServiceAccountToken: true` in the PodSpec when using the default ServiceAccount.
+
+Example of using a non-default service account:
+```yaml
+apiVersion: v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      serviceAccountName: customServiceAccount
       containers:
       - name: myContainer
 ```

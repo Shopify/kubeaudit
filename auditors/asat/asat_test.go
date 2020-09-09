@@ -26,7 +26,10 @@ func TestAuditAutomountServiceAccountToken(t *testing.T) {
 			override.GetOverriddenResultName(AutomountServiceAccountTokenTrueAndDefaultSA)}, true,
 		},
 		{"service-account-token-true-and-default-name.yml", []string{AutomountServiceAccountTokenTrueAndDefaultSA}, true},
+		{"service-account-token-false.yml", []string{}, true},
 		{"service-account-token-redundant-override.yml", []string{kubeaudit.RedundantAuditorOverride}, true},
+		{"service-account-token-nil-and-no-name-and-default-sa.yml", []string{}, true},
+		{"service-account-token-true-and-default-sa.yml", []string{AutomountServiceAccountTokenTrueAndDefaultSA}, true},
 	}
 
 	for _, tc := range cases {

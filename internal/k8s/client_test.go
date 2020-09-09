@@ -78,6 +78,7 @@ func TestGetAllResources(t *testing.T) {
 		k8stypes.NewStatefulSet(),
 		k8stypes.NewPodTemplate(),
 		k8stypes.NewCronJob(),
+		k8stypes.NewServiceAccount(),
 	}
 	namespaces := []string{"foo", "bar"}
 
