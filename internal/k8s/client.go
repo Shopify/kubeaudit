@@ -8,7 +8,6 @@ import (
 
 	"github.com/Shopify/kubeaudit/k8stypes"
 	log "github.com/sirupsen/logrus"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -128,11 +127,7 @@ func GetDaemonSets(clientset kubernetes.Interface, options ClientOptions) []k8st
 	daemonSets := make([]k8stypes.Resource, 0, len(daemonSetList.Items))
 	for _, daemonSet := range daemonSetList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		daemonSet.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "DaemonSet",
-			Group:   "apps",
-			Version: "v1",
-		})
+		daemonSet.TypeMeta = k8stypes.NewDaemonSet().TypeMeta
 		daemonSets = append(daemonSets, daemonSet.DeepCopyObject())
 	}
 
@@ -152,11 +147,7 @@ func GetDeployments(clientset kubernetes.Interface, options ClientOptions) []k8s
 	deployments := make([]k8stypes.Resource, 0, len(deploymentList.Items))
 	for _, deployment := range deploymentList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		deployment.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "Deployment",
-			Group:   "apps",
-			Version: "v1",
-		})
+		deployment.TypeMeta = k8stypes.NewDeployment().TypeMeta
 		deployments = append(deployments, (&deployment).DeepCopyObject())
 	}
 
@@ -176,10 +167,7 @@ func GetPods(clientset kubernetes.Interface, options ClientOptions) []k8stypes.R
 	pods := make([]k8stypes.Resource, 0, len(podList.Items))
 	for _, pod := range podList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		pod.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "Pod",
-			Version: "v1",
-		})
+		pod.TypeMeta = k8stypes.NewPod().TypeMeta
 		pods = append(pods, pod.DeepCopyObject())
 	}
 
@@ -199,10 +187,7 @@ func GetPodTemplates(clientset kubernetes.Interface, options ClientOptions) []k8
 	podTemplates := make([]k8stypes.Resource, 0, len(podTemplateList.Items))
 	for _, podTemplate := range podTemplateList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		podTemplate.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "PodTemplate",
-			Version: "v1",
-		})
+		podTemplate.TypeMeta = k8stypes.NewPodTemplate().TypeMeta
 		podTemplates = append(podTemplates, podTemplate.DeepCopyObject())
 	}
 
@@ -222,10 +207,7 @@ func GetReplicationControllers(clientset kubernetes.Interface, options ClientOpt
 	replicationControllers := make([]k8stypes.Resource, 0, len(replicationControllerList.Items))
 	for _, replicationController := range replicationControllerList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		replicationController.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "ReplicationController",
-			Version: "v1",
-		})
+		replicationController.TypeMeta = k8stypes.NewReplicationController().TypeMeta
 		replicationControllers = append(replicationControllers, replicationController.DeepCopyObject())
 	}
 
@@ -245,11 +227,7 @@ func GetStatefulSets(clientset kubernetes.Interface, options ClientOptions) []k8
 	statefulSets := make([]k8stypes.Resource, 0, len(statefulSetList.Items))
 	for _, statefulSet := range statefulSetList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		statefulSet.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "StatefulSet",
-			Group:   "apps",
-			Version: "v1",
-		})
+		statefulSet.TypeMeta = k8stypes.NewStatefulSet().TypeMeta
 		statefulSets = append(statefulSets, statefulSet.DeepCopyObject())
 	}
 
@@ -269,11 +247,7 @@ func GetCronJobs(clientset kubernetes.Interface, options ClientOptions) []k8styp
 	cronJobs := make([]k8stypes.Resource, 0, len(cronJobList.Items))
 	for _, cronJob := range cronJobList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		cronJob.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "CronJob",
-			Group:   "batch",
-			Version: "v1beta1",
-		})
+		cronJob.TypeMeta = k8stypes.NewCronJob().TypeMeta
 		cronJobs = append(cronJobs, cronJob.DeepCopyObject())
 	}
 
@@ -293,11 +267,7 @@ func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) [
 	netPols := make([]k8stypes.Resource, 0, len(netPolList.Items))
 	for _, netPol := range netPolList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		netPol.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "NetworkPolicy",
-			Group:   "networking.k8s.io",
-			Version: "v1",
-		})
+		netPol.TypeMeta = k8stypes.NewNetworkPolicy().TypeMeta
 		netPols = append(netPols, netPol.DeepCopyObject())
 	}
 
@@ -317,10 +287,7 @@ func GetServiceAccounts(clientset kubernetes.Interface, options ClientOptions) [
 	serviceAccounts := make([]k8stypes.Resource, 0, len(serviceAccountList.Items))
 	for _, serviceAccount := range serviceAccountList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		serviceAccount.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "ServiceAccount",
-			Version: "v1",
-		})
+		serviceAccount.TypeMeta = k8stypes.NewServiceAccount().TypeMeta
 		serviceAccounts = append(serviceAccounts, serviceAccount.DeepCopyObject())
 	}
 
@@ -347,10 +314,7 @@ func GetNamespaces(clientset kubernetes.Interface, options ClientOptions) []k8st
 	namespaces := make([]k8stypes.Resource, 0, len(namespaceList.Items))
 	for _, namespace := range namespaceList.Items {
 		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		namespace.SetGroupVersionKind(schema.GroupVersionKind{
-			Kind:    "Namespace",
-			Version: "v1",
-		})
+		namespace.TypeMeta = k8stypes.NewNamespace().TypeMeta
 		namespaces = append(namespaces, (&namespace).DeepCopyObject())
 	}
 

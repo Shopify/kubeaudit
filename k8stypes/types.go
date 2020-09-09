@@ -118,6 +118,9 @@ type StatefulSetV1 = appsv1.StatefulSet
 // StatefulSetV1Beta1 is a type alias for the v1beta1 version of the k8s API.
 type StatefulSetV1Beta1 = appsv1beta1.StatefulSet
 
+// TypeMetaV1 is a type alias for the v1 version of the k8s meta API.
+type TypeMetaV1 = metav1.TypeMeta
+
 // UnsupportedType is a type alias for v1 version of the k8s apps API, this is meant for testing
 type UnsupportedType = apiv1.Binding
 
