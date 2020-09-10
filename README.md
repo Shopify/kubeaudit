@@ -144,22 +144,21 @@ To write the fixed manifest to a new file instead of modifying the source file, 
 kubeaudit autofix -f "/path/to/manifest.yml" -o "/path/to/fixed"
 ```
 
-### Local Mode
-
-If a kubeconfig file is provided using the `-c/--kubeconfig` flag, kubeaudit will audit the resources specified in the kubeconfig file. If no kubeconfig file is specified, `$HOME/.kube/config` is used by default:
-
-```
-kubeaudit all -c "/path/to/config"
-```
-
-For more information on kubernetes config files, see https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/
-
 ### Cluster Mode
 
 Kubeaudit can detect if it is running within a container in a cluster. If so, it will try to audit all Kubernetes resources in that cluster:
 ```
 kubeaudit all
 ```
+
+### Local Mode
+
+Kubeaudit will try to connect to a cluster using the local kubeconfig file (`$HOME/.kube/config`). A different kubeconfig location can be specified using the `-c/--kubeconfig` flag.
+```
+kubeaudit all -c "/path/to/config"
+```
+
+For more information on kubernetes config files, see https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/
 
 ## Audit Results
 
@@ -171,7 +170,7 @@ Kubeaudit produces results with three levels of severity:
 
 The minimum severity level can be set using the `--minSeverity/-m` flag.
 
-By default kubeaudit will output results in a human-readable way. If the output is intended to be further processed, it can be set to output JSON using the `--format json` flag.
+By default kubeaudit will output results in a human-readable way. If the output is intended to be further processed, it can be set to output JSON using the `--format json` flag. To output results as logs (the previous default) use `--format logrus`.
 
 If there are results of severity level `error`, kubeaudit will exit with exit code 2. This can be changed using the `--exitcode/-e` flag.
 
@@ -213,7 +212,7 @@ Auditors can also be run individually.
 | -f      | --manifest     | Path to the yaml configuration to audit. Only used in manifest mode.                                |
 | -n      | --namespace    | Only audit resources in the specified namespace. Not currently supported in manifest mode.          |
 | -m      | --minseverity  | Set the lowest severity level to report (one of "error", "warning", "info") (default "info")        |
-| -e      | --exitcode     | Exit code to use if there are results with severity of "error". Conventionally, 0 is used for succes and all non-zero codes for an error. (default 2) |
+| -e      | --exitcode     | Exit code to use if there are results with severity of "error". Conventionally, 0 is used for success and all non-zero codes for an error. (default 2) |
 
 ## Configuration File
 
