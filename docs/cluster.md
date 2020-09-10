@@ -20,6 +20,7 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       automountServiceAccount: false
+      restartPolicy: OnFailure
       containers:
         - name: kubeaudit
           image: shopify/kubeaudit:v0.11
@@ -104,6 +105,7 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       serviceAccountName: kubeaudit
+      restartPolicy: OnFailure
       containers:
         - name: kubeaudit
           image: shopify/kubeaudit:v0.11
@@ -240,6 +242,7 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       serviceAccountName: kubeaudit
+      restartPolicy: OnFailure
       containers:
         - name: kubeaudit
           image: shopify/kubeaudit:v0.11

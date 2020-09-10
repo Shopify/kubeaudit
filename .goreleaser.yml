@@ -7,6 +7,9 @@ release:
   name_template: "{{.ProjectName}}-v{{.Version}}"
 dockers:
 - dockerfile: goreleaser.Dockerfile
+  goos: linux
+  goarch: amd64
+  goarm: ''
   image_templates:
   - "shopify/kubeaudit:latest"
   - "shopify/kubeaudit:{{ .Tag }}"
