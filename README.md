@@ -30,10 +30,15 @@ The rest of this README will focus on how to use kubeaudit as a command line too
 * [Commands](#commands)
 * [Configuration File](#configuration-file)
 * [Override Errors](#override-errors)
-* [CI/CD Usage](#cicd-usage)
 * [Contributing](#contributing)
 
 ## Installation
+
+### Brew
+
+```
+brew install kubeaudit
+```
  
 ### Download a binary
 
@@ -72,6 +77,10 @@ With kubectl v1.12.0 introducing [easy pluggability](https://kubernetes.io/docs/
 or
 
 - renaming the binary to `kubectl-audit` and having it available in your path.
+
+### Docker
+
+We also release a [Docker image](https://hub.docker.com/r/shopify/kubeaudit): `shopify/kubeaudit`. To run kubeaudit as a job in your cluster see [Running kubeaudit in a cluster](docs/cluster.md).
 
 ## Quick Start
 
@@ -135,22 +144,21 @@ To write the fixed manifest to a new file instead of modifying the source file, 
 kubeaudit autofix -f "/path/to/manifest.yml" -o "/path/to/fixed"
 ```
 
-### Local Mode
-
-If a kubeconfig file is provided using the `-c/--kubeconfig` flag, kubeaudit will audit the resources specified in the kubeconfig file. If no kubeconfig file is specified, `$HOME/.kube/config` is used by default:
-
-```
-kubeaudit all -c "/path/to/config"
-```
-
-For more information on kubernetes config files, see https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/
-
 ### Cluster Mode
 
 Kubeaudit can detect if it is running within a container in a cluster. If so, it will try to audit all Kubernetes resources in that cluster:
 ```
 kubeaudit all
 ```
+
+### Local Mode
+
+Kubeaudit will try to connect to a cluster using the local kubeconfig file (`$HOME/.kube/config`). A different kubeconfig location can be specified using the `-c/--kubeconfig` flag.
+```
+kubeaudit all -c "/path/to/config"
+```
+
+For more information on kubernetes config files, see https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/
 
 ## Audit Results
 
@@ -160,7 +168,13 @@ Kubeaudit produces results with three levels of severity:
 `Warning`: A best practice recommendation
 `Info`: Informational, no action required. This includes results that are [overridden](#override-errors)
 
-The minimum severity level can be set using the `--minSeverity/-m` flag. See [Global Flags](#global-flags) for a more detailed description.
+The minimum severity level can be set using the `--minSeverity/-m` flag.
+
+By default kubeaudit will output results in a human-readable way. If the output is intended to be further processed, it can be set to output JSON using the `--format json` flag. To output results as logs (the previous default) use `--format logrus`.
+
+If there are results of severity level `error`, kubeaudit will exit with exit code 2. This can be changed using the `--exitcode/-e` flag.
+
+For all the ways kubeaudit can be customized, see [Global Flags](#global-flags).
 
 ## Commands
 
@@ -196,8 +210,9 @@ Auditors can also be run individually.
 |         | --format       | The output format to use (one of "pretty", "logrus", "json") (default is "pretty")                  |
 | -c      | --kubeconfig   | Path to local Kubernetes config file. Only used in local mode (default is `$HOME/.kube/config`)     |
 | -f      | --manifest     | Path to the yaml configuration to audit. Only used in manifest mode.                                |
-| -n      | --namespace    | Only audit resources in the specified namespace. Not currently supported in manifest mode.                         |
-| -m      | --minseverity  | Set the lowest severity level to report (one of "error", "warning", "info") (default "info")           |
+| -n      | --namespace    | Only audit resources in the specified namespace. Not currently supported in manifest mode.          |
+| -m      | --minseverity  | Set the lowest severity level to report (one of "error", "warning", "info") (default "info")        |
+| -e      | --exitcode     | Exit code to use if there are results with severity of "error". Conventionally, 0 is used for success and all non-zero codes for an error. (default 2) |
 
 ## Configuration File
 
@@ -247,11 +262,6 @@ Multiple override labels (for multiple auditors) can be added to the same resour
 See the specific [auditor docs](#auditors) for the auditor you wish to override for examples.
 
 To learn more about labels, see https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-
-## CI/CD usage
-
-kubeaudit will return exit code `2` whenever any errors are being found, so it can stop your pipeline.
-If you do not want this to happen, run it as `kubeaudit all || true`
 
 ## Contributing
 

@@ -45,7 +45,7 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder --chown=app /go/bin/kubeaudit /kubeaudit
 
 # from now on, run as the unprivileged user
-USER app
+USER 1000
 
 # entrypoint
 ENTRYPOINT ["/kubeaudit"]
