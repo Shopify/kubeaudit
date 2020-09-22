@@ -67,20 +67,19 @@ func (p *Printer) PrintReport(report *Report) {
 func (p *Printer) prettyPrintReport(report *Report) {
 	for _, workloadResult := range report.ResultsWithMinSeverity(p.minSeverity) {
 		resource := workloadResult.GetResource().Object()
-		resourceName := k8s.GetObjectMeta(resource).GetName()
-		resourceNamespace := k8s.GetObjectMeta(resource).GetNamespace()
+		objectMeta := k8s.GetObjectMeta(resource)
 		resouceApiVersion, resourceKind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
 
 		p.printColor(color.CyanColor, "\n---------------- Results for ---------------\n\n")
 		p.printColor(color.CyanColor, "  apiVersion: "+resouceApiVersion+"\n")
 		p.printColor(color.CyanColor, "  kind: "+resourceKind+"\n")
-		if resourceName != "" || resourceNamespace != "" {
+		if objectMeta != nil && (objectMeta.GetName() != "" || objectMeta.GetNamespace() != "") {
 			p.printColor(color.CyanColor, "  metadata:\n")
-			if resourceName != "" {
-				p.printColor(color.CyanColor, "    name: "+resourceName+"\n")
+			if objectMeta.GetName() != "" {
+				p.printColor(color.CyanColor, "    name: "+objectMeta.GetName()+"\n")
 			}
-			if resourceNamespace != "" {
-				p.printColor(color.CyanColor, "    namespace: "+resourceNamespace+"\n")
+			if objectMeta.GetNamespace() != "" {
+				p.printColor(color.CyanColor, "    namespace: "+objectMeta.GetNamespace()+"\n")
 			}
 		}
 		p.printColor(color.CyanColor, "\n--------------------------------------------\n\n")
@@ -127,7 +126,7 @@ func (p *Printer) logReport(report *Report) {
 	resultLogger.SetOutput(p.writer)
 	resultLogger.SetFormatter(p.formatter)
 
-	// We manually manage what severity levels to log, lorgus should let everything through
+	// We manually manage what severity levels to log, logrus should let everything through
 	resultLogger.SetLevel(log.DebugLevel)
 
 	for _, workloadResult := range report.ResultsWithMinSeverity(p.minSeverity) {
@@ -151,17 +150,22 @@ func (p *Printer) logAuditResult(resource k8stypes.Resource, result *AuditResult
 
 func (p *Printer) getLogFieldsForResult(resource k8stypes.Resource, result *AuditResult) log.Fields {
 	apiVersion, kind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
-	resourceMetadata := k8s.GetObjectMeta(resource)
+	objectMeta := k8s.GetObjectMeta(resource)
 
 	fields := log.Fields{
 		"AuditResultName":    result.Name,
 		"ResourceKind":       kind,
 		"ResourceApiVersion": apiVersion,
-		"ResourceNamespace":  resourceMetadata.GetNamespace(),
 	}
 
-	if resourceMetadata.GetName() != "" {
-		fields["ResourceName"] = resourceMetadata.GetName()
+	if objectMeta != nil {
+		if objectMeta.GetNamespace() != "" {
+			fields["ResourceNamespace"] = objectMeta.GetNamespace()
+		}
+
+		if objectMeta.GetName() != "" {
+			fields["ResourceName"] = objectMeta.GetName()
+		}
 	}
 
 	for k, v := range result.Metadata {

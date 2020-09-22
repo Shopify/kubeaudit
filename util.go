@@ -67,16 +67,10 @@ func auditResource(resource KubeResource, resources []KubeResource, auditables [
 	}
 
 	if !k8stypes.IsSupportedResourceType(resource.Object()) {
-		resourceInfo := resource.Object().GetObjectKind().GroupVersionKind()
 		auditResult := &AuditResult{
 			Name:     ErrorUnsupportedResource,
 			Severity: Warn,
-			Message:  "Resource is not supported.",
-			Metadata: Metadata{
-				"Kind":    resourceInfo.Kind,
-				"Group":   resourceInfo.Group,
-				"Version": resourceInfo.Version,
-			},
+			Message:  "Resource is not currently supported.",
 		}
 		result.AuditResults = append(result.AuditResults, auditResult)
 		return result, nil
