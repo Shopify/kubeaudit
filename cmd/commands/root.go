@@ -100,7 +100,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 		return report
 	}
 
-	if k8s.IsRunningInCluster(k8s.DefaultClient) {
+	if ( k8s.IsRunningInCluster(k8s.DefaultClient) && rootConfig.kubeConfig == "" ) {
 		report, err := auditor.AuditCluster(k8s.ClientOptions{Namespace: rootConfig.namespace})
 		if err != nil {
 			log.WithError(err).Fatal("Error auditing cluster")
