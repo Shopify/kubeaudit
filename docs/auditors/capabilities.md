@@ -10,29 +10,31 @@ kubeaudit capabilities [flags]
 
 ### Flags
 
-| Short   | Long      | Description                                                          | Default                                  |
-| :------ | :-------- | :------------------------------------------------------------------- | :--------------------------------------- |
-| -d      | --drop    | Space separated list of capabilities that should be dropped.         | [default drop list](#default-drop-list)  |
-
-Also see [Global Flags](/README.md#global-flags)
+[Global Flags](/README.md#global-flags)
 
 #### Default drop list
 
-| Capability Name  | Description                                                                              |
-| :--------------- | :--------------------------------------------------------------------------------------- |
-| AUDIT_WRITE      | Write records to kernel auditing log                                                     |
-| DAC_OVERRIDE     | Bypass file read, write, and execute permission checks                                   |
-| FOWNER           | Bypass permission checks on operations that normally require the file system UID of the process to match the UID of the file |
-| FSETID           | Don’t clear set-user-ID and set-group-ID permission bits when a file is modified         |
-| KILL             | Bypass permission checks for sending signals                                             |
-| MKNOD             |  Create special files using mknod(2)                                                    |
-| NET_BIND_SERVICE  |  Bind a socket to internet domain privileged ports (port numbers less than 1024)        |
-| NET_RAW           |  Use RAW and PACKET sockets                                                             |
-| SETFCAP           |  Set file capabilities                                                                  |
-| SETGID            |  Make arbitrary manipulations of process GIDs and supplementary GID list                |
-| SETPCAP           |  Modify process capabilities.                                                           |
-| SETUID            |  Make arbitrary manipulations of process UIDs                                           |
-| SYS_CHROOT        |  Use chroot(2), change root directory                                                   |
+- ALL
+
+All is equivalent to dropping all the following capabilities:
+
+| Capability Name   | Description                                                                               |
+| :---------------  |  :--------------------------------------------------------------------------------------  |
+| AUDIT_WRITE       |  Write records to kernel auditing log                                                     |
+| DAC_OVERRIDE      |  Bypass file read, write, and execute permission checks                                   |
+| FOWNER            |  Bypass permission checks on operations that normally require the file system UID of the process to match the UID of the file |
+| FSETID            |  Don’t clear set-user-ID and set-group-ID permission bits when a file is modified         |
+| KILL              |  Bypass permission checks for sending signals                                             |
+| MKNOD             |  Create special files using mknod(2)                                                      |
+| NET_BIND_SERVICE  |  Bind a socket to internet domain privileged ports (port numbers less than 1024)          |
+| NET_RAW           |  Use RAW and PACKET sockets                                                               |
+| SETFCAP           |  Set file capabilities                                                                    |
+| SETGID            |  Make arbitrary manipulations of process GIDs and supplementary GID list                  |
+| SETPCAP           |  Modify process capabilities.                                                             |
+| SETUID            |  Make arbitrary manipulations of process UIDs                                             |
+| SYS_CHROOT        |  Use chroot(2), change root directory                                                     |
+
+**Note**: if using http://man7.org/linux/man-pages/man7/capabilities.7.html as a reference for capability names, drop the `CAP_` prefix.
 
 ## Examples
 
@@ -49,46 +51,11 @@ $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml
 
 --------------------------------------------
 
--- [error] CapabilityNotDropped
-   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
+-- [error] CapabilityShouldDropAll
+   Message: Security Context not set. Ideally, the Security Context should be specified. All capacities should be dropped by setting drop to ALL.
    Metadata:
       Container: container
-      Capability: AUDIT_WRITE
-
--- [error] CapabilityNotDropped
-   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
-   Metadata:
-      Container: container
-      Capability: CHOWN
-
-...
 ```
-
-### Example with Custom Drop List
-
-A custom drop list can be provided as a space-separated list of capabilities using the `-d/--drop` flag:
-
-```
-$ kubeaudit capabilities --drop "MAC_ADMIN AUDIT_WRITE" -f "auditors/capabilities/fixtures/capabilities-nil.yml"
-
----------------- Results for ---------------
-
-  apiVersion: apps/v1beta2
-  kind: Deployment
-  metadata:
-    name: deployment
-    namespace: capabilities-nil
-
---------------------------------------------
-
--- [error] CapabilityNotDropped
-   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
-   Metadata:
-      Container: container
-      Capability: MAC_ADMIN AUDIT_WRITE
-```
-
-**Note**: if using http://man7.org/linux/man-pages/man7/capabilities.7.html as a reference for capability names, drop the `CAP_` prefix.
 
 ## Explanation
 
@@ -106,7 +73,7 @@ spec:
         securityContext:
           capabilities:
             drop:
-            - all
+            - ALL
 ```
 
 If capabiltiies are required, only those required capabilities should be added:
@@ -170,7 +137,7 @@ spec:
         securityContext:
           capabilities:
             drop:
-            - all
+            - ALL
             add:
             - AUDIT_WRITE
             - DAC_OVERRIDE
@@ -192,7 +159,7 @@ spec:
         securityContext:
           capabilities:
             drop:
-            - all
+            - ALL
             add:
             - AUDIT_WRITE
             - DAC_OVERRIDE

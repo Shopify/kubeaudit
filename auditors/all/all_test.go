@@ -28,7 +28,7 @@ func TestAuditAll(t *testing.T) {
 	allErrors := []string{
 		apparmor.AppArmorAnnotationMissing,
 		asat.AutomountServiceAccountTokenTrueAndDefaultSA,
-		capabilities.CapabilityNotDropped,
+		capabilities.CapabilityShouldDropAll,
 		hostns.NamespaceHostNetworkTrue,
 		hostns.NamespaceHostIPCTrue,
 		hostns.NamespaceHostPIDTrue,

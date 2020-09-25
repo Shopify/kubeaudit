@@ -19,19 +19,6 @@ spec:
             capabilities:
               add:
                 - NET_ADMIN
-                - SYS_TIME
-              drop:
-                - AUDIT_WRITE
                 - CHOWN
-                - DAC_OVERRIDE
-                - FOWNER
-                - FSETID
-                - KILL
-                - MKNOD
-                - NET_BIND_SERVICE
-                - NET_RAW
-                - SETFCAP
-                - SETGID
-                - SETUID
-                - SETPCAP
-                - SYS_CHROOT
+              drop:
+                - ALL

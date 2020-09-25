@@ -87,5 +87,4 @@ func init() {
 	// Set flags for the auditors that have them
 	setImageFlags(auditAllCmd)
 	setLimitsFlags(auditAllCmd)
-	setCapabilitiesFlags(auditAllCmd)
 }

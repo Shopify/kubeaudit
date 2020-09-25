@@ -51,20 +51,7 @@ spec:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-            - AUDIT_WRITE
-            - CHOWN
-            - DAC_OVERRIDE
-            - FOWNER
-            - FSETID
-            - KILL
-            - MKNOD
-            - NET_BIND_SERVICE
-            - NET_RAW
-            - SETFCAP
-            - SETGID
-            - SETPCAP
-            - SETUID
-            - SYS_CHROOT
+            - ALL
           privileged: false
           readOnlyRootFilesystem: true
           runAsNonRoot: true

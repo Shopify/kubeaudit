@@ -17,7 +17,7 @@ enabledAuditors:
     seccomp: true
 auditors:
     capabilities:
-        # If no capabilities are specified, a list of recommended capabilities to drop is used
+        # If capabilities are specified, kubeaudit will error and suggest to use drop ALL
         drop: ["AUDIT_WRITE", "CHOWN"]
     image:
         image: "myimage:mytag"

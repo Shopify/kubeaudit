@@ -7,19 +7,18 @@ import (
 )
 
 // mergeCapabilities creates an array of all unique capabilities in the custom drop list and container add list
-func mergeCapabilities(dropList []string, container *k8stypes.ContainerV1) []string {
-	if isCapabilitiesNil(container) {
-		return dropList
+func mergeCapabilities(container *k8stypes.ContainerV1) []string {
+	if !SecurityContextOrCapabilities(container) {
+		return DefaultDropList
 	}
 
 	m := make(map[string]bool)
 
-	for _, cap := range dropList {
+	for _, cap := range container.SecurityContext.Capabilities.Drop {
 		m[string(cap)] = true
 	}
 
-	added := container.SecurityContext.Capabilities.Add
-	for _, cap := range added {
+	for _, cap := range container.SecurityContext.Capabilities.Add {
 		m[string(cap)] = true
 	}
 
@@ -27,6 +26,7 @@ func mergeCapabilities(dropList []string, container *k8stypes.ContainerV1) []str
 
 	// "ALL" and "all" mean the same thing so we don't want to count both
 	all := false
+
 	for k := range m {
 		if isCapabilityAll(k) {
 			all = true
@@ -55,6 +55,7 @@ func isCapabilityAdded(container *k8stypes.ContainerV1, capability string) bool 
 	}
 
 	added := container.SecurityContext.Capabilities.Add
+
 	return isCapabilityInCapArray(capability, added)
 }
 
@@ -87,6 +88,7 @@ func isCapabilityDropped(container *k8stypes.ContainerV1, capability string) boo
 	}
 
 	dropped := container.SecurityContext.Capabilities.Drop
+
 	return isCapabilityInCapArray(capability, dropped)
 }
 
