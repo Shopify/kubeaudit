@@ -17,20 +17,24 @@ const (
 	CapabilityAdded = "CapabilityAdded"
 	// CapabilityShouldDropAll occurs when there's a drop list instead of having drop "ALL"
 	CapabilityShouldDropAll = "CapabilityShouldDropAll"
+	// CapabilityOrSecurityContextMissing  occurs when either the Security Context or Capabilities are not specified
+	CapabilityOrSecurityContextMissing = "CapabilityOrSecurityContextMissing"
 )
 
 const overrideLabelPrefix = "allow-capability-"
 
 var DefaultDropList = []string{"ALL"}
 
+var DefaultAddList = []string{""}
+
 // Capabilities implements Auditable
 type Capabilities struct {
-	dropList []string
+	addList []string
 }
 
 func New(config Config) *Capabilities {
 	return &Capabilities{
-		dropList: config.GetDropList(),
+		addList: config.GetAddList(),
 	}
 }
 
@@ -40,7 +44,7 @@ func (a *Capabilities) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) 
 
 	for _, container := range k8s.GetContainers(resource) {
 		for _, capability := range mergeCapabilities(container) {
-			for _, auditResult := range auditContainer(container, capability) {
+			for _, auditResult := range auditContainer(container, capability, a.addList) {
 				auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(capability))
 				if auditResult != nil {
 					auditResults = append(auditResults, auditResult)
@@ -56,8 +60,12 @@ func getOverrideLabel(capability string) string {
 	return overrideLabelPrefix + strings.Replace(strings.ToLower(capability), "_", "-", -1)
 }
 
-func auditContainer(container *k8stypes.ContainerV1, capability string) []*kubeaudit.AuditResult {
+func auditContainer(container *k8stypes.ContainerV1, capability string, addList []string) []*kubeaudit.AuditResult {
 	var auditResults []*kubeaudit.AuditResult
+
+	if isCapabilityInArray(capability, addList) {
+		return auditResults
+	}
 
 	if SecurityContextOrCapabilities(container) {
 		var message string
@@ -98,7 +106,7 @@ func auditContainer(container *k8stypes.ContainerV1, capability string) []*kubea
 	} else {
 		message := "Security Context not set. Ideally, the Security Context should be specified. All capacities should be dropped by setting drop to ALL."
 		auditResult := &kubeaudit.AuditResult{
-			Name:     CapabilityShouldDropAll,
+			Name:     CapabilityOrSecurityContextMissing,
 			Severity: kubeaudit.Error,
 			Message:  message,
 			PendingFix: &fixMissingSecurityContextOrCapability{
@@ -110,7 +118,9 @@ func auditContainer(container *k8stypes.ContainerV1, capability string) []*kubea
 		}
 		auditResults = append(auditResults, auditResult)
 	}
+
 	// We need the audit result to be nil for ApplyOverride to check for RedundantAuditorOverride errors
+
 	if len(auditResults) == 0 {
 		return []*kubeaudit.AuditResult{nil}
 	}

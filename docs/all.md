@@ -148,8 +148,8 @@ $ kubeaudit all -k "config.yaml" -f "auditors/all/fixtures/audit_all_v1.yml"
 
 ### Example with Flags
 
-The behaviour of the `all` command can also be customized by using flags. The `all` command supports all flags supported by invididual auditors (see the individual [auditor docs](/README.md#auditors) for all the flags). For example, the `caps` auditor supports specifying capabilities to drop with the `--drop/-d` flag so this flag can be used with the `all` command:
+The behaviour of the `all` command can also be customized by using flags. The `all` command supports all flags supported by invididual auditors (see the individual [auditor docs](/README.md#auditors) for all the flags). For example, the `caps` auditor supports specifying capabilities to add with the `--add` flag so this flag can be used with the `all` command
 
 ```
-kubeaudit all -f "auditors/all/fixtures/audit_all_v1.yml" limits --cpu 600m
+kubeaudit all -f "auditors/all/fixtures/audit_all_v1.yml" --add "AUDIT_WRITE"
 ```

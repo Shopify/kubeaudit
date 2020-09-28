@@ -44,7 +44,7 @@ func setConfigFromFlags(cmd *cobra.Command, conf config.KubeauditConfig) config.
 	}
 
 	if flagset.Changed("drop") {
-		conf.AuditorConfig.Capabilities.DropList = capabilitiesConfig.DropList
+		conf.AuditorConfig.Capabilities.AddList = capabilitiesConfig.AddList
 	}
 
 	return conf

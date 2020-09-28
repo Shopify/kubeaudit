@@ -1,14 +1,13 @@
 package capabilities
 
 type Config struct {
-	DropList []string `yaml:"drop"`
+	AddList []string `yaml:"add"`
 }
 
-func (config *Config) GetDropList() []string {
-	// Default Drop contains only "ALL"
-	if config == nil || len(config.DropList) == 0 {
-		return DefaultDropList
+func (config *Config) GetAddList() []string {
+	if config == nil || len(config.AddList) == 0 {
+		return []string{}
 	}
 
-	return config.DropList
+	return config.AddList
 }

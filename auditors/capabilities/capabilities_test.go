@@ -17,7 +17,7 @@ func TestAuditCapabilities(t *testing.T) {
 		fixtureDir     string
 		expectedErrors []string
 	}{
-		{"capabilities-nil.yml", fixtureDir, []string{CapabilityShouldDropAll}},
+		{"capabilities-nil.yml", fixtureDir, []string{CapabilityOrSecurityContextMissing}},
 		{"capabilities-added.yml", fixtureDir, []string{CapabilityAdded}},
 		{"capabilities-added-not-dropped.yml", fixtureDir, []string{CapabilityAdded, CapabilityShouldDropAll}},
 		{"capabilities-some-allowed.yml", fixtureDir, []string{

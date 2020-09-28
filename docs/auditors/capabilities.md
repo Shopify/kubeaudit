@@ -10,7 +10,13 @@ kubeaudit capabilities [flags]
 
 ### Flags
 
-[Global Flags](/README.md#global-flags)
+
+| Flag      | Description                                                         |
+| :-------- | :------------------------------------------------------------------ | 
+| --add    | Comma separated list of capabilities that should be added.           | 
+
+Also see [Global Flags](/README.md#global-flags)
+
 
 #### Default drop list
 
@@ -38,7 +44,7 @@ All is equivalent to dropping all the following capabilities:
 
 ## Examples
 
-```
+```shell
 $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml"
 
 ---------------- Results for ---------------
@@ -51,12 +57,109 @@ $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml
 
 --------------------------------------------
 
--- [error] CapabilityShouldDropAll
+-- [error] CapabilityOrSecurityContextMissing
    Message: Security Context not set. Ideally, the Security Context should be specified. All capacities should be dropped by setting drop to ALL.
    Metadata:
       Container: container
 ```
 
+### Example with Config File
+
+A custom add list can be provided in the config file. See [docs](docs/all.md) for more information. These are the capabilities you'd like to add and not have kubeaudit raise an error. In this example, kubeaudit will only error for "CHOWN" because it wasn't added to the add list in the config.
+
+`example.yaml` (config)
+```yaml
+...
+auditors:
+    capabilities:
+        # add capabilities needed to the add list, so kubeaudit won't report errors 
+        add: ["KILL", "MKNOD"]
+
+```
+`test.yaml`(manifest)
+
+```yaml
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: capabilities-some-allowed-multi-containers-some-labels
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+    spec:
+      containers:
+        - name: container1
+          image: scratch
+          securityContext:
+            capabilities:
+              add:
+                - CHOWN
+                - KILL
+                - MKNOD
+              drop:
+                - ALL
+```
+
+```shell
+$ kubeaudit all --add --kconfig "example.yaml" -f "test.yaml"
+
+---------------- Results for ---------------
+
+  apiVersion: apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: capabilities-some-allowed-multi-containers-some-labels
+
+--------------------------------------------
+
+-- [error] CapabilityAdded
+   Message: Capability added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-chown: SomeReason'.
+   Metadata:
+      Container: container1
+```
+
+### Example with Custom Add List
+
+A custom add list can be provided as a comma separated value list of capabilities using the `--add` flag. These are the capabilities you'd like to add and not have kubeaudit raise an error:
+
+`manifest-example.yaml` (example manifest)
+
+```yaml
+      capabilities:
+              add:
+                - CHOWN
+                - KILL
+                - MKNOD
+                - NET_ADMIN
+```
+
+Here we're only adding 3 capabilities to the add list to be ignored. Since we didn't add `NET_ADMIN` to the list, kubeaudit will raise an error for this one.
+```shell
+  $ kubeaudit capabilities --add "CHOWN,KILL,MKNOD" -f "manifest-example.yaml" 
+  ---------------- Results for ---------------
+
+  apiVersion: apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: capabilities-some-allowed-multi-containers-some-labels
+
+--------------------------------------------
+
+-- [error] CapabilityAdded
+   Message: Capability added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-net-admin: SomeReason'.
+   Metadata:
+      Container: container1
+
+exit status 2
+```
 ## Explanation
 
 Capabilities (specifically, Linux capabilities), are used for permission management in Linux. Some capabilities are enabled by default.
