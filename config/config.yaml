@@ -17,8 +17,8 @@ enabledAuditors:
     seccomp: true
 auditors:
     capabilities:
-        # If capabilities are specified, kubeaudit will error and suggest to use drop ALL
-        drop: ["AUDIT_WRITE", "CHOWN"]
+        # add capabilities needed to the add list, so kubeaudit won't report errors 
+        add: ["AUDIT_WRITE", "CHOWN", "KILL"]
     image:
         image: "myimage:mytag"
     limits:

@@ -7,6 +7,7 @@ import (
 	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/internal/override"
 	"github.com/Shopify/kubeaudit/k8stypes"
+	v1 "k8s.io/api/core/v1"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -88,7 +89,7 @@ func TestFixCapabilities(t *testing.T) {
 		},
 	}
 
-	auditor := New(Config{DropList: customDropList})
+	auditor := New(Config{AddList: customDropList})
 
 	for _, tc := range cases {
 		t.Run(tc.testName, func(t *testing.T) {
@@ -111,28 +112,28 @@ func TestFixCapabilities(t *testing.T) {
 			assertCapabilitiesEqual(t, capabilities.Drop, tc.expectedDrop)
 		})
 	}
-	// t.Run("Nil security context", func(t *testing.T) {
-	// 	resource := &k8stypes.PodV1{
-	// 		Spec: v1.PodSpec{
-	// 			Containers: []k8stypes.ContainerV1{{}},
-	// 		},
-	// 	}
-	// 	auditResults, err := auditor.Audit(resource, nil)
-	// 	if !assert.Nil(t, err) {
-	// 		return
-	// 	}
+	t.Run("Nil security context", func(t *testing.T) {
+		resource := &k8stypes.PodV1{
+			Spec: v1.PodSpec{
+				Containers: []k8stypes.ContainerV1{{}},
+			},
+		}
+		auditResults, err := auditor.Audit(resource, nil)
+		if !assert.Nil(t, err) {
+			return
+		}
 
-	// 	for _, auditResult := range auditResults {
-	// 		auditResult.Fix(resource)
-	// 		ok, plan := auditResult.FixPlan()
-	// 		if ok {
-	// 			fmt.Println(plan)
-	// 		}
-	// 	}
+		for _, auditResult := range auditResults {
+			auditResult.Fix(resource)
+			ok, plan := auditResult.FixPlan()
+			if ok {
+				fmt.Println(plan)
+			}
+		}
 
-	// 	capabilities := k8s.GetContainers(resource)[0].SecurityContext.Capabilities
-	// 	assertCapabilitiesEqual(t, capabilities.Drop, []string{"ALL"})
-	// })
+		capabilities := k8s.GetContainers(resource)[0].SecurityContext.Capabilities
+		assertCapabilitiesEqual(t, capabilities.Drop, []string{"ALL"})
+	})
 }
 
 func assertCapabilitiesEqual(t *testing.T, capabilities []k8stypes.CapabilityV1, expected []string) {
