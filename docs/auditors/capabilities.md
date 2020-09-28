@@ -10,7 +10,13 @@ kubeaudit capabilities [flags]
 
 ### Flags
 
-[Global Flags](/README.md#global-flags)
+
+| Short   | Long      | Description                                                         |
+| :------ | :-------- | :------------------------------------------------------------------ | 
+| -a      | --add    | Space separated list of capabilities that should be added.         | 
+
+Also see [Global Flags](/README.md#global-flags)
+
 
 #### Default drop list
 
