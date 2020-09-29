@@ -26,7 +26,7 @@ kubeaudit capabilities --add "%s"`, "CHOWN"),
 }
 
 func setCapabilitiesFlags(cmd *cobra.Command) {
-	cmd.Flags().StringSliceVarP(&capabilitiesConfig.AddList, "add", "a", capabilities.DefaultAddList,
+	cmd.Flags().StringSliceVar(&capabilitiesConfig.AddList, "add", capabilities.DefaultAddList,
 		"List of capabilities that should be added")
 }
 

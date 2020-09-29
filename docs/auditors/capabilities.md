@@ -106,6 +106,7 @@ spec:
                 - ALL
 ```
 
+```
 $ kubeaudit all --add --kconfig "example.yaml" -f "test.yaml"
 
 ---------------- Results for ---------------
@@ -126,27 +127,39 @@ $ kubeaudit all --add --kconfig "example.yaml" -f "test.yaml"
 
 ### Example with Custom Add List
 
-A custom add list can be provided as a space-separated list of capabilities using the `-a/--add` flag. These are the capabilities you'd like to add and not have kubeaudit raise an error:
+A custom add list can be provided as a comma separated value list of capabilities using the `--add` flag. These are the capabilities you'd like to add and not have kubeaudit raise an error:
 
+`manifest-example.yaml` (example manifest)
+
+```yaml
+      capabilities:
+              add:
+                - CHOWN
+                - KILL
+                - MKNOD
+                - NET_ADMIN
 ```
-$ kubeaudit capabilities --add "MAC_ADMIN AUDIT_WRITE" -f "auditors/capabilities/fixtures/capabilities-nil.yml"
 
----------------- Results for ---------------
+Here we're only adding 3 capabilities to the add list to be ignored. Since we didn't add `NET_ADMIN` to the list, kubeaudit will raise an error for this one.
+```shell
+  $ kubeaudit capabilities --add "CHOWN,KILL,MKNOD" -f "manifest-example.yaml" 
+  ---------------- Results for ---------------
 
   apiVersion: apps/v1beta2
   kind: Deployment
   metadata:
     name: deployment
-    namespace: capabilities-some-dropped
+    namespace: capabilities-some-allowed-multi-containers-some-labels
 
 --------------------------------------------
 
--- [error] CapabilityShouldDropAll
-   Message: Capabily not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the add list.
+-- [error] CapabilityAdded
+   Message: Capability added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-net-admin: SomeReason'.
    Metadata:
-      Container: container
-```
+      Container: container1
 
+exit status 2
+```
 ## Explanation
 
 Capabilities (specifically, Linux capabilities), are used for permission management in Linux. Some capabilities are enabled by default.
