@@ -17,6 +17,8 @@ const (
 	CapabilityAdded = "CapabilityAdded"
 	// CapabilityShouldDropAll occurs when there's a drop list instead of having drop "ALL"
 	CapabilityShouldDropAll = "CapabilityShouldDropAll"
+	// CapabilityOrSecurityContextMissing  occurs when either the Security Context or Capabilities are not specified
+	CapabilityOrSecurityContextMissing = "CapabilityOrSecurityContextMissing"
 )
 
 const overrideLabelPrefix = "allow-capability-"
@@ -104,7 +106,7 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 	} else {
 		message := "Security Context not set. Ideally, the Security Context should be specified. All capacities should be dropped by setting drop to ALL."
 		auditResult := &kubeaudit.AuditResult{
-			Name:     CapabilityShouldDropAll,
+			Name:     CapabilityOrSecurityContextMissing,
 			Severity: kubeaudit.Error,
 			Message:  message,
 			PendingFix: &fixMissingSecurityContextOrCapability{

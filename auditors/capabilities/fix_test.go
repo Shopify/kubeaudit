@@ -89,7 +89,7 @@ func TestFixCapabilities(t *testing.T) {
 		},
 	}
 
-	auditor := New(Config{AddList: customDropList})
+	auditor := New(Config{AddList: []string{}})
 
 	for _, tc := range cases {
 		t.Run(tc.testName, func(t *testing.T) {
