@@ -61,9 +61,9 @@ func getOverrideLabel(capability string) string {
 func auditContainer(container *k8stypes.ContainerV1, capability string, addList []string) []*kubeaudit.AuditResult {
 	var auditResults []*kubeaudit.AuditResult
 
-	// if isCapabilityInArray(capability, addList) {
-	// 	return auditResults
-	// }
+	if isCapabilityInArray(capability, addList) {
+		return auditResults
+	}
 
 	if SecurityContextOrCapabilities(container) {
 		var message string

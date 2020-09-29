@@ -63,6 +63,90 @@ $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml
       Container: container
 ```
 
+### Example with Config File
+
+A custom add list can be provided in the config file. See [docs](docs/all.md) for more information. These are the capabilities you'd like to add and not have kubeaudit raise an error. In this example, kubeaudit will only error for "CHOWN" because it wasn't added to the add list in the config.
+
+`example.yaml` (config)
+```yaml
+...
+auditors:
+    capabilities:
+        # add capabilities needed to the add list, so kubeaudit won't report errors 
+        add: ["KILL", "MKNOD"]
+
+```
+`test.yaml`(manifest)
+
+```yaml
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: capabilities-some-allowed-multi-containers-some-labels
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+    spec:
+      containers:
+        - name: container1
+          image: scratch
+          securityContext:
+            capabilities:
+              add:
+                - CHOWN
+                - KILL
+                - MKNOD
+              drop:
+                - ALL
+```
+
+$ kubeaudit all --add --kconfig "example.yaml" -f "test.yaml"
+
+---------------- Results for ---------------
+
+  apiVersion: apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: capabilities-some-allowed-multi-containers-some-labels
+
+--------------------------------------------
+
+-- [error] CapabilityAdded
+   Message: Capability added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-chown: SomeReason'.
+   Metadata:
+      Container: container1
+```
+
+### Example with Custom Add List
+
+A custom add list can be provided as a space-separated list of capabilities using the `-a/--add` flag. These are the capabilities you'd like to add and not have kubeaudit raise an error:
+
+```
+$ kubeaudit capabilities --add "MAC_ADMIN AUDIT_WRITE" -f "auditors/capabilities/fixtures/capabilities-nil.yml"
+
+---------------- Results for ---------------
+
+  apiVersion: apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: capabilities-some-dropped
+
+--------------------------------------------
+
+-- [error] CapabilityShouldDropAll
+   Message: Capabily not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the add list.
+   Metadata:
+      Container: container
+```
+
 ## Explanation
 
 Capabilities (specifically, Linux capabilities), are used for permission management in Linux. Some capabilities are enabled by default.
