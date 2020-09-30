@@ -58,9 +58,10 @@ $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml
 --------------------------------------------
 
 -- [error] CapabilityOrSecurityContextMissing
-   Message: Security Context not set. Ideally, the Security Context should be specified. All capacities should be dropped by setting drop to ALL.
+   Message: Security Context not set. Ideally, the Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL.
    Metadata:
       Container: container
+
 ```
 
 ### Example with Config File
@@ -120,7 +121,7 @@ $ kubeaudit all --add --kconfig "example.yaml" -f "test.yaml"
 --------------------------------------------
 
 -- [error] CapabilityAdded
-   Message: Capability added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-chown: SomeReason'.
+   Message: Capability "CHOWN" added. It should be removed from the capability add list. If you need this capability, add an override label such as'container.audit.kubernetes.io/container1.allow-capability-chown: SomeReason'.
    Metadata:
       Container: container1
 ```
@@ -154,7 +155,7 @@ Here we're only adding 3 capabilities to the add list to be ignored. Since we di
 --------------------------------------------
 
 -- [error] CapabilityAdded
-   Message: Capability added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-net-admin: SomeReason'.
+   Message: Capability "NET_ADMIN" added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-net-admin: SomeReason'.
    Metadata:
       Container: container1
 

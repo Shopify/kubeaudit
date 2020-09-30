@@ -68,7 +68,7 @@ type fixMissingSecurityContextOrCapability struct {
 }
 
 func (f *fixMissingSecurityContextOrCapability) Plan() string {
-	return fmt.Sprintf("Adds capability to '%s' with drop set to ALL", f.container.Name)
+	return fmt.Sprintf("Adds security context and capabilities to %s. The capabilities Drop list is set to ALL.", f.container.Name)
 }
 
 func (f *fixMissingSecurityContextOrCapability) Apply(resource k8stypes.Resource) []k8stypes.Resource {

@@ -123,7 +123,7 @@ $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
    Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
 
 -- [error] CapabilityShouldDropAll
-   Message: Capabily not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the add list.
+   Message: Capability not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the add list.
    Metadata:
       Container: container
       Capability: AUDIT_WRITE
