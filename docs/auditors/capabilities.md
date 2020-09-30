@@ -11,9 +11,9 @@ kubeaudit capabilities [flags]
 ### Flags
 
 
-| Short   | Long      | Description                                                         |
-| :------ | :-------- | :------------------------------------------------------------------ | 
-| -a      | --add    | Space separated list of capabilities that should be added.         | 
+| Flag      | Description                                                         |
+| :-------- | :------------------------------------------------------------------ | 
+| --add    | Comma separated list of capabilities that should be added.           | 
 
 Also see [Global Flags](/README.md#global-flags)
 
@@ -44,7 +44,7 @@ All is equivalent to dropping all the following capabilities:
 
 ## Examples
 
-```
+```shell
 $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml"
 
 ---------------- Results for ---------------
@@ -57,7 +57,7 @@ $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml
 
 --------------------------------------------
 
--- [error] CapabilityShouldDropAll
+-- [error] CapabilityOrSecurityContextMissing
    Message: Security Context not set. Ideally, the Security Context should be specified. All capacities should be dropped by setting drop to ALL.
    Metadata:
       Container: container
@@ -106,7 +106,7 @@ spec:
                 - ALL
 ```
 
-```
+```shell
 $ kubeaudit all --add --kconfig "example.yaml" -f "test.yaml"
 
 ---------------- Results for ---------------
