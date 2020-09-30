@@ -13,7 +13,7 @@ import (
 )
 
 func TestFixCapabilities(t *testing.T) {
-	customDropList := []string{"apple", "banana"}
+	capsList := []string{"apple", "banana"}
 
 	cases := []struct {
 		testName     string
@@ -28,11 +28,11 @@ func TestFixCapabilities(t *testing.T) {
 			overrides:    []string{},
 			add:          []string{},
 			expectedAdd:  []string{},
-			drop:         []string{customDropList[0], customDropList[1]},
+			drop:         []string{capsList[0], capsList[1]},
 			expectedDrop: []string{"ALL"},
 		},
 		{
-			testName:     "Nothing to fix - all",
+			testName:     "Nothing to fix - no caps added and drop is set to all",
 			overrides:    []string{},
 			add:          []string{},
 			expectedAdd:  []string{},
@@ -40,7 +40,7 @@ func TestFixCapabilities(t *testing.T) {
 			expectedDrop: []string{"all"},
 		},
 		{
-			testName:     "CapabilityNotDropped",
+			testName:     "No capabilities specified - nothing to fix",
 			overrides:    []string{},
 			add:          []string{},
 			expectedAdd:  []string{},
@@ -48,11 +48,11 @@ func TestFixCapabilities(t *testing.T) {
 			expectedDrop: []string{},
 		},
 		{
-			testName:     "CapabilityAdded",
+			testName:     "Capability Added with no override label specified and 2 capabilities dropped",
 			overrides:    []string{},
 			add:          []string{"orange", "blueberries"},
 			expectedAdd:  []string{},
-			drop:         []string{customDropList[0], customDropList[1]},
+			drop:         []string{capsList[0], capsList[1]},
 			expectedDrop: []string{"ALL"},
 		},
 		{
@@ -60,30 +60,38 @@ func TestFixCapabilities(t *testing.T) {
 			overrides:    []string{},
 			add:          []string{"ALL"},
 			expectedAdd:  []string{},
-			drop:         []string{customDropList[0]},
+			drop:         []string{capsList[0]},
 			expectedDrop: []string{"ALL"},
 		},
 		{
-			testName:     "CapabilityAdded and CapabilityNotDropped",
+			testName:     "CapabilityAdded",
 			overrides:    []string{},
-			add:          []string{customDropList[0]},
+			add:          []string{capsList[0]},
 			expectedAdd:  []string{},
 			drop:         []string{},
 			expectedDrop: []string{},
 		},
 		{
 			testName:     "Pod override",
-			overrides:    []string{override.GetPodOverrideLabel(getOverrideLabel(customDropList[0]))},
-			add:          []string{},
-			expectedAdd:  []string{},
+			overrides:    []string{override.GetPodOverrideLabel(getOverrideLabel(capsList[1]))},
+			add:          []string{capsList[1]},
+			expectedAdd:  []string{capsList[1]},
 			drop:         []string{},
 			expectedDrop: []string{},
 		},
 		{
 			testName:     "Container override",
-			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel(customDropList[0]))},
-			add:          []string{customDropList[0], "pear"},
-			expectedAdd:  []string{customDropList[0]},
+			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel(capsList[0]))},
+			add:          []string{capsList[0], "pear"},
+			expectedAdd:  []string{capsList[0]},
+			drop:         []string{},
+			expectedDrop: []string{},
+		},
+		{
+			testName:     "CapabilityAdded with 3 override labels",
+			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("blueberries")), override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("strawberries")), override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("raspberries"))},
+			add:          []string{capsList[0], "blueberries", "raspberries", "strawberries"},
+			expectedAdd:  []string{"blueberries", "raspberries", "strawberries"},
 			drop:         []string{},
 			expectedDrop: []string{},
 		},
