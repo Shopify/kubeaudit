@@ -19,5 +19,8 @@ spec:
           image: scratch
           securityContext:
             capabilities:
-              add: ["SYS_TIME", "CHOWN"]
-              drop: ["ALL"]
+              add:
+                - SYS_TIME
+                - CHOWN
+              drop:
+                - ALL
