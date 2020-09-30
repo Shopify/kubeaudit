@@ -17,8 +17,6 @@ spec:
           image: scratch
           securityContext:
             capabilities:
-              add:
-                - NET_ADMIN
-                - CHOWN
+              add: ["NET_ADMIN", "CHOWN"]
               drop:
                 - ALL
