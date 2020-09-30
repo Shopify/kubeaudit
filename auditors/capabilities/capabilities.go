@@ -127,31 +127,3 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 
 	return auditResults
 }
-
-func IsDropAll(container *k8stypes.ContainerV1) bool {
-	for _, cap := range container.SecurityContext.Capabilities.Drop {
-		if strings.ToUpper(string(cap)) == "ALL" {
-			return true
-		}
-	}
-
-	return false
-}
-
-func IsCapabilityInAddList(container *k8stypes.ContainerV1, capability string) bool {
-	for _, cap := range container.SecurityContext.Capabilities.Add {
-		if string(cap) == capability {
-			return true
-		}
-	}
-
-	return false
-}
-
-func SecurityContextOrCapabilities(container *k8stypes.ContainerV1) bool {
-	if container.SecurityContext == nil || container.SecurityContext.Capabilities == nil {
-		return false
-	}
-
-	return true
-}
