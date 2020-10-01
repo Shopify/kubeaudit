@@ -23,7 +23,7 @@ func autofix(cmd *cobra.Command, args []string) {
 			log.WithError(err).Fatal("Error opening out file")
 		}
 	} else {
-		f, err = os.OpenFile(rootConfig.manifest, os.O_RDWR, 0755)
+		f, err = os.OpenFile(rootConfig.manifest, os.O_WRONLY|os.O_TRUNC, 0755)
 		if err != nil {
 			log.WithError(err).Fatal("Error opening manifest file")
 		}
