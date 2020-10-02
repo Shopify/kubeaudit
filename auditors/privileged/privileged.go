@@ -13,7 +13,7 @@ const (
 	// PrivilegedTrue occurs when privileged is set to true in the container SecurityContext
 	PrivilegedTrue = "PrivilegedTrue"
 	// PrivilegedNil occurs when privileged is not set in the container SecurityContext.
-	// Prvivileged defaults to false so this is ok
+	// Privileged defaults to false so this is ok
 	PrivilegedNil = "PrivilegedNil"
 )
 
