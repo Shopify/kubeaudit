@@ -14,7 +14,7 @@ const Name = "image"
 const (
 	// ImageTagMissing occurs when the container image tag is missing
 	ImageTagMissing   = "ImageTagMissing"
-	// ImageTagIncorrect occurs when the container image tag does not match the one registered in podspec
+	// ImageTagIncorrect occurs when the container image tag does not match the user-provided value
 	ImageTagIncorrect = "ImageTagIncorrect"
 	// ImageCorrect occurs when the container image tag is correct
 	ImageCorrect      = "ImageCorrect"
