@@ -120,6 +120,7 @@ func TestFixCapabilities(t *testing.T) {
 			assertCapabilitiesEqual(t, capabilities.Drop, tc.expectedDrop)
 		})
 	}
+
 	t.Run("Nil security context", func(t *testing.T) {
 		resource := &k8stypes.PodV1{
 			Spec: v1.PodSpec{
