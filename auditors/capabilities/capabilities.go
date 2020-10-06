@@ -71,7 +71,7 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 		var message string
 
 		if IsCapabilityInAddList(container, capability) {
-			message = fmt.Sprintf("Capability added. It should be removed from the capability add list. If you need this capability, add an override label such as '%s: SomeReason'.", override.GetContainerOverrideLabel(container.Name, getOverrideLabel(capability)))
+			message = fmt.Sprintf("Capability \"%s\" added. It should be removed from the capability add list. If you need this capability, add an override label such as '%s: SomeReason'.", capability, override.GetContainerOverrideLabel(container.Name, getOverrideLabel(capability)))
 			auditResult := &kubeaudit.AuditResult{
 				Name:     CapabilityAdded,
 				Severity: kubeaudit.Error,
