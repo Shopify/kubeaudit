@@ -104,7 +104,7 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 			auditResults = append(auditResults, auditResult)
 		}
 	} else {
-		message := "Security Context not set. Ideally, the Security Context should be specified. All capacities should be dropped by setting drop to ALL."
+		message := "Security Context not set. Ideally, the Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL."
 		auditResult := &kubeaudit.AuditResult{
 			Name:     CapabilityOrSecurityContextMissing,
 			Severity: kubeaudit.Error,
