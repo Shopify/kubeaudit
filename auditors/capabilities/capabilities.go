@@ -88,7 +88,7 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 		}
 
 		if !IsDropAll(container) && !IsCapabilityInAddList(container, capability) {
-			message = "Capabily not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the add list."
+			message = "Capability Drop list is not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the Add list."
 			auditResult := &kubeaudit.AuditResult{
 				Name:     CapabilityShouldDropAll,
 				Severity: kubeaudit.Error,
