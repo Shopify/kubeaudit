@@ -65,8 +65,8 @@ $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
 -- [error] AutomountServiceAccountTokenTrueAndDefaultSA
    Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
 
--- [error] CapabilityAdded
-   Message: Capability "SYS_MODULE" added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container2.allow-capability-sys-module: SomeReason'.
+-- [error] CapabilityShouldDropAll
+   Message: Capability not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the add list.
    Metadata:
       Container: container2
 
