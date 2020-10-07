@@ -81,5 +81,13 @@ func setDropToAll(container *k8stypes.ContainerV1) {
 		container.SecurityContext = &k8stypes.SecurityContextV1{}
 	}
 
+	if container.SecurityContext.Capabilities == nil {
+		container.SecurityContext.Capabilities = &k8stypes.CapabilitiesV1{}
+	}
+
+	if container.SecurityContext.Capabilities.Drop == nil {
+		container.SecurityContext.Capabilities.Drop = []k8stypes.CapabilityV1{}
+	}
+
 	container.SecurityContext.Capabilities.Drop = []v1.Capability{"ALL"}
 }
