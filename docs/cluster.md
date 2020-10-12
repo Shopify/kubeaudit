@@ -19,7 +19,7 @@ spec:
         container.apparmor.security.beta.kubernetes.io/kubeaudit: runtime/default
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
-      automountServiceAccount: false
+      automountServiceAccountToken: false
       restartPolicy: OnFailure
       containers:
         - name: kubeaudit
