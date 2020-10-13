@@ -7,6 +7,14 @@ Kubeaudit can be run in a Kubernetes cluster by using the [official Docker image
 Example Job configuration:
 
 ```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubeaudit
+  namespace: default
+
+---
+
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -19,7 +27,7 @@ spec:
         container.apparmor.security.beta.kubernetes.io/kubeaudit: runtime/default
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
-      automountServiceAccountToken: false
+      serviceAccountName: kubeaudit
       restartPolicy: OnFailure
       containers:
         - name: kubeaudit
