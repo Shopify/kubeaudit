@@ -65,6 +65,10 @@ func (p *Printer) PrintReport(report *Report) {
 }
 
 func (p *Printer) prettyPrintReport(report *Report) {
+	if len(report.ResultsWithMinSeverity(p.minSeverity)) < 1 {
+		p.printColor(color.GreenColor, "All checks completed. 0 high-risk vulnerabilities found\n")
+	}
+
 	for _, workloadResult := range report.ResultsWithMinSeverity(p.minSeverity) {
 		resource := workloadResult.GetResource().Object()
 		objectMeta := k8s.GetObjectMeta(resource)
