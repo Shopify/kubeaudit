@@ -144,6 +144,12 @@ To write the fixed manifest to a new file instead of modifying the source file, 
 kubeaudit autofix -f "/path/to/manifest.yml" -o "/path/to/fixed"
 ```
 
+To fix a manifest based on custom rules specified on a kubeaudit config file, use the `-k/--kconfig` flag.
+
+```
+kubeaudit autofix -k "/path/to/kubeaudit-config.yml" -f "/path/to/manifest.yml" -o "/path/to/fixed"
+```
+
 ### Cluster Mode
 
 Kubeaudit can detect if it is running within a container in a cluster. If so, it will try to audit all Kubernetes resources in that cluster:
