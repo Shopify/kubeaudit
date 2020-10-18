@@ -74,7 +74,9 @@ var auditAllCmd = &cobra.Command{
 	Long: `Run all audits
 
 Example usage:
-kubeaudit all -f /path/to/yaml`,
+kubeaudit all -f /path/to/yaml
+kubeaudit all -k /path/to/kubeaudit-config.yaml /path/to/yaml
+`,
 	Run: auditAll,
 }
 
