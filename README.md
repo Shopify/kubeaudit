@@ -130,6 +130,12 @@ $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
 ...
 ```
 
+If no errors with a given minimum severity are found, the following is returned:
+
+```shell
+All checks completed. 0 high-risk vulnerabilities found
+```
+
 #### Autofix
 
 Manifest mode also supports autofixing all security issues using the `autofix` command:
