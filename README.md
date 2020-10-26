@@ -263,7 +263,7 @@ auditors:
     memory: '500m'
 ```
 
-For more details about each auditor, including a description of the auditor-specific configuration in the config, see the [Auditor Docs](/README.md#auditors).
+For more details about each auditor, including a description of the auditor-specific configuration in the config, see the [Auditor Docs](#auditors).
 
 **Note**: The kubeaudit config is not the same as the kubeconfig file specified with the `-c/--kubeconfig` flag, which refers to the Kubernetes config file (see [Local Mode](/README.md#local-mode)). Also note that only the `all` and `autofix` commands support using a kubeaudit config. It will not work with other commands.
 
