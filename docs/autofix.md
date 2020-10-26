@@ -273,4 +273,4 @@ To fix a manifest based on custom rules specified on a kubeaudit config file (e.
 kubeaudit autofix -k "/path/to/kubeaudit-config.yml" -f "/path/to/manifest.yml" -o "/path/to/fixed"
 ```
 
-Also see [Kubeaudit Config](/docs/all.md#kubeaudit-config)
+Also see [Configuration File](/README.md#configuration-file)

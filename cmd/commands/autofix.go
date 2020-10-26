@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/Shopify/kubeaudit/auditors/all"
-	"github.com/Shopify/kubeaudit/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -20,13 +19,13 @@ func autofix(cmd *cobra.Command, args []string) {
 
 	conf = setConfigFromFlags(cmd, conf)
 
-	allAuditors, err := all.Auditors(conf)
+	auditors, err := all.Auditors(conf)
 
 	if err != nil {
 		log.WithError(err).Fatal("Error creating auditors")
 	}
 
-	report := getReport(allAuditors...)
+	report := getReport(auditors...)
 
 	var f io.Writer
 	if autofixConfig.outFile != "" {
@@ -45,24 +44,6 @@ func autofix(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.WithError(err).Fatal("Error fixing manifest")
 	}
-}
-
-func loadKubeAuditConfigFromFile(configFile string) config.KubeauditConfig {
-	if autofixConfig.kubeauditConfigFile == "" {
-		return config.KubeauditConfig{}
-	}
-
-	reader, err := os.Open(autofixConfig.kubeauditConfigFile)
-	if err != nil {
-		log.WithError(err).Fatal("Unable to open config file ", autofixConfig.kubeauditConfigFile)
-	}
-
-	conf, err := config.New(reader)
-	if err != nil {
-		log.WithError(err).Fatal("Error parsing config file ", autofixConfig.kubeauditConfigFile)
-	}
-
-	return conf
 }
 
 var autofixCmd = &cobra.Command{

@@ -222,7 +222,50 @@ Auditors can also be run individually.
 
 ## Configuration File
 
-Kubeaudit can be used with a configuration file instead of flags. See the [all command](docs/all.md).
+The kubeaudit config can be used for two things:
+
+1. Enabling only some auditors
+1. Specifying configuration for auditors
+
+Any configuration that can be specified using flags for the individual auditors can be represented using the config.
+
+The config has the following format:
+
+```yaml
+enabledAuditors:
+  # Auditors are enabled by default if they are not explicitly set to "false"
+  apparmor: false
+  asat: false
+  capabilities: true
+  hostns: true
+  image: true
+  limits: true
+  mountds: true
+  netpols: true
+  nonroot: true
+  privesc: true
+  privileged: true
+  rootfs: true
+  seccomp: true
+auditors:
+  capabilities:
+    # If no capabilities are specified and the 'capabilities' auditor is enabled,
+    # a list of recommended capabilities to drop is used
+    drop: ['AUDIT_WRITE', 'CHOWN']
+  image:
+    # If no image is specified and the 'image' auditor is enabled, WARN results
+    # will be generated for containers which use an image without a tag
+    image: 'myimage:mytag'
+  limits:
+    # If no limits are specified and the 'limits' auditor is enabled, WARN results
+    # will be generated for containers which have no cpu or memory limits specified
+    cpu: '750m'
+    memory: '500m'
+```
+
+For more details about each auditor, including a description of the auditor-specific configuration in the config, see the [Auditor Docs](/README.md#auditors).
+
+**Note**: The kubeaudit config is not the same as the kubeconfig file specified with the `-c/--kubeconfig` flag, which refers to the Kubernetes config file (see [Local Mode](/README.md#local-mode)). Also note that only the `all` and `autofix` commands support using a kubeaudit config. It will not work with other commands.
 
 ## Override Errors
 
