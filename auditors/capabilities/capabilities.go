@@ -43,9 +43,20 @@ func (a *Capabilities) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) 
 	var auditResults []*kubeaudit.AuditResult
 
 	for _, container := range k8s.GetContainers(resource) {
+		var capabilitiesToDrop []string
+
 		for _, capability := range mergeCapabilities(container) {
 			for _, auditResult := range auditContainer(container, capability, a.addList) {
 				auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(capability))
+				if auditResult != nil && auditResult.Name == CapabilityShouldDropAll {
+					capabilitiesToDrop = append(capabilitiesToDrop, capability)
+					if len(capabilitiesToDrop) == 1 {
+						auditResults = append(auditResults, auditResult)
+					}
+
+					continue
+				}
+
 				if auditResult != nil {
 					auditResults = append(auditResults, auditResult)
 				}
