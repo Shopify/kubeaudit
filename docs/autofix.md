@@ -15,6 +15,7 @@ kubeaudit autofix -f [manifest] [flags]
 | Short   | Long       | Description                               | Default                                  |
 | :------ | :--------- | :---------------------------------------- | :--------------------------------------- |
 | -o      | --outfile  | File to write fixed manifest to           |                                          |
+| -k      | --kconfig  | Path to kubeaudit config file             |                                          |
 
 Also see [Global Flags](/README.md#global-flags)
 
@@ -263,3 +264,13 @@ To write the fixed manifest to a different file, use the `--outfile/-o` flag:
 ```
 kubeaudit autofix -f "manifest.yml" -o "fixed.yaml"
 ```
+
+### Using Custom Rules with Kubeaudit Config File
+
+To fix a manifest based on custom rules specified on a kubeaudit config file (e.g disable some auditors), use the `-k/--kconfig` flag.
+
+```
+kubeaudit autofix -k "/path/to/kubeaudit-config.yml" -f "/path/to/manifest.yml" -o "/path/to/fixed"
+```
+
+Also see [Configuration File](/README.md#configuration-file)

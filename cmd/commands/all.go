@@ -14,17 +14,17 @@ var auditAllConfig struct {
 }
 
 func auditAll(cmd *cobra.Command, args []string) {
-	conf := loadConfigFromFile(auditAllConfig.configFile)
+	conf := loadKubeAuditConfigFromFile(auditAllConfig.configFile)
 
 	// Config options set via flags override the config file
 	conf = setConfigFromFlags(cmd, conf)
 
-	allAuditors, err := all.Auditors(conf)
+	auditors, err := all.Auditors(conf)
 	if err != nil {
 		log.WithError(err).Fatal("Error creating auditors")
 	}
 
-	runAudit(allAuditors...)(cmd, args)
+	runAudit(auditors...)(cmd, args)
 }
 
 func setConfigFromFlags(cmd *cobra.Command, conf config.KubeauditConfig) config.KubeauditConfig {
@@ -50,19 +50,19 @@ func setConfigFromFlags(cmd *cobra.Command, conf config.KubeauditConfig) config.
 	return conf
 }
 
-func loadConfigFromFile(configFile string) config.KubeauditConfig {
-	if auditAllConfig.configFile == "" {
+func loadKubeAuditConfigFromFile(configFile string) config.KubeauditConfig {
+	if configFile == "" {
 		return config.KubeauditConfig{}
 	}
 
-	reader, err := os.Open(auditAllConfig.configFile)
+	reader, err := os.Open(configFile)
 	if err != nil {
-		log.WithError(err).Fatal("Unable to open config file ", auditAllConfig.configFile)
+		log.WithError(err).Fatal("Unable to open config file ", configFile)
 	}
 
 	conf, err := config.New(reader)
 	if err != nil {
-		log.WithError(err).Fatal("Error parsing config file ", auditAllConfig.configFile)
+		log.WithError(err).Fatal("Error parsing config file ", configFile)
 	}
 
 	return conf
@@ -74,7 +74,9 @@ var auditAllCmd = &cobra.Command{
 	Long: `Run all audits
 
 Example usage:
-kubeaudit all -f /path/to/yaml`,
+kubeaudit all -f /path/to/yaml
+kubeaudit all -k /path/to/kubeaudit-config.yaml /path/to/yaml
+`,
 	Run: auditAll,
 }
 
