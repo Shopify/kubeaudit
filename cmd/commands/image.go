@@ -7,6 +7,8 @@ import (
 
 var imageConfig image.Config
 
+const imageFlagName = "image"
+
 var imageCmd = &cobra.Command{
 	Use:   "image",
 	Short: "Audit containers not using a specified image:tag",
@@ -27,7 +29,7 @@ kubeaudit image -i gcr.io/google_containers/echoserver:1.7`,
 }
 
 func setImageFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&imageConfig.Image, "image", "i", "", "Image to check against")
+	cmd.Flags().StringVarP(&imageConfig.Image, imageFlagName, "i", "", "Image to check against")
 }
 
 func init() {

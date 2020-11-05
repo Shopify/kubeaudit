@@ -9,6 +9,8 @@ import (
 
 var capabilitiesConfig capabilities.Config
 
+const capsAddFlagName = "add"
+
 var capabilitiesCmd = &cobra.Command{
 	Use:     "capabilities",
 	Aliases: []string{"caps"},
@@ -26,8 +28,8 @@ kubeaudit capabilities --add "%s"`, "CHOWN"),
 }
 
 func setCapabilitiesFlags(cmd *cobra.Command) {
-	cmd.Flags().StringSliceVar(&capabilitiesConfig.AddList, "add", capabilities.DefaultAddList,
-		"List of capabilities that should be added")
+	cmd.Flags().StringSliceVar(&capabilitiesConfig.AddList, capsAddFlagName, capabilities.DefaultAddList,
+		"Comma separated list of added capabilities that can be ignored by kubeaudit reports")
 }
 
 func init() {

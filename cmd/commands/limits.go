@@ -8,6 +8,11 @@ import (
 
 var limitsConfig limits.Config
 
+const (
+	limitMemoryFlagName = "memory"
+	limitCpuFlagName    = "cpu"
+)
+
 var limitsCmd = &cobra.Command{
 	Use:   "limits",
 	Short: "Audit containers exceeding a specified CPU or memory limit",
@@ -30,8 +35,8 @@ kubeaudit limits --cpu 500m --memory 256Mi`,
 }
 
 func setLimitsFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&limitsConfig.CPU, "cpu", "", "Max CPU limit")
-	cmd.Flags().StringVar(&limitsConfig.Memory, "memory", "", "Max memory limit")
+	cmd.Flags().StringVar(&limitsConfig.CPU, limitCpuFlagName, "", "Max CPU limit")
+	cmd.Flags().StringVar(&limitsConfig.Memory, limitMemoryFlagName, "", "Max memory limit")
 }
 
 func init() {
