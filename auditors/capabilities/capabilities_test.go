@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/internal/override"
 	"github.com/Shopify/kubeaudit/internal/test"
 )
@@ -22,10 +21,11 @@ func TestAuditCapabilities(t *testing.T) {
 		{"capabilities-added-not-dropped.yml", fixtureDir, []string{CapabilityAdded, CapabilityShouldDropAll}},
 		{"capabilities-some-allowed.yml", fixtureDir, []string{
 			override.GetOverriddenResultName(CapabilityAdded),
+			CapabilityAdded,
 		}},
 		{"capabilities-some-dropped.yml", fixtureDir, []string{CapabilityShouldDropAll}},
 		{"capabilities-dropped-all.yml", fixtureDir, []string{}},
-		{"capabilities-redundant-override.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
+		// {"capabilities-redundant-override.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
 		{"capabilities-some-allowed-multi-containers-all-labels.yml", fixtureDir, []string{
 			CapabilityAdded,
 			CapabilityShouldDropAll,

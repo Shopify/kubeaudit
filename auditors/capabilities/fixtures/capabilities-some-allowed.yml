@@ -11,8 +11,8 @@ spec:
     metadata:
       labels:
         name: deployment
-        audit.kubernetes.io/pod.allow-capability-chown: ""
-        audit.kubernetes.io/pod.allow-capability-sys-time: ""
+        audit.kubernetes.io/pod.allow-capability-chown: "SomeReason"
+        audit.kubernetes.io/pod.allow-capability-sys-time: "SomeReason"
     spec:
       containers:
         - name: container
@@ -21,6 +21,7 @@ spec:
             capabilities:
               add:
                 - SYS_TIME
+                - SYS_MODULE
                 - CHOWN
               drop:
                 - ALL
