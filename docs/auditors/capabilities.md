@@ -83,7 +83,7 @@ spec:
 ```
 
 ```shell
-$ kubeaudit all --kconfig "example.yaml" -f "test.yaml"
+$ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
 
 ---------------- Results for ---------------
 
@@ -136,6 +136,7 @@ Here we're only adding 3 capabilities to the add list to be ignored. Since we di
    Message: Capability "NET_ADMIN" added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-net-admin: SomeReason'.
    Metadata:
       Container: container1
+      Capabiliy: NET_ADMIN
 
 exit status 2
 ```

@@ -132,8 +132,6 @@ enabledAuditors:
   image: false
 auditors:
   capabilities:
-  drop:
-    - ALL
   add:
     - AUDIT_WRITE
     - CHOWN

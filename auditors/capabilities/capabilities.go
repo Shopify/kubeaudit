@@ -93,6 +93,7 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 				},
 				Metadata: kubeaudit.Metadata{
 					"Container": container.Name,
+					"Metadata":  capability,
 				},
 			}
 			auditResults = append(auditResults, auditResult)
