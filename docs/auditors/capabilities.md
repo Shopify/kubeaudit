@@ -61,13 +61,7 @@ metadata:
   name: deployment
   namespace: capabilities-some-allowed-multi-containers-some-labels
 spec:
-  selector:
-    matchLabels:
-      name: deployment
   template:
-    metadata:
-      labels:
-        name: deployment
     spec:
       containers:
         - name: container1
