@@ -79,5 +79,5 @@ func isAllowPrivilegeEscalationNil(container *k8stypes.ContainerV1) bool {
 }
 
 func isAllowPrivilegeEscalationTrue(container *k8stypes.ContainerV1) bool {
-	return container.SecurityContext != nil && *container.SecurityContext.AllowPrivilegeEscalation == true
+	return container.SecurityContext != nil && *container.SecurityContext.AllowPrivilegeEscalation
 }
