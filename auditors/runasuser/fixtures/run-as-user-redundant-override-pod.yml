@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  labels:
+    name: pod
+    audit.kubernetes.io/pod.allow-not-overridden-non-root-user: "SuperuserPrivilegesNeeded"
+  namespace: run-as-user-redundant-override-pod
+spec:
+  securityContext:
+    runAsUser: 1
+  containers:
+    - name: container
+      image: scratch

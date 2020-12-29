@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: run-as-user-psc-0-csc-1
+spec:
+  securityContext:
+    runAsUser: 0
+  containers:
+    - name: container
+      image: scratch
+      securityContext:
+        runAsUser: 1
