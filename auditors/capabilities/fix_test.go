@@ -13,7 +13,7 @@ import (
 )
 
 func TestFixCapabilities(t *testing.T) {
-	capsList := []string{"apple", "banana"}
+	customAddList := []string{"apple", "banana"}
 
 	cases := []struct {
 		testName     string
@@ -28,7 +28,7 @@ func TestFixCapabilities(t *testing.T) {
 			overrides:    []string{},
 			add:          []string{},
 			expectedAdd:  []string{},
-			drop:         []string{capsList[0], capsList[1]},
+			drop:         []string{"orange", "banana"},
 			expectedDrop: []string{"ALL"},
 		},
 		{
@@ -40,19 +40,19 @@ func TestFixCapabilities(t *testing.T) {
 			expectedDrop: []string{"all"},
 		},
 		{
-			testName:     "No capabilities specified - nothing to fix",
+			testName:     "No capabilities specified",
 			overrides:    []string{},
 			add:          []string{},
 			expectedAdd:  []string{},
 			drop:         []string{},
-			expectedDrop: []string{},
+			expectedDrop: []string{"ALL"},
 		},
 		{
-			testName:     "Capability Added with no override label specified and 2 capabilities dropped",
+			testName:     "Capability Added with with override specified in AddList and 2 capabilities dropped",
 			overrides:    []string{},
-			add:          []string{"orange", "blueberries"},
-			expectedAdd:  []string{},
-			drop:         []string{capsList[0], capsList[1]},
+			add:          []string{customAddList[0], customAddList[1], "orange"},
+			expectedAdd:  []string{customAddList[0], customAddList[1]},
+			drop:         []string{"pineapple", "pomegranate"},
 			expectedDrop: []string{"ALL"},
 		},
 		{
@@ -60,44 +60,44 @@ func TestFixCapabilities(t *testing.T) {
 			overrides:    []string{},
 			add:          []string{"ALL"},
 			expectedAdd:  []string{},
-			drop:         []string{capsList[0]},
+			drop:         []string{"orange"},
 			expectedDrop: []string{"ALL"},
 		},
 		{
 			testName:     "CapabilityAdded",
 			overrides:    []string{},
-			add:          []string{capsList[0]},
+			add:          []string{"orange"},
 			expectedAdd:  []string{},
 			drop:         []string{},
-			expectedDrop: []string{},
+			expectedDrop: []string{"ALL"},
 		},
 		{
 			testName:     "Pod override",
-			overrides:    []string{override.GetPodOverrideLabel(getOverrideLabel(capsList[1]))},
-			add:          []string{capsList[1]},
-			expectedAdd:  []string{capsList[1]},
+			overrides:    []string{override.GetPodOverrideLabel(getOverrideLabel("orange"))},
+			add:          []string{"orange"},
+			expectedAdd:  []string{"orange"},
 			drop:         []string{},
-			expectedDrop: []string{},
+			expectedDrop: []string{"ALL"},
 		},
 		{
 			testName:     "Container override",
-			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel(capsList[0]))},
-			add:          []string{capsList[0], "pear"},
-			expectedAdd:  []string{capsList[0]},
+			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("pear"))},
+			add:          []string{customAddList[0], "pear", "orange"},
+			expectedAdd:  []string{customAddList[0], "pear"},
 			drop:         []string{},
-			expectedDrop: []string{},
+			expectedDrop: []string{"ALL"},
 		},
 		{
 			testName:     "CapabilityAdded with 3 override labels",
 			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("blueberries")), override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("strawberries")), override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("raspberries"))},
-			add:          []string{capsList[0], "blueberries", "raspberries", "strawberries"},
-			expectedAdd:  []string{"blueberries", "raspberries", "strawberries"},
+			add:          []string{customAddList[0], "blueberries", "raspberries", "strawberries", "orange"},
+			expectedAdd:  []string{customAddList[0], "blueberries", "raspberries", "strawberries"},
 			drop:         []string{},
-			expectedDrop: []string{},
+			expectedDrop: []string{"ALL"},
 		},
 	}
 
-	auditor := New(Config{AddList: []string{}})
+	auditor := New(Config{AddList: customAddList})
 
 	for _, tc := range cases {
 		t.Run(tc.testName, func(t *testing.T) {

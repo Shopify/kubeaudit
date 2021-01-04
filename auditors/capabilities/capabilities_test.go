@@ -25,7 +25,6 @@ func TestAuditCapabilities(t *testing.T) {
 		}},
 		{"capabilities-some-dropped.yml", fixtureDir, []string{CapabilityShouldDropAll}},
 		{"capabilities-dropped-all.yml", fixtureDir, []string{}},
-		// {"capabilities-redundant-override.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
 		{"capabilities-some-allowed-multi-containers-all-labels.yml", fixtureDir, []string{
 			CapabilityAdded,
 			CapabilityShouldDropAll,

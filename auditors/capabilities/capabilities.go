@@ -43,20 +43,14 @@ func (a *Capabilities) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) 
 	var auditResults []*kubeaudit.AuditResult
 
 	for _, container := range k8s.GetContainers(resource) {
-		var capabilitiesToDrop []string
+		auditResult := auditContainerForDropAll(container)
+		if auditResult != nil {
+			auditResults = append(auditResults, auditResult)
+		}
 
-		for _, capability := range mergeCapabilities(container) {
+		for _, capability := range uniqueCapabilities(container) {
 			for _, auditResult := range auditContainer(container, capability, a.addList) {
 				auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(capability))
-				if auditResult != nil && auditResult.Name == CapabilityShouldDropAll {
-					capabilitiesToDrop = append(capabilitiesToDrop, capability)
-					if len(capabilitiesToDrop) == 1 {
-						auditResults = append(auditResults, auditResult)
-					}
-
-					continue
-				}
-
 				if auditResult != nil {
 					auditResults = append(auditResults, auditResult)
 				}
@@ -98,26 +92,22 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 			}
 			auditResults = append(auditResults, auditResult)
 		}
+	}
+	// We need the audit result to be nil for ApplyOverride to check for RedundantAuditorOverride errors
 
-		if !IsDropAll(container) && !IsCapabilityInAddList(container, capability) {
-			message = "Capability Drop list is not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the Add list."
-			auditResult := &kubeaudit.AuditResult{
-				Name:     CapabilityShouldDropAll,
-				Severity: kubeaudit.Error,
-				Message:  message,
-				PendingFix: &fixCapabilityNotDroppedAll{
-					container:  container,
-					capability: capability,
-				},
-				Metadata: kubeaudit.Metadata{
-					"Container": container.Name,
-				},
-			}
-			auditResults = append(auditResults, auditResult)
-		}
-	} else {
-		message := "Security Context not set. Ideally, the Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL."
-		auditResult := &kubeaudit.AuditResult{
+	if len(auditResults) == 0 {
+		return []*kubeaudit.AuditResult{nil}
+	}
+
+	return auditResults
+}
+
+func auditContainerForDropAll(container *k8stypes.ContainerV1) *kubeaudit.AuditResult {
+	var message string
+
+	if !SecurityContextOrCapabilities(container) {
+		message := "Security Context not set. The Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL."
+		return &kubeaudit.AuditResult{
 			Name:     CapabilityOrSecurityContextMissing,
 			Severity: kubeaudit.Error,
 			Message:  message,
@@ -128,14 +118,21 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 				"Container": container.Name,
 			},
 		}
-		auditResults = append(auditResults, auditResult)
 	}
 
-	// We need the audit result to be nil for ApplyOverride to check for RedundantAuditorOverride errors
-
-	if len(auditResults) == 0 {
-		return []*kubeaudit.AuditResult{nil}
+	if !IsDropAll(container) {
+		message = "Capability Drop list should be set to ALL. Add the specific ones you need to the Add list and set an override label."
+		return &kubeaudit.AuditResult{
+			Name:     CapabilityShouldDropAll,
+			Severity: kubeaudit.Error,
+			Message:  message,
+			PendingFix: &fixCapabilityNotDroppedAll{
+				container: container,
+			},
+			Metadata: kubeaudit.Metadata{
+				"Container": container.Name,
+			},
+		}
 	}
-
-	return auditResults
+	return nil
 }

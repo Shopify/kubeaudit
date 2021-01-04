@@ -7,17 +7,13 @@ import (
 	"github.com/Shopify/kubeaudit/k8stypes"
 )
 
-// mergeCapabilities creates an array of all unique capabilities in the custom drop list and container add list
-func mergeCapabilities(container *k8stypes.ContainerV1) []string {
+// uniqueCapabilities creates an array of all unique capabilities in the custom drop list and container add list
+func uniqueCapabilities(container *k8stypes.ContainerV1) []string {
 	if !SecurityContextOrCapabilities(container) {
 		return DefaultDropList
 	}
 
 	m := make(map[string]bool)
-
-	for _, cap := range container.SecurityContext.Capabilities.Drop {
-		m[string(cap)] = true
-	}
 
 	for _, cap := range container.SecurityContext.Capabilities.Add {
 		m[string(cap)] = true
