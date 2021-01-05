@@ -10,7 +10,7 @@ type fixRunAsUser struct {
 }
 
 func (f *fixRunAsUser) Plan() string {
-	return fmt.Sprintf("Set runAsUser to > 0 in container SecurityContext for container %s", f.container.Name)
+	return fmt.Sprintf("Set runAsUser to 1 in container SecurityContext for container %s", f.container.Name)
 }
 
 func (f *fixRunAsUser) Apply(resource k8stypes.Resource) []k8stypes.Resource {

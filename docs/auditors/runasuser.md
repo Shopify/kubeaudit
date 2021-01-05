@@ -32,11 +32,11 @@ $ kubeaudit runasuser -f "auditors/runasuser/fixtures/run-as-user-nil.yml"
 
 ## Explanation
 
-Containers should be run as a non-root user with the minimum required permissions (principle of least privilege). By default, Kubernetes will run the container with the user ID used in the container image. Most image use the default user which is root. Therefore it's a good practices to override the container's user ID.
+Containers should be run as a non-root user with the minimum required permissions (principle of least privilege). By default, Kubernetes will run the container with the user ID used in the container image. Most images use the default user which is root. Therefore, it's good practices to override the container's user ID.
 
 This can be done by setting `runAsUser` to a non-root UID (any UID > 0) in either the PodSecurityContext or container SecurityContext. If `runAsUser` is unset in the Container SecurityContext, it will inherit the value of the Pod SecurityContext. If `runAsUser` is unset in the Pod SecurityContext, it defaults to the image user ID which is usually root which means it must be explicitly set to a non-root UID in either the Container SecurityContext or the Pod SecurityContext for the `runasuser` audit to pass.
 
-Note that the Container SecurityContext takes precedence over the Pod SecurityContext so setting `runAsUser` a non-root ID in the Container SecurityContext will always fail the `runasuser` audit unless an [override](#override-errors) is used.
+Note that the Container SecurityContext takes precedence over the Pod SecurityContext so setting `runAsUser` to the root ID 0 in the Container SecurityContext will always fail the `runasuser` audit unless an [override](#override-errors) is used.
 
 Ideally, `runAsUser` should be set to a non-root UID in the PodSecurityContext:
 ```yaml

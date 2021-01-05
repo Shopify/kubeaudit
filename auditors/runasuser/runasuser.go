@@ -96,7 +96,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 	return nil
 }
 
-// returns true if runAsUser is explicilty set to 0 in the pod's security context. Returns true if the
+// returns true if runAsUser is explicilty set to 0 in the pod's security context. Returns false if the
 // security context is nil even though the default value for runAsUser is 0
 func isPodRunAsUserSetToNonRoot(podSpec *k8stypes.PodSpecV1) bool {
 	if isPodRunAsUserNil(podSpec) {
@@ -114,7 +114,7 @@ func isPodRunAsUserNil(podSpec *k8stypes.PodSpecV1) bool {
 	return false
 }
 
-// returns true if runAsUser is explicilty set to 0 in the containers's security context. Returns true if the
+// returns true if runAsUser is explicilty set to 0 in the containers's security context. Returns false if the
 // security context is nil even though the default value for runAsUser is 0
 func isContainerRunAsUserSetToNonRoot(container *k8stypes.ContainerV1) bool {
 	if isContainerRunAsUserNil(container) {
