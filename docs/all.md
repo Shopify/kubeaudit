@@ -65,10 +65,10 @@ $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
 -- [error] AutomountServiceAccountTokenTrueAndDefaultSA
    Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
 
--- [error] CapabilityShouldDropAll
-   Message: Capability not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the add list.
+-- [error] CapabilityOrSecurityContextMissing
+   Message: Security Context not set. The Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL.
    Metadata:
-      Container: container2
+      Container: container
 
 -- [error] NamespaceHostNetworkTrue
    Message: hostNetwork is set to 'true' in PodSpec. It should be set to 'false'.

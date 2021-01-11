@@ -32,17 +32,16 @@ $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml
 --------------------------------------------
 
 -- [error] CapabilityOrSecurityContextMissing
-   Message: Security Context not set. Ideally, the Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL.
+   Message: Security Context not set. The Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL.
    Metadata:
       Container: container
-
 ```
 
 ### Example with Config File
 
-A custom add list can be provided in the config file. See [docs](docs/all.md) for more information. These are the capabilities you'd like to add and not have kubeaudit raise an error. In this example, kubeaudit will only error for "CHOWN" because it wasn't added to the add list in the config.
+A custom Add list can be provided in the config file. See [docs](docs/all.md) for more information. These are the capabilities you'd like to add and not have kubeaudit raise an error. In this example, kubeaudit will only error for "CHOWN" because it wasn't added to the add list in the config.
 
-`example.yaml` (config)
+`config.yaml`
 
 ```yaml
 ---
@@ -52,14 +51,14 @@ auditors:
     add: ['KILL', 'MKNOD']
 ```
 
-`test.yaml`(manifest)
+`manifest.yaml`
 
 ```yaml
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   name: deployment
-  namespace: capabilities-some-allowed-multi-containers-some-labels
+  namespace: example-namespace
 spec:
   template:
     spec:
@@ -101,7 +100,7 @@ $ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
 
 A custom add list can be provided as a comma separated value list of capabilities using the `--add` flag. These are the capabilities you'd like to add and not have kubeaudit raise an error:
 
-`manifest-example.yaml` (example manifest)
+`manifest.yaml` (example manifest)
 
 ```yaml
 capabilities:
@@ -115,14 +114,14 @@ capabilities:
 Here we're only adding 3 capabilities to the add list to be ignored. Since we didn't add `NET_ADMIN` to the list, kubeaudit will raise an error for this one.
 
 ```shell
-  $ kubeaudit capabilities --add "CHOWN,KILL,MKNOD" -f "manifest-example.yaml"
+  $ kubeaudit capabilities --add "CHOWN,KILL,MKNOD" -f "manifest.yaml"
   ---------------- Results for ---------------
 
   apiVersion: apps/v1beta2
   kind: Deployment
   metadata:
     name: deployment
-    namespace: capabilities-some-allowed-multi-containers-some-labels
+    namespace: example-namespace
 
 --------------------------------------------
 
