@@ -3,7 +3,6 @@ package all
 import (
 	"errors"
 	"fmt"
-	"github.com/Shopify/kubeaudit/auditors/runasuser"
 
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
@@ -37,7 +36,6 @@ var AuditorNames = []string{
 	privesc.Name,
 	privileged.Name,
 	rootfs.Name,
-	runasuser.Name,
 	seccomp.Name,
 }
 
@@ -85,8 +83,6 @@ func initAuditor(name string, conf config.KubeauditConfig) (kubeaudit.Auditable,
 		return privileged.New(), nil
 	case rootfs.Name:
 		return rootfs.New(), nil
-	case runasuser.Name:
-		return runasuser.New(), nil
 	case seccomp.Name:
 		return seccomp.New(), nil
 	}

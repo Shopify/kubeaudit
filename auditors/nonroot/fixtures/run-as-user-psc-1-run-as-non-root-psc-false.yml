@@ -4,11 +4,11 @@ metadata:
   name: pod
   labels:
     name: pod
-    audit.kubernetes.io/pod.allow-not-overridden-non-root-user: "SuperuserPrivilegesNeeded"
-  namespace: run-as-user-psc-0-allowed
+  namespace: run-as-user-psc-1-run-as-non-root-psc-false
 spec:
   securityContext:
-    runAsUser: 0
+    runAsUser: 1
+    runAsNonRoot: false
   containers:
     - name: container
       image: scratch

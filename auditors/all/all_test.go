@@ -1,7 +1,6 @@
 package all
 
 import (
-	"github.com/Shopify/kubeaudit/auditors/runasuser"
 	"strings"
 	"testing"
 
@@ -40,7 +39,6 @@ func TestAuditAll(t *testing.T) {
 		privesc.AllowPrivilegeEscalationNil,
 		privileged.PrivilegedNil,
 		rootfs.ReadOnlyRootFilesystemNil,
-		runasuser.RunAsUserPSCNilCSCNil,
 		seccomp.SeccompAnnotationMissing,
 	}
 

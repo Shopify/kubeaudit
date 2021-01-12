@@ -14,7 +14,6 @@ enabledAuditors:
     privesc: true
     privileged: true
     rootfs: true
-    runasuser: true
     seccomp: true
 auditors:
     capabilities:
