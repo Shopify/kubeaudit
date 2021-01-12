@@ -57,11 +57,13 @@ Login to the Shopify Docker account using `docker login`. Find the credentials i
 Push up the following three images:
 
 - latest: `shopify/kubeaudit:latest`
-- patch: `shopify/kubeaudit:<VERSION>` for example `shopify/kubeaudit:v0.11.6`
-- minor: `shopify/kubeaudit:v<MAJOR>.<MINOR>` for example `shopify/kubeaudit:v0.11`
+- patch: `shopify/kubeaudit:v0.<MINOR>.<PATCH>` for example `shopify/kubeaudit:v0.11.6`
+- minor: `shopify/kubeaudit:v0.<MINOR>` for example `shopify/kubeaudit:v0.11`
 
 ```
 docker push shopify/kubeaudit:latest
-docker push shopify/kubeaudit:<VERSION>
-docker push shopify/kubeaudit:v<MAJOR>.<MINOR>
+docker push shopify/kubeaudit:v0.<MINOR>.<PATCH>
+docker push shopify/kubeaudit:v0.<MINOR>
 ```
+
+Logout of the Shopify Docker account: `docker logout`
