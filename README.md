@@ -213,7 +213,6 @@ Auditors can also be run individually.
 | `privesc`        | Finds containers that allow privilege escalation.                        | [docs](docs/auditors/privesc.md) |
 | `privileged`     | Finds containers running as privileged.                                  | [docs](docs/auditors/privileged.md) |
 | `rootfs`         | Finds containers which do not have a read-only filesystem.               | [docs](docs/auditors/rootfs.md) |
-| `runasuser`       | Finds containers which do not override the user ID with a non-root user. | [docs](docs/auditors/runasuser.md) |
 | `seccomp`        | Finds containers running without Seccomp.                                | [docs](docs/auditors/seccomp.md) |
 
 ### Global Flags
@@ -253,7 +252,6 @@ enabledAuditors:
   privesc: true
   privileged: true
   rootfs: true
-  runasuser: true
   seccomp: true
 auditors:
   capabilities:
