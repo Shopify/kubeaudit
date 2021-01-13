@@ -54,7 +54,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 			return &kubeaudit.AuditResult{
 				Name:     RunAsUserCSCRoot,
 				Severity: kubeaudit.Error,
-				Message:  "container running with root user (UID 0) as configured with runAsUser SecurityContext. It should be set to > 0.",
+				Message:  "runAsUser is set to UID 0 (root user) in the container SecurityContext. It should be set to a value > 0.",
 				Metadata: kubeaudit.Metadata{
 					"Container": container.Name,
 				},
@@ -74,7 +74,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 			return &kubeaudit.AuditResult{
 				Name:     RunAsUserPSCRoot,
 				Severity: kubeaudit.Error,
-				Message:  "runAsUser is not set in container SecurityContext and is set to 0 in the PodSecurityContext. It should be set to > 0 in at least one of the two.",
+				Message:  "runAsUser is set to 0 in the PodSecurityContext. It should be set to a value > 0 in either the PodSecurityContext or in the container SecurityContext.",
 				Metadata: kubeaudit.Metadata{
 					"Container": container.Name,
 				},
@@ -88,7 +88,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 		return &kubeaudit.AuditResult{
 			Name:     RunAsNonRootCSCFalse,
 			Severity: kubeaudit.Error,
-			Message:  "runAsNonRoot is set to false and runAsUser is not set in container SecurityContext. Either the first should be set to true or the later set to a non-root UID.",
+			Message:  "runAsNonRoot is set to false in the container SecurityContext. It should be set to true. Another option is to set runAsUser to a non-root UID ( > 0)."
 			PendingFix: &fixRunAsNonRoot{
 				container: container,
 			},
@@ -117,7 +117,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 			return &kubeaudit.AuditResult{
 				Name:     RunAsNonRootPSCFalseCSCNil,
 				Severity: kubeaudit.Error,
-				Message:  "runAsNonRoot is not set in container SecurityContext but is set to false in the PodSecurityContext while runAsUser is not set. runAsNonRoot should be set to 'true' or runAsUser should be set to a non-root UID either in container SecurityContext or PodSecurityContext.",
+				Message:  "runAsNonRoot is set to false in the PodSecurityContext. runAsNonRoot should be set to 'true' or runAsUser should be set to a non-root UID either in the container SecurityContext or PodSecurityContext.",
 				PendingFix: &fixRunAsNonRoot{
 					container: container,
 				},
