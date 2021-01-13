@@ -103,7 +103,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 			return &kubeaudit.AuditResult{
 				Name:     RunAsNonRootPSCNilCSCNil,
 				Severity: kubeaudit.Error,
-				Message:  "neither runAsNonRoot nor runAsUser are set in container SecurityContext or in the PodSecurityContext. runAsNonRoot should be set to 'true' or runAsUser should be set to a non-root UID either in container SecurityContext or PodSecurityContext.",
+				Message:  "runAsNonRoot should be set to 'true' or runAsUser should be set to a non-root UID either in the container SecurityContext or PodSecurityContext.",
 				PendingFix: &fixRunAsNonRoot{
 					container: container,
 				},
@@ -142,11 +142,7 @@ func isPodRunAsNonRootFalse(podSpec *k8stypes.PodSpecV1) bool {
 }
 
 func isPodRunAsNonRootNil(podSpec *k8stypes.PodSpecV1) bool {
-	if podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil {
-		return true
-	}
-
-	return false
+	return podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil
 }
 
 // returns true if runAsNonRoot is explicitly set to false in the container's security context. Returns true if the
@@ -168,9 +164,5 @@ func isContainerRunAsUserNil(container *k8stypes.ContainerV1) bool {
 }
 
 func isPodRunAsUserNil(podSpec *k8stypes.PodSpecV1) bool {
-	if podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsUser == nil {
-		return true
-	}
-
-	return false
+	return podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsUser == nil
 }
