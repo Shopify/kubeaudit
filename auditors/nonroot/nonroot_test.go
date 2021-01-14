@@ -44,17 +44,16 @@ func TestAuditRunAsNonRoot(t *testing.T) {
 		{"run-as-user-psc-1.yml", fixtureDir, []string{}},
 		{"run-as-user-psc-1-csc-0.yml", fixtureDir, []string{RunAsUserCSCRoot}},
 		{"run-as-user-psc-0-csc-0.yml", fixtureDir, []string{RunAsUserCSCRoot}},
-		{"run-as-user-psc-0-csc-1.yml", fixtureDir, []string{}},
+		{"run-as-user-psc-0-csc-1.yml", fixtureDir, []string{RunAsUserPSCRoot}},
 		{"run-as-user-redundant-override-container.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
 		{"run-as-user-redundant-override-pod.yml", fixtureDir, []string{kubeaudit.RedundantAuditorOverride}},
 		{"run-as-user-psc-0-csc-nil-multiple-cont.yml", fixtureDir, []string{RunAsUserPSCRoot}},
-		{"run-as-user-psc-0-csc-1-multiple-cont.yml", fixtureDir, []string{}},
+		{"run-as-user-psc-0-csc-1-multiple-cont.yml", fixtureDir, []string{RunAsUserPSCRoot}},
 		{"run-as-user-psc-0-allowed-multi-containers-multi-labels.yml", fixtureDir, []string{
 			override.GetOverriddenResultName(RunAsUserPSCRoot),
-			kubeaudit.RedundantAuditorOverride,
 		}},
 		{"run-as-user-psc-0-allowed-multi-containers-single-label.yml", fixtureDir, []string{
-			kubeaudit.RedundantAuditorOverride, RunAsUserCSCRoot,
+			override.GetOverriddenResultName(RunAsUserPSCRoot), RunAsUserCSCRoot,
 		}},
 		{"run-as-user-0-run-as-non-root-true.yml", fixtureDir, []string{RunAsUserCSCRoot}},
 		{"run-as-user-0-run-as-non-root-false.yml", fixtureDir, []string{RunAsUserCSCRoot}},
@@ -64,7 +63,6 @@ func TestAuditRunAsNonRoot(t *testing.T) {
 		{"run-as-user-1-run-as-non-root-false.yml", fixtureDir, []string{}},
 		{"run-as-user-psc-1-run-as-non-root-psc-true.yml", fixtureDir, []string{}},
 		{"run-as-user-psc-1-run-as-non-root-psc-false.yml", fixtureDir, []string{}},
-
 	}
 
 	for _, tc := range cases {
