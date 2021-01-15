@@ -1,13 +1,13 @@
 package capabilities
 
 type Config struct {
-	AddList []string `yaml:"add"`
+	AllowAddList []string `yaml:"allowAddList"`
 }
 
-func (config *Config) GetAddList() []string {
-	if config == nil || len(config.AddList) == 0 {
-		return []string{}
+func (config *Config) GetAllowAddList() []string {
+	if config == nil || len(config.AllowAddList) == 0 {
+		return DefaultAllowAddList
 	}
 
-	return config.AddList
+	return config.AllowAddList
 }

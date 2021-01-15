@@ -145,8 +145,20 @@ $ kubeaudit all -k "config.yaml" -f "auditors/all/fixtures/audit_all_v1.yml"
 
 ### Example with Flags
 
-The behaviour of the `all` command can also be customized by using flags. The `all` command supports all flags supported by invididual auditors (see the individual [auditor docs](/README.md#auditors) for all the flags). For example, the `caps` auditor supports specifying capabilities to add with the `--add` flag so this flag can be used with the `all` command
+The behaviour of the `all` command can also be customized by using flags. The `all` command supports all flags supported by individual auditors (see the individual [auditor docs](/README.md#auditors) for all the flags).
+
+For example, the `--allowAddList` flag will make the `caps` auditor turn off reports for the listed capabilities (comma separated values).
 
 ```
-kubeaudit all -f "auditors/all/fixtures/audit_all_v1.yml" --add "AUDIT_WRITE"
+kubeaudit all -f "manifest.yml" --allowAddList "AUDIT_WRITE"
 ```
+
+Since `AUDIT_WRITE` is in the Capabilities Allow Add List, kubeaudit won't report errors, as an effect of passing that value to the `--allowAddList` flag.
+
+Another example, would be using the `--memory` flag (supported by the `limits` auditor):
+
+```
+kubeaudit all -f "manifest.yml" --memory 200
+```
+
+Here, if the memory specified is higher than 200, `kubeaudit` will report that the memory limit was exceeded.

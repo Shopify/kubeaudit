@@ -9,7 +9,7 @@ import (
 
 var capabilitiesConfig capabilities.Config
 
-const capsAddFlagName = "add"
+const capsAddFlagName = "allowAddList"
 
 var capabilitiesCmd = &cobra.Command{
 	Use:     "capabilities",
@@ -17,18 +17,18 @@ var capabilitiesCmd = &cobra.Command{
 	Short:   "Audit containers not dropping ALL capabilities",
 	Long: fmt.Sprintf(`This command determines which pods either have capabilities added or not set to ALL:
 An ERROR result is generated when a pod does not have drop ALL specified or when a capability is added. In case 
-you need specific capabilities you can add them with the '--add' flag, so kubeaudit will not report errors.
+you need specific capabilities you can add them with the '--allowAddList' flag, so kubeaudit will not report errors.
 
 Example usage:
 kubeaudit capabilities
-kubeaudit capabilities --add "%s"`, "CHOWN"),
+kubeaudit capabilities --allowAddList "%s"`, "CHOWN"),
 	Run: func(cmd *cobra.Command, args []string) {
 		runAudit(capabilities.New(capabilitiesConfig))(cmd, args)
 	},
 }
 
 func setCapabilitiesFlags(cmd *cobra.Command) {
-	cmd.Flags().StringSliceVar(&capabilitiesConfig.AddList, capsAddFlagName, capabilities.DefaultAddList,
+	cmd.Flags().StringSliceVar(&capabilitiesConfig.AllowAddList, capsAddFlagName, capabilities.DefaultAllowAddList,
 		"Comma separated list of added capabilities that can be ignored by kubeaudit reports")
 }
 

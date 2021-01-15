@@ -44,7 +44,7 @@ func setConfigFromFlags(cmd *cobra.Command, conf config.KubeauditConfig) config.
 	}
 
 	if flagset.Changed(capsAddFlagName) {
-		conf.AuditorConfig.Capabilities.AddList = capabilitiesConfig.AddList
+		conf.AuditorConfig.Capabilities.AllowAddList = capabilitiesConfig.AllowAddList
 	}
 
 	return conf

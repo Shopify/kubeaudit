@@ -13,7 +13,7 @@ import (
 )
 
 func TestFixCapabilities(t *testing.T) {
-	customAddList := []string{"apple", "banana"}
+	customAllowAddList := []string{"apple", "banana"}
 
 	cases := []struct {
 		testName     string
@@ -50,8 +50,8 @@ func TestFixCapabilities(t *testing.T) {
 		{
 			testName:     "Capability Added with with override specified in AddList and 2 capabilities dropped",
 			overrides:    []string{},
-			add:          []string{customAddList[0], customAddList[1], "orange"},
-			expectedAdd:  []string{customAddList[0], customAddList[1]},
+			add:          []string{customAllowAddList[0], customAllowAddList[1], "orange"},
+			expectedAdd:  []string{customAllowAddList[0], customAllowAddList[1]},
 			drop:         []string{"pineapple", "pomegranate"},
 			expectedDrop: []string{"ALL"},
 		},
@@ -82,22 +82,22 @@ func TestFixCapabilities(t *testing.T) {
 		{
 			testName:     "Container override",
 			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("pear"))},
-			add:          []string{customAddList[0], "pear", "orange"},
-			expectedAdd:  []string{customAddList[0], "pear"},
+			add:          []string{customAllowAddList[0], "pear", "orange"},
+			expectedAdd:  []string{customAllowAddList[0], "pear"},
 			drop:         []string{},
 			expectedDrop: []string{"ALL"},
 		},
 		{
 			testName:     "CapabilityAdded with 3 override labels",
 			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("blueberries")), override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("strawberries")), override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("raspberries"))},
-			add:          []string{customAddList[0], "blueberries", "raspberries", "strawberries", "orange"},
-			expectedAdd:  []string{customAddList[0], "blueberries", "raspberries", "strawberries"},
+			add:          []string{customAllowAddList[0], "blueberries", "raspberries", "strawberries", "orange"},
+			expectedAdd:  []string{customAllowAddList[0], "blueberries", "raspberries", "strawberries"},
 			drop:         []string{},
 			expectedDrop: []string{"ALL"},
 		},
 	}
 
-	auditor := New(Config{AddList: customAddList})
+	auditor := New(Config{AllowAddList: customAllowAddList})
 
 	for _, tc := range cases {
 		t.Run(tc.testName, func(t *testing.T) {

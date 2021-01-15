@@ -25,16 +25,16 @@ const overrideLabelPrefix = "allow-capability-"
 
 var DefaultDropList = []string{"ALL"}
 
-var DefaultAddList = []string{""}
+var DefaultAllowAddList = []string{""}
 
 // Capabilities implements Auditable
 type Capabilities struct {
-	addList []string
+	allowAddList []string
 }
 
 func New(config Config) *Capabilities {
 	return &Capabilities{
-		addList: config.GetAddList(),
+		allowAddList: config.GetAllowAddList(),
 	}
 }
 
@@ -49,7 +49,7 @@ func (a *Capabilities) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) 
 		}
 
 		for _, capability := range uniqueCapabilities(container) {
-			for _, auditResult := range auditContainer(container, capability, a.addList) {
+			for _, auditResult := range auditContainer(container, capability, a.allowAddList) {
 				auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(capability))
 				if auditResult != nil {
 					auditResults = append(auditResults, auditResult)
@@ -65,18 +65,16 @@ func getOverrideLabel(capability string) string {
 	return overrideLabelPrefix + strings.Replace(strings.ToLower(capability), "_", "-", -1)
 }
 
-func auditContainer(container *k8stypes.ContainerV1, capability string, addList []string) []*kubeaudit.AuditResult {
+func auditContainer(container *k8stypes.ContainerV1, capability string, allowAddList []string) []*kubeaudit.AuditResult {
 	var auditResults []*kubeaudit.AuditResult
 
-	if isCapabilityInArray(capability, addList) {
+	if isCapabilityInArray(capability, allowAddList) {
 		return auditResults
 	}
 
 	if SecurityContextOrCapabilities(container) {
-		var message string
-
 		if IsCapabilityInAddList(container, capability) {
-			message = fmt.Sprintf("Capability \"%s\" added. It should be removed from the capability add list. If you need this capability, add an override label such as '%s: SomeReason'.", capability, override.GetContainerOverrideLabel(container.Name, getOverrideLabel(capability)))
+			message := fmt.Sprintf("Capability \"%s\" added. It should be removed from the capability add list. If you need this capability, add an override label such as '%s: SomeReason'.", capability, override.GetContainerOverrideLabel(container.Name, getOverrideLabel(capability)))
 			auditResult := &kubeaudit.AuditResult{
 				Name:     CapabilityAdded,
 				Severity: kubeaudit.Error,
@@ -103,8 +101,6 @@ func auditContainer(container *k8stypes.ContainerV1, capability string, addList 
 }
 
 func auditContainerForDropAll(container *k8stypes.ContainerV1) *kubeaudit.AuditResult {
-	var message string
-
 	if !SecurityContextOrCapabilities(container) {
 		message := "Security Context not set. The Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL."
 		return &kubeaudit.AuditResult{
@@ -121,7 +117,7 @@ func auditContainerForDropAll(container *k8stypes.ContainerV1) *kubeaudit.AuditR
 	}
 
 	if !IsDropAll(container) {
-		message = "Capability Drop list should be set to ALL. Add the specific ones you need to the Add list and set an override label."
+		message := "Capability Drop list should be set to ALL. Add the specific ones you need to the Add list and set an override label."
 		return &kubeaudit.AuditResult{
 			Name:     CapabilityShouldDropAll,
 			Severity: kubeaudit.Error,
