@@ -8,6 +8,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/asat"
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
+
 	"github.com/Shopify/kubeaudit/auditors/hostns"
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/auditors/limits"
@@ -28,7 +29,7 @@ func TestAuditAll(t *testing.T) {
 	allErrors := []string{
 		apparmor.AppArmorAnnotationMissing,
 		asat.AutomountServiceAccountTokenTrueAndDefaultSA,
-		capabilities.CapabilityNotDropped,
+		capabilities.CapabilityOrSecurityContextMissing,
 		hostns.NamespaceHostNetworkTrue,
 		hostns.NamespaceHostIPCTrue,
 		hostns.NamespaceHostPIDTrue,

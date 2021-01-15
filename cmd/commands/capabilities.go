@@ -1,9 +1,7 @@
 package commands
 
 import (
-	"bytes"
 	"fmt"
-	"strings"
 
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
 	"github.com/spf13/cobra"
@@ -11,36 +9,27 @@ import (
 
 var capabilitiesConfig capabilities.Config
 
-func formatDropList() string {
-	var buffer bytes.Buffer
-	for _, cap := range capabilities.DefaultDropList {
-		buffer.WriteString("\n- ")
-		buffer.WriteString(cap)
-	}
-	return buffer.String()
-}
+const capsAddFlagName = "allowAddList"
 
 var capabilitiesCmd = &cobra.Command{
 	Use:     "capabilities",
 	Aliases: []string{"caps"},
-	Short:   "Audit containers not dropping capabilities",
-	Long: fmt.Sprintf(`This command determines which pods have capabilities which they should not according to
-the drop list. If no drop list is provided, the following capabilities are dropped:
-%s
-
-An ERROR result is generated when a pod has a capability which is on the drop list.
+	Short:   "Audit containers not dropping ALL capabilities",
+	Long: fmt.Sprintf(`This command determines which pods either have capabilities added or not set to ALL:
+An ERROR result is generated when a pod does not have drop ALL specified or when a capability is added. In case 
+you need specific capabilities you can add them with the '--allowAddList' flag, so kubeaudit will not report errors.
 
 Example usage:
 kubeaudit capabilities
-kubeaudit capabilities --drop "%s"`, formatDropList(), strings.Join(capabilities.DefaultDropList[:3], ",")),
+kubeaudit capabilities --allowAddList "%s"`, "CHOWN"),
 	Run: func(cmd *cobra.Command, args []string) {
 		runAudit(capabilities.New(capabilitiesConfig))(cmd, args)
 	},
 }
 
 func setCapabilitiesFlags(cmd *cobra.Command) {
-	cmd.Flags().StringSliceVarP(&capabilitiesConfig.DropList, "drop", "d", capabilities.DefaultDropList,
-		"List of capabilities that should be dropped")
+	cmd.Flags().StringSliceVar(&capabilitiesConfig.AllowAddList, capsAddFlagName, capabilities.DefaultAllowAddList,
+		"Comma separated list of added capabilities that can be ignored by kubeaudit reports")
 }
 
 func init() {

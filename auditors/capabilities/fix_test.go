@@ -7,13 +7,13 @@ import (
 	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/internal/override"
 	"github.com/Shopify/kubeaudit/k8stypes"
+	v1 "k8s.io/api/core/v1"
 
 	"github.com/stretchr/testify/assert"
-	v1 "k8s.io/api/core/v1"
 )
 
 func TestFixCapabilities(t *testing.T) {
-	customDropList := []string{"apple", "banana"}
+	customAllowAddList := []string{"apple", "banana"}
 
 	cases := []struct {
 		testName     string
@@ -24,15 +24,15 @@ func TestFixCapabilities(t *testing.T) {
 		expectedDrop []string
 	}{
 		{
-			testName:     "Nothing to fix",
+			testName:     "Capabilities not set to ALL",
 			overrides:    []string{},
 			add:          []string{},
 			expectedAdd:  []string{},
-			drop:         []string{customDropList[0], customDropList[1]},
-			expectedDrop: []string{customDropList[0], customDropList[1]},
+			drop:         []string{"orange", "banana"},
+			expectedDrop: []string{"ALL"},
 		},
 		{
-			testName:     "Nothing to fix - all",
+			testName:     "Nothing to fix - no caps added and drop is set to all",
 			overrides:    []string{},
 			add:          []string{},
 			expectedAdd:  []string{},
@@ -40,56 +40,64 @@ func TestFixCapabilities(t *testing.T) {
 			expectedDrop: []string{"all"},
 		},
 		{
-			testName:     "CapabilityNotDropped",
+			testName:     "No capabilities specified",
 			overrides:    []string{},
 			add:          []string{},
 			expectedAdd:  []string{},
 			drop:         []string{},
-			expectedDrop: []string{customDropList[0], customDropList[1]},
+			expectedDrop: []string{"ALL"},
 		},
 		{
-			testName:     "CapabilityAdded",
+			testName:     "Capability Added with with override specified in AddList and 2 capabilities dropped",
 			overrides:    []string{},
-			add:          []string{"orange", "blueberries"},
-			expectedAdd:  []string{},
-			drop:         []string{customDropList[0], customDropList[1]},
-			expectedDrop: []string{customDropList[0], customDropList[1]},
+			add:          []string{customAllowAddList[0], customAllowAddList[1], "orange"},
+			expectedAdd:  []string{customAllowAddList[0], customAllowAddList[1]},
+			drop:         []string{"pineapple", "pomegranate"},
+			expectedDrop: []string{"ALL"},
 		},
 		{
 			testName:     "CapabilityAdded - all",
 			overrides:    []string{},
 			add:          []string{"ALL"},
 			expectedAdd:  []string{},
-			drop:         []string{customDropList[0]},
-			expectedDrop: []string{customDropList[0], customDropList[1]},
+			drop:         []string{"orange"},
+			expectedDrop: []string{"ALL"},
 		},
 		{
-			testName:     "CapabilityAdded and CapabilityNotDropped",
+			testName:     "CapabilityAdded",
 			overrides:    []string{},
-			add:          []string{customDropList[0]},
+			add:          []string{"orange"},
 			expectedAdd:  []string{},
 			drop:         []string{},
-			expectedDrop: []string{customDropList[0], customDropList[1]},
+			expectedDrop: []string{"ALL"},
 		},
 		{
 			testName:     "Pod override",
-			overrides:    []string{override.GetPodOverrideLabel(getOverrideLabel(customDropList[0]))},
-			add:          []string{},
-			expectedAdd:  []string{},
+			overrides:    []string{override.GetPodOverrideLabel(getOverrideLabel("orange"))},
+			add:          []string{"orange"},
+			expectedAdd:  []string{"orange"},
 			drop:         []string{},
-			expectedDrop: []string{customDropList[1]},
+			expectedDrop: []string{"ALL"},
 		},
 		{
 			testName:     "Container override",
-			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel(customDropList[0]))},
-			add:          []string{customDropList[0], "pear"},
-			expectedAdd:  []string{customDropList[0]},
+			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("pear"))},
+			add:          []string{customAllowAddList[0], "pear", "orange"},
+			expectedAdd:  []string{customAllowAddList[0], "pear"},
 			drop:         []string{},
-			expectedDrop: []string{customDropList[1]},
+			expectedDrop: []string{"ALL"},
+		},
+		{
+			testName:     "CapabilityAdded with 3 override labels",
+			overrides:    []string{override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("blueberries")), override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("strawberries")), override.GetContainerOverrideLabel("mycontainer", getOverrideLabel("raspberries"))},
+			add:          []string{customAllowAddList[0], "blueberries", "raspberries", "strawberries", "orange"},
+			expectedAdd:  []string{customAllowAddList[0], "blueberries", "raspberries", "strawberries"},
+			drop:         []string{},
+			expectedDrop: []string{"ALL"},
 		},
 	}
 
-	auditor := New(Config{DropList: customDropList})
+	auditor := New(Config{AllowAddList: customAllowAddList})
 
 	for _, tc := range cases {
 		t.Run(tc.testName, func(t *testing.T) {
@@ -133,7 +141,7 @@ func TestFixCapabilities(t *testing.T) {
 		}
 
 		capabilities := k8s.GetContainers(resource)[0].SecurityContext.Capabilities
-		assertCapabilitiesEqual(t, capabilities.Drop, customDropList)
+		assertCapabilitiesEqual(t, capabilities.Drop, []string{"ALL"})
 	})
 }
 
@@ -175,6 +183,7 @@ func newPod(add, drop, overrides []string) k8stypes.Resource {
 	for _, override := range overrides {
 		overrideLabels[override] = "SomeReason"
 	}
+
 	k8s.GetPodObjectMeta(pod).SetLabels(overrideLabels)
 
 	return pod
@@ -185,5 +194,6 @@ func capabilitiesFromStringArray(arr []string) []k8stypes.CapabilityV1 {
 	for _, str := range arr {
 		capabilities = append(capabilities, k8stypes.CapabilityV1(str))
 	}
+
 	return capabilities
 }

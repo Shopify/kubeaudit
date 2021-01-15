@@ -65,11 +65,10 @@ $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
 -- [error] AutomountServiceAccountTokenTrueAndDefaultSA
    Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
 
--- [error] CapabilityNotDropped
-   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
+-- [error] CapabilityOrSecurityContextMissing
+   Message: Security Context not set. The Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL.
    Metadata:
       Container: container
-      Capability: AUDIT_WRITE
 
 -- [error] NamespaceHostNetworkTrue
    Message: hostNetwork is set to 'true' in PodSpec. It should be set to 'false'.
@@ -131,10 +130,11 @@ enabledAuditors:
   # Auditors are enabled by default if they are not explicitly set to "false"
   hostns: false
   image: false
-  limits: false
 auditors:
   capabilities:
-    drop: ['AUDIT_WRITE', 'CHOWN']
+  add:
+    - AUDIT_WRITE
+    - CHOWN
 ```
 
 The config can be passed to the `all` command using the `-k/--kconfig` flag:
@@ -145,26 +145,12 @@ $ kubeaudit all -k "config.yaml" -f "auditors/all/fixtures/audit_all_v1.yml"
 
 ### Example with Flags
 
-The behaviour of the `all` command can also be customized by using flags. The `all` command supports all flags supported by invididual auditors (see the individual [auditor docs](/README.md#auditors) for all the flags). For example, the `caps` auditor supports specifying capabilities to drop with the `--drop/-d` flag so this flag can be used with the `all` command:
+The behaviour of the `all` command can also be customized by using flags. The `all` command supports all flags supported by individual auditors (see the individual [auditor docs](/README.md#auditors) for all the flags).
+
+For example, we can use the `--memory` flag (supported by the `limits` auditor):
 
 ```
-kubeaudit all -f "auditors/all/fixtures/audit_all_v1.yml" --drop "AUDIT_WRITE"
+kubeaudit all -f "manifest.yml" --memory 200
 ```
 
-### Example with Kubeaudit Config and Flags
-
-Passing flags in addition to the config will override the corresponding fields from the config. For example, if the capabilities to drop are specified with the `--drop/-d` flag:
-
-```
-kubeaudit all -f "auditors/all/fixtures/audit_all_v1.yml" --drop "AUDIT_WRITE"
-```
-
-And they are also specified in the Kubeaudit config file:
-
-```yaml
-auditors:
-    capabilities:
-        drop: ["CHOWN", "MKNOD]
-```
-
-The capabilities specified by the flag will take precedence over those specified in the config file resulting in only `AUDIT_WRITE` being dropped.
+Here, if the memory specified is higher than 200, `kubeaudit` will report that the memory limit was exceeded.

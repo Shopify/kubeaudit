@@ -34,17 +34,17 @@ func setConfigFromFlags(cmd *cobra.Command, conf config.KubeauditConfig) config.
 		flagVal   string
 		configVal *string
 	}{
-		{"image", imageConfig.Image, &conf.AuditorConfig.Image.Image},
-		{"cpu", limitsConfig.CPU, &conf.AuditorConfig.Limits.CPU},
-		{"memory", limitsConfig.Memory, &conf.AuditorConfig.Limits.Memory},
+		{imageFlagName, imageConfig.Image, &conf.AuditorConfig.Image.Image},
+		{limitCpuFlagName, limitsConfig.CPU, &conf.AuditorConfig.Limits.CPU},
+		{limitMemoryFlagName, limitsConfig.Memory, &conf.AuditorConfig.Limits.Memory},
 	} {
 		if flagset.Changed(item.flag) {
 			*item.configVal = item.flagVal
 		}
 	}
 
-	if flagset.Changed("drop") {
-		conf.AuditorConfig.Capabilities.DropList = capabilitiesConfig.DropList
+	if flagset.Changed(capsAddFlagName) {
+		conf.AuditorConfig.Capabilities.AllowAddList = capabilitiesConfig.AllowAddList
 	}
 
 	return conf
