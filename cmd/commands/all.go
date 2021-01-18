@@ -47,6 +47,10 @@ func setConfigFromFlags(cmd *cobra.Command, conf config.KubeauditConfig) config.
 		conf.AuditorConfig.Capabilities.DropList = capabilitiesConfig.DropList
 	}
 
+	if flagset.Changed("paths") {
+		conf.AuditorConfig.Mounts.SensitivePaths = mountsConfig.SensitivePaths
+	}
+
 	return conf
 }
 
@@ -88,4 +92,5 @@ func init() {
 	setImageFlags(auditAllCmd)
 	setLimitsFlags(auditAllCmd)
 	setCapabilitiesFlags(auditAllCmd)
+	setPathsFlags(auditAllCmd)
 }

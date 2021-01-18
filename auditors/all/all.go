@@ -3,6 +3,7 @@ package all
 import (
 	"errors"
 	"fmt"
+	"github.com/Shopify/kubeaudit/auditors/mounts"
 
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
@@ -30,6 +31,7 @@ var AuditorNames = []string{
 	hostns.Name,
 	image.Name,
 	limits.Name,
+	mounts.Name,
 	mountds.Name,
 	netpols.Name,
 	nonroot.Name,
@@ -71,6 +73,8 @@ func initAuditor(name string, conf config.KubeauditConfig) (kubeaudit.Auditable,
 		return image.New(conf.GetAuditorConfigs().Image), nil
 	case limits.Name:
 		return limits.New(conf.GetAuditorConfigs().Limits)
+	case mounts.Name:
+		return mounts.New(conf.GetAuditorConfigs().Mounts), nil
 	case mountds.Name:
 		return mountds.New(), nil
 	case netpols.Name:

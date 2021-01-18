@@ -9,6 +9,7 @@ enabledAuditors:
     image: true
     limits: true
     mountds: true
+    mounts: true
     netpols: true
     nonroot: true
     privesc: true
@@ -24,3 +25,5 @@ auditors:
     limits:
         cpu: "750m"
         memory: "500m"
+    mounts:
+        paths: ["/proc", "/var/run/docker.sock", "/", "/etc", "/root", "/var/run/crio/crio.sock", "/home/admin", "/var/lib/kubelet", "/var/lib/kubelet/pki", "/etc/kubernetes", "/etc/kubernetes/manifests"]
