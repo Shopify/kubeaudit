@@ -53,7 +53,7 @@ func TestAuditRunAsNonRoot(t *testing.T) {
 			override.GetOverriddenResultName(RunAsUserPSCRoot),
 		}},
 		{"run-as-user-psc-0-allowed-multi-containers-single-label.yml", fixtureDir, []string{
-			override.GetOverriddenResultName(RunAsUserPSCRoot), RunAsUserCSCRoot,
+			override.GetOverriddenResultName(RunAsUserCSCRoot), RunAsUserPSCRoot,
 		}},
 		{"run-as-user-0-run-as-non-root-true.yml", fixtureDir, []string{RunAsUserCSCRoot}},
 		{"run-as-user-0-run-as-non-root-false.yml", fixtureDir, []string{RunAsUserCSCRoot}},
