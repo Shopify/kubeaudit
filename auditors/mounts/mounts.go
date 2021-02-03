@@ -105,11 +105,6 @@ func auditContainer(container *k8stypes.ContainerV1, sensitiveVolumes map[string
 		}
 	}
 
-	// We need the audit result to be nil for ApplyOverride to check for RedundantAuditorOverride errors
-/*	if len(auditResults) == 0 {
-		return []*kubeaudit.AuditResult{nil}
-	}*/
-
 	return auditResults
 }
 
