@@ -27,6 +27,27 @@ func TestFixRunAsNonRoot(t *testing.T) {
 		{"run-as-non-root-psc-false-csc-nil-multiple-cont.yml", fixtureDir, k8s.NewTrue()},
 		{"run-as-non-root-psc-false-csc-true-multiple-cont.yml", fixtureDir, k8s.NewTrue()},
 		{"run-as-non-root-psc-false-allowed-multi-containers-single-label.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-0.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-0-allowed.yml", fixtureDir, nil},
+		{"run-as-user-psc-0.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-psc-0-allowed.yml", fixtureDir, nil},
+		{"run-as-user-psc-1.yml", fixtureDir, nil},
+		{"run-as-user-psc-1-csc-0.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-psc-0-csc-0.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-psc-0-csc-1.yml", fixtureDir, nil},
+		{"run-as-user-redundant-override-container.yml", fixtureDir, nil},
+		{"run-as-user-redundant-override-pod.yml", fixtureDir, nil},
+		{"run-as-user-psc-0-csc-1-multiple-cont.yml", fixtureDir, nil},
+		{"run-as-user-psc-0-allowed-multi-containers-multi-labels.yml", fixtureDir, nil},
+		{"run-as-user-psc-0-allowed-multi-containers-single-label.yml", fixtureDir, nil},
+		{"run-as-user-0-run-as-non-root-true.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-0-run-as-non-root-false.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-psc-0-run-as-non-root-psc-true.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-psc-0-run-as-non-root-psc-false.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-1-run-as-non-root-true.yml", fixtureDir, k8s.NewTrue()},
+		{"run-as-user-1-run-as-non-root-false.yml", fixtureDir, k8s.NewFalse()},
+		{"run-as-user-psc-1-run-as-non-root-psc-true.yml", fixtureDir, nil},
+		{"run-as-user-psc-1-run-as-non-root-psc-false.yml", fixtureDir, nil},
 	}
 
 	for _, tc := range cases {
@@ -45,19 +66,24 @@ func TestFixRunAsNonRoot(t *testing.T) {
 		})
 	}
 
-	file := "run-as-non-root-psc-false-allowed-multi-containers-multi-labels.yml"
-	t.Run(file, func(t *testing.T) {
-		resources, _ := test.FixSetup(t, fixtureDir, file, New())
-		for _, resource := range resources {
-			containers := k8s.GetContainers(resource)
-			for _, container := range containers {
-				switch container.Name {
-				case "fakeContainerRANR":
-					assert.True(t, (container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil))
-				case "fakeContainerRANR2":
-					assert.True(t, *container.SecurityContext.RunAsNonRoot)
+	files := []string {
+		"run-as-non-root-psc-false-allowed-multi-containers-multi-labels.yml",
+		"run-as-user-psc-0-csc-nil-multiple-cont.yml",
+	}
+	for _, file := range files {
+		t.Run(file, func(t *testing.T) {
+			resources, _ := test.FixSetup(t, fixtureDir, file, New())
+			for _, resource := range resources {
+				containers := k8s.GetContainers(resource)
+				for _, container := range containers {
+					switch container.Name {
+					case "container1":
+						assert.True(t, (container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil))
+					case "container2":
+						assert.True(t, *container.SecurityContext.RunAsNonRoot)
+					}
 				}
 			}
-		}
-	})
+		})
+	}
 }

@@ -60,6 +60,9 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 				Name:     RunAsUserCSCRoot,
 				Severity: kubeaudit.Error,
 				Message:  "runAsUser is set to UID 0 (root user) in the container SecurityContext. Either set it to a value > 0 or set runAsNonRoot to false.",
+				PendingFix: &fixRunAsNonRoot{
+					container: container,
+				},
 				Metadata: kubeaudit.Metadata{
 					"Container": container.Name,
 				},
@@ -88,6 +91,9 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 				Name:     RunAsUserPSCRoot,
 				Severity: kubeaudit.Error,
 				Message:  "runAsUser is set to UID 0 (root user) in the PodSecurityContext. Either set it to a value > 0 or set runAsNonRoot to false.",
+				PendingFix: &fixRunAsNonRoot{
+					container: container,
+				},
 				Metadata: kubeaudit.Metadata{
 					"Container": container.Name,
 				},
