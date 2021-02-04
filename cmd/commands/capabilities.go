@@ -9,7 +9,7 @@ import (
 
 var capabilitiesConfig capabilities.Config
 
-const capsAddFlagName = "allowAddList"
+const capsAddFlagName = "allow-add-list"
 
 var capabilitiesCmd = &cobra.Command{
 	Use:     "capabilities",
@@ -21,7 +21,7 @@ you need specific capabilities you can add them with the '--allow-add-list' flag
 
 Example usage:
 kubeaudit capabilities
-kubeaudit capabilities --allowAddList "%s"`, "CHOWN"),
+kubeaudit capabilities --allow-add-list "%s"`, "CHOWN"),
 	Run: func(cmd *cobra.Command, args []string) {
 		runAudit(capabilities.New(capabilitiesConfig))(cmd, args)
 	},
