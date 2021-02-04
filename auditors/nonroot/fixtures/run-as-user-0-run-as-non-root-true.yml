@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: run-as-user-0-run-as-non-root-true
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: true

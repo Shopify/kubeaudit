@@ -1,0 +1,21 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: run-as-user-0-allowed
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+        audit.kubernetes.io/pod.allow-run-as-root: "SuperuserPrivilegesNeeded"
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            runAsUser: 0

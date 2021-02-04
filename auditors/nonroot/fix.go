@@ -19,6 +19,11 @@ func (f *fixRunAsNonRoot) Apply(resource k8stypes.Resource) []k8stypes.Resource 
 	if f.container.SecurityContext == nil {
 		f.container.SecurityContext = &k8stypes.SecurityContextV1{}
 	}
+
+	if f.container.SecurityContext.RunAsUser != nil && *f.container.SecurityContext.RunAsUser == 0 {
+		f.container.SecurityContext.RunAsUser = nil
+	}
+
 	f.container.SecurityContext.RunAsNonRoot = k8s.NewTrue()
 	return nil
 }

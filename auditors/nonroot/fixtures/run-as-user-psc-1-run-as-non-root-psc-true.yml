@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  labels:
+    name: pod
+  namespace: run-as-user-psc-1-run-as-non-root-psc-true
+spec:
+  securityContext:
+    runAsUser: 1
+    runAsNonRoot: true
+  containers:
+    - name: container
+      image: scratch
