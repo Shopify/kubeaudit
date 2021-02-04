@@ -17,7 +17,7 @@ var capabilitiesCmd = &cobra.Command{
 	Short:   "Audit containers not dropping ALL capabilities",
 	Long: fmt.Sprintf(`This command determines which pods either have capabilities added or not set to ALL:
 An ERROR result is generated when a pod does not have drop ALL specified or when a capability is added. In case 
-you need specific capabilities you can add them with the '--allowAddList' flag, so kubeaudit will not report errors.
+you need specific capabilities you can add them with the '--allow-add-list' flag, so kubeaudit will not report errors.
 
 Example usage:
 kubeaudit capabilities
