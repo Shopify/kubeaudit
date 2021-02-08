@@ -12,7 +12,7 @@ kubeaudit capabilities [flags]
 
 | Flag  | Description                                                                         |
 | :---- | :---------------------------------------------------------------------------------- |
-| --allowAddList | Comma separated list of added capabilities that can be ignored by kubeaudit reports |
+| --allow-add-list | Comma separated list of added capabilities that can be ignored by kubeaudit reports |
 
 Also see [Global Flags](/README.md#global-flags)
 
@@ -114,7 +114,7 @@ capabilities:
 Here we're only adding 3 capabilities to the add list to be ignored. Since we didn't add `NET_ADMIN` to the list, kubeaudit will raise an error for this one.
 
 ```shell
-  $ kubeaudit capabilities --allowAddList "CHOWN,KILL,MKNOD" -f "manifest.yaml"
+  $ kubeaudit capabilities --allow-add-list "CHOWN,KILL,MKNOD" -f "manifest.yaml"
   ---------------- Results for ---------------
 
   apiVersion: apps/v1beta2
