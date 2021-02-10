@@ -48,7 +48,7 @@ A custom Add list can be provided in the config file. See [docs](docs/all.md) fo
 auditors:
   capabilities:
     # add capabilities needed to the add list, so kubeaudit won't report errors
-    add: ['KILL', 'MKNOD']
+    allowAddList: ['KILL', 'MKNOD']
 ```
 
 `manifest.yaml`
@@ -98,7 +98,7 @@ $ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
 
 ### Example with Custom Add List
 
-A custom add list can be provided as a comma separated value list of capabilities using the `--add` flag. These are the capabilities you'd like to add and not have kubeaudit raise an error:
+A custom add list can be provided as a comma separated value list of capabilities using the `--allow-add-list` flag. These are the capabilities you'd like to add and not have kubeaudit raise an error:
 
 `manifest.yaml` (example manifest)
 
