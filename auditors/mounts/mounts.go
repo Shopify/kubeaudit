@@ -22,6 +22,12 @@ var DefaultSensitivePaths = []string{"/proc", "/var/run/docker.sock", "/", "/etc
 
 const overrideLabelPrefix = "allow-host-path-mount-"
 
+const (
+	MountNameMetadataKey     = "MountName"
+	MountPathMetadataKey     = "MountPath"
+	MountReadOnlyMetadataKey = "MountReadOnly"
+)
+
 // SensitivePathMounts implements Auditable
 type SensitivePathMounts struct {
 	sensitivePaths map[string]bool
@@ -54,7 +60,7 @@ func (sensitive *SensitivePathMounts) Audit(resource k8stypes.Resource, _ []k8st
 
 	for _, container := range k8s.GetContainers(resource) {
 		for _, auditResult := range auditContainer(container, sensitiveVolumes) {
-			auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(auditResult.Metadata["Mount"]))
+			auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(auditResult.Metadata[MountNameMetadataKey]))
 			if auditResult != nil {
 				auditResults = append(auditResults, auditResult)
 			}
@@ -95,10 +101,12 @@ func auditContainer(container *k8stypes.ContainerV1, sensitiveVolumes map[string
 			auditResults = append(auditResults, &kubeaudit.AuditResult{
 				Name:     SensitivePathsMounted,
 				Severity: kubeaudit.Error,
-				Message:  fmt.Sprintf("Sensitive path mounted as volume: %s (%s -> %s, readOnly: %t). It should be removed from the container's mounts list.", mount.Name, volume.HostPath.Path, mount.MountPath, mount.ReadOnly),
+				Message:  fmt.Sprintf("Sensitive path mounted as volume: %s (hostPath: %s). It should be removed from the container's mounts list.", mount.Name, volume.HostPath.Path),
 				Metadata: kubeaudit.Metadata{
-					"Container": container.Name,
-					"Mount":     mount.Name,
+					"Container":              container.Name,
+					MountNameMetadataKey:     mount.Name,
+					MountPathMetadataKey:     mount.MountPath,
+					MountReadOnlyMetadataKey: fmt.Sprintf("%t", mount.ReadOnly),
 				},
 			})
 		}
