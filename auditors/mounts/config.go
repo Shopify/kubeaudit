@@ -6,7 +6,7 @@ type Config struct {
 
 func (config *Config) GetSensitivePaths() []string {
 	if config == nil {
-		return nil
+		return DefaultSensitivePaths
 	}
 	return config.SensitivePaths
 }

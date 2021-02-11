@@ -10,12 +10,13 @@ import (
 
 const fixtureDir = "fixtures"
 
-func TestAuditDockerSockMounted(t *testing.T) {
+func TestSensitivePathsMounted(t *testing.T) {
 	cases := []struct {
 		file           string
 		fixtureDir     string
 		expectedErrors []string
 	}{
+		{"docker-sock-mounted.yml", fixtureDir, []string{SensitivePathsMounted}},
 		{"proc-mounted.yml", fixtureDir, []string{SensitivePathsMounted}},
 		{"proc-mounted-allowed.yml", fixtureDir, []string{override.GetOverriddenResultName(SensitivePathsMounted)}},
 		{"proc-mounted-allowed-multi-containers-multi-labels.yml", fixtureDir, []string{override.GetOverriddenResultName(SensitivePathsMounted)}},

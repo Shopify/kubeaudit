@@ -36,7 +36,7 @@ Also see [Global Flags](/README.md#global-flags)
 ## Examples
 
 ```
-$ kubeaudit mounts -f /Users/j.courtial/dev/go/src/github.com/kubeaudit/auditors/mounts/fixtures/proc-mounted.yml
+$ kubeaudit mounts -f auditors/mounts/fixtures/proc-mounted.yml
 
 ---------------- Results for ---------------
 
@@ -55,6 +55,115 @@ $ kubeaudit mounts -f /Users/j.courtial/dev/go/src/github.com/kubeaudit/auditors
       Mount: proc-volume
 
 ```
+
+### Example with Config File
+
+A custom paths list can be provided in the config file. See [docs](docs/all.md) for more information. These are the host paths you'd like to have kubeaudit raise an error when they are mounted in a container. 
+
+`config.yaml`
+
+```yaml
+---
+auditors:
+  mounts:
+    paths: ["/etc", "/var/run/docker.sock"]
+```
+
+`manifest.yaml`
+
+```yaml
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: example-namespace
+spec:
+  template:
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          volumeMounts:
+            - mountPath: /host/etc
+              name: etc-volume
+            - mountPath: /var/run/docker.sock
+              name: docker-socket-volume
+      volumes:
+        - name: etc-volume
+          hostPath:
+            path: /etc
+        - name: docker-socket-volume
+          hostPath:
+            path: /var/run/docker.sock
+```
+
+```shell
+$ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
+
+---------------- Results for ---------------
+
+  apiVersion: apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: example-namespace
+
+--------------------------------------------
+
+-- [error] SensitivePathsMounted
+   Message: Sensitive path mounted as volume: etc-volume (/etc -> /host/etc, readOnly: false). It should be removed from the container's mounts list.
+   Metadata:
+      Container: container
+      Mount: etc-volume
+
+-- [error] SensitivePathsMounted
+   Message: Sensitive path mounted as volume: docker-socket-volume (/var/run/docker.sock -> /var/run/docker.sock, readOnly: false). It should be removed from the container's mounts list.
+   Metadata:
+      Container: container
+      Mount: docker-socket-volume
+```
+
+### Example with Custom Paths List
+
+A custom paths list can be provided as a comma separated value list of paths using the `--paths` flag. These are the host paths you'd like to have kubeaudit raise an error when they are mounted in a container.
+
+`manifest.yaml` (example manifest)
+
+```yaml
+volumes:
+  - name: etc-volume
+    hostPath:
+      path: /etc
+  - name: docker-socket-volume
+    hostPath:
+      path: /var/run/docker.sock
+```
+
+```shell
+$ kubeaudit capabilities --path "/etc,/var/run/docker.sock" -f "manifest.yaml"
+---------------- Results for ---------------
+
+  apiVersion: apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: deployment
+    namespace: example-namespace
+
+--------------------------------------------
+
+-- [error] SensitivePathsMounted
+   Message: Sensitive path mounted as volume: etc-volume (/etc -> /host/etc, readOnly: false). It should be removed from the container's mounts list.
+   Metadata:
+      Container: container
+      Mount: etc-volume
+
+-- [error] SensitivePathsMounted
+   Message: Sensitive path mounted as volume: docker-socket-volume (/var/run/docker.sock -> /var/run/docker.sock, readOnly: false). It should be removed from the container's mounts list.
+   Metadata:
+      Container: container
+      Mount: docker-socket-volume
+```
+
 
 ## Explanation
 
@@ -85,7 +194,7 @@ spec:
 
 First, see the [Introduction to Override Errors](/README.md#override-errors).
 
-The override identifier has the format `allow-host-path-mount--[mount name]` which allows for each mount to be individually overridden.
+The override identifier has the format `allow-host-path-mount-[mount name]` which allows for each mount to be individually overridden.
 
 Example of resource with `mounts` overridden for a specific container:
 ```yaml

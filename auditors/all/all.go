@@ -3,7 +3,6 @@ package all
 import (
 	"errors"
 	"fmt"
-	"github.com/Shopify/kubeaudit/auditors/mounts"
 
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
@@ -13,6 +12,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/auditors/limits"
 	"github.com/Shopify/kubeaudit/auditors/mountds"
+	"github.com/Shopify/kubeaudit/auditors/mounts"
 	"github.com/Shopify/kubeaudit/auditors/netpols"
 	"github.com/Shopify/kubeaudit/auditors/nonroot"
 	"github.com/Shopify/kubeaudit/auditors/privesc"
