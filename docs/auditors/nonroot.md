@@ -1,6 +1,6 @@
 # runAsNonRoot Auditor (nonroot)
 
-Finds containers running as root.
+Finds containers allowed to run as root.
 
 ## General Usage
 
@@ -48,6 +48,23 @@ spec:
     spec: #PodSpec
       securityContext: #PodSecurityContext
         runAsNonRoot: true
+      containers:
+      - name: myContainer
+```
+
+Alternatively it's possible to enforce non-root containers by setting `runAsUser` to a non-root UID (>0) in either the PodSecurityContext or container SecurityContext. Conversely, if `runAsUser` is set to `0` in either the PodSecurityContext or container SecurityContext then the container will always run as root and so the audit will fail. 
+
+If `runAsUser` is set to a non-root UID (either in PodSecurityContext or container SecurityContext) it won't matter if `runAsNonRoot` is set to `false` or `nil` and so the audit will always pass.
+
+As for `runAsNonRoot`, ideally, `runAsUser` should be set to a non-root UID in the PodSecurityContext:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template: #PodTemplateSpec
+    spec: #PodSpec
+      securityContext: #PodSecurityContext
+        runAsUser: 1000
       containers:
       - name: myContainer
 ```
@@ -110,4 +127,23 @@ spec:
       - name: myContainer2
         securityContext: #SecurityContext
           runAsNonRoot: false
+```
+
+Example of resource with `nonroot` overridden for a specific container using `runAsUser`:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template: #PodTemplateSpec
+    metadata:
+      labels:
+        container.audit.kubernetes.io/myContainer.allow-run-as-root: ""
+    spec: #PodSpec
+      securityContext: #PodSecurityContext
+        runAsUser: 1000
+      containers:
+        - name: myContainer
+          securityContext: #SecurityContext
+            runAsUser: 0
+        - name: myContainer2
 ```

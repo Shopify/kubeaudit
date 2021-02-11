@@ -39,7 +39,7 @@ The rest of this README will focus on how to use kubeaudit as a command line too
 ```
 brew install kubeaudit
 ```
- 
+
 ### Download a binary
 
 Kubeaudit has official releases that are blessed and stable:
@@ -64,7 +64,7 @@ make
 make install
 ```
 
-Start using `kubeaudit` with the [Quick Start](#quick-start) or view all the [supported  commands](#commands).
+Start using `kubeaudit` with the [Quick Start](#quick-start) or view all the [supported commands](#commands).
 
 ### Kubectl Plugin
 
@@ -122,8 +122,8 @@ $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
 -- [error] AutomountServiceAccountTokenTrueAndDefaultSA
    Message: Default service account with token mounted. automountServiceAccountToken should be set to 'false' or a non-default service account should be used.
 
--- [error] CapabilityNotDropped
-   Message: Capability not dropped. Ideally, the capability drop list should include the single capability 'ALL' which drops all capabilities.
+-- [error] CapabilityShouldDropAll
+   Message: Capability not set to ALL. Ideally, you should drop ALL capabilities and add the specific ones you need to the add list.
    Metadata:
       Container: container
       Capability: AUDIT_WRITE
@@ -190,42 +190,42 @@ For all the ways kubeaudit can be customized, see [Global Flags](#global-flags).
 
 ## Commands
 
-| Command          | Description                                                  | Documentation                     |
-| :--------------- | :----------------------------------------------------------- | :-------------------------------- |
-| `all`            | Runs all available auditors, or those specified using a kubeaudit config. | [docs](docs/all.md)  |
-| `autofix`        | Automatically fixes security issues.                         | [docs](docs/autofix.md)           |
+| Command   | Description                                                               | Documentation           |
+| :-------- | :------------------------------------------------------------------------ | :---------------------- |
+| `all`     | Runs all available auditors, or those specified using a kubeaudit config. | [docs](docs/all.md)     |
+| `autofix` | Automatically fixes security issues.                                      | [docs](docs/autofix.md) |
 
 ### Auditors
 
 Auditors can also be run individually.
 
-| Command          | Description                                                              | Documentation                     |
-| :--------------- | :----------------------------------------------------------------------- | :-------------------------------- |
-| `apparmor`       | Finds containers running without AppArmor.                               | [docs](docs/auditors/apparmor.md) |
-| `asat`           | Finds pods using an automatically mounted default service account        | [docs](docs/auditors/asat.md) |
-| `capabilities`   | Finds containers that do not drop the recommended capabilities or add new ones. | [docs](docs/auditors/capabilities.md) |
-| `hostns`         | Finds containers that have HostPID, HostIPC or HostNetwork enabled.      | [docs](docs/auditors/hostns.md) |
-| `image`          | Finds containers which do not use the desired version of an image (via the tag) or use an image without a tag. | [docs](docs/auditors/image.md) |
-| `limits`         | Finds containers which exceed the specified CPU and memory limits or do not specify any. | [docs](docs/auditors/limits.md) |
-| `mountds`        | Finds containers that have docker socket mounted.                        | [docs](docs/auditors/mountds.md) |
-| `mounts`         | Finds containers that have sensitive host paths mounted.                        | [docs](docs/auditors/mountds.md) |
-| `netpols`        | Finds namespaces that do not have a default-deny network policy.         | [docs](docs/auditors/netpols.md) |
-| `nonroot`        | Finds containers running as root.                                        | [docs](docs/auditors/nonroot.md) |
-| `privesc`        | Finds containers that allow privilege escalation.                        | [docs](docs/auditors/privesc.md) |
-| `privileged`     | Finds containers running as privileged.                                  | [docs](docs/auditors/privileged.md) |
-| `rootfs`         | Finds containers which do not have a read-only filesystem.               | [docs](docs/auditors/rootfs.md) |
-| `seccomp`        | Finds containers running without Seccomp.                                | [docs](docs/auditors/seccomp.md) |
+| Command        | Description                                                                                                    | Documentation                         |
+| :------------- | :------------------------------------------------------------------------------------------------------------- | :------------------------------------ |
+| `apparmor`     | Finds containers running without AppArmor.                                                                     | [docs](docs/auditors/apparmor.md)     |
+| `asat`         | Finds pods using an automatically mounted default service account                                              | [docs](docs/auditors/asat.md)         |
+| `capabilities` | Finds containers that do not drop the recommended capabilities or add new ones.                                | [docs](docs/auditors/capabilities.md) |
+| `hostns`       | Finds containers that have HostPID, HostIPC or HostNetwork enabled.                                            | [docs](docs/auditors/hostns.md)       |
+| `image`        | Finds containers which do not use the desired version of an image (via the tag) or use an image without a tag. | [docs](docs/auditors/image.md)        |
+| `limits`       | Finds containers which exceed the specified CPU and memory limits or do not specify any.                       | [docs](docs/auditors/limits.md)       |
+| `mountds`      | Finds containers that have docker socket mounted.                                                              | [docs](docs/auditors/mountds.md)      |
+| `mounts`       | Finds containers that have sensitive host paths mounted.                                                       | [docs](docs/auditors/mountds.md)      |
+| `netpols`      | Finds namespaces that do not have a default-deny network policy.                                               | [docs](docs/auditors/netpols.md)      |
+| `nonroot`      | Finds containers running as root.                                                                              | [docs](docs/auditors/nonroot.md)      |
+| `privesc`      | Finds containers that allow privilege escalation.                                                              | [docs](docs/auditors/privesc.md)      |
+| `privileged`   | Finds containers running as privileged.                                                                        | [docs](docs/auditors/privileged.md)   |
+| `rootfs`       | Finds containers which do not have a read-only filesystem.                                                     | [docs](docs/auditors/rootfs.md)       |
+| `seccomp`      | Finds containers running without Seccomp.                                                                      | [docs](docs/auditors/seccomp.md)      |
 
 ### Global Flags
 
-| Short   | Long           | Description                                                                                         |
-| :------ | :------------- | :-------------------------------------------------------------------------------------------------- |
-|         | --format       | The output format to use (one of "pretty", "logrus", "json") (default is "pretty")                  |
-| -c      | --kubeconfig   | Path to local Kubernetes config file. Only used in local mode (default is `$HOME/.kube/config`)     |
-| -f      | --manifest     | Path to the yaml configuration to audit. Only used in manifest mode.                                |
-| -n      | --namespace    | Only audit resources in the specified namespace. Not currently supported in manifest mode.          |
-| -m      | --minseverity  | Set the lowest severity level to report (one of "error", "warning", "info") (default "info")        |
-| -e      | --exitcode     | Exit code to use if there are results with severity of "error". Conventionally, 0 is used for success and all non-zero codes for an error. (default 2) |
+| Short | Long          | Description                                                                                                                                            |
+| :---- | :------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+|       | --format      | The output format to use (one of "pretty", "logrus", "json") (default is "pretty")                                                                     |
+| -c    | --kubeconfig  | Path to local Kubernetes config file. Only used in local mode (default is `$HOME/.kube/config`)                                                        |
+| -f    | --manifest    | Path to the yaml configuration to audit. Only used in manifest mode.                                                                                   |
+| -n    | --namespace   | Only audit resources in the specified namespace. Not currently supported in manifest mode.                                                             |
+| -m    | --minseverity | Set the lowest severity level to report (one of "error", "warning", "info") (default "info")                                                           |
+| -e    | --exitcode    | Exit code to use if there are results with severity of "error". Conventionally, 0 is used for success and all non-zero codes for an error. (default 2) |
 
 ## Configuration File
 
@@ -256,9 +256,8 @@ enabledAuditors:
   seccomp: true
 auditors:
   capabilities:
-    # If no capabilities are specified and the 'capabilities' auditor is enabled,
-    # a list of recommended capabilities to drop is used
-    drop: ['AUDIT_WRITE', 'CHOWN']
+    # add capabilities needed to the add list, so kubeaudit won't report errors
+    add: ['AUDIT_WRITE', 'CHOWN']
   image:
     # If no image is specified and the 'image' auditor is enabled, WARN results
     # will be generated for containers which use an image without a tag
@@ -274,6 +273,8 @@ For more details about each auditor, including a description of the auditor-spec
 
 **Note**: The kubeaudit config is not the same as the kubeconfig file specified with the `-c/--kubeconfig` flag, which refers to the Kubernetes config file (see [Local Mode](/README.md#local-mode)). Also note that only the `all` and `autofix` commands support using a kubeaudit config. It will not work with other commands.
 
+**Note**: If flags are used in combination with the config file, flags will take precedence.
+
 ## Override Errors
 
 Security issues can be ignored for specific containers or pods by adding override labels. This means the auditor will produce `info` results instead of `error` results and the audit result name will have `Allowed` appended to it. The labels are documented in each auditor's documentation, but the general format for auditors that support overrides is as follows:
@@ -283,15 +284,19 @@ An override label consists of a `key` and a `value`.
 The `key` is a combination of the override type (container or pod) and an `override identifier` which is unique to each auditor (see the [docs](#auditors) for the specific auditor). The `key` can take one of two forms depending on the override type:
 
 1. **Container overrides**, which override the auditor for that specific container, are formatted as follows:
+
 ```yaml
 container.audit.kubernetes.io/[container name].[override identifier]
 ```
+
 2. **Pod overrides**, which override the auditor for all containers within the pod, are formatted as follows:
+
 ```yaml
 audit.kubernetes.io/pod.[override identifier]
 ```
 
 If the `value` is set to a non-empty string, it will be displayed in the `info` result as the `OverrideReason`:
+
 ```
 $ kubeaudit asat -f "auditors/asat/fixtures/service-account-token-true-allowed.yml"
 

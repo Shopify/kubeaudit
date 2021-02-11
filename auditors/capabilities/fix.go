@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Shopify/kubeaudit/k8stypes"
+	v1 "k8s.io/api/core/v1"
 )
 
 type fixCapabilityAdded struct {
@@ -20,21 +21,21 @@ func (f *fixCapabilityAdded) Apply(resource k8stypes.Resource) []k8stypes.Resour
 	return nil
 }
 
-type fixCapabilityNotDropped struct {
+type fixCapabilityNotDroppedAll struct {
 	container  *k8stypes.ContainerV1
 	capability string
 }
 
-func (f *fixCapabilityNotDropped) Plan() string {
-	return fmt.Sprintf("Add capability '%s' to the capability drop list in the container SecurityContext for container %s", f.capability, f.container.Name)
+func (f *fixCapabilityNotDroppedAll) Plan() string {
+	return fmt.Sprintf("Remove '%s' capability from drop list in the container SecurityContext for container %s", f.capability, f.container.Name)
 }
 
-func (f *fixCapabilityNotDropped) Apply(resource k8stypes.Resource) []k8stypes.Resource {
-	dropCapability(f.container, f.capability)
+func (f *fixCapabilityNotDroppedAll) Apply(resource k8stypes.Resource) []k8stypes.Resource {
+	dropCapabilityFromDropList(f.container, f.capability)
 	return nil
 }
 
-func dropCapability(container *k8stypes.ContainerV1, capability string) {
+func dropCapabilityFromDropList(container *k8stypes.ContainerV1, capability string) {
 	if container.SecurityContext == nil {
 		container.SecurityContext = &k8stypes.SecurityContextV1{}
 	}
@@ -47,9 +48,7 @@ func dropCapability(container *k8stypes.ContainerV1, capability string) {
 		container.SecurityContext.Capabilities.Drop = []k8stypes.CapabilityV1{}
 	}
 
-	dropped := container.SecurityContext.Capabilities.Drop
-	dropped = append(dropped, k8stypes.CapabilityV1(capability))
-	container.SecurityContext.Capabilities.Drop = dropped
+	container.SecurityContext.Capabilities.Drop = []v1.Capability{"ALL"}
 }
 
 func removeCapabilityFromAddList(container *k8stypes.ContainerV1, capability string) {
@@ -62,4 +61,33 @@ func removeCapabilityFromAddList(container *k8stypes.ContainerV1, capability str
 	}
 
 	container.SecurityContext.Capabilities.Add = added
+}
+
+type fixMissingSecurityContextOrCapability struct {
+	container *k8stypes.ContainerV1
+}
+
+func (f *fixMissingSecurityContextOrCapability) Plan() string {
+	return fmt.Sprintf("Adds security context and capabilities to %s. The capabilities Drop list is set to ALL.", f.container.Name)
+}
+
+func (f *fixMissingSecurityContextOrCapability) Apply(resource k8stypes.Resource) []k8stypes.Resource {
+	setDropToAll(f.container)
+	return nil
+}
+
+func setDropToAll(container *k8stypes.ContainerV1) {
+	if container.SecurityContext == nil {
+		container.SecurityContext = &k8stypes.SecurityContextV1{}
+	}
+
+	if container.SecurityContext.Capabilities == nil {
+		container.SecurityContext.Capabilities = &k8stypes.CapabilitiesV1{}
+	}
+
+	if container.SecurityContext.Capabilities.Drop == nil {
+		container.SecurityContext.Capabilities.Drop = []k8stypes.CapabilityV1{}
+	}
+
+	container.SecurityContext.Capabilities.Drop = []v1.Capability{"ALL"}
 }

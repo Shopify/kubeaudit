@@ -22,17 +22,6 @@ spec:
               add:
                 - SYS_TIME
                 - SYS_MODULE
+                - CHOWN
               drop:
-                - AUDIT_WRITE
-                - DAC_OVERRIDE
-                - FOWNER
-                - FSETID
-                - KILL
-                - MKNOD
-                - NET_BIND_SERVICE
-                - NET_RAW
-                - SETFCAP
-                - SETGID
-                - SETUID
-                - SETPCAP
-                - SYS_CHROOT
+                - ALL

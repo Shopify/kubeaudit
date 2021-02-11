@@ -1,8 +1,8 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deployment
-  namespace: capabilities-added
+  namespace: run-as-user-0-run-as-non-root-true
 spec:
   selector:
     matchLabels:
@@ -16,9 +16,5 @@ spec:
         - name: container
           image: scratch
           securityContext:
-            capabilities:
-              add:
-                - NET_ADMIN
-                - CHOWN
-              drop:
-                - ALL
+            runAsUser: 0
+            runAsNonRoot: true

@@ -79,8 +79,7 @@ func mergeMaps(orig, fixed *goyaml.Node) *goyaml.Node {
 		origKey := origContent[i]
 		if isKeyInMap(origKey, fixed) {
 			origVal := origContent[i+1]
-			merged.Content = append(merged.Content, origKey)
-			merged.Content = append(merged.Content, origVal)
+			merged.Content = append(merged.Content, origKey, origVal)
 		}
 	}
 
@@ -90,8 +89,7 @@ func mergeMaps(orig, fixed *goyaml.Node) *goyaml.Node {
 		fixedVal := fixedContent[i+1]
 		if mergedKeyIndex := findKeyInMap(fixedKey, merged); mergedKeyIndex == -1 {
 			// Add item
-			merged.Content = append(merged.Content, fixedKey)
-			merged.Content = append(merged.Content, fixedVal)
+			merged.Content = append(merged.Content, fixedKey, fixedVal)
 		} else {
 			// Update item
 			mergedValIndex := mergedKeyIndex + 1
