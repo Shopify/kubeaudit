@@ -23,7 +23,7 @@ func TestSensitivePathsMounted(t *testing.T) {
 		{"proc-mounted-allowed-multi-containers-single-label.yml", fixtureDir, []string{SensitivePathsMounted, override.GetOverriddenResultName(SensitivePathsMounted)}},
 	}
 
-	config := Config{SensitivePaths: DefaultSensitivePaths}
+	config := Config{}
 
 	for _, tc := range cases {
 		t.Run(tc.file, func(t *testing.T) {

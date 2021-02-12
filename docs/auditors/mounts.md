@@ -1,6 +1,6 @@
 # Sensitive Host Path Mounted Auditor (mounts)
 
-Finds containers that have sensitive host paths mounted. 
+Finds containers that have sensitive host paths mounted.
 
 ## General Usage
 
@@ -32,7 +32,6 @@ Also see [Global Flags](/README.md#global-flags)
 | /etc/kubernetes           |  Directory containing Kubernetes related configuration              |
 | /etc/kubernetes/manifests |  Directory containing manifest of Kubernetes components                                                         |
 
-
 ## Examples
 
 ```
@@ -58,7 +57,8 @@ $ kubeaudit mounts -f auditors/mounts/fixtures/proc-mounted.yml
 
 ### Example with Config File
 
-A custom paths list can be provided in the config file. See [docs](docs/all.md) for more information. These are the host paths you'd like to have kubeaudit raise an error when they are mounted in a container. 
+A custom paths list can be provided in the config file. See [docs](docs/all.md) for more information. These are the host
+paths you'd like to have kubeaudit raise an error when they are mounted in a container.
 
 `config.yaml`
 
@@ -98,7 +98,7 @@ spec:
 ```
 
 ```shell
-$ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
+$ kubeaudit mounts --kconfig "config.yaml" -f "manifest.yaml"
 
 ---------------- Results for ---------------
 
@@ -125,7 +125,8 @@ $ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
 
 ### Example with Custom Paths List
 
-A custom paths list can be provided as a comma separated value list of paths using the `--paths` flag. These are the host paths you'd like to have kubeaudit raise an error when they are mounted in a container.
+A custom paths list can be provided as a comma separated value list of paths using the `--paths` flag. These are the
+host paths you'd like to have kubeaudit raise an error when they are mounted in a container.
 
 `manifest.yaml` (example manifest)
 
@@ -140,7 +141,7 @@ volumes:
 ```
 
 ```shell
-$ kubeaudit capabilities --path "/etc,/var/run/docker.sock" -f "manifest.yaml"
+$ kubeaudit mounts --paths "/etc,/var/run/docker.sock" -f "manifest.yaml"
 ---------------- Results for ---------------
 
   apiVersion: apps/v1beta2
@@ -164,14 +165,15 @@ $ kubeaudit capabilities --path "/etc,/var/run/docker.sock" -f "manifest.yaml"
       Mount: docker-socket-volume
 ```
 
-
 ## Explanation
 
-Mounting some sensitive host paths (like `/etc`, `/proc`, or `/var/run/docker.sock`) may allow a container to access sensitive information from the host like credentials or to spy on other workloads' activity.
+Mounting some sensitive host paths (like `/etc`, `/proc`, or `/var/run/docker.sock`) may allow a container to access
+sensitive information from the host like credentials or to spy on other workloads' activity.
 
 These sensitive paths should not be mounted.
 
 Example of a resource which **fails** the `mounts` audit:
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -194,9 +196,11 @@ spec:
 
 First, see the [Introduction to Override Errors](/README.md#override-errors).
 
-The override identifier has the format `allow-host-path-mount-[mount name]` which allows for each mount to be individually overridden.
+The override identifier has the format `allow-host-path-mount-[mount name]` which allows for each mount to be
+individually overridden.
 
 Example of resource with `mounts` overridden for a specific container:
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -221,6 +225,7 @@ spec:
 ```
 
 Example of resource with `mounts` overridden for a whole pod:
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment

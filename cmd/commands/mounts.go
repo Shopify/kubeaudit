@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const sensitivePathsFlagName = "paths"
+
 var mountsConfig mounts.Config
 
 var mountsCmd = &cobra.Command{
@@ -32,7 +34,7 @@ func init() {
 }
 
 func setPathsFlags(cmd *cobra.Command) {
-	cmd.Flags().StringSliceVarP(&mountsConfig.SensitivePaths, "paths", "s", mounts.DefaultSensitivePaths,
+	cmd.Flags().StringSliceVarP(&mountsConfig.SensitivePaths, sensitivePathsFlagName, "s", mounts.DefaultSensitivePaths,
 		"List of sensitive paths that shouldn't be mounted")
 }
 
