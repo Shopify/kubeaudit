@@ -256,7 +256,7 @@ enabledAuditors:
 auditors:
   capabilities:
     # add capabilities needed to the add list, so kubeaudit won't report errors
-    add: ['AUDIT_WRITE', 'CHOWN']
+    allowAddList: ['AUDIT_WRITE', 'CHOWN']
   image:
     # If no image is specified and the 'image' auditor is enabled, WARN results
     # will be generated for containers which use an image without a tag
