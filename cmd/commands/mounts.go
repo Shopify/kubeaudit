@@ -22,7 +22,7 @@ paths are used:
 A WARN result is generated when a container mounts one or more paths specified with the '--paths' argument.
 
 Example usage:
-kubeaudit mount --paths "%s"`, formatPathsList(), strings.Join(mounts.DefaultSensitivePaths[:3], ",")),
+kubeaudit mounts --paths "%s"`, formatPathsList(), strings.Join(mounts.DefaultSensitivePaths[:3], ",")),
 	Run: func(cmd *cobra.Command, args []string) {
 		runAudit(mounts.New(mountsConfig))(cmd, args)
 	},

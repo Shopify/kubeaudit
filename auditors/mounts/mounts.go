@@ -7,7 +7,6 @@ import (
 	"github.com/Shopify/kubeaudit/internal/override"
 	"github.com/Shopify/kubeaudit/k8stypes"
 	v1 "k8s.io/api/core/v1"
-	"strings"
 )
 
 const Name = "mounts"
@@ -26,6 +25,8 @@ const (
 	MountNameMetadataKey     = "MountName"
 	MountPathMetadataKey     = "MountPath"
 	MountReadOnlyMetadataKey = "MountReadOnly"
+	MountVolumeNameKey       = "MountVolume"
+	MountVolumeHostPathKey   = "MountVolumeHostPath"
 )
 
 // SensitivePathMounts implements Auditable
@@ -107,6 +108,8 @@ func auditContainer(container *k8stypes.ContainerV1, sensitiveVolumes map[string
 					MountNameMetadataKey:     mount.Name,
 					MountPathMetadataKey:     mount.MountPath,
 					MountReadOnlyMetadataKey: fmt.Sprintf("%t", mount.ReadOnly),
+					MountVolumeNameKey:       volume.Name,
+					MountVolumeHostPathKey:   volume.HostPath.Path,
 				},
 			})
 		}
@@ -116,5 +119,5 @@ func auditContainer(container *k8stypes.ContainerV1, sensitiveVolumes map[string
 }
 
 func getOverrideLabel(mountName string) string {
-	return overrideLabelPrefix + strings.Replace(strings.ToLower(mountName), "_", "-", -1)
+	return overrideLabelPrefix + mountName
 }

@@ -51,7 +51,11 @@ $ kubeaudit mounts -f auditors/mounts/fixtures/proc-mounted.yml
    Message: Sensitive path mounted as volume: proc-volume (/proc -> /host/proc, readOnly: false). It should be removed from the container's mounts list.
    Metadata:
       Container: container
-      Mount: proc-volume
+      MountName: proc-volume
+      MountPath: /host/proc
+      MountReadOnly: false
+      MountVolume: proc-volume
+      MountVolumeHostPath: /proc
 
 ```
 
@@ -111,16 +115,24 @@ $ kubeaudit mounts --kconfig "config.yaml" -f "manifest.yaml"
 --------------------------------------------
 
 -- [error] SensitivePathsMounted
-   Message: Sensitive path mounted as volume: etc-volume (/etc -> /host/etc, readOnly: false). It should be removed from the container's mounts list.
+   Message: Sensitive path mounted as volume: etc-volume (hostPath: /etc). It should be removed from the container's mounts list.
    Metadata:
       Container: container
-      Mount: etc-volume
+      MountName: etc-volume
+      MountPath: /host/etc
+      MountReadOnly: false
+      MountVolume: etc-volume
+      MountVolumeHostPath: /etc
 
 -- [error] SensitivePathsMounted
-   Message: Sensitive path mounted as volume: docker-socket-volume (/var/run/docker.sock -> /var/run/docker.sock, readOnly: false). It should be removed from the container's mounts list.
+   Message: Sensitive path mounted as volume: docker-socket-volume (hostPath: /var/run/docker.sock). It should be removed from the container's mounts list.
    Metadata:
+      MountReadOnly: false
+      MountVolume: docker-socket-volume
+      MountVolumeHostPath: /var/run/docker.sock
       Container: container
-      Mount: docker-socket-volume
+      MountName: docker-socket-volume
+      MountPath: /var/run/docker.sock
 ```
 
 ### Example with Custom Paths List
@@ -153,16 +165,24 @@ $ kubeaudit mounts --paths "/etc,/var/run/docker.sock" -f "manifest.yaml"
 --------------------------------------------
 
 -- [error] SensitivePathsMounted
-   Message: Sensitive path mounted as volume: etc-volume (/etc -> /host/etc, readOnly: false). It should be removed from the container's mounts list.
+   Message: Sensitive path mounted as volume: etc-volume (hostPath: /etc). It should be removed from the container's mounts list.
    Metadata:
       Container: container
-      Mount: etc-volume
+      MountName: etc-volume
+      MountPath: /host/etc
+      MountReadOnly: false
+      MountVolume: etc-volume
+      MountVolumeHostPath: /etc
 
 -- [error] SensitivePathsMounted
-   Message: Sensitive path mounted as volume: docker-socket-volume (/var/run/docker.sock -> /var/run/docker.sock, readOnly: false). It should be removed from the container's mounts list.
+   Message: Sensitive path mounted as volume: docker-socket-volume (hostPath: /var/run/docker.sock). It should be removed from the container's mounts list.
    Metadata:
       Container: container
-      Mount: docker-socket-volume
+      MountName: docker-socket-volume
+      MountPath: /var/run/docker.sock
+      MountReadOnly: false
+      MountVolume: docker-socket-volume
+      MountVolumeHostPath: /var/run/docker.sock
 ```
 
 ## Explanation
