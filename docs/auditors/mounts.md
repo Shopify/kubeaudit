@@ -28,7 +28,7 @@ Also see [Global Flags](/README.md#global-flags)
 | /var/run/crio/crio.sock   |  Unix socket used to communicate with the CRI-O Container Engine                                                 |
 | /home/admin               |  Home directory of the `admin` user        |
 | /var/lib/kubelet          |  Directory for Kublet-related configuration                                                             |
-| /var/lib/kubelet/pki      |  Directory containing the certificate and private key of the Kublet                                                               |
+| /var/lib/kubelet/pki      |  Directory containing the certificate and private key of the kublet                                                               |
 | /etc/kubernetes           |  Directory containing Kubernetes related configuration              |
 | /etc/kubernetes/manifests |  Directory containing manifest of Kubernetes components                                                         |
 
@@ -61,13 +61,14 @@ $ kubeaudit mounts -f auditors/mounts/fixtures/proc-mounted.yml
 
 ### Example with Config File
 
-A custom paths list can be provided in the config file. See [docs](docs/all.md) for more information. These are the host
-paths you'd like to have kubeaudit raise an error when they are mounted in a container.
+If you don't want kubeaudit to raise errors for all the paths in the default list (`DefaultSensitivePaths`), you can provide a custom paths list in the config file. See [docs](docs/all.md) for more information. That way kubeaudit will only raise errors for those specific paths listed in the config file.
 
 `config.yaml`
 
 ```yaml
 ---
+enabledAuditors:
+  mounts: true
 auditors:
   mounts:
     paths: ["/etc", "/var/run/docker.sock"]
@@ -102,7 +103,7 @@ spec:
 ```
 
 ```shell
-$ kubeaudit mounts --kconfig "config.yaml" -f "manifest.yaml"
+$ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
 
 ---------------- Results for ---------------
 
