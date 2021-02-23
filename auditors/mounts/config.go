@@ -1,7 +1,7 @@
 package mounts
 
 type Config struct {
-	SensitivePaths []string `yaml:"paths"`
+	SensitivePaths []string `yaml:"denyPathsList"`
 }
 
 func (config *Config) GetSensitivePaths() []string {

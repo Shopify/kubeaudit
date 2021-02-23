@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const sensitivePathsFlagName = "paths"
+const sensitivePathsFlagName = "denyPathsList"
 
 var mountsConfig mounts.Config
 

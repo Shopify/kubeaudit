@@ -10,9 +10,9 @@ kubeaudit mounts [flags]
 
 ### Flags
 
-| Short   | Long      | Description                                                          | Default                                                                  |
-| :------ | :-------- | :------------------------------------------------------------------- | :----------------------------------------------------------------------- |
-| -s      | --paths   | List of sensitive paths that shouldn't be mounted.                   | [default sensitive host paths list](#Default-sensitive-host-paths-list)  |
+| Short   | Long              | Description                                                          | Default                                                                  |
+| :------ | :---------------- | :------------------------------------------------------------------- | :----------------------------------------------------------------------- |
+| -s      | --denyPathsList   | List of sensitive paths that shouldn't be mounted.                   | [default sensitive host paths list](#Default-sensitive-host-paths-list)  |
 
 Also see [Global Flags](/README.md#global-flags)
 
@@ -71,7 +71,7 @@ enabledAuditors:
   mounts: true
 auditors:
   mounts:
-    paths: ["/etc", "/var/run/docker.sock"]
+    denyPathsList: ["/etc", "/var/run/docker.sock"]
 ```
 
 `manifest.yaml`
@@ -154,7 +154,7 @@ volumes:
 ```
 
 ```shell
-$ kubeaudit mounts --paths "/etc,/var/run/docker.sock" -f "manifest.yaml"
+$ kubeaudit mounts --denyPathsList "/etc,/var/run/docker.sock" -f "manifest.yaml"
 ---------------- Results for ---------------
 
   apiVersion: apps/v1beta2
