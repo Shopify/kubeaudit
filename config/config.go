@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/Shopify/kubeaudit/auditors/mounts"
 	"io"
 	"io/ioutil"
 
@@ -54,4 +55,5 @@ type AuditorConfig struct {
 	Capabilities capabilities.Config `yaml:"capabilities"`
 	Image        image.Config        `yaml:"image"`
 	Limits       limits.Config       `yaml:"limits"`
+	Mounts       mounts.Config       `yaml:"mounts"`
 }
