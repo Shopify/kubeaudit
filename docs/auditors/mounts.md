@@ -61,7 +61,9 @@ $ kubeaudit mounts -f auditors/mounts/fixtures/proc-mounted.yml
 
 ### Example with Config File
 
-If you don't want kubeaudit to raise errors for all the paths in the default list (`DefaultSensitivePaths`), you can provide a custom paths list in the config file. See [docs](docs/all.md) for more information. That way kubeaudit will only raise errors for those specific paths listed in the config file.
+If you don't want kubeaudit to raise errors for all the paths in the default list (`DefaultSensitivePaths`), you can
+provide a custom paths list in the config file. See [docs](docs/all.md) for more information. That way kubeaudit will
+only raise errors for those specific paths listed in the config file.
 
 `config.yaml`
 
@@ -138,8 +140,8 @@ $ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
 
 ### Example with Custom Paths List
 
-A custom paths list can be provided as a comma separated value list of paths using the `--paths` flag. These are the
-host paths you'd like to have kubeaudit raise an error when they are mounted in a container.
+A custom paths list can be provided as a comma separated value list of paths using the `--denyPathsList` flag. These are
+the host paths you'd like to have kubeaudit raise an error when they are mounted in a container.
 
 `manifest.yaml` (example manifest)
 
