@@ -12,7 +12,7 @@ kubeaudit mounts [flags]
 
 | Short   | Long              | Description                                                          | Default                                                                  |
 | :------ | :---------------- | :------------------------------------------------------------------- | :----------------------------------------------------------------------- |
-| -s      | --denyPathsList   | List of sensitive paths that shouldn't be mounted.                   | [default sensitive host paths list](#Default-sensitive-host-paths-list)  |
+| -d      | --denyPathsList   | List of sensitive paths that shouldn't be mounted.                   | [default sensitive host paths list](#Default-sensitive-host-paths-list)  |
 
 Also see [Global Flags](/README.md#global-flags)
 

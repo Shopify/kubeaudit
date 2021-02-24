@@ -19,10 +19,10 @@ var mountsCmd = &cobra.Command{
 paths are used:
 %s
 
-A WARN result is generated when a container mounts one or more paths specified with the '--paths' argument.
+A WARN result is generated when a container mounts one or more paths specified with the '--denyPathsList' argument.
 
 Example usage:
-kubeaudit mounts --paths "%s"`, formatPathsList(), strings.Join(mounts.DefaultSensitivePaths[:3], ",")),
+kubeaudit mounts --denyPathsList "%s"`, formatPathsList(), strings.Join(mounts.DefaultSensitivePaths[:3], ",")),
 	Run: func(cmd *cobra.Command, args []string) {
 		runAudit(mounts.New(mountsConfig))(cmd, args)
 	},
@@ -34,7 +34,7 @@ func init() {
 }
 
 func setPathsFlags(cmd *cobra.Command) {
-	cmd.Flags().StringSliceVarP(&mountsConfig.SensitivePaths, sensitivePathsFlagName, "s", mounts.DefaultSensitivePaths,
+	cmd.Flags().StringSliceVarP(&mountsConfig.SensitivePaths, sensitivePathsFlagName, "d", mounts.DefaultSensitivePaths,
 		"List of sensitive paths that shouldn't be mounted")
 }
 
