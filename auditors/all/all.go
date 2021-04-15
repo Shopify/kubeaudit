@@ -11,7 +11,6 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/hostns"
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/auditors/limits"
-	"github.com/Shopify/kubeaudit/auditors/mountds"
 	"github.com/Shopify/kubeaudit/auditors/mounts"
 	"github.com/Shopify/kubeaudit/auditors/netpols"
 	"github.com/Shopify/kubeaudit/auditors/nonroot"
@@ -32,7 +31,6 @@ var AuditorNames = []string{
 	image.Name,
 	limits.Name,
 	mounts.Name,
-	mountds.Name,
 	netpols.Name,
 	nonroot.Name,
 	privesc.Name,
@@ -75,8 +73,6 @@ func initAuditor(name string, conf config.KubeauditConfig) (kubeaudit.Auditable,
 		return limits.New(conf.GetAuditorConfigs().Limits)
 	case mounts.Name:
 		return mounts.New(conf.GetAuditorConfigs().Mounts), nil
-	case mountds.Name:
-		return mountds.New(), nil
 	case netpols.Name:
 		return netpols.New(), nil
 	case nonroot.Name:

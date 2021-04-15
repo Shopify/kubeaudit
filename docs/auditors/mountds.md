@@ -1,5 +1,7 @@
 # Docker Socket Mounted Auditor (mountds)
 
+DEPRECATED. Please use `mounts` instead. This command will be removed in a future minor version.
+
 Finds containers that have the docker socket mounted.
 
 ## General Usage
