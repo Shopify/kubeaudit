@@ -8,7 +8,6 @@ enabledAuditors:
     hostns: true
     image: true
     limits: true
-    mountds: true
     mounts: true
     netpols: true
     nonroot: true
