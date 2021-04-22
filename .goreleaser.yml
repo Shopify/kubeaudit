@@ -13,7 +13,6 @@ dockers:
   image_templates:
   - "shopify/kubeaudit:latest"
   - "shopify/kubeaudit:{{ .Tag }}"
-  - "shopify/kubeaudit:v{{ .Major }}"
   - "shopify/kubeaudit:v{{ .Major }}.{{ .Minor }}"
 builds:
 - goos:
