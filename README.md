@@ -194,6 +194,7 @@ For all the ways kubeaudit can be customized, see [Global Flags](#global-flags).
 | :-------- | :------------------------------------------------------------------------ | :---------------------- |
 | `all`     | Runs all available auditors, or those specified using a kubeaudit config. | [docs](docs/all.md)     |
 | `autofix` | Automatically fixes security issues.                                      | [docs](docs/autofix.md) |
+| `version` | Prints the current kubeaudit version.                                     |                         |
 
 ### Auditors
 

@@ -8,7 +8,9 @@
 
 If the changes since the most recent release are bug fixes only, bump the last number (the patch version). If any of the changes since the last release include a new feature or breaking change, bump the second number (the minor version) and set the last number to 0 (the patch version). For example, if the latest release is `v0.11.5` and there were only bug fixes merged to master since then, the next version number will be `v0.11.6`. If there were new features added or a breaking change was made, the next version would be `v0.12.0`.
 
-3. Create a tag with the new version and push it up to Github:
+3. Update the `VERSION` file if necessary. You'll have to open / merge a PR to do this.
+
+4. Create a tag with the new version and push it up to Github:
 
 ```
 git tag -a <VERSION> -m "<VERSION>"
@@ -22,11 +24,11 @@ git tag -a v0.11.6 -m "v0.11.6"
 git push origin v0.11.6
 ```
 
-4. You will need a Github token in order for Goreleaser to be able to create a release in Github. If you already have one, skip to the next step.
+5. You will need a Github token in order for Goreleaser to be able to create a release in Github. If you already have one, skip to the next step.
 
 [Create a Github token](https://github.com/settings/tokens/new) with the `repo` scope.
 
-5. Run Goreleaser
+6. Run Goreleaser
 
 Make sure you have Docker running.
 
@@ -34,7 +36,7 @@ Make sure you have Docker running.
 GITHUB_TOKEN=<YOUR TOKEN> goreleaser --rm-dist
 ```
 
-6. Publish the release in Github
+7. Publish the release in Github
 
 Goreleaser is set to draft mode which means it will create a draft release in Github, allowing you to double check the release and make changes to the Changelog. Find the [draft release](https://github.com/Shopify/kubeaudit/releases) and make sure there are no commits to master since the release.
 
@@ -48,7 +50,7 @@ Click `Edit` on the right of the draft release and tidy up the Changelog if nece
 
 Click on `Publish release` at the bottom.
 
-7. Publish Docker images
+8. Publish Docker images
 
 Since Goreleaser is set to draft mode, it will build Docker images but not publish them. You can see the images with `docker images`.
 

@@ -10,7 +10,7 @@ LDFLAGS=$(shell build/ldflags.sh)
 
 # kubernetes client won't build with go<1.10
 GOVERSION:=$(shell go version | awk '{print $$3}')
-GOVERSION_MIN:=go1.12
+GOVERSION_MIN:=go1.16
 GOVERSION_CHECK=$(shell printf "%s\n%s\n" "$(GOVERSION)" "$(GOVERSION_MIN)" | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n | head -n 1)
 
 # Test parameters
