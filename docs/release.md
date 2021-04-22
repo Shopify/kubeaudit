@@ -24,11 +24,15 @@ git tag -a v0.11.6 -m "v0.11.6"
 git push origin v0.11.6
 ```
 
-5. You will need a Github token in order for Goreleaser to be able to create a release in Github. If you already have one, skip to the next step.
+5. Login to Docker
+
+Login to the Shopify Docker account using `docker login`. Find the credentials in password manager.
+
+6. You will need a Github token in order for Goreleaser to be able to create a release in Github. If you already have one, skip to the next step.
 
 [Create a Github token](https://github.com/settings/tokens/new) with the `repo` scope.
 
-6. Run Goreleaser
+7. Run Goreleaser
 
 Make sure you have Docker running.
 
@@ -36,7 +40,11 @@ Make sure you have Docker running.
 GITHUB_TOKEN=<YOUR TOKEN> goreleaser --rm-dist
 ```
 
-7. Publish the release in Github
+8. Logout of docker
+
+Logout of the Shopify Docker account: `docker logout`
+
+9. Publish the release in Github
 
 Goreleaser is set to draft mode which means it will create a draft release in Github, allowing you to double check the release and make changes to the Changelog. Find the [draft release](https://github.com/Shopify/kubeaudit/releases) and make sure there are no commits to master since the release.
 
@@ -49,23 +57,3 @@ Click `Edit` on the right of the draft release and tidy up the Changelog if nece
 ```
 
 Click on `Publish release` at the bottom.
-
-8. Publish Docker images
-
-Since Goreleaser is set to draft mode, it will build Docker images but not publish them. You can see the images with `docker images`.
-
-Login to the Shopify Docker account using `docker login`. Find the credentials in password manager.
-
-Push up the following three images:
-
-- latest: `shopify/kubeaudit:latest`
-- patch: `shopify/kubeaudit:v0.<MINOR>.<PATCH>` for example `shopify/kubeaudit:v0.11.6`
-- minor: `shopify/kubeaudit:v0.<MINOR>` for example `shopify/kubeaudit:v0.11`
-
-```
-docker push shopify/kubeaudit:latest
-docker push shopify/kubeaudit:v0.<MINOR>.<PATCH>
-docker push shopify/kubeaudit:v0.<MINOR>
-```
-
-Logout of the Shopify Docker account: `docker logout`
