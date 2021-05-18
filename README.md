@@ -47,20 +47,11 @@ Kubeaudit has official releases that are blessed and stable:
 ### DIY build
 
 Master may have newer features than the stable releases. If you need a newer
-feature not yet included in a release you can do the following to get
-kubeaudit:
+feature not yet included in a release, make sure you're using Go 1.16 and run
+the following:
 
-**For go 1.12 and higher:**
 ```sh
-GO111MODULE=on go get -v github.com/Shopify/kubeaudit
-```
-
-**For older versions of go:**
-```sh
-git clone https://github.com/Shopify/kubeaudit.git
-cd kubeaudit
-make
-make install
+go get -v github.com/Shopify/kubeaudit
 ```
 
 Start using `kubeaudit` with the [Quick Start](#quick-start) or view all the [supported commands](#commands).
