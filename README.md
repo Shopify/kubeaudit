@@ -47,7 +47,7 @@ Kubeaudit has official releases that are blessed and stable:
 ### DIY build
 
 Master may have newer features than the stable releases. If you need a newer
-feature not yet included in a release, make sure you're using Go 1.16 and run
+feature not yet included in a release, make sure you're using Go 1.16+ and run
 the following:
 
 ```sh
