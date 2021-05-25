@@ -1,4 +1,5 @@
 [![Build Status](https://api.travis-ci.org/Shopify/kubeaudit.svg?branch=master)](https://travis-ci.org/Shopify/kubeaudit/)
+[![Build Status](https://github.com/Shopify/kubeaudit/actions/workflows/ci.yml/badge.svg)](https://github.com/Shopify/kubeaudit/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Shopify/kubeaudit)](https://goreportcard.com/report/github.com/Shopify/kubeaudit)
 [![GoDoc](https://godoc.org/github.com/Shopify/kubeaudit?status.png)](https://godoc.org/github.com/Shopify/kubeaudit)
 
