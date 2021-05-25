@@ -16,6 +16,8 @@ jobs:
       - name: Install kubectl
         run: sudo snap install kubectl --classic
       - name: Install kind
-        run: go get sigs.k8s.io/kind
+        run: GO111MODULE=on go get sigs.k8s.io/kind
+      - name: Go mod download and go tidy
+        run: make setup
       - name: Run tests
         run: make test

@@ -45,6 +45,10 @@ test-teardown:
 show-coverage: test
 	go tool cover -html=coverage.txt
 
+setup:
+	$(GOMOD) download
+	$(GOMOD) tidy
+
 clean:
 	$(GOCLEAN)
 	rm -f $(BINARY_NAME)
