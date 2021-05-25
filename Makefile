@@ -22,7 +22,7 @@ ifneq ($(GOVERSION_MIN), $(GOVERSION_CHECK))
 $(error Detected Go version $(GOVERSION) < required version $(GOVERSION_MIN))
 endif
 
-all: setup test build
+all: test build
 
 build:
 	$(GOBUILD) -o $(BINARY_NAME) -v -ldflags=all="$(LDFLAGS)" cmd/main.go
@@ -45,14 +45,14 @@ test-teardown:
 show-coverage: test
 	go tool cover -html=coverage.txt
 
+setup:
+	$(GOMOD) download
+	$(GOMOD) tidy
+
 clean:
 	$(GOCLEAN)
 	rm -f $(BINARY_NAME)
 	rm -f $(BINARY_UNIX)
-
-setup:
-	$(GOMOD) download
-	$(GOMOD) tidy
 
 # Cross Compilation
 build-linux:
@@ -61,4 +61,4 @@ build-linux:
 docker-build:
 	docker run --rm -it -v "$(GOPATH)":/go -w /go/src/github.com/Shopify/kubeaudit golang:1.12 go build -o "$(BINARY_UNIX)" -v
 
-.PHONY: all build install plugin test test-setup test-teardown show-coverage clean setup build-linux docker-build
+.PHONY: all build install plugin test test-setup test-teardown show-coverage clean build-linux docker-build
