@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/Shopify/kubeaudit/auditors/mounts"
 	"io"
 	"io/ioutil"
+
+	"github.com/Shopify/kubeaudit/auditors/mounts"
 
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
 	"github.com/Shopify/kubeaudit/auditors/image"
@@ -31,17 +32,11 @@ type KubeauditConfig struct {
 	AuditorConfig   AuditorConfig   `yaml:"auditors"`
 }
 
-func (conf *KubeauditConfig) GetEnabledAuditors() []string {
+func (conf *KubeauditConfig) GetEnabledAuditors() map[string]bool {
 	if conf == nil {
-		return []string{}
+		return map[string]bool{}
 	}
-	enabledAuditors := make([]string, 0, len(conf.EnabledAuditors))
-	for auditorName, enabled := range conf.EnabledAuditors {
-		if enabled {
-			enabledAuditors = append(enabledAuditors, auditorName)
-		}
-	}
-	return enabledAuditors
+	return conf.EnabledAuditors
 }
 
 func (conf *KubeauditConfig) GetAuditorConfigs() AuditorConfig {

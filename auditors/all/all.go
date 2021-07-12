@@ -40,13 +40,8 @@ var AuditorNames = []string{
 }
 
 func Auditors(conf config.KubeauditConfig) ([]kubeaudit.Auditable, error) {
-	enabledAuditors := conf.GetEnabledAuditors()
-	if len(enabledAuditors) == 0 {
-		enabledAuditors = AuditorNames
-	}
-
-	auditors := make([]kubeaudit.Auditable, 0, len(enabledAuditors))
-	for _, auditorName := range enabledAuditors {
+	auditors := []kubeaudit.Auditable{}
+	for _, auditorName := range getEnabledAuditors(conf) {
 		auditor, err := initAuditor(auditorName, conf)
 		if err != nil {
 			return nil, err
@@ -55,6 +50,17 @@ func Auditors(conf config.KubeauditConfig) ([]kubeaudit.Auditable, error) {
 	}
 
 	return auditors, nil
+}
+
+// getEnabledAuditors returns a list of all auditors excluding any explicitly disabled in the config
+func getEnabledAuditors(conf config.KubeauditConfig) []string {
+	auditors := []string{}
+	for _, auditorName := range AuditorNames {
+		if enabled, ok := conf.GetEnabledAuditors()[auditorName]; !ok || enabled {
+			auditors = append(auditors, auditorName)
+		}
+	}
+	return auditors
 }
 
 func initAuditor(name string, conf config.KubeauditConfig) (kubeaudit.Auditable, error) {
