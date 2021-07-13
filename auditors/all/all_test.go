@@ -8,6 +8,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/asat"
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
+	"github.com/Shopify/kubeaudit/auditors/mounts"
 
 	"github.com/Shopify/kubeaudit/auditors/hostns"
 	"github.com/Shopify/kubeaudit/auditors/image"
@@ -20,6 +21,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/seccomp"
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/test"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -93,6 +95,83 @@ func TestAllWithConfig(t *testing.T) {
 	for _, file := range test.GetAllFileNames(t, fixtureDir) {
 		t.Run(file, func(t *testing.T) {
 			test.AuditMultiple(t, fixtureDir, file, auditors, expectedErrors, "", test.MANIFEST_MODE)
+		})
+	}
+}
+
+func TestGetEnabledAuditors(t *testing.T) {
+	cases := []struct {
+		testName         string
+		enabledAuditors  map[string]bool
+		expectedAuditors []string
+	}{
+		{
+			// If no config is provided, all auditors should be enabled
+			testName:         "No config",
+			enabledAuditors:  map[string]bool{},
+			expectedAuditors: AuditorNames,
+		},
+		{
+			// If some auditors are explicitly disabled, the rest should default to being enabled
+			testName: "Some disabled",
+			enabledAuditors: map[string]bool{
+				"apparmor": false,
+				"rootfs":   false,
+			},
+			expectedAuditors: []string{
+				asat.Name,
+				capabilities.Name,
+				hostns.Name,
+				image.Name,
+				limits.Name,
+				mounts.Name,
+				netpols.Name,
+				nonroot.Name,
+				privesc.Name,
+				privileged.Name,
+				seccomp.Name,
+			},
+		},
+		{
+			testName: "Some enabled",
+			enabledAuditors: map[string]bool{
+				"apparmor": true,
+				"rootfs":   true,
+			},
+			expectedAuditors: AuditorNames,
+		},
+		{
+			// If some auditors are explicitly disabled, the rest should default to being enabled
+			testName: "Some enabled, some disabled",
+			enabledAuditors: map[string]bool{
+				"asat":         true,
+				"apparmor":     false,
+				"capabilities": true,
+				"rootfs":       false,
+			},
+			expectedAuditors: []string{
+				asat.Name,
+				capabilities.Name,
+				hostns.Name,
+				image.Name,
+				limits.Name,
+				mounts.Name,
+				netpols.Name,
+				nonroot.Name,
+				privesc.Name,
+				privileged.Name,
+				seccomp.Name,
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.testName, func(t *testing.T) {
+			conf := config.KubeauditConfig{
+				EnabledAuditors: tc.enabledAuditors,
+			}
+			got := getEnabledAuditors(conf)
+			assert.ElementsMatch(t, got, tc.expectedAuditors)
 		})
 	}
 }
