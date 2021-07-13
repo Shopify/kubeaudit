@@ -56,6 +56,8 @@ func Auditors(conf config.KubeauditConfig) ([]kubeaudit.Auditable, error) {
 func getEnabledAuditors(conf config.KubeauditConfig) []string {
 	auditors := []string{}
 	for _, auditorName := range AuditorNames {
+		// if value is not found in the `conf.GetEnabledAuditors()` map, this means
+		// it wasn't added to the config file, so it should be enabled by default
 		if enabled, ok := conf.GetEnabledAuditors()[auditorName]; !ok || enabled {
 			auditors = append(auditors, auditorName)
 		}
