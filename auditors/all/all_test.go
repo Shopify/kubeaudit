@@ -141,7 +141,7 @@ func TestGetEnabledAuditors(t *testing.T) {
 			expectedAuditors: AuditorNames,
 		},
 		{
-			// If some auditors are explicitly disabled, the rest shou;d default to being enabled
+			// If some auditors are explicitly disabled, the rest should default to being enabled
 			testName: "Some enabled, some disabled",
 			enabledAuditors: map[string]bool{
 				"asat":         true,
