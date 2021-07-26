@@ -21,7 +21,7 @@ type myAuditor struct{}
 //
 // Params
 //   resource: Read-only. The resource to audit.
-//   resources: Read-only. A reference to all resources. Can be used for context.
+//   resources: Read-only. A reference to all resources. Can be used for context though most auditors don't need this.
 //
 // Return
 //   auditResults: The results for the audit. Each result can optionally include a PendingFix object to

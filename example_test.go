@@ -10,7 +10,6 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/config"
-	"github.com/Shopify/kubeaudit/internal/k8s"
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
@@ -79,7 +78,7 @@ func Example_auditLocal() {
 	}
 
 	// Run the audit in local mode
-	report, err := auditor.AuditLocal("", k8s.ClientOptions{})
+	report, err := auditor.AuditLocal("", kubeaudit.AuditOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -103,7 +102,7 @@ func Example_auditCluster() {
 	}
 
 	// Run the audit in cluster mode. Note this will fail if kubeaudit is not running within a cluster.
-	report, err := auditor.AuditCluster(k8s.ClientOptions{})
+	report, err := auditor.AuditCluster(kubeaudit.AuditOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -114,6 +113,19 @@ func Example_auditCluster() {
 
 // ExampleAuditorSubset shows how to run kubeaudit with a subset of auditors
 func Example_auditorSubset() {
+	// A sample Kubernetes manifest file
+	manifest := `
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myAuditor 
+  spec:
+    template:
+      spec:
+        containers:
+        - name: myContainer
+`
+
 	// Initialize the auditors you want to use
 	auditor, err := kubeaudit.New([]kubeaudit.Auditable{
 		apparmor.New(),
@@ -138,6 +150,18 @@ func Example_auditorSubset() {
 // for those auditors.
 func Example_config() {
 	configFile := "config/config.yaml"
+	// A sample Kubernetes manifest file
+	manifest := `
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myAuditor 
+  spec:
+    template:
+      spec:
+        containers:
+        - name: myContainer
+`
 
 	// Open the configuration file
 	reader, err := os.Open(configFile)
@@ -180,7 +204,7 @@ func Example_printOptions() {
 		log.Fatal(err)
 	}
 
-	report, err := auditor.AuditLocal("", k8s.ClientOptions{})
+	report, err := auditor.AuditLocal("", kubeaudit.AuditOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
