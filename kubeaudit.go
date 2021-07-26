@@ -112,6 +112,8 @@ type Kubeaudit struct {
 	auditors []Auditable
 }
 
+type AuditOptions = k8s.ClientOptions
+
 // New returns a new Kubeaudit instance
 func New(auditors []Auditable, opts ...Option) (*Kubeaudit, error) {
 	if len(auditors) == 0 {
@@ -152,7 +154,7 @@ func (a *Kubeaudit) AuditManifest(manifest io.Reader) (*Report, error) {
 }
 
 // AuditCluster audits the Kubernetes resources found in the cluster in which Kubeaudit is running
-func (a *Kubeaudit) AuditCluster(options k8s.ClientOptions) (*Report, error) {
+func (a *Kubeaudit) AuditCluster(options AuditOptions) (*Report, error) {
 	if !k8s.IsRunningInCluster(k8s.DefaultClient) {
 		return nil, errors.New("failed to audit resources in cluster mode: not running in cluster")
 	}
@@ -174,7 +176,7 @@ func (a *Kubeaudit) AuditCluster(options k8s.ClientOptions) (*Report, error) {
 }
 
 // AuditLocal audits the Kubernetes resources found in the provided Kubernetes config file
-func (a *Kubeaudit) AuditLocal(configpath string, options k8s.ClientOptions) (*Report, error) {
+func (a *Kubeaudit) AuditLocal(configpath string, options AuditOptions) (*Report, error) {
 	clientset, err := k8s.NewKubeClientLocal(configpath)
 	if err == k8s.ErrNoReadableKubeConfig {
 		return nil, fmt.Errorf("failed to open kubeconfig file %s", configpath)
