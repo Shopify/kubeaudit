@@ -198,8 +198,7 @@ Auditors can also be run individually.
 | `hostns`       | Finds containers that have HostPID, HostIPC or HostNetwork enabled.                                            | [docs](docs/auditors/hostns.md)       |
 | `image`        | Finds containers which do not use the desired version of an image (via the tag) or use an image without a tag. | [docs](docs/auditors/image.md)        |
 | `limits`       | Finds containers which exceed the specified CPU and memory limits or do not specify any.                       | [docs](docs/auditors/limits.md)       |
-| `mountds`      | DEPRECATED. Use `mounts` instead.                                                                              | [docs](docs/auditors/mountds.md)      |
-| `mounts`       | Finds containers that have sensitive host paths mounted.                                                       | [docs](docs/auditors/mountds.md)      |
+| `mounts`       | Finds containers that have sensitive host paths mounted.                                                       | [docs](docs/auditors/mounts.md)      |
 | `netpols`      | Finds namespaces that do not have a default-deny network policy.                                               | [docs](docs/auditors/netpols.md)      |
 | `nonroot`      | Finds containers running as root.                                                                              | [docs](docs/auditors/nonroot.md)      |
 | `privesc`      | Finds containers that allow privilege escalation.                                                              | [docs](docs/auditors/privesc.md)      |
