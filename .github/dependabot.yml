@@ -1,0 +1,14 @@
+version: 2
+registries:
+  github-com:
+    type: git
+    url: https://github.com
+    username: ${{secrets.DEPENDENCIES_GITHUB_USER}}
+    password: ${{secrets.DEPENDENCIES_GITHUB_TOKEN}}
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 100
+  registries: "*"
