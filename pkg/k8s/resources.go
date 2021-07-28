@@ -137,3 +137,14 @@ func NewServiceAccount() *ServiceAccountV1 {
 		ObjectMeta: ObjectMetaV1{},
 	}
 }
+
+// NewService creates a new Service resource
+func NewService() *ServiceV1 {
+	return &ServiceV1{
+		TypeMeta: TypeMetaV1{
+			Kind:       "Service",
+			APIVersion: "v1",
+		},
+		ObjectMeta: ObjectMetaV1{},
+	}
+}
