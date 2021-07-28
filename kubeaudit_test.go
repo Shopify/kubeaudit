@@ -63,7 +63,7 @@ func TestAuditCluster(t *testing.T) {
 
 func TestUnknownResource(t *testing.T) {
 	// Make sure we produce only warning results for resources kubeaudit doesn't know how to audit
-	files := []string{"unknown_type_v1.yml", "custom_resource_definition.yml"}
+	files := []string{"unknown_resource_type.yml", "custom_resource_definition.yml"}
 
 	allAuditors, err := all.Auditors(config.KubeauditConfig{})
 	require.NoError(t, err)

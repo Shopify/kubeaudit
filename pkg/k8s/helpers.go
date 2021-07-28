@@ -81,6 +81,8 @@ func GetObjectMeta(resource Resource) *ObjectMetaV1 {
 		return &kubeType.ObjectMeta
 	case *ServiceAccountV1:
 		return &kubeType.ObjectMeta
+	case *ServiceV1:
+		return &kubeType.ObjectMeta
 	}
 
 	return nil
