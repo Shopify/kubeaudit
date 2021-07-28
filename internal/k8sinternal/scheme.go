@@ -15,7 +15,6 @@ import (
 	autoscalingv2beta2 "k8s.io/api/autoscaling/v2beta2"
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
-	batchv2alpha1 "k8s.io/api/batch/v2alpha1"
 	certificatesv1beta1 "k8s.io/api/certificates/v1beta1"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	coordinationv1beta1 "k8s.io/api/coordination/v1beta1"
@@ -33,7 +32,6 @@ import (
 	schedulingv1 "k8s.io/api/scheduling/v1"
 	schedulingv1alpha1 "k8s.io/api/scheduling/v1alpha1"
 	schedulingv1beta1 "k8s.io/api/scheduling/v1beta1"
-	settingsv1alpha1 "k8s.io/api/settings/v1alpha1"
 	storagev1 "k8s.io/api/storage/v1"
 	storagev1alpha1 "k8s.io/api/storage/v1alpha1"
 	storagev1beta1 "k8s.io/api/storage/v1beta1"
@@ -62,7 +60,6 @@ var localSchemeBuilder = runtime.SchemeBuilder{
 	autoscalingv2beta2.AddToScheme,
 	batchv1.AddToScheme,
 	batchv1beta1.AddToScheme,
-	batchv2alpha1.AddToScheme,
 	certificatesv1beta1.AddToScheme,
 	coordinationv1beta1.AddToScheme,
 	coordinationv1.AddToScheme,
@@ -81,7 +78,6 @@ var localSchemeBuilder = runtime.SchemeBuilder{
 	schedulingv1alpha1.AddToScheme,
 	schedulingv1beta1.AddToScheme,
 	schedulingv1.AddToScheme,
-	settingsv1alpha1.AddToScheme,
 	storagev1beta1.AddToScheme,
 	storagev1.AddToScheme,
 	storagev1alpha1.AddToScheme,

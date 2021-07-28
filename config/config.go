@@ -9,7 +9,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/auditors/limits"
-	"gopkg.in/yaml.v1"
+	"gopkg.in/yaml.v3"
 )
 
 func New(configData io.Reader) (KubeauditConfig, error) {
