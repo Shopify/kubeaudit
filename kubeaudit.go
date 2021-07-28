@@ -58,17 +58,23 @@
 //
 // Or, to run the audit in local mode:
 //
-//   report, err := kubeAuditor.AuditLocal("/path/to/kubeconfig.yml")
+//   report, err := kubeAuditor.AuditLocal("/path/to/kubeconfig.yml", kubeaudit.AuditOptions{})
 //
 // Or, to run the audit in cluster mode (pass it a namespace name as a string to only audit resources in that namespace, or an empty string to audit resources in all namespaces):
 //
-//   report, err := auditor.AuditCluster("")
+//   report, err := auditor.AuditCluster(kubeaudit.AuditOptions{})
 //
 // Get the results
 //
 // To print the results in a human readable way:
 //
-//   report.PrintResults(os.Stdout, kubeaudit.Info, nil)
+//   report.PrintResults()
+//
+// Results are printed to standard out by default. To print to a string instead:
+//
+//   var buf bytes.Buffer
+//   report.PrintResults(kubeaudit.WithWriter(&buf), kubeaudit.WithColor(false))
+//   resultsString := buf.String()
 //
 // Or, to get the result objects:
 //

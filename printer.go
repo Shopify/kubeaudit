@@ -20,21 +20,32 @@ type Printer struct {
 
 type PrintOption func(p *Printer)
 
+// WithMinSeverity sets the minimum severity of results that will be printed.
 func WithMinSeverity(minSeverity SeverityLevel) PrintOption {
 	return func(p *Printer) {
 		p.minSeverity = minSeverity
 	}
 }
 
+// WithWriter sets the writer where results will be written to.
 func WithWriter(writer io.Writer) PrintOption {
 	return func(p *Printer) {
 		p.writer = writer
 	}
 }
 
+// WithFormatter sets a logrus formatter to use to format results.
 func WithFormatter(formatter log.Formatter) PrintOption {
 	return func(p *Printer) {
 		p.formatter = formatter
+	}
+}
+
+// WithColor specifies whether or not to colorize output. You will likely want to set this to false if
+// not writing to standard out.
+func WithColor(color bool) PrintOption {
+	return func(p *Printer) {
+		p.color = color
 	}
 }
 
@@ -48,11 +59,9 @@ func NewPrinter(opts ...PrintOption) Printer {
 	p := Printer{
 		writer:      os.Stdout,
 		minSeverity: Info,
+		color:       true,
 	}
 	p.parseOptions(opts...)
-	if p.writer == os.Stdout {
-		p.color = true
-	}
 	return p
 }
 
