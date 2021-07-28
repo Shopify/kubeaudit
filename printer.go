@@ -6,8 +6,7 @@ import (
 	"os"
 
 	"github.com/Shopify/kubeaudit/internal/color"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -150,7 +149,7 @@ func (p *Printer) logReport(report *Report) {
 	}
 }
 
-func (p *Printer) logAuditResult(resource k8stypes.Resource, result *AuditResult, baseLogger *log.Logger) {
+func (p *Printer) logAuditResult(resource k8s.Resource, result *AuditResult, baseLogger *log.Logger) {
 	logger := baseLogger.WithFields(p.getLogFieldsForResult(resource, result))
 	switch result.Severity {
 	case Info:
@@ -162,7 +161,7 @@ func (p *Printer) logAuditResult(resource k8stypes.Resource, result *AuditResult
 	}
 }
 
-func (p *Printer) getLogFieldsForResult(resource k8stypes.Resource, result *AuditResult) log.Fields {
+func (p *Printer) getLogFieldsForResult(resource k8s.Resource, result *AuditResult) log.Fields {
 	apiVersion, kind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
 	objectMeta := k8s.GetObjectMeta(resource)
 

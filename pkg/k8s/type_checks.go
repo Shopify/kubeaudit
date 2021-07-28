@@ -1,4 +1,4 @@
-package k8stypes
+package k8s
 
 func IsNamespaceV1(resource Resource) bool {
 	_, ok := resource.(*NamespaceV1)

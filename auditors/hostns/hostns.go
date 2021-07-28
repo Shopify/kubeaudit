@@ -2,9 +2,8 @@ package hostns
 
 import (
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 )
 
 const Name = "hostns"
@@ -30,7 +29,7 @@ const HostIPCOverrideLabel = "allow-namespace-host-IPC"
 const HostPIDOverrideLabel = "allow-namespace-host-PID"
 
 // Audit checks that hostNetwork, hostIPC and hostPID are set to false in container podSpecs
-func (a *HostNamespaces) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *HostNamespaces) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	podSpec := k8s.GetPodSpec(resource)
@@ -39,7 +38,7 @@ func (a *HostNamespaces) Audit(resource k8stypes.Resource, _ []k8stypes.Resource
 	}
 
 	for _, check := range []struct {
-		auditFunc     func(*k8stypes.PodSpecV1) *kubeaudit.AuditResult
+		auditFunc     func(*k8s.PodSpecV1) *kubeaudit.AuditResult
 		overrideLabel string
 	}{
 		{auditHostNetwork, HostNetworkOverrideLabel},
@@ -56,7 +55,7 @@ func (a *HostNamespaces) Audit(resource k8stypes.Resource, _ []k8stypes.Resource
 	return auditResults, nil
 }
 
-func auditHostNetwork(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
+func auditHostNetwork(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostNetwork {
 		metadata := kubeaudit.Metadata{}
 		if podSpec.Hostname != "" {
@@ -76,7 +75,7 @@ func auditHostNetwork(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 	return nil
 }
 
-func auditHostIPC(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
+func auditHostIPC(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostIPC {
 		metadata := kubeaudit.Metadata{}
 		if podSpec.Hostname != "" {
@@ -96,7 +95,7 @@ func auditHostIPC(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
 	return nil
 }
 
-func auditHostPID(podSpec *k8stypes.PodSpecV1) *kubeaudit.AuditResult {
+func auditHostPID(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 	if podSpec.HostPID {
 		metadata := kubeaudit.Metadata{}
 		if podSpec.Hostname != "" {

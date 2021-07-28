@@ -1,10 +1,10 @@
-package k8s
+package k8sinternal
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -68,17 +68,17 @@ func TestIsRunningInCluster(t *testing.T) {
 }
 
 func TestGetAllResources(t *testing.T) {
-	resourceTemplates := []k8stypes.Resource{
-		k8stypes.NewDeployment(),
-		k8stypes.NewPod(),
-		k8stypes.NewNamespace(),
-		k8stypes.NewDaemonSet(),
-		k8stypes.NewNetworkPolicy(),
-		k8stypes.NewReplicationController(),
-		k8stypes.NewStatefulSet(),
-		k8stypes.NewPodTemplate(),
-		k8stypes.NewCronJob(),
-		k8stypes.NewServiceAccount(),
+	resourceTemplates := []k8s.Resource{
+		k8s.NewDeployment(),
+		k8s.NewPod(),
+		k8s.NewNamespace(),
+		k8s.NewDaemonSet(),
+		k8s.NewNetworkPolicy(),
+		k8s.NewReplicationController(),
+		k8s.NewStatefulSet(),
+		k8s.NewPodTemplate(),
+		k8s.NewCronJob(),
+		k8s.NewServiceAccount(),
 	}
 	namespaces := []string{"foo", "bar"}
 
@@ -101,11 +101,11 @@ func TestGetAllResources(t *testing.T) {
 	assert.Len(t, GetAllResources(clientset, ClientOptions{Namespace: namespaces[0]}), len(resourceTemplates)+(len(namespaces)-1))
 }
 
-func setNamespace(resource k8stypes.Resource, namespace string) {
-	if _, ok := resource.(*k8stypes.NamespaceV1); ok {
-		GetObjectMeta(resource).Name = namespace
+func setNamespace(resource k8s.Resource, namespace string) {
+	if _, ok := resource.(*k8s.NamespaceV1); ok {
+		k8s.GetObjectMeta(resource).Name = namespace
 	} else {
-		GetObjectMeta(resource).Namespace = namespace
+		k8s.GetObjectMeta(resource).Namespace = namespace
 	}
 }
 

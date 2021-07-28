@@ -2,10 +2,10 @@ package mounts
 
 import (
 	"fmt"
+
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -45,7 +45,7 @@ func New(config Config) *SensitivePathMounts {
 }
 
 // Audit checks that the container does not have any sensitive host path
-func (sensitive *SensitivePathMounts) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (sensitive *SensitivePathMounts) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	spec := k8s.GetPodSpec(resource)
@@ -71,7 +71,7 @@ func (sensitive *SensitivePathMounts) Audit(resource k8stypes.Resource, _ []k8st
 	return auditResults, nil
 }
 
-func auditPodVolumes(podSpec *k8stypes.PodSpecV1, sensitivePaths map[string]bool) map[string]v1.Volume {
+func auditPodVolumes(podSpec *k8s.PodSpecV1, sensitivePaths map[string]bool) map[string]v1.Volume {
 	if podSpec.Volumes == nil {
 		return nil
 	}
@@ -90,7 +90,7 @@ func auditPodVolumes(podSpec *k8stypes.PodSpecV1, sensitivePaths map[string]bool
 	return found
 }
 
-func auditContainer(container *k8stypes.ContainerV1, sensitiveVolumes map[string]v1.Volume) []*kubeaudit.AuditResult {
+func auditContainer(container *k8s.ContainerV1, sensitiveVolumes map[string]v1.Volume) []*kubeaudit.AuditResult {
 	if container.VolumeMounts == nil {
 		return nil
 	}

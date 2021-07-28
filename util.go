@@ -4,16 +4,16 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/internal/k8sinternal"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"gopkg.in/yaml.v3"
 	"k8s.io/client-go/kubernetes"
 )
 
-func getResourcesFromClientset(clientset kubernetes.Interface, options k8s.ClientOptions) []KubeResource {
+func getResourcesFromClientset(clientset kubernetes.Interface, options k8sinternal.ClientOptions) []KubeResource {
 	var resources []KubeResource
 
-	for _, resource := range k8s.GetAllResources(clientset, options) {
+	for _, resource := range k8sinternal.GetAllResources(clientset, options) {
 		resources = append(resources, &kubeResource{object: resource})
 	}
 
@@ -25,7 +25,7 @@ func getResourcesFromManifest(data []byte) ([]KubeResource, error) {
 	bufSlice := bytes.Split(data, []byte("---"))
 
 	for _, b := range bufSlice {
-		obj, err := k8s.DecodeResource(b)
+		obj, err := k8sinternal.DecodeResource(b)
 		if err == nil && obj != nil {
 			source := &kubeResource{
 				object: obj,
@@ -66,7 +66,7 @@ func auditResource(resource KubeResource, resources []KubeResource, auditables [
 		return result, nil
 	}
 
-	if !k8stypes.IsSupportedResourceType(resource.Object()) {
+	if !k8s.IsSupportedResourceType(resource.Object()) {
 		auditResult := &AuditResult{
 			Name:     ErrorUnsupportedResource,
 			Severity: Warn,
@@ -87,8 +87,8 @@ func auditResource(resource KubeResource, resources []KubeResource, auditables [
 	return result, nil
 }
 
-func unwrapResources(resources []KubeResource) []k8stypes.Resource {
-	unwrappedResources := make([]k8stypes.Resource, 0, len(resources))
+func unwrapResources(resources []KubeResource) []k8s.Resource {
+	unwrappedResources := make([]k8s.Resource, 0, len(resources))
 	for _, resource := range resources {
 		unwrappedResources = append(unwrappedResources, resource.Object())
 	}

@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
-	v1 "k8s.io/api/core/v1"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -122,9 +120,9 @@ func TestFixCapabilities(t *testing.T) {
 	}
 
 	t.Run("Nil security context", func(t *testing.T) {
-		resource := &k8stypes.PodV1{
-			Spec: v1.PodSpec{
-				Containers: []k8stypes.ContainerV1{{}},
+		resource := &k8s.PodV1{
+			Spec: k8s.PodSpecV1{
+				Containers: []k8s.ContainerV1{{}},
 			},
 		}
 		auditResults, err := auditor.Audit(resource, nil)
@@ -145,7 +143,7 @@ func TestFixCapabilities(t *testing.T) {
 	})
 }
 
-func assertCapabilitiesEqual(t *testing.T, capabilities []k8stypes.CapabilityV1, expected []string) {
+func assertCapabilitiesEqual(t *testing.T, capabilities []k8s.CapabilityV1, expected []string) {
 	assert := assert.New(t)
 
 	if !assert.Equal(len(expected), len(capabilities)) {
@@ -165,19 +163,19 @@ func assertCapabilitiesEqual(t *testing.T, capabilities []k8stypes.CapabilityV1,
 	}
 }
 
-func newPod(add, drop, overrides []string) k8stypes.Resource {
-	pod := k8stypes.NewPod()
+func newPod(add, drop, overrides []string) k8s.Resource {
+	pod := k8s.NewPod()
 
-	container := k8stypes.ContainerV1{
+	container := k8s.ContainerV1{
 		Name: "mycontainer",
-		SecurityContext: &k8stypes.SecurityContextV1{
-			Capabilities: &k8stypes.CapabilitiesV1{
+		SecurityContext: &k8s.SecurityContextV1{
+			Capabilities: &k8s.CapabilitiesV1{
 				Add:  capabilitiesFromStringArray(add),
 				Drop: capabilitiesFromStringArray(drop),
 			},
 		},
 	}
-	k8s.GetPodSpec(pod).Containers = []k8stypes.ContainerV1{container}
+	k8s.GetPodSpec(pod).Containers = []k8s.ContainerV1{container}
 
 	overrideLabels := make(map[string]string)
 	for _, override := range overrides {
@@ -189,10 +187,10 @@ func newPod(add, drop, overrides []string) k8stypes.Resource {
 	return pod
 }
 
-func capabilitiesFromStringArray(arr []string) []k8stypes.CapabilityV1 {
-	capabilities := make([]k8stypes.CapabilityV1, 0, len(arr))
+func capabilitiesFromStringArray(arr []string) []k8s.CapabilityV1 {
+	capabilities := make([]k8s.CapabilityV1, 0, len(arr))
 	for _, str := range arr {
-		capabilities = append(capabilities, k8stypes.CapabilityV1(str))
+		capabilities = append(capabilities, k8s.CapabilityV1(str))
 	}
 
 	return capabilities

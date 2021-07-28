@@ -1,14 +1,5 @@
 package k8s
 
-import (
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-
-	"github.com/Shopify/kubeaudit/k8stypes"
-)
-
 // NewTrue returns a pointer to a boolean variable set to true
 func NewTrue() *bool {
 	b := true
@@ -20,25 +11,13 @@ func NewFalse() *bool {
 	return new(bool)
 }
 
-func DecodeResource(b []byte) (k8stypes.Resource, error) {
-	decoder := codecs.UniversalDeserializer()
-	return k8sRuntime.Decode(decoder, b)
-}
-
-func EncodeResource(resource k8stypes.Resource) ([]byte, error) {
-	info, _ := k8sRuntime.SerializerInfoForMediaType(codecs.SupportedMediaTypes(), "application/yaml")
-	groupVersion := schema.GroupVersion{Group: resource.GetObjectKind().GroupVersionKind().Group, Version: resource.GetObjectKind().GroupVersionKind().Version}
-	encoder := codecs.EncoderForVersion(info.Serializer, groupVersion)
-	return k8sRuntime.Encode(encoder, resource)
-}
-
-func GetContainers(resource k8stypes.Resource) []*k8stypes.ContainerV1 {
+func GetContainers(resource Resource) []*ContainerV1 {
 	podSpec := GetPodSpec(resource)
 	if podSpec == nil {
 		return nil
 	}
 
-	containers := make([]*k8stypes.ContainerV1, len(podSpec.Containers))
+	containers := make([]*ContainerV1, len(podSpec.Containers))
 	for i := range podSpec.Containers {
 		containers[i] = &podSpec.Containers[i]
 	}
@@ -47,7 +26,7 @@ func GetContainers(resource k8stypes.Resource) []*k8stypes.ContainerV1 {
 
 // GetAnnotations returns the annotations at the pod level. If the resource does not have pods, then it returns
 // the least-nested annotations
-func GetAnnotations(resource k8stypes.Resource) map[string]string {
+func GetAnnotations(resource Resource) map[string]string {
 	objectMeta := GetPodObjectMeta(resource)
 	if objectMeta != nil {
 		return objectMeta.GetAnnotations()
@@ -58,7 +37,7 @@ func GetAnnotations(resource k8stypes.Resource) map[string]string {
 
 // GetLabels returns the labels at the pod level. If the resource does not have pods, then it returns the
 // least-nested labels
-func GetLabels(resource k8stypes.Resource) map[string]string {
+func GetLabels(resource Resource) map[string]string {
 	objectMeta := GetPodObjectMeta(resource)
 	if objectMeta != nil {
 		return objectMeta.GetLabels()
@@ -68,39 +47,39 @@ func GetLabels(resource k8stypes.Resource) map[string]string {
 }
 
 // GetObjectMeta returns the highest-level ObjectMeta
-func GetObjectMeta(resource k8stypes.Resource) *metav1.ObjectMeta {
+func GetObjectMeta(resource Resource) *ObjectMetaV1 {
 	switch kubeType := resource.(type) {
-	case *k8stypes.CronJobV1Beta1:
+	case *CronJobV1Beta1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.DaemonSetV1:
+	case *DaemonSetV1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.DaemonSetV1Beta1:
+	case *DaemonSetV1Beta1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.DaemonSetV1Beta2:
+	case *DaemonSetV1Beta2:
 		return &kubeType.ObjectMeta
-	case *k8stypes.DeploymentExtensionsV1Beta1:
+	case *DeploymentExtensionsV1Beta1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.DeploymentV1:
+	case *DeploymentV1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.DeploymentV1Beta1:
+	case *DeploymentV1Beta1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.DeploymentV1Beta2:
+	case *DeploymentV1Beta2:
 		return &kubeType.ObjectMeta
-	case *k8stypes.PodTemplateV1:
+	case *PodTemplateV1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.ReplicationControllerV1:
+	case *ReplicationControllerV1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.StatefulSetV1:
+	case *StatefulSetV1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.StatefulSetV1Beta1:
+	case *StatefulSetV1Beta1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.PodV1:
+	case *PodV1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.NamespaceV1:
+	case *NamespaceV1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.NetworkPolicyV1:
+	case *NetworkPolicyV1:
 		return &kubeType.ObjectMeta
-	case *k8stypes.ServiceAccountV1:
+	case *ServiceAccountV1:
 		return &kubeType.ObjectMeta
 	}
 
@@ -109,7 +88,7 @@ func GetObjectMeta(resource k8stypes.Resource) *metav1.ObjectMeta {
 
 // GetPodObjectMeta returns the ObjectMeta at the pod level. If the resource does not have pods, then it returns
 // the highest-level ObjectMeta
-func GetPodObjectMeta(resource k8stypes.Resource) *metav1.ObjectMeta {
+func GetPodObjectMeta(resource Resource) *ObjectMetaV1 {
 	podTemplateSpec := GetPodTemplateSpec(resource)
 	if podTemplateSpec != nil {
 		return &podTemplateSpec.ObjectMeta
@@ -120,16 +99,16 @@ func GetPodObjectMeta(resource k8stypes.Resource) *metav1.ObjectMeta {
 
 // GetPodSpec gets the PodSpec for a resource. Avoid using this function if you need support for Namespace or
 // ServiceAccount resources, and write a helper functions in this package instead
-func GetPodSpec(resource k8stypes.Resource) *k8stypes.PodSpecV1 {
+func GetPodSpec(resource Resource) *PodSpecV1 {
 	podTemplateSpec := GetPodTemplateSpec(resource)
 	if podTemplateSpec != nil {
 		return &podTemplateSpec.Spec
 	}
 
 	switch kubeType := resource.(type) {
-	case *k8stypes.PodV1:
+	case *PodV1:
 		return &kubeType.Spec
-	case *k8stypes.NamespaceV1, *k8stypes.ServiceAccountV1:
+	case *NamespaceV1, *ServiceAccountV1:
 		return nil
 	}
 
@@ -138,33 +117,33 @@ func GetPodSpec(resource k8stypes.Resource) *k8stypes.PodSpecV1 {
 
 // GetPodTemplateSpec gets the PodTemplateSpec for a resource. Avoid using this function if you need support for
 // Pod, Namespace, or ServiceAccount resources, and write a helper functions in this package instead
-func GetPodTemplateSpec(resource k8stypes.Resource) *v1.PodTemplateSpec {
+func GetPodTemplateSpec(resource Resource) *PodTemplateSpecV1 {
 	switch kubeType := resource.(type) {
-	case *k8stypes.CronJobV1Beta1:
+	case *CronJobV1Beta1:
 		return &kubeType.Spec.JobTemplate.Spec.Template
-	case *k8stypes.DaemonSetV1:
+	case *DaemonSetV1:
 		return &kubeType.Spec.Template
-	case *k8stypes.DaemonSetV1Beta1:
+	case *DaemonSetV1Beta1:
 		return &kubeType.Spec.Template
-	case *k8stypes.DaemonSetV1Beta2:
+	case *DaemonSetV1Beta2:
 		return &kubeType.Spec.Template
-	case *k8stypes.DeploymentExtensionsV1Beta1:
+	case *DeploymentExtensionsV1Beta1:
 		return &kubeType.Spec.Template
-	case *k8stypes.DeploymentV1:
+	case *DeploymentV1:
 		return &kubeType.Spec.Template
-	case *k8stypes.DeploymentV1Beta1:
+	case *DeploymentV1Beta1:
 		return &kubeType.Spec.Template
-	case *k8stypes.DeploymentV1Beta2:
+	case *DeploymentV1Beta2:
 		return &kubeType.Spec.Template
-	case *k8stypes.PodTemplateV1:
+	case *PodTemplateV1:
 		return &kubeType.Template
-	case *k8stypes.ReplicationControllerV1:
+	case *ReplicationControllerV1:
 		return kubeType.Spec.Template
-	case *k8stypes.StatefulSetV1:
+	case *StatefulSetV1:
 		return &kubeType.Spec.Template
-	case *k8stypes.StatefulSetV1Beta1:
+	case *StatefulSetV1Beta1:
 		return &kubeType.Spec.Template
-	case *k8stypes.PodV1, *k8stypes.NamespaceV1:
+	case *PodV1, *NamespaceV1:
 		return nil
 	}
 

@@ -1,8 +1,6 @@
 package kubeaudit
 
-import (
-	"github.com/Shopify/kubeaudit/k8stypes"
-)
+import "github.com/Shopify/kubeaudit/pkg/k8s"
 
 // ErrorUnsupportedResource occurs when Kubeaudit doesn't know how to audit the resource
 const ErrorUnsupportedResource = "Unsupported resource"
@@ -14,18 +12,18 @@ const RedundantAuditorOverride = "RedundantAuditorOverride"
 // KubeResource is a wrapper around a Kubernetes object
 type KubeResource interface {
 	// Object is a pointer to a Kubernetes resource. The resource may be modified by multiple auditors
-	Object() k8stypes.Resource
+	Object() k8s.Resource
 	// Bytes is the original byte representation of the resource
 	Bytes() []byte
 }
 
 // Implements KubeResource
 type kubeResource struct {
-	object k8stypes.Resource
+	object k8s.Resource
 	bytes  []byte
 }
 
-func (k *kubeResource) Object() k8stypes.Resource {
+func (k *kubeResource) Object() k8s.Resource {
 	return k.object
 }
 

@@ -4,8 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	v1 "k8s.io/api/core/v1"
 	k8sResource "k8s.io/apimachinery/pkg/api/resource"
 )
@@ -49,7 +48,7 @@ func New(config Config) (*Limits, error) {
 }
 
 // Audit checks that the container cpu and memory limits do not exceed specified limits
-func (limits *Limits) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (limits *Limits) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	for _, container := range k8s.GetContainers(resource) {
@@ -63,7 +62,7 @@ func (limits *Limits) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) (
 	return auditResults, nil
 }
 
-func (limits *Limits) auditContainer(container *k8stypes.ContainerV1) (auditResults []*kubeaudit.AuditResult) {
+func (limits *Limits) auditContainer(container *k8s.ContainerV1) (auditResults []*kubeaudit.AuditResult) {
 	if isLimitsNil(container) {
 		auditResult := &kubeaudit.AuditResult{
 			Name:     LimitsNotSet,
@@ -133,37 +132,37 @@ func (limits *Limits) auditContainer(container *k8stypes.ContainerV1) (auditResu
 	return
 }
 
-func exceedsCPULimit(container *k8stypes.ContainerV1, limits *Limits) bool {
+func exceedsCPULimit(container *k8s.ContainerV1, limits *Limits) bool {
 	containerLimits := getLimits(container)
 	cpuLimit := containerLimits.Cpu().MilliValue()
 	maxCPU := limits.maxCPU.MilliValue()
 	return maxCPU > 0 && cpuLimit > maxCPU
 }
 
-func exceedsMemoryLimit(container *k8stypes.ContainerV1, limits *Limits) bool {
+func exceedsMemoryLimit(container *k8s.ContainerV1, limits *Limits) bool {
 	containerLimits := getLimits(container)
 	memoryLimit := containerLimits.Memory().Value()
 	maxMemory := limits.maxMemory.Value()
 	return maxMemory > 0 && memoryLimit > maxMemory
 }
 
-func isLimitsNil(container *k8stypes.ContainerV1) bool {
+func isLimitsNil(container *k8s.ContainerV1) bool {
 	return container.Resources.Limits == nil
 }
 
-func isCPULimitUnset(container *k8stypes.ContainerV1) bool {
+func isCPULimitUnset(container *k8s.ContainerV1) bool {
 	limits := getLimits(container)
 	cpu := limits.Cpu()
 	return cpu == nil || cpu.IsZero()
 }
 
-func isMemoryLimitUnset(container *k8stypes.ContainerV1) bool {
+func isMemoryLimitUnset(container *k8s.ContainerV1) bool {
 	limits := getLimits(container)
 	memory := limits.Memory()
 	return memory == nil || memory.IsZero()
 }
 
-func getLimits(container *k8stypes.ContainerV1) v1.ResourceList {
+func getLimits(container *k8s.ContainerV1) v1.ResourceList {
 	if isLimitsNil(container) {
 		return v1.ResourceList{}
 	}

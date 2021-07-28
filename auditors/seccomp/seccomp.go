@@ -5,9 +5,8 @@ import (
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/fix"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/fix"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	apiv1 "k8s.io/api/core/v1"
 )
 
@@ -48,7 +47,7 @@ func New() *Seccomp {
 }
 
 // Audit checks that Seccomp is enabled for all containers
-func (a *Seccomp) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *Seccomp) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	auditResult := auditPod(resource)
@@ -66,7 +65,7 @@ func (a *Seccomp) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*k
 	return auditResults, nil
 }
 
-func auditPod(resource k8stypes.Resource) *kubeaudit.AuditResult {
+func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 	annotations := k8s.GetAnnotations(resource)
 	PodAnnotationKey := apiv1.SeccompPodAnnotationKey
 
@@ -127,7 +126,7 @@ func auditPod(resource k8stypes.Resource) *kubeaudit.AuditResult {
 	return nil
 }
 
-func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource) *kubeaudit.AuditResult {
+func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudit.AuditResult {
 	annotations := k8s.GetAnnotations(resource)
 	containerAnnotationKey := getContainerAnnotationKey(container)
 	PodAnnotationKey := apiv1.SeccompPodAnnotationKey
@@ -188,7 +187,7 @@ func isSeccompAnnotationMissing(annotations map[string]string, annotationKey str
 }
 
 // returns false if there is at least one container that is not covered by a container-level seccomp annotation
-func isSeccompEnabledForContainers(annotations map[string]string, resource k8stypes.Resource) bool {
+func isSeccompEnabledForContainers(annotations map[string]string, resource k8s.Resource) bool {
 	for _, container := range k8s.GetContainers(resource) {
 		containerAnnotationKey := getContainerAnnotationKey(container)
 		if isSeccompAnnotationMissing(annotations, containerAnnotationKey) {
@@ -220,6 +219,6 @@ func isSeccompProfileDefault(seccompProfile string) bool {
 	return seccompProfile == ProfileRuntimeDefault
 }
 
-func getContainerAnnotationKey(container *k8stypes.ContainerV1) string {
+func getContainerAnnotationKey(container *k8s.ContainerV1) string {
 	return ContainerAnnotationKeyPrefix + container.Name
 }

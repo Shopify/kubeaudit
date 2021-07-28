@@ -2,9 +2,8 @@ package asat
 
 import (
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 )
 
 const Name = "asat"
@@ -28,7 +27,7 @@ func New() *AutomountServiceAccountToken {
 
 // Audit checks that the deprecated serviceAccount field is not used and that the default service account is not
 // being automatically mounted
-func (a *AutomountServiceAccountToken) Audit(resource k8stypes.Resource, resources []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *AutomountServiceAccountToken) Audit(resource k8s.Resource, resources []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	auditResult := auditResource(resource, resources)
 	auditResult = override.ApplyOverride(auditResult, "", resource, OverrideLabel)
 	if auditResult != nil {
@@ -38,7 +37,7 @@ func (a *AutomountServiceAccountToken) Audit(resource k8stypes.Resource, resourc
 	return nil, nil
 }
 
-func auditResource(resource k8stypes.Resource, resources []k8stypes.Resource) *kubeaudit.AuditResult {
+func auditResource(resource k8s.Resource, resources []k8s.Resource) *kubeaudit.AuditResult {
 	podSpec := k8s.GetPodSpec(resource)
 	if podSpec == nil {
 		return nil
@@ -74,15 +73,15 @@ func auditResource(resource k8stypes.Resource, resources []k8stypes.Resource) *k
 	return nil
 }
 
-func isDeprecatedServiceAccountName(podSpec *k8stypes.PodSpecV1) bool {
+func isDeprecatedServiceAccountName(podSpec *k8s.PodSpecV1) bool {
 	return podSpec.DeprecatedServiceAccount != ""
 }
 
-func hasServiceAccountName(podSpec *k8stypes.PodSpecV1) bool {
+func hasServiceAccountName(podSpec *k8s.PodSpecV1) bool {
 	return podSpec.ServiceAccountName != ""
 }
 
-func isAutomountTokenTrue(podSpec *k8stypes.PodSpecV1, defaultServiceAccount *k8stypes.ServiceAccountV1) bool {
+func isAutomountTokenTrue(podSpec *k8s.PodSpecV1, defaultServiceAccount *k8s.ServiceAccountV1) bool {
 	if podSpec.AutomountServiceAccountToken != nil {
 		return *podSpec.AutomountServiceAccountToken
 	}
@@ -92,13 +91,13 @@ func isAutomountTokenTrue(podSpec *k8stypes.PodSpecV1, defaultServiceAccount *k8
 		*defaultServiceAccount.AutomountServiceAccountToken
 }
 
-func usesDefaultServiceAccount(podSpec *k8stypes.PodSpecV1) bool {
+func usesDefaultServiceAccount(podSpec *k8s.PodSpecV1) bool {
 	return podSpec.ServiceAccountName == "" || podSpec.ServiceAccountName == "default"
 }
 
-func getDefaultServiceAccount(resources []k8stypes.Resource) (serviceAccount *k8stypes.ServiceAccountV1) {
+func getDefaultServiceAccount(resources []k8s.Resource) (serviceAccount *k8s.ServiceAccountV1) {
 	for _, resource := range resources {
-		serviceAccount, ok := resource.(*k8stypes.ServiceAccountV1)
+		serviceAccount, ok := resource.(*k8s.ServiceAccountV1)
 		if ok && (k8s.GetObjectMeta(serviceAccount).GetName() == "default") {
 			return serviceAccount
 		}

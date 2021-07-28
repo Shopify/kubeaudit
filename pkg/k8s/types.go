@@ -1,4 +1,4 @@
-package k8stypes
+package k8s
 
 import (
 	appsv1 "k8s.io/api/apps/v1"

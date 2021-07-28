@@ -5,8 +5,7 @@ import (
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 )
 
 const Name = "image"
@@ -32,7 +31,7 @@ func New(config Config) *Image {
 }
 
 // Audit checks that the container image matches the provided image
-func (image *Image) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (image *Image) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	for _, container := range k8s.GetContainers(resource) {
@@ -45,7 +44,7 @@ func (image *Image) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]
 	return auditResults, nil
 }
 
-func auditContainer(container *k8stypes.ContainerV1, image string) *kubeaudit.AuditResult {
+func auditContainer(container *k8s.ContainerV1, image string) *kubeaudit.AuditResult {
 	name, tag := splitImageString(image)
 	containerName, containerTag := splitImageString(container.Image)
 

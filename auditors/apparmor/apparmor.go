@@ -5,9 +5,8 @@ import (
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/fix"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/fix"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 )
 
 const Name = "apparmor"
@@ -42,7 +41,7 @@ func New() *AppArmor {
 }
 
 // Audit checks that AppArmor is enabled for all containers
-func (a *AppArmor) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *AppArmor) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 	var containerNames []string
 
@@ -59,7 +58,7 @@ func (a *AppArmor) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*
 	return auditResults, nil
 }
 
-func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource) *kubeaudit.AuditResult {
+func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudit.AuditResult {
 	annotations := k8s.GetAnnotations(resource)
 	containerAnnotation := getContainerAnnotation(container)
 
@@ -99,7 +98,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 	return nil
 }
 
-func auditPodAnnotations(resource k8stypes.Resource, containerNames []string) []*kubeaudit.AuditResult {
+func auditPodAnnotations(resource k8s.Resource, containerNames []string) []*kubeaudit.AuditResult {
 	var auditResults []*kubeaudit.AuditResult
 	for annotationKey, annotationValue := range k8s.GetAnnotations(resource) {
 		if !strings.HasPrefix(annotationKey, ContainerAnnotationKeyPrefix) {
@@ -134,7 +133,7 @@ func isAppArmorDisabled(apparmorAnnotation string, annotations map[string]string
 	return !ok || profileName != ProfileRuntimeDefault && !strings.HasPrefix(profileName, ProfileNamePrefix)
 }
 
-func getContainerAnnotation(container *k8stypes.ContainerV1) string {
+func getContainerAnnotation(container *k8s.ContainerV1) string {
 	return ContainerAnnotationKeyPrefix + container.Name
 }
 

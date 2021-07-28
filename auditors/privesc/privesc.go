@@ -2,9 +2,8 @@ package privesc
 
 import (
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 )
 
 const Name = "privesc"
@@ -28,7 +27,7 @@ func New() *AllowPrivilegeEscalation {
 }
 
 // Audit checks that AllowPrivilegeEscalation is disabled (set to false) in the container SecurityContext
-func (a *AllowPrivilegeEscalation) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *AllowPrivilegeEscalation) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	for _, container := range k8s.GetContainers(resource) {
@@ -42,7 +41,7 @@ func (a *AllowPrivilegeEscalation) Audit(resource k8stypes.Resource, _ []k8stype
 	return auditResults, nil
 }
 
-func auditContainer(container *k8stypes.ContainerV1) *kubeaudit.AuditResult {
+func auditContainer(container *k8s.ContainerV1) *kubeaudit.AuditResult {
 	if isAllowPrivilegeEscalationNil(container) {
 		return &kubeaudit.AuditResult{
 			Name:     AllowPrivilegeEscalationNil,
@@ -74,10 +73,10 @@ func auditContainer(container *k8stypes.ContainerV1) *kubeaudit.AuditResult {
 	return nil
 }
 
-func isAllowPrivilegeEscalationNil(container *k8stypes.ContainerV1) bool {
+func isAllowPrivilegeEscalationNil(container *k8s.ContainerV1) bool {
 	return container.SecurityContext == nil || container.SecurityContext.AllowPrivilegeEscalation == nil
 }
 
-func isAllowPrivilegeEscalationTrue(container *k8stypes.ContainerV1) bool {
+func isAllowPrivilegeEscalationTrue(container *k8s.ContainerV1) bool {
 	return container.SecurityContext != nil && *container.SecurityContext.AllowPrivilegeEscalation
 }

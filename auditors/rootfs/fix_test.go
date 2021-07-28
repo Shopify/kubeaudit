@@ -3,8 +3,8 @@ package rootfs
 import (
 	"testing"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/internal/test"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"github.com/stretchr/testify/assert"
 )
 

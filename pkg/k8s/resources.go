@@ -1,4 +1,4 @@
-package k8stypes
+package k8s
 
 var podTemplateSpec = PodTemplateSpecV1{
 	ObjectMeta: ObjectMetaV1{},

@@ -3,27 +3,26 @@ package asat
 import (
 	"fmt"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 )
 
 type fixDeprecatedServiceAccountName struct {
-	podSpec *k8stypes.PodSpecV1
+	podSpec *k8s.PodSpecV1
 }
 
 func (f *fixDeprecatedServiceAccountName) Plan() string {
 	return fmt.Sprintf("Set serviceAccountName to '%s' and set serviceAccount to '' in PodSpec", f.podSpec.DeprecatedServiceAccount)
 }
 
-func (f *fixDeprecatedServiceAccountName) Apply(resource k8stypes.Resource) []k8stypes.Resource {
+func (f *fixDeprecatedServiceAccountName) Apply(resource k8s.Resource) []k8s.Resource {
 	f.podSpec.ServiceAccountName = f.podSpec.DeprecatedServiceAccount
 	f.podSpec.DeprecatedServiceAccount = ""
 	return nil
 }
 
 type fixDefaultServiceAccountWithAutomountToken struct {
-	podSpec               *k8stypes.PodSpecV1
-	defaultServiceAccount *k8stypes.ServiceAccountV1
+	podSpec               *k8s.PodSpecV1
+	defaultServiceAccount *k8s.ServiceAccountV1
 }
 
 func (f *fixDefaultServiceAccountWithAutomountToken) Plan() string {
@@ -37,7 +36,7 @@ func (f *fixDefaultServiceAccountWithAutomountToken) Plan() string {
 	return "Set automountServiceAccountToken to 'false' in PodSpec"
 }
 
-func (f *fixDefaultServiceAccountWithAutomountToken) Apply(resource k8stypes.Resource) []k8stypes.Resource {
+func (f *fixDefaultServiceAccountWithAutomountToken) Apply(resource k8s.Resource) []k8s.Resource {
 	if f.defaultServiceAccount != nil {
 		f.defaultServiceAccount.AutomountServiceAccountToken = k8s.NewFalse()
 		if (f.podSpec.AutomountServiceAccountToken != nil) && *(f.podSpec.AutomountServiceAccountToken) {

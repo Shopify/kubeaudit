@@ -2,9 +2,8 @@ package nonroot
 
 import (
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 )
 
 const Name = "nonroot"
@@ -34,7 +33,7 @@ func New() *RunAsNonRoot {
 }
 
 // Audit checks that runAsNonRoot is set to true in every container's security context
-func (a *RunAsNonRoot) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *RunAsNonRoot) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	for _, container := range k8s.GetContainers(resource) {
@@ -48,7 +47,7 @@ func (a *RunAsNonRoot) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) 
 	return auditResults, nil
 }
 
-func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource) *kubeaudit.AuditResult {
+func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudit.AuditResult {
 	podSpec := k8s.GetPodSpec(resource)
 	if podSpec == nil {
 		return nil
@@ -152,7 +151,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 
 // returns true if runAsNonRoot is explicitly set to false in the pod's security context. Returns true if the
 // security context is nil even though the default value for runAsNonRoot is false
-func isPodRunAsNonRootFalse(podSpec *k8stypes.PodSpecV1) bool {
+func isPodRunAsNonRootFalse(podSpec *k8s.PodSpecV1) bool {
 	if isPodRunAsNonRootNil(podSpec) {
 		return false
 	}
@@ -160,13 +159,13 @@ func isPodRunAsNonRootFalse(podSpec *k8stypes.PodSpecV1) bool {
 	return !*podSpec.SecurityContext.RunAsNonRoot
 }
 
-func isPodRunAsNonRootNil(podSpec *k8stypes.PodSpecV1) bool {
+func isPodRunAsNonRootNil(podSpec *k8s.PodSpecV1) bool {
 	return podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsNonRoot == nil
 }
 
 // returns true if runAsNonRoot is explicitly set to false in the container's security context. Returns true if the
 // security context is nil even though the default value for runAsNonRoot is false
-func isContainerRunAsNonRootCSCFalse(container *k8stypes.ContainerV1) bool {
+func isContainerRunAsNonRootCSCFalse(container *k8s.ContainerV1) bool {
 	if isContainerRunAsNonRootNil(container) {
 		return false
 	}
@@ -174,14 +173,14 @@ func isContainerRunAsNonRootCSCFalse(container *k8stypes.ContainerV1) bool {
 	return !*container.SecurityContext.RunAsNonRoot
 }
 
-func isContainerRunAsNonRootNil(container *k8stypes.ContainerV1) bool {
+func isContainerRunAsNonRootNil(container *k8s.ContainerV1) bool {
 	return container.SecurityContext == nil || container.SecurityContext.RunAsNonRoot == nil
 }
 
-func isContainerRunAsUserNil(container *k8stypes.ContainerV1) bool {
+func isContainerRunAsUserNil(container *k8s.ContainerV1) bool {
 	return container.SecurityContext == nil || container.SecurityContext.RunAsUser == nil
 }
 
-func isPodRunAsUserNil(podSpec *k8stypes.PodSpecV1) bool {
+func isPodRunAsUserNil(podSpec *k8s.PodSpecV1) bool {
 	return podSpec.SecurityContext == nil || podSpec.SecurityContext.RunAsUser == nil
 }

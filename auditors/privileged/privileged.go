@@ -2,9 +2,8 @@ package privileged
 
 import (
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 )
 
 const Name = "privileged"
@@ -27,7 +26,7 @@ func New() *Privileged {
 }
 
 // Audit checks that privileged is set to false in every container's security context
-func (a *Privileged) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *Privileged) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	for _, container := range k8s.GetContainers(resource) {
@@ -41,7 +40,7 @@ func (a *Privileged) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([
 	return auditResults, nil
 }
 
-func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource) *kubeaudit.AuditResult {
+func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudit.AuditResult {
 	if isPrivilegedNil(container) {
 		return &kubeaudit.AuditResult{
 			Name:     PrivilegedNil,
@@ -73,7 +72,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 	return nil
 }
 
-func isPrivilegedTrue(container *k8stypes.ContainerV1) bool {
+func isPrivilegedTrue(container *k8s.ContainerV1) bool {
 	if isPrivilegedNil(container) {
 		return false
 	}
@@ -81,6 +80,6 @@ func isPrivilegedTrue(container *k8stypes.ContainerV1) bool {
 	return *container.SecurityContext.Privileged
 }
 
-func isPrivilegedNil(container *k8stypes.ContainerV1) bool {
+func isPrivilegedNil(container *k8s.ContainerV1) bool {
 	return container.SecurityContext == nil || container.SecurityContext.Privileged == nil
 }

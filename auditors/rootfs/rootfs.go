@@ -2,9 +2,8 @@ package rootfs
 
 import (
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 )
 
 const Name = "rootfs"
@@ -27,7 +26,7 @@ func New() *ReadOnlyRootFilesystem {
 }
 
 // Audit checks that readOnlyRootFilesystem is set to true in every container's security context
-func (a *ReadOnlyRootFilesystem) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *ReadOnlyRootFilesystem) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
 	for _, container := range k8s.GetContainers(resource) {
@@ -41,7 +40,7 @@ func (a *ReadOnlyRootFilesystem) Audit(resource k8stypes.Resource, _ []k8stypes.
 	return auditResults, nil
 }
 
-func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource) *kubeaudit.AuditResult {
+func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudit.AuditResult {
 	if isReadOnlyRootFilesystemNil(container) {
 		return &kubeaudit.AuditResult{
 			Name:     ReadOnlyRootFilesystemNil,
@@ -73,7 +72,7 @@ func auditContainer(container *k8stypes.ContainerV1, resource k8stypes.Resource)
 	return nil
 }
 
-func isReadOnlyRootFilesystemFalse(container *k8stypes.ContainerV1) bool {
+func isReadOnlyRootFilesystemFalse(container *k8s.ContainerV1) bool {
 	if isReadOnlyRootFilesystemNil(container) {
 		return true
 	}
@@ -81,6 +80,6 @@ func isReadOnlyRootFilesystemFalse(container *k8stypes.ContainerV1) bool {
 	return !*container.SecurityContext.ReadOnlyRootFilesystem
 }
 
-func isReadOnlyRootFilesystemNil(container *k8stypes.ContainerV1) bool {
+func isReadOnlyRootFilesystemNil(container *k8s.ContainerV1) bool {
 	return container.SecurityContext == nil || container.SecurityContext.ReadOnlyRootFilesystem == nil
 }
