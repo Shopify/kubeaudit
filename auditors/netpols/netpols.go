@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/override"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/Shopify/kubeaudit/pkg/override"
 )
 
 const Name = "netpols"
@@ -41,8 +41,8 @@ func New() *DefaultDenyNetworkPolicies {
 }
 
 // Audit checks that each namespace resource has a default deny NetworkPolicy for all ingress and egress traffic
-func (a *DefaultDenyNetworkPolicies) Audit(resource k8stypes.Resource, resources []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
-	if !k8stypes.IsNamespaceV1(resource) {
+func (a *DefaultDenyNetworkPolicies) Audit(resource k8s.Resource, resources []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
+	if !k8s.IsNamespaceV1(resource) {
 		return nil, nil
 	}
 
@@ -54,7 +54,7 @@ func (a *DefaultDenyNetworkPolicies) Audit(resource k8stypes.Resource, resources
 	return auditResults, nil
 }
 
-func auditNetworkPoliciesForAllowAll(resource k8stypes.Resource, resources []k8stypes.Resource) []*kubeaudit.AuditResult {
+func auditNetworkPoliciesForAllowAll(resource k8s.Resource, resources []k8s.Resource) []*kubeaudit.AuditResult {
 	var auditResults []*kubeaudit.AuditResult
 
 	namespace := getResourceNamespace(resource)
@@ -67,7 +67,7 @@ func auditNetworkPoliciesForAllowAll(resource k8stypes.Resource, resources []k8s
 	return auditResults
 }
 
-func auditNetworkPolicy(networkPolicy *k8stypes.NetworkPolicyV1) []*kubeaudit.AuditResult {
+func auditNetworkPolicy(networkPolicy *k8s.NetworkPolicyV1) []*kubeaudit.AuditResult {
 	var auditResults []*kubeaudit.AuditResult
 
 	if allIngressTrafficAllowed(networkPolicy) {
@@ -97,7 +97,7 @@ func auditNetworkPolicy(networkPolicy *k8stypes.NetworkPolicyV1) []*kubeaudit.Au
 	return auditResults
 }
 
-func auditNetworkPoliciesForDenyAll(resource k8stypes.Resource, resources []k8stypes.Resource) []*kubeaudit.AuditResult {
+func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resource) []*kubeaudit.AuditResult {
 	var auditResults []*kubeaudit.AuditResult
 	namespace := getResourceNamespace(resource)
 	networkPolicies := getNetworkPolicies(resources, namespace)

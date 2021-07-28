@@ -11,7 +11,7 @@ import (
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/all"
 	"github.com/Shopify/kubeaudit/config"
-	"github.com/Shopify/kubeaudit/internal/k8s"
+	"github.com/Shopify/kubeaudit/internal/k8sinternal"
 )
 
 var rootConfig rootFlags
@@ -100,15 +100,15 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 		return report
 	}
 
-	if ( k8s.IsRunningInCluster(k8s.DefaultClient) && rootConfig.kubeConfig == "" ) {
-		report, err := auditor.AuditCluster(k8s.ClientOptions{Namespace: rootConfig.namespace})
+	if k8sinternal.IsRunningInCluster(k8sinternal.DefaultClient) && rootConfig.kubeConfig == "" {
+		report, err := auditor.AuditCluster(k8sinternal.ClientOptions{Namespace: rootConfig.namespace})
 		if err != nil {
 			log.WithError(err).Fatal("Error auditing cluster")
 		}
 		return report
 	}
 
-	report, err := auditor.AuditLocal(rootConfig.kubeConfig, k8s.ClientOptions{Namespace: rootConfig.namespace})
+	report, err := auditor.AuditLocal(rootConfig.kubeConfig, kubeaudit.AuditOptions{Namespace: rootConfig.namespace})
 	if err != nil {
 		log.WithError(err).Fatal("Error auditing cluster in local mode")
 	}

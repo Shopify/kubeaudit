@@ -109,8 +109,8 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/internal/k8sinternal"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 )
 
 // Kubeaudit provides functions to audit and fix Kubernetes manifests
@@ -118,7 +118,7 @@ type Kubeaudit struct {
 	auditors []Auditable
 }
 
-type AuditOptions = k8s.ClientOptions
+type AuditOptions = k8sinternal.ClientOptions
 
 // New returns a new Kubeaudit instance
 func New(auditors []Auditable, opts ...Option) (*Kubeaudit, error) {
@@ -161,11 +161,11 @@ func (a *Kubeaudit) AuditManifest(manifest io.Reader) (*Report, error) {
 
 // AuditCluster audits the Kubernetes resources found in the cluster in which Kubeaudit is running
 func (a *Kubeaudit) AuditCluster(options AuditOptions) (*Report, error) {
-	if !k8s.IsRunningInCluster(k8s.DefaultClient) {
+	if !k8sinternal.IsRunningInCluster(k8sinternal.DefaultClient) {
 		return nil, errors.New("failed to audit resources in cluster mode: not running in cluster")
 	}
 
-	clientset, err := k8s.NewKubeClientCluster(k8s.DefaultClient)
+	clientset, err := k8sinternal.NewKubeClientCluster(k8sinternal.DefaultClient)
 	if err != nil {
 		return nil, err
 	}
@@ -183,8 +183,8 @@ func (a *Kubeaudit) AuditCluster(options AuditOptions) (*Report, error) {
 
 // AuditLocal audits the Kubernetes resources found in the provided Kubernetes config file
 func (a *Kubeaudit) AuditLocal(configpath string, options AuditOptions) (*Report, error) {
-	clientset, err := k8s.NewKubeClientLocal(configpath)
-	if err == k8s.ErrNoReadableKubeConfig {
+	clientset, err := k8sinternal.NewKubeClientLocal(configpath)
+	if err == k8sinternal.ErrNoReadableKubeConfig {
 		return nil, fmt.Errorf("failed to open kubeconfig file %s", configpath)
 	} else if err != nil {
 		return nil, err
@@ -288,5 +288,5 @@ func (r *Report) PrintPlan(writer io.Writer) {
 
 // Auditable is an interface which is implemented by auditors
 type Auditable interface {
-	Audit(resource k8stypes.Resource, resources []k8stypes.Resource) ([]*AuditResult, error)
+	Audit(resource k8s.Resource, resources []k8s.Resource) ([]*AuditResult, error)
 }

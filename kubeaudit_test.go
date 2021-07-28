@@ -7,7 +7,7 @@ import (
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/all"
 	"github.com/Shopify/kubeaudit/config"
-	"github.com/Shopify/kubeaudit/internal/k8s"
+	"github.com/Shopify/kubeaudit/internal/k8sinternal"
 	"github.com/Shopify/kubeaudit/internal/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -41,10 +41,10 @@ func TestAuditLocal(t *testing.T) {
 	auditor, err := kubeaudit.New(allAuditors)
 	require.NoError(err)
 
-	_, err = auditor.AuditLocal("", k8s.ClientOptions{})
+	_, err = auditor.AuditLocal("", k8sinternal.ClientOptions{})
 	require.NoError(err)
 
-	_, err = auditor.AuditLocal("invalid_path", k8s.ClientOptions{})
+	_, err = auditor.AuditLocal("invalid_path", k8sinternal.ClientOptions{})
 	require.NotNil(err)
 }
 
@@ -57,7 +57,7 @@ func TestAuditCluster(t *testing.T) {
 	auditor, err := kubeaudit.New(allAuditors)
 	require.NoError(err)
 
-	_, err = auditor.AuditCluster(k8s.ClientOptions{})
+	_, err = auditor.AuditCluster(k8sinternal.ClientOptions{})
 	require.NotNil(err)
 }
 

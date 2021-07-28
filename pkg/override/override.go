@@ -4,8 +4,7 @@ import (
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 )
 
 const (
@@ -39,7 +38,7 @@ func NewRedundantOverrideResult(containerName string, overrideReason, overrideLa
 
 // ApplyOverride checks if hasOverride is true. If it is, it changes the severity of the audit result from error to
 // warn, adds the override reason to the metadata and removes the pending fix
-func ApplyOverride(auditResult *kubeaudit.AuditResult, containerName string, resource k8stypes.Resource, overrideLabel string) *kubeaudit.AuditResult {
+func ApplyOverride(auditResult *kubeaudit.AuditResult, containerName string, resource k8s.Resource, overrideLabel string) *kubeaudit.AuditResult {
 	hasOverride, overrideReason := GetContainerOverrideReason(containerName, resource, overrideLabel)
 
 	if !hasOverride {
@@ -72,7 +71,7 @@ func ApplyOverride(auditResult *kubeaudit.AuditResult, containerName string, res
 // 		container.audit.kubernetes.io/[container name].[auditor override label]
 //
 // If there is no container override label, it calls GetResourceOverrideReason()
-func GetContainerOverrideReason(containerName string, resource k8stypes.Resource, overrideLabel string) (hasOverride bool, reason string) {
+func GetContainerOverrideReason(containerName string, resource k8s.Resource, overrideLabel string) (hasOverride bool, reason string) {
 	labels := k8s.GetLabels(resource)
 
 	if containerName != "" {
@@ -91,7 +90,7 @@ func GetContainerOverrideReason(containerName string, resource k8stypes.Resource
 // 		audit.kubernetes.io/pod.[auditor override label]
 // Namespace override labels disable the auditor for the namespace resource and have the following format:
 // 		audit.kubernetes.io/namespace.[auditor override label]
-func GetResourceOverrideReason(resource k8stypes.Resource, auditorOverrideLabel string) (hasOverride bool, reason string) {
+func GetResourceOverrideReason(resource k8s.Resource, auditorOverrideLabel string) (hasOverride bool, reason string) {
 	labelFuncs := []func(overrideLabel string) string{
 		GetPodOverrideLabel,
 		GetNamespaceOverrideLabel,

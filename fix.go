@@ -3,14 +3,14 @@ package kubeaudit
 import (
 	"bytes"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
+	"github.com/Shopify/kubeaudit/internal/k8sinternal"
 	"github.com/Shopify/kubeaudit/internal/yaml"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 )
 
 func fix(results []Result) ([]byte, error) {
 	var outputBytes [][]byte
-	var newResources []k8stypes.Resource
+	var newResources []k8s.Resource
 
 	if len(results) == 0 {
 		return []byte{}, nil
@@ -52,8 +52,8 @@ func fix(results []Result) ([]byte, error) {
 	return fixedManifest, nil
 }
 
-func resourceToBytes(fixedResource k8stypes.Resource, origResourceBytes []byte) ([]byte, error) {
-	fixedresourceBytes, err := k8s.EncodeResource(fixedResource)
+func resourceToBytes(fixedResource k8s.Resource, origResourceBytes []byte) ([]byte, error) {
+	fixedresourceBytes, err := k8sinternal.EncodeResource(fixedResource)
 	if err != nil {
 		return nil, err
 	}

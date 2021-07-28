@@ -4,11 +4,11 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 )
 
 // uniqueCapabilities creates an array of all unique capabilities in the custom drop list and container add list
-func uniqueCapabilities(container *k8stypes.ContainerV1) []string {
+func uniqueCapabilities(container *k8s.ContainerV1) []string {
 	if !SecurityContextOrCapabilities(container) {
 		return DefaultDropList
 	}
@@ -60,7 +60,7 @@ func isCapabilityInArray(capability string, capabilities []string) bool {
 	return false
 }
 
-func IsDropAll(container *k8stypes.ContainerV1) bool {
+func IsDropAll(container *k8s.ContainerV1) bool {
 	for _, cap := range container.SecurityContext.Capabilities.Drop {
 		if strings.ToUpper(string(cap)) == "ALL" {
 			return true
@@ -70,7 +70,7 @@ func IsDropAll(container *k8stypes.ContainerV1) bool {
 	return false
 }
 
-func IsCapabilityInAddList(container *k8stypes.ContainerV1, capability string) bool {
+func IsCapabilityInAddList(container *k8s.ContainerV1, capability string) bool {
 	for _, cap := range container.SecurityContext.Capabilities.Add {
 		if string(cap) == capability {
 			return true
@@ -80,7 +80,7 @@ func IsCapabilityInAddList(container *k8stypes.ContainerV1, capability string) b
 	return false
 }
 
-func SecurityContextOrCapabilities(container *k8stypes.ContainerV1) bool {
+func SecurityContextOrCapabilities(container *k8s.ContainerV1) bool {
 	if container.SecurityContext == nil || container.SecurityContext.Capabilities == nil {
 		return false
 	}

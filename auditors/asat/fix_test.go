@@ -3,9 +3,8 @@ package asat
 import (
 	"testing"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/internal/test"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -52,7 +51,7 @@ func TestFixAutomountServiceAccountToken(t *testing.T) {
 		t.Run(file, func(t *testing.T) {
 			resources, _ := test.FixSetup(t, fixtureDir, file, New())
 			for _, resource := range resources {
-				if serviceAccount, ok := resource.(*k8stypes.ServiceAccountV1); ok {
+				if serviceAccount, ok := resource.(*k8s.ServiceAccountV1); ok {
 					assert.Equal(t, serviceAccount.AutomountServiceAccountToken, k8s.NewFalse())
 					continue
 				}

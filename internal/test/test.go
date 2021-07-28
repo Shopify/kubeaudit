@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/internal/k8sinternal"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -53,12 +53,12 @@ func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeau
 	assert.Equal(t, expected, errors)
 }
 
-func FixSetup(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable) (fixedResources []k8stypes.Resource, report *kubeaudit.Report) {
+func FixSetup(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable) (fixedResources []k8s.Resource, report *kubeaudit.Report) {
 	return FixSetupMultiple(t, fixtureDir, fixture, []kubeaudit.Auditable{auditable})
 }
 
 // FixSetup runs Fix() on a given manifest and returns the resulting resources
-func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable) (fixedResources []k8stypes.Resource, report *kubeaudit.Report) {
+func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable) (fixedResources []k8s.Resource, report *kubeaudit.Report) {
 	require := require.New(t)
 
 	report = GetReport(t, fixtureDir, fixture, auditables, "", MANIFEST_MODE)
@@ -82,7 +82,7 @@ func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kub
 	require.Nil(err)
 
 	results := report.RawResults()
-	fixedResources = make([]k8stypes.Resource, 0, len(results))
+	fixedResources = make([]k8s.Resource, 0, len(results))
 
 	for _, result := range results {
 		resource := result.GetResource().Object()
@@ -111,7 +111,7 @@ func GetReport(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.
 		defer deleteNamespace(t, namespace)
 		createNamespace(t, namespace)
 		applyManifest(t, fixture, namespace)
-		report, err = auditor.AuditLocal("", k8s.ClientOptions{Namespace: namespace})
+		report, err = auditor.AuditLocal("", k8sinternal.ClientOptions{Namespace: namespace})
 	}
 
 	require.NoError(err)

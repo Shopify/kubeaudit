@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/internal/k8sinternal"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -24,14 +24,14 @@ type logEntry struct {
 }
 
 func TestGetResourcesFromClientset(t *testing.T) {
-	resources := []runtime.Object{k8stypes.NewDeployment(), k8stypes.NewNamespace()}
+	resources := []runtime.Object{k8s.NewDeployment(), k8s.NewNamespace()}
 
 	expected := make([]KubeResource, 0, len(resources))
 	for _, resource := range resources {
 		expected = append(expected, &kubeResource{object: resource})
 	}
 
-	got := getResourcesFromClientset(fakeclientset.NewSimpleClientset(resources...), k8s.ClientOptions{})
+	got := getResourcesFromClientset(fakeclientset.NewSimpleClientset(resources...), k8sinternal.ClientOptions{})
 	assert.Len(t, got, len(expected), "Got an unexpected number of resources from clientset")
 	for i, resource := range got {
 		assert.Equal(t, expected[i].Object().GetObjectKind().GroupVersionKind().Kind,
@@ -49,7 +49,7 @@ func TestPrintResults(t *testing.T) {
 					newTestAuditResult(Info),
 				},
 				Resource: &kubeResource{
-					object: k8stypes.NewPod(),
+					object: k8s.NewPod(),
 				},
 			},
 		},
@@ -86,7 +86,7 @@ func TestLogAuditResult(t *testing.T) {
 		// Send all log output as JSON to this byte buffer
 		out := bytes.NewBuffer(nil)
 
-		resource := k8stypes.NewDeployment()
+		resource := k8s.NewDeployment()
 		resource.Name = "mydeployment"
 		resource.Namespace = "mynamespace"
 

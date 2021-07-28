@@ -3,8 +3,8 @@ package nonroot
 import (
 	"testing"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/internal/test"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -66,7 +66,7 @@ func TestFixRunAsNonRoot(t *testing.T) {
 		})
 	}
 
-	files := []string {
+	files := []string{
 		"run-as-non-root-psc-false-allowed-multi-containers-multi-labels.yml",
 		"run-as-user-psc-0-csc-nil-multiple-cont.yml",
 	}

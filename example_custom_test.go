@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -26,7 +26,7 @@ type myAuditor struct{}
 // Return
 //   auditResults: The results for the audit. Each result can optionally include a PendingFix object to
 //     define autofix behaviour (see below).
-func (a *myAuditor) Audit(resource k8stypes.Resource, _ []k8stypes.Resource) ([]*kubeaudit.AuditResult, error) {
+func (a *myAuditor) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	return []*kubeaudit.AuditResult{
 		{
 			Name:     "MyAudit",
@@ -61,17 +61,17 @@ func (f *myAuditorFix) Plan() string {
 // Return
 //   newResources: New resources created as part of the fix. Generally, it should not be necessary to create
 //     new resources, only modify the passed in resource.
-func (f *myAuditorFix) Apply(resource k8stypes.Resource) []k8stypes.Resource {
+func (f *myAuditorFix) Apply(resource k8s.Resource) []k8s.Resource {
 	setLabel(resource, "hi", f.newVal)
 	return nil
 }
 
 // This is just a helper function
-func setLabel(resource k8stypes.Resource, key, value string) {
+func setLabel(resource k8s.Resource, key, value string) {
 	switch kubeType := resource.(type) {
-	case *k8stypes.PodV1:
+	case *k8s.PodV1:
 		kubeType.Labels[key] = value
-	case *k8stypes.DeploymentV1:
+	case *k8s.DeploymentV1:
 		kubeType.Labels[key] = value
 	}
 }

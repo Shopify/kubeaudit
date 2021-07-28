@@ -1,6 +1,6 @@
 package kubeaudit
 
-import "github.com/Shopify/kubeaudit/k8stypes"
+import "github.com/Shopify/kubeaudit/pkg/k8s"
 
 // AuditResult severity levels. They also correspond to log levels
 const (
@@ -44,7 +44,7 @@ type AuditResult struct {
 	Metadata   Metadata      // Metadata includes additional context for an audit result
 }
 
-func (result *AuditResult) Fix(resource k8stypes.Resource) (newResources []k8stypes.Resource) {
+func (result *AuditResult) Fix(resource k8s.Resource) (newResources []k8s.Resource) {
 	if result.PendingFix == nil {
 		return nil
 	}
@@ -66,7 +66,7 @@ type PendingFix interface {
 	Plan() string
 	// Apply applies the proposed fix to the resource and returns any new resources that were created. Note that
 	// Apply is expected to modify the passed in resource
-	Apply(k8stypes.Resource) []k8stypes.Resource
+	Apply(k8s.Resource) []k8s.Resource
 }
 
 // Metadata holds metadata for a potential security issue

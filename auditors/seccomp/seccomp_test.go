@@ -5,9 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
 	"github.com/Shopify/kubeaudit/internal/test"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -175,11 +174,11 @@ func TestFixSeccomp(t *testing.T) {
 	}
 }
 
-func newPod(containerNames []string, annotations map[string]string) k8stypes.Resource {
-	pod := k8stypes.NewPod()
-	containers := make([]k8stypes.ContainerV1, 0, len(containerNames))
+func newPod(containerNames []string, annotations map[string]string) k8s.Resource {
+	pod := k8s.NewPod()
+	containers := make([]k8s.ContainerV1, 0, len(containerNames))
 	for _, containerName := range containerNames {
-		containers = append(containers, k8stypes.ContainerV1{
+		containers = append(containers, k8s.ContainerV1{
 			Name: containerName,
 		})
 	}

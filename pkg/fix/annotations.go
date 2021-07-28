@@ -3,8 +3,7 @@ package fix
 import (
 	"fmt"
 
-	"github.com/Shopify/kubeaudit/internal/k8s"
-	"github.com/Shopify/kubeaudit/k8stypes"
+	"github.com/Shopify/kubeaudit/pkg/k8s"
 )
 
 // FixBySettingPodAnnotation implements PendingFix
@@ -14,7 +13,7 @@ type BySettingPodAnnotation struct {
 }
 
 // Apply sets the pod annotation to the specified value
-func (pending *BySettingPodAnnotation) Apply(resource k8stypes.Resource) []k8stypes.Resource {
+func (pending *BySettingPodAnnotation) Apply(resource k8s.Resource) []k8s.Resource {
 	objectMeta := k8s.GetPodObjectMeta(resource)
 
 	if objectMeta.GetAnnotations() == nil {
@@ -38,7 +37,7 @@ type ByAddingPodAnnotation struct {
 }
 
 // Apply adds the pod annotation
-func (pending *ByAddingPodAnnotation) Apply(resource k8stypes.Resource) []k8stypes.Resource {
+func (pending *ByAddingPodAnnotation) Apply(resource k8s.Resource) []k8s.Resource {
 	objectMeta := k8s.GetPodObjectMeta(resource)
 
 	if objectMeta.GetAnnotations() == nil {
@@ -60,7 +59,7 @@ type ByRemovingPodAnnotation struct {
 }
 
 // Apply removes the pod annotation
-func (pending *ByRemovingPodAnnotation) Apply(resource k8stypes.Resource) []k8stypes.Resource {
+func (pending *ByRemovingPodAnnotation) Apply(resource k8s.Resource) []k8s.Resource {
 	objectMeta := k8s.GetPodObjectMeta(resource)
 
 	if objectMeta.GetAnnotations() == nil {
