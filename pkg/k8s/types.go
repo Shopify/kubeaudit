@@ -112,6 +112,9 @@ type ServiceAccountV1 = apiv1.ServiceAccount
 // ServiceV1 is a type alias for the v1 version of the k8s API.
 type ServiceV1 = apiv1.Service
 
+// ServiceV1Spec is a type alias for the v1 version of the k8s API.
+type ServiceV1Spec = apiv1.ServiceSpec
+
 // StatefulSetSpecV1 is a type alias for the v1 version of the k8s apps API.
 type StatefulSetSpecV1 = appsv1.StatefulSetSpec
 

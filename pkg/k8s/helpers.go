@@ -151,3 +151,12 @@ func GetPodTemplateSpec(resource Resource) *PodTemplateSpecV1 {
 
 	return nil
 }
+
+func GetServiceSpec(resource Resource) *ServiceV1Spec {
+	switch kubeType := resource.(type) {
+	case *ServiceV1:
+		return &kubeType.Spec
+	default:
+		return nil
+	}
+}
