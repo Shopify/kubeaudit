@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io
+kind: Ingress
+metadata:
+  name: unknown_resource_type
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /test-unknownpath
+        backend:
+          service:
+            name: test-unknown
+            port:
+              number: 80

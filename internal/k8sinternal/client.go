@@ -101,6 +101,7 @@ func GetAllResources(clientset kubernetes.Interface, options ClientOptions) []k8
 	resources = append(resources, GetCronJobs(clientset, options)...)
 	resources = append(resources, GetServiceAccounts(clientset, options)...)
 	resources = append(resources, GetNamespaces(clientset, options)...)
+	resources = append(resources, GetServices(clientset, options)...)
 
 	resources = excludeGenerated(resources)
 
@@ -323,6 +324,25 @@ func GetNamespaces(clientset kubernetes.Interface, options ClientOptions) []k8s.
 	}
 
 	return namespaces
+}
+
+// GetServices gets all Service resources from a namespace in a cluster
+func GetServices(clientset kubernetes.Interface, option ClientOptions) []k8s.Resource {
+	serviceClient := clientset.CoreV1().Services(option.Namespace)
+	listOptions := k8s.ListOptionsV1{}
+
+	serviceList, err := serviceClient.List(context.Background(), listOptions)
+
+	if err != nil {
+		log.Error(err)
+		return nil
+	}
+	services := make([]k8s.Resource, 0, len(serviceList.Items))
+	for _, s := range serviceList.Items {
+		s.TypeMeta = k8s.NewService().TypeMeta
+		services = append(services, (&s).DeepCopyObject())
+	}
+	return services
 }
 
 // GetKubernetesVersion returns the kubernetes client version
