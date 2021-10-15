@@ -1,7 +1,7 @@
 module github.com/Shopify/kubeaudit
 
 require (
-	github.com/jetstack/cert-manager v1.4.1
+	github.com/jetstack/cert-manager v1.5.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0
