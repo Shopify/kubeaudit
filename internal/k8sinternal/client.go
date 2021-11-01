@@ -102,6 +102,7 @@ func GetAllResources(clientset kubernetes.Interface, options ClientOptions) []k8
 	resources = append(resources, GetServiceAccounts(clientset, options)...)
 	resources = append(resources, GetNamespaces(clientset, options)...)
 	resources = append(resources, GetServices(clientset, options)...)
+	resources = append(resources, GetJobs(clientset, options)...)
 
 	resources = excludeGenerated(resources)
 
@@ -343,6 +344,26 @@ func GetServices(clientset kubernetes.Interface, option ClientOptions) []k8s.Res
 		services = append(services, (&s).DeepCopyObject())
 	}
 	return services
+}
+
+// GetJobs gets all Job resources from the cluster
+func GetJobs(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
+	jobClient := clientset.BatchV1().Jobs(options.Namespace)
+	jobList, err := jobClient.List(context.Background(), k8s.ListOptionsV1{})
+
+	if err != nil {
+		log.Error(err)
+		return nil
+	}
+
+	jobs := make([]k8s.Resource, 0, len(jobList.Items))
+	for _, job := range jobList.Items {
+		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
+		job.TypeMeta = k8s.NewJob().TypeMeta
+		jobs = append(jobs, job.DeepCopyObject())
+	}
+
+	return jobs
 }
 
 // GetKubernetesVersion returns the kubernetes client version

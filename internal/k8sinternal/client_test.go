@@ -80,6 +80,7 @@ func TestGetAllResources(t *testing.T) {
 		k8s.NewCronJob(),
 		k8s.NewServiceAccount(),
 		k8s.NewService(),
+		k8s.NewJob(),
 	}
 	namespaces := []string{"foo", "bar"}
 
