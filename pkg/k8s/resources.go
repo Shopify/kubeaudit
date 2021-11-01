@@ -148,3 +148,17 @@ func NewService() *ServiceV1 {
 		ObjectMeta: ObjectMetaV1{},
 	}
 }
+
+// NewJob creates a new Job resource
+func NewJob() *JobV1 {
+	return &JobV1{
+		TypeMeta: TypeMetaV1{
+			Kind:       "Job",
+			APIVersion: "batch/v1",
+		},
+		ObjectMeta: ObjectMetaV1{},
+		Spec: JobSpecV1{
+			Template: podTemplateSpec,
+		},
+	}
+}

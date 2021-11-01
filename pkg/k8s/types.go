@@ -61,6 +61,9 @@ type JobTemplateSpecV1Beta1 = batchv1beta1.JobTemplateSpec
 // JobSpecV1 is a type alias for the v1 version of the k8s batch API.
 type JobSpecV1 = batchv1.JobSpec
 
+// JobV1 is a type alias for the v1 version of the k8s batch API.
+type JobV1 = batchv1.Job
+
 // ListOptionsV1 is a type alias for the v1 version of the k8s meta API.
 type ListOptionsV1 = metav1.ListOptions
 
@@ -136,6 +139,7 @@ func IsSupportedResourceType(obj Resource) bool {
 	case *CronJobV1Beta1,
 		*DaemonSetV1, *DaemonSetV1Beta1, *DaemonSetV1Beta2,
 		*DeploymentExtensionsV1Beta1, *DeploymentV1, *DeploymentV1Beta1, *DeploymentV1Beta2,
+		*JobV1,
 		*NamespaceV1,
 		*NetworkPolicyV1,
 		*PodV1,

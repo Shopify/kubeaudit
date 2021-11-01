@@ -65,6 +65,8 @@ func GetObjectMeta(resource Resource) *ObjectMetaV1 {
 		return &kubeType.ObjectMeta
 	case *DeploymentV1Beta2:
 		return &kubeType.ObjectMeta
+	case *JobV1:
+		return &kubeType.ObjectMeta
 	case *PodTemplateV1:
 		return &kubeType.ObjectMeta
 	case *ReplicationControllerV1:
@@ -136,6 +138,8 @@ func GetPodTemplateSpec(resource Resource) *PodTemplateSpecV1 {
 	case *DeploymentV1Beta1:
 		return &kubeType.Spec.Template
 	case *DeploymentV1Beta2:
+		return &kubeType.Spec.Template
+	case *JobV1:
 		return &kubeType.Spec.Template
 	case *PodTemplateV1:
 		return &kubeType.Template

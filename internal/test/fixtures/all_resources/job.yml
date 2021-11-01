@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: job
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job
+  namespace: job
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      hostPID: true
+      hostIPC: true
+      hostNetwork: true
+      containers:
+        - name: container
+          image: scratch
