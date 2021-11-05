@@ -85,6 +85,7 @@ func IsRunningInCluster(client Client) bool {
 type ClientOptions struct {
 	// Namespace filters resources by namespace. Defaults to all namespaces.
 	Namespace string
+	IncludeGenerated bool
 }
 
 // GetAllResources gets all supported resources from the cluster
@@ -103,8 +104,9 @@ func GetAllResources(clientset kubernetes.Interface, options ClientOptions) []k8
 	resources = append(resources, GetNamespaces(clientset, options)...)
 	resources = append(resources, GetServices(clientset, options)...)
 	resources = append(resources, GetJobs(clientset, options)...)
-
-	resources = excludeGenerated(resources)
+	if options.IncludeGenerated == false {
+		resources = excludeGenerated(resources)
+	}
 
 	return resources
 }
