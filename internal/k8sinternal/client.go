@@ -85,6 +85,7 @@ func IsRunningInCluster(client Client) bool {
 type ClientOptions struct {
 	// Namespace filters resources by namespace. Defaults to all namespaces.
 	Namespace string
+	// IncludeGenerated is a boolean option to include generated resources.
 	IncludeGenerated bool
 }
 
