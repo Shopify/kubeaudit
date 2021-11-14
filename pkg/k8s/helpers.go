@@ -17,9 +17,26 @@ func GetContainers(resource Resource) []*ContainerV1 {
 		return nil
 	}
 
-	containers := make([]*ContainerV1, len(podSpec.Containers))
+	var containers []*ContainerV1
 	for i := range podSpec.Containers {
-		containers[i] = &podSpec.Containers[i]
+		containers = append(containers, &podSpec.Containers[i])
+	}
+
+	if len(podSpec.InitContainers) > 0 {
+		containers = append(containers, GetInitContainers(resource)...)
+	}
+	return containers
+}
+
+func GetInitContainers(resource Resource) []*ContainerV1 {
+	podSpec := GetPodSpec(resource)
+	if podSpec == nil {
+		return nil
+	}
+
+	containers := make([]*ContainerV1, len(podSpec.InitContainers))
+	for i := range podSpec.InitContainers {
+		containers[i] = &podSpec.InitContainers[i]
 	}
 	return containers
 }
