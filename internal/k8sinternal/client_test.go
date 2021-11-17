@@ -1,12 +1,15 @@
-package k8sinternal
+package k8sinternal_test
 
 import (
 	"errors"
 	"testing"
 
+	"github.com/Shopify/kubeaudit/internal/k8sinternal"
+	"github.com/Shopify/kubeaudit/internal/test"
 	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/version"
 	fakediscovery "k8s.io/client-go/discovery/fake"
@@ -29,11 +32,11 @@ func (kc *MockK8sClient) InClusterConfig() (*rest.Config, error) {
 func TestKubeClientConfigLocal(t *testing.T) {
 	assert := assert.New(t)
 
-	_, err := NewKubeClientLocal("/notarealfile")
-	assert.Equal(ErrNoReadableKubeConfig, err)
+	_, err := k8sinternal.NewKubeClientLocal("/notarealfile")
+	assert.Equal(k8sinternal.ErrNoReadableKubeConfig, err)
 
-	_, err = NewKubeClientLocal("client.go")
-	assert.NotEqual(ErrNoReadableKubeConfig, err)
+	_, err = k8sinternal.NewKubeClientLocal("client.go")
+	assert.NotEqual(k8sinternal.ErrNoReadableKubeConfig, err)
 	assert.NotNil(err)
 }
 
@@ -43,13 +46,13 @@ func TestKubeClientConfigCluster(t *testing.T) {
 	client := &MockK8sClient{}
 	var config *rest.Config = nil
 	client.On("InClusterConfig").Return(config, errors.New("mock error"))
-	clientset, err := NewKubeClientCluster(client)
+	clientset, err := k8sinternal.NewKubeClientCluster(client)
 	assert.Nil(clientset)
 	assert.NotNil(err)
 
 	client = &MockK8sClient{}
 	client.On("InClusterConfig").Return(&rest.Config{}, nil)
-	clientset, err = NewKubeClientCluster(client)
+	clientset, err = k8sinternal.NewKubeClientCluster(client)
 	assert.NotNil(clientset)
 	assert.NoError(err)
 }
@@ -60,11 +63,11 @@ func TestIsRunningInCluster(t *testing.T) {
 	client := &MockK8sClient{}
 	var config *rest.Config = nil
 	client.On("InClusterConfig").Return(config, errors.New("mock error"))
-	assert.False(IsRunningInCluster(client))
+	assert.False(k8sinternal.IsRunningInCluster(client))
 
 	client = &MockK8sClient{}
 	client.On("InClusterConfig").Return(&rest.Config{}, nil)
-	assert.True(IsRunningInCluster(client))
+	assert.True(k8sinternal.IsRunningInCluster(client))
 }
 
 func TestGetAllResources(t *testing.T) {
@@ -94,13 +97,17 @@ func TestGetAllResources(t *testing.T) {
 	}
 
 	clientset := fakeclientset.NewSimpleClientset(resources...)
-	assert.Len(t, GetAllResources(clientset, ClientOptions{}), len(resourceTemplates)*len(namespaces))
+	assert.Len(t, k8sinternal.GetAllResources(clientset, k8sinternal.ClientOptions{}), len(resourceTemplates)*len(namespaces))
 
 	// Because field selectors are handled server-side, the fake clientset does not support them
 	// which means the Namespace resources don't get filtered (this is not a problem when using
 	// a real clientset)
 	// See https://github.com/kubernetes/client-go/issues/326
-	assert.Len(t, GetAllResources(clientset, ClientOptions{Namespace: namespaces[0]}), len(resourceTemplates)+(len(namespaces)-1))
+	assert.Len(
+		t,
+		k8sinternal.GetAllResources(clientset, k8sinternal.ClientOptions{Namespace: namespaces[0]}),
+		len(resourceTemplates)+(len(namespaces)-1),
+	)
 }
 
 func setNamespace(resource k8s.Resource, namespace string) {
@@ -125,7 +132,52 @@ func TestGetKubernetesVersion(t *testing.T) {
 		Platform:  "ACME 8-bit",
 	}
 
-	r, err := GetKubernetesVersion(client)
+	r, err := k8sinternal.GetKubernetesVersion(client)
 	assert.Nil(t, err)
 	assert.EqualValues(t, *fakeDiscovery.FakedServerVersion, *r)
+}
+
+func TestIncludeGenerated(t *testing.T) {
+	// The "IncludeGenerated" option only applies to local and cluster mode
+	if !test.UseKind() {
+		return
+	}
+
+	namespace := "include-generated"
+	defer test.DeleteNamespace(t, namespace)
+	test.CreateNamespace(t, namespace)
+	test.ApplyManifest(t, "./fixtures/include-generated.yml", namespace)
+
+	clientset, err := k8sinternal.NewKubeClientLocal("")
+	require.NoError(t, err)
+
+	// Test IncludeGenerated = false
+	resources := k8sinternal.GetAllResources(
+		clientset,
+		k8sinternal.ClientOptions{Namespace: namespace, IncludeGenerated: false},
+	)
+	assert.False(t, hasPod(resources), "Expected no pods for IncludeGenerated=false")
+
+	// Test IncludeGenerated unspecified defaults to false
+	resources = k8sinternal.GetAllResources(
+		clientset,
+		k8sinternal.ClientOptions{Namespace: namespace},
+	)
+	assert.False(t, hasPod(resources), "Expected no pods if IncludeGenerated is unspecified (ie. default to false)")
+
+	// Test IncludeGenerated = true
+	resources = k8sinternal.GetAllResources(
+		clientset,
+		k8sinternal.ClientOptions{Namespace: namespace, IncludeGenerated: true},
+	)
+	assert.True(t, hasPod(resources), "Expected pods for IncludeGenerated=true")
+}
+
+func hasPod(resources []k8s.Resource) bool {
+	for _, resource := range resources {
+		if k8s.IsPodV1(resource) {
+			return true
+		}
+	}
+	return false
 }
