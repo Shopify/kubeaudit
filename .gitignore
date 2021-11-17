@@ -9,3 +9,4 @@ coverage.txt
 *.swp
 /vendor
 /.vscode
+.go-version
