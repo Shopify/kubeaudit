@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: apparmor-annotation-init-container-enabled
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/container: localhost/someval
+    container.apparmor.security.beta.kubernetes.io/init-container: localhost/someval
+spec:
+  initContainers:
+  - name: init-container
+    image: scratch
+  containers:
+    - name: container
+      image: scratch
