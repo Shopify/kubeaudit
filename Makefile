@@ -16,8 +16,6 @@ GOVERSION_CHECK=$(shell printf "%s\n%s\n" "$(GOVERSION)" "$(GOVERSION_MIN)" | so
 # Test parameters
 TEST_CLUSTER_NAME="kubeaudit-test"
 
-export GO111MODULE=on
-
 ifneq ($(GOVERSION_MIN), $(GOVERSION_CHECK))
 $(error Detected Go version $(GOVERSION) < required version $(GOVERSION_MIN))
 endif
