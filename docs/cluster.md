@@ -241,7 +241,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: kubeaudit
-  namespace: default
+  namespace: kubeaudit
 spec:
   template:
     metadata:
