@@ -67,7 +67,7 @@ spec:
 
 To learn more about Seccomp, see https://en.wikipedia.org/wiki/Seccomp
 
-To learn more about Seccomp in Kubernetes, see https://gardener.cloud/050-tutorials/content/howto/secure-seccomp/
+To learn more about Seccomp in Kubernetes, see https://kubernetes.io/docs/tutorials/security/seccomp/
 
 ## Override Errors
 
