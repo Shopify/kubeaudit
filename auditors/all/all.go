@@ -8,6 +8,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/asat"
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
+	"github.com/Shopify/kubeaudit/auditors/deprecatedapis"
 	"github.com/Shopify/kubeaudit/auditors/hostns"
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/auditors/limits"
@@ -27,6 +28,7 @@ var AuditorNames = []string{
 	apparmor.Name,
 	asat.Name,
 	capabilities.Name,
+	deprecatedapis.Name,
 	hostns.Name,
 	image.Name,
 	limits.Name,
@@ -73,6 +75,8 @@ func initAuditor(name string, conf config.KubeauditConfig) (kubeaudit.Auditable,
 		return asat.New(), nil
 	case capabilities.Name:
 		return capabilities.New(conf.GetAuditorConfigs().Capabilities), nil
+	case deprecatedapis.Name:
+		return deprecatedapis.New(conf.GetAuditorConfigs().DeprecatedAPIs)
 	case hostns.Name:
 		return hostns.New(), nil
 	case image.Name:

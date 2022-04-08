@@ -22,17 +22,17 @@ const SharedFixturesDir = "../../internal/test/fixtures"
 const MANIFEST_MODE = "manifest"
 const LOCAL_MODE = "local"
 
-func AuditManifest(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable, expectedErrors []string) {
-	AuditMultiple(t, fixtureDir, fixture, []kubeaudit.Auditable{auditable}, expectedErrors, "", MANIFEST_MODE)
+func AuditManifest(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable, expectedErrors []string) *kubeaudit.Report {
+	return AuditMultiple(t, fixtureDir, fixture, []kubeaudit.Auditable{auditable}, expectedErrors, "", MANIFEST_MODE)
 }
 
-func AuditLocal(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable, namespace string, expectedErrors []string) {
-	AuditMultiple(t, fixtureDir, fixture, []kubeaudit.Auditable{auditable}, expectedErrors, namespace, LOCAL_MODE)
+func AuditLocal(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable, namespace string, expectedErrors []string) *kubeaudit.Report {
+	return AuditMultiple(t, fixtureDir, fixture, []kubeaudit.Auditable{auditable}, expectedErrors, namespace, LOCAL_MODE)
 }
 
-func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable, expectedErrors []string, namespace string, mode string) {
+func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.Auditable, expectedErrors []string, namespace string, mode string) *kubeaudit.Report {
 	if mode == LOCAL_MODE && !UseKind() {
-		return
+		return nil
 	}
 
 	expected := make(map[string]bool, len(expectedErrors))
@@ -51,6 +51,7 @@ func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeau
 	}
 
 	assert.Equal(t, expected, errors)
+	return report
 }
 
 func FixSetup(t *testing.T, fixtureDir, fixture string, auditable kubeaudit.Auditable) (fixedResources []k8s.Resource, report *kubeaudit.Report) {
