@@ -10,9 +10,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/version"
 	fakediscovery "k8s.io/client-go/discovery/fake"
+	fakedynamic "k8s.io/client-go/dynamic/fake"
 	fakeclientset "k8s.io/client-go/kubernetes/fake"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/azure" // auth for AKS clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"   // auth for GKE clusters
@@ -46,14 +51,14 @@ func TestKubeClientConfigCluster(t *testing.T) {
 	client := &MockK8sClient{}
 	var config *rest.Config = nil
 	client.On("InClusterConfig").Return(config, errors.New("mock error"))
-	clientset, err := k8sinternal.NewKubeClientCluster(client)
-	assert.Nil(clientset)
+	kubeclient, err := k8sinternal.NewKubeClientCluster(client)
+	assert.Nil(kubeclient)
 	assert.NotNil(err)
 
 	client = &MockK8sClient{}
 	client.On("InClusterConfig").Return(&rest.Config{}, nil)
-	clientset, err = k8sinternal.NewKubeClientCluster(client)
-	assert.NotNil(clientset)
+	kubeclient, err = k8sinternal.NewKubeClientCluster(client)
+	assert.NotNil(kubeclient)
 	assert.NoError(err)
 }
 
@@ -96,45 +101,35 @@ func TestGetAllResources(t *testing.T) {
 		}
 	}
 
-	clientset := fakeclientset.NewSimpleClientset(resources...)
-	assert.Len(t, k8sinternal.GetAllResources(clientset, k8sinternal.ClientOptions{}), len(resourceTemplates)*len(namespaces))
-
-	// Because field selectors are handled server-side, the fake clientset does not support them
-	// which means the Namespace resources don't get filtered (this is not a problem when using
-	// a real clientset)
-	// See https://github.com/kubernetes/client-go/issues/326
+	client := newFakeKubeClient(resources...)
+	assert.Len(t, client.GetAllResources(k8sinternal.ClientOptions{}), len(resourceTemplates)*len(namespaces))
 	assert.Len(
 		t,
-		k8sinternal.GetAllResources(clientset, k8sinternal.ClientOptions{Namespace: namespaces[0]}),
-		len(resourceTemplates)+(len(namespaces)-1),
+		client.GetAllResources(k8sinternal.ClientOptions{Namespace: namespaces[0]}),
+		len(resourceTemplates)-1, // All resources but namespace
 	)
 }
 
 func setNamespace(resource k8s.Resource, namespace string) {
 	if _, ok := resource.(*k8s.NamespaceV1); ok {
-		k8s.GetObjectMeta(resource).Name = namespace
+		k8s.GetObjectMeta(resource).SetName(namespace)
 	} else {
-		k8s.GetObjectMeta(resource).Namespace = namespace
+		k8s.GetObjectMeta(resource).SetNamespace(namespace)
 	}
 }
 
 func TestGetKubernetesVersion(t *testing.T) {
-	client := fakeclientset.NewSimpleClientset()
-	fakeDiscovery, ok := client.Discovery().(*fakediscovery.FakeDiscovery)
-	if !ok {
-		t.Fatalf("couldn't mock server version")
-	}
-
-	fakeDiscovery.FakedServerVersion = &version.Info{
+	serverVersion := &version.Info{
 		Major:     "0",
 		Minor:     "0",
 		GitCommit: "0000",
 		Platform:  "ACME 8-bit",
 	}
 
-	r, err := k8sinternal.GetKubernetesVersion(client)
+	client := newFakeKubeClientWithServerVersion(serverVersion)
+	r, err := client.GetKubernetesVersion()
 	assert.Nil(t, err)
-	assert.EqualValues(t, *fakeDiscovery.FakedServerVersion, *r)
+	assert.EqualValues(t, *serverVersion, *r)
 }
 
 func TestIncludeGenerated(t *testing.T) {
@@ -148,26 +143,23 @@ func TestIncludeGenerated(t *testing.T) {
 	test.CreateNamespace(t, namespace)
 	test.ApplyManifest(t, "./fixtures/include-generated.yml", namespace)
 
-	clientset, err := k8sinternal.NewKubeClientLocal("")
+	client, err := k8sinternal.NewKubeClientLocal("")
 	require.NoError(t, err)
 
 	// Test IncludeGenerated = false
-	resources := k8sinternal.GetAllResources(
-		clientset,
+	resources := client.GetAllResources(
 		k8sinternal.ClientOptions{Namespace: namespace, IncludeGenerated: false},
 	)
 	assert.False(t, hasPod(resources), "Expected no pods for IncludeGenerated=false")
 
 	// Test IncludeGenerated unspecified defaults to false
-	resources = k8sinternal.GetAllResources(
-		clientset,
+	resources = client.GetAllResources(
 		k8sinternal.ClientOptions{Namespace: namespace},
 	)
 	assert.False(t, hasPod(resources), "Expected no pods if IncludeGenerated is unspecified (ie. default to false)")
 
 	// Test IncludeGenerated = true
-	resources = k8sinternal.GetAllResources(
-		clientset,
+	resources = client.GetAllResources(
 		k8sinternal.ClientOptions{Namespace: namespace, IncludeGenerated: true},
 	)
 	assert.True(t, hasPod(resources), "Expected pods for IncludeGenerated=true")
@@ -180,4 +172,47 @@ func hasPod(resources []k8s.Resource) bool {
 		}
 	}
 	return false
+}
+
+func newFakeKubeClient(resources ...runtime.Object) k8sinternal.KubeClient {
+	return newFakeKubeClientWithServerVersion(nil, resources...)
+}
+
+func newFakeKubeClientWithServerVersion(serverversion *version.Info, resources ...runtime.Object) k8sinternal.KubeClient {
+	clientset := fakeclientset.NewSimpleClientset()
+	fakeDiscovery, _ := clientset.Discovery().(*fakediscovery.FakeDiscovery)
+	if serverversion != nil {
+		fakeDiscovery.FakedServerVersion = serverversion
+	}
+	unstructuredresources := []runtime.Object{}
+	gvrToListKind := map[schema.GroupVersionResource]string{}
+	gvAPIResources := map[string][]metav1.APIResource{}
+	for _, r := range resources {
+		gvk := r.GetObjectKind().GroupVersionKind()
+		listGVK := gvk
+		listGVK.Kind += "List"
+
+		u := unstructured.Unstructured{}
+		u.SetGroupVersionKind(r.GetObjectKind().GroupVersionKind())
+		u.SetName(k8s.GetObjectMeta(r).GetName())
+		u.SetNamespace(k8s.GetObjectMeta(r).GetNamespace())
+		unstructuredresources = (append(unstructuredresources, &u))
+
+		kind := r.GetObjectKind().GroupVersionKind().Kind
+		plural, _ := meta.UnsafeGuessKindToResource(r.GetObjectKind().GroupVersionKind())
+		apiresource := metav1.APIResource{Name: plural.Resource, Namespaced: false, Group: gvk.Group, Version: gvk.Version, Kind: kind, Verbs: metav1.Verbs{"list"}}
+		gvr := schema.GroupVersionResource{Group: apiresource.Group, Version: apiresource.Version, Resource: apiresource.Name}
+		if _, ok := gvrToListKind[gvr]; !ok {
+			gvrToListKind[gvr] = kind + "List"
+			gv := gvk.GroupVersion().String()
+			gvAPIResources[gv] = append(gvAPIResources[gv], apiresource)
+		}
+	}
+	for gv, apiresources := range gvAPIResources {
+		fakeDiscovery.Resources = append(fakeDiscovery.Resources, &metav1.APIResourceList{
+			GroupVersion: gv,
+			APIResources: apiresources})
+	}
+	fakedynamic := fakedynamic.NewSimpleDynamicClientWithCustomListKinds(runtime.NewScheme(), gvrToListKind, unstructuredresources...)
+	return k8sinternal.NewKubeClient(fakedynamic, fakeDiscovery)
 }

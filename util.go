@@ -7,13 +7,12 @@ import (
 	"github.com/Shopify/kubeaudit/internal/k8sinternal"
 	"github.com/Shopify/kubeaudit/pkg/k8s"
 	"gopkg.in/yaml.v3"
-	"k8s.io/client-go/kubernetes"
 )
 
-func getResourcesFromClientset(clientset kubernetes.Interface, options k8sinternal.ClientOptions) []KubeResource {
+func getResourcesFromClient(client k8sinternal.KubeClient, options k8sinternal.ClientOptions) []KubeResource {
 	var resources []KubeResource
 
-	for _, resource := range k8sinternal.GetAllResources(clientset, options) {
+	for _, resource := range client.GetAllResources(options) {
 		resources = append(resources, &kubeResource{object: resource})
 	}
 

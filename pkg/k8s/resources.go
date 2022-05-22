@@ -47,7 +47,7 @@ func NewNamespace() *NamespaceV1 {
 func NewDaemonSet() *DaemonSetV1 {
 	return &DaemonSetV1{
 		TypeMeta: TypeMetaV1{
-			Kind:       "Daemonset",
+			Kind:       "DaemonSet",
 			APIVersion: "apps/v1",
 		},
 		ObjectMeta: ObjectMetaV1{},

@@ -3,13 +3,16 @@ package k8sinternal
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/Shopify/kubeaudit/pkg/k8s"
 	log "github.com/sirupsen/logrus"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/version"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -41,7 +44,7 @@ func (kc k8sClient) InClusterConfig() (*rest.Config, error) {
 }
 
 // NewKubeClientLocal creates a new kube client for local mode
-func NewKubeClientLocal(configPath string) (*kubernetes.Clientset, error) {
+func NewKubeClientLocal(configPath string) (KubeClient, error) {
 	var kubeconfig *rest.Config
 	var err error
 
@@ -61,19 +64,30 @@ func NewKubeClientLocal(configPath string) (*kubernetes.Clientset, error) {
 		return nil, err
 	}
 
-	kube, err := kubernetes.NewForConfig(kubeconfig)
-	return kube, err
+	return newKubeClientFromConfig(kubeconfig)
 }
 
 // NewKubeClientCluster creates a new kube client for cluster mode
-func NewKubeClientCluster(client Client) (*kubernetes.Clientset, error) {
+func NewKubeClientCluster(client Client) (KubeClient, error) {
 	config, err := client.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 	log.Info("Running inside cluster, using the cluster config")
-	kube, err := kubernetes.NewForConfig(config)
-	return kube, err
+	return newKubeClientFromConfig(config)
+}
+
+// newKubeClientFromConfig creates a new dynamic client with discovery or returns an error.
+func newKubeClientFromConfig(config *rest.Config) (KubeClient, error) {
+	discovery, err := discovery.NewDiscoveryClientForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	dynamic, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	return NewKubeClient(dynamic, discovery), nil
 }
 
 // IsRunningInCluster returns true if kubeaudit is running inside a cluster
@@ -89,26 +103,64 @@ type ClientOptions struct {
 	IncludeGenerated bool
 }
 
+type KubeClient interface {
+	// GetAllResources gets all supported resources from the cluster
+	GetAllResources(options ClientOptions) []k8s.Resource
+	// GetKubernetesVersion returns the kubernetes client version
+	GetKubernetesVersion() (*version.Info, error)
+	// ServerPreferredResources returns the supported resources with the version preferred by the server.
+	ServerPreferredResources() ([]*metav1.APIResourceList, error)
+}
+
+type kubeClient struct {
+	dynamicClient   dynamic.Interface
+	discoveryClient discovery.DiscoveryInterface
+}
+
+func NewKubeClient(dynamic dynamic.Interface, discovery discovery.DiscoveryInterface) KubeClient {
+	return &kubeClient{dynamicClient: dynamic, discoveryClient: discovery}
+}
+
 // GetAllResources gets all supported resources from the cluster
-func GetAllResources(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
+func (kc kubeClient) GetAllResources(options ClientOptions) []k8s.Resource {
 	var resources []k8s.Resource
 
-	resources = append(resources, GetDaemonSets(clientset, options)...)
-	resources = append(resources, GetDeployments(clientset, options)...)
-	resources = append(resources, GetPods(clientset, options)...)
-	resources = append(resources, GetPodTemplates(clientset, options)...)
-	resources = append(resources, GetReplicationControllers(clientset, options)...)
-	resources = append(resources, GetStatefulSets(clientset, options)...)
-	resources = append(resources, GetNetworkPolicies(clientset, options)...)
-	resources = append(resources, GetCronJobs(clientset, options)...)
-	resources = append(resources, GetServiceAccounts(clientset, options)...)
-	resources = append(resources, GetNamespaces(clientset, options)...)
-	resources = append(resources, GetServices(clientset, options)...)
-	resources = append(resources, GetJobs(clientset, options)...)
+	lists, err := kc.ServerPreferredResources()
+	if err == nil {
+		for _, list := range lists {
+			if len(list.APIResources) == 0 {
+				continue
+			}
+			gv, err := schema.ParseGroupVersion(list.GroupVersion)
+			if err != nil {
+				continue
+			}
+			for _, apiresource := range list.APIResources {
+				if len(apiresource.Verbs) == 0 {
+					continue
+				}
+				gvr := schema.GroupVersionResource{Group: gv.Group, Version: gv.Version, Resource: apiresource.Name}
+
+				unstructuredList, err := kc.dynamicClient.Resource(gvr).Namespace(options.Namespace).List(context.Background(), metav1.ListOptions{})
+				if err != nil {
+					continue
+				}
+				for _, unstructured := range unstructuredList.Items {
+					obj, err := scheme.New(unstructured.GroupVersionKind())
+					if err != nil {
+						continue
+					}
+					err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.UnstructuredContent(), obj)
+					resources = append(resources, obj)
+
+				}
+			}
+		}
+	}
+
 	if options.IncludeGenerated == false {
 		resources = excludeGenerated(resources)
 	}
-
 	return resources
 }
 
@@ -116,261 +168,27 @@ func GetAllResources(clientset kubernetes.Interface, options ClientOptions) []k8
 func excludeGenerated(resources []k8s.Resource) []k8s.Resource {
 	var filteredResources []k8s.Resource
 	for _, resource := range resources {
-		if len(k8s.GetObjectMeta(resource).OwnerReferences) == 0 {
-			filteredResources = append(filteredResources, resource)
+		if resource != nil {
+			obj, _ := resource.(metav1.ObjectMetaAccessor)
+			if obj != nil {
+				meta := obj.GetObjectMeta()
+				if meta != nil {
+					if len(meta.GetOwnerReferences()) == 0 {
+						filteredResources = append(filteredResources, resource)
+					}
+				}
+			}
 		}
 	}
 	return filteredResources
 }
 
-// GetDaemonSets gets all DaemonSet resources from the cluster
-func GetDaemonSets(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	daemonSetClient := clientset.AppsV1().DaemonSets(options.Namespace)
-	daemonSetList, err := daemonSetClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	daemonSets := make([]k8s.Resource, 0, len(daemonSetList.Items))
-	for _, daemonSet := range daemonSetList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		daemonSet.TypeMeta = k8s.NewDaemonSet().TypeMeta
-		daemonSets = append(daemonSets, daemonSet.DeepCopyObject())
-	}
-
-	return daemonSets
-}
-
-// GetDeployments gets all Deployment resources from the cluster
-func GetDeployments(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	deploymentClient := clientset.AppsV1().Deployments(options.Namespace)
-	deploymentList, err := deploymentClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	deployments := make([]k8s.Resource, 0, len(deploymentList.Items))
-	for _, deployment := range deploymentList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		deployment.TypeMeta = k8s.NewDeployment().TypeMeta
-		deployments = append(deployments, (&deployment).DeepCopyObject())
-	}
-
-	return deployments
-}
-
-// GetPods gets all Pod resources from the cluster
-func GetPods(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	podClient := clientset.CoreV1().Pods(options.Namespace)
-	podList, err := podClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	pods := make([]k8s.Resource, 0, len(podList.Items))
-	for _, pod := range podList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		pod.TypeMeta = k8s.NewPod().TypeMeta
-		pods = append(pods, pod.DeepCopyObject())
-	}
-
-	return pods
-}
-
-// GetPodTemplates gets all PodTemplate resources from the cluster
-func GetPodTemplates(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	podTemplateClient := clientset.CoreV1().PodTemplates(options.Namespace)
-	podTemplateList, err := podTemplateClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	podTemplates := make([]k8s.Resource, 0, len(podTemplateList.Items))
-	for _, podTemplate := range podTemplateList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		podTemplate.TypeMeta = k8s.NewPodTemplate().TypeMeta
-		podTemplates = append(podTemplates, podTemplate.DeepCopyObject())
-	}
-
-	return podTemplates
-}
-
-// GetReplicationControllers gets all ReplicationController resources from the cluster
-func GetReplicationControllers(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	replicationControllerClient := clientset.CoreV1().ReplicationControllers(options.Namespace)
-	replicationControllerList, err := replicationControllerClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	replicationControllers := make([]k8s.Resource, 0, len(replicationControllerList.Items))
-	for _, replicationController := range replicationControllerList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		replicationController.TypeMeta = k8s.NewReplicationController().TypeMeta
-		replicationControllers = append(replicationControllers, replicationController.DeepCopyObject())
-	}
-
-	return replicationControllers
-}
-
-// GetStatefulSets gets all StatefulSet resources from the cluster
-func GetStatefulSets(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	statefulSetClient := clientset.AppsV1().StatefulSets(options.Namespace)
-	statefulSetList, err := statefulSetClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	statefulSets := make([]k8s.Resource, 0, len(statefulSetList.Items))
-	for _, statefulSet := range statefulSetList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		statefulSet.TypeMeta = k8s.NewStatefulSet().TypeMeta
-		statefulSets = append(statefulSets, statefulSet.DeepCopyObject())
-	}
-
-	return statefulSets
-}
-
-// GetCronJobs gets all CronJob resources from the cluster
-func GetCronJobs(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	cronJobClient := clientset.BatchV1beta1().CronJobs(options.Namespace)
-	cronJobList, err := cronJobClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	cronJobs := make([]k8s.Resource, 0, len(cronJobList.Items))
-	for _, cronJob := range cronJobList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		cronJob.TypeMeta = k8s.NewCronJob().TypeMeta
-		cronJobs = append(cronJobs, cronJob.DeepCopyObject())
-	}
-
-	return cronJobs
-}
-
-// GetNetworkPolicies gets all NetworkPolicy resources from the cluster
-func GetNetworkPolicies(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	netPolClient := clientset.NetworkingV1().NetworkPolicies(options.Namespace)
-	netPolList, err := netPolClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	netPols := make([]k8s.Resource, 0, len(netPolList.Items))
-	for _, netPol := range netPolList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		netPol.TypeMeta = k8s.NewNetworkPolicy().TypeMeta
-		netPols = append(netPols, netPol.DeepCopyObject())
-	}
-
-	return netPols
-}
-
-// GetServiceAccounts gets all ServiceAccount resources from the cluster
-func GetServiceAccounts(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	serviceAccountClient := clientset.CoreV1().ServiceAccounts(options.Namespace)
-	serviceAccountList, err := serviceAccountClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	serviceAccounts := make([]k8s.Resource, 0, len(serviceAccountList.Items))
-	for _, serviceAccount := range serviceAccountList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		serviceAccount.TypeMeta = k8s.NewServiceAccount().TypeMeta
-		serviceAccounts = append(serviceAccounts, serviceAccount.DeepCopyObject())
-	}
-
-	return serviceAccounts
-}
-
-// GetNamespaces gets all Namespace resources from the cluster
-func GetNamespaces(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	namespaceClient := clientset.CoreV1().Namespaces()
-	listOptions := k8s.ListOptionsV1{}
-
-	if options.Namespace != "" {
-		// Select only the specified namespace
-		listOptions.FieldSelector = fmt.Sprintf("metadata.name=%s", options.Namespace)
-	}
-
-	namespaceList, err := namespaceClient.List(context.Background(), listOptions)
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	namespaces := make([]k8s.Resource, 0, len(namespaceList.Items))
-	for _, namespace := range namespaceList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		namespace.TypeMeta = k8s.NewNamespace().TypeMeta
-		namespaces = append(namespaces, (&namespace).DeepCopyObject())
-	}
-
-	return namespaces
-}
-
-// GetServices gets all Service resources from a namespace in a cluster
-func GetServices(clientset kubernetes.Interface, option ClientOptions) []k8s.Resource {
-	serviceClient := clientset.CoreV1().Services(option.Namespace)
-	listOptions := k8s.ListOptionsV1{}
-
-	serviceList, err := serviceClient.List(context.Background(), listOptions)
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-	services := make([]k8s.Resource, 0, len(serviceList.Items))
-	for _, s := range serviceList.Items {
-		s.TypeMeta = k8s.NewService().TypeMeta
-		services = append(services, (&s).DeepCopyObject())
-	}
-	return services
-}
-
-// GetJobs gets all Job resources from the cluster
-func GetJobs(clientset kubernetes.Interface, options ClientOptions) []k8s.Resource {
-	jobClient := clientset.BatchV1().Jobs(options.Namespace)
-	jobList, err := jobClient.List(context.Background(), k8s.ListOptionsV1{})
-
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
-
-	jobs := make([]k8s.Resource, 0, len(jobList.Items))
-	for _, job := range jobList.Items {
-		// For some reason the kubernetes SDK doesn't populate the type meta so we populate it manually
-		job.TypeMeta = k8s.NewJob().TypeMeta
-		jobs = append(jobs, job.DeepCopyObject())
-	}
-
-	return jobs
-}
-
 // GetKubernetesVersion returns the kubernetes client version
-func GetKubernetesVersion(clientset kubernetes.Interface) (*version.Info, error) {
-	discoveryClient := clientset.Discovery()
-	return discoveryClient.ServerVersion()
+func (kc kubeClient) GetKubernetesVersion() (*version.Info, error) {
+	return kc.discoveryClient.ServerVersion()
+}
+
+// ServerPreferredResources returns the supported resources with the version preferred by the server.
+func (kc kubeClient) ServerPreferredResources() ([]*metav1.APIResourceList, error) {
+	return discovery.ServerPreferredResources(kc.discoveryClient)
 }
