@@ -37,7 +37,7 @@ test:
 	./test.sh
 
 test-setup:
-	kind create cluster --name ${TEST_CLUSTER_NAME} --image kindest/node:v1.15.0
+	kind create cluster --name ${TEST_CLUSTER_NAME} --image kindest/node:v1.20.15@sha256:6f2d011dffe182bad80b85f6c00e8ca9d86b5b8922cdf433d53575c4c5212248
 
 test-teardown:
 	kind delete cluster --name ${TEST_CLUSTER_NAME}
