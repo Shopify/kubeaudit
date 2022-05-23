@@ -17,12 +17,13 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	format      string
-	kubeConfig  string
-	manifest    string
-	namespace   string
-	minSeverity string
-	exitCode    int
+	format           string
+	kubeConfig       string
+	context          string
+	manifest         string
+	namespace        string
+	minSeverity      string
+	exitCode         int
 	includeGenerated bool
 }
 
@@ -47,7 +48,8 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "c", "", "Path to local Kubernetes config file. Only used in local mode (default is $HOME/.kube/config)")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.kubeConfig, "kubeconfig", "", "", "Path to local Kubernetes config file. Only used in local mode (default is $HOME/.kube/config)")
+	RootCmd.PersistentFlags().StringVarP(&rootConfig.context, "context", "c", "", "The name of the kubeconfig context to use")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.minSeverity, "minseverity", "m", "info", "Set the lowest severity level to report (one of \"error\", \"warning\", \"info\")")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.format, "format", "p", "pretty", "The output format to use (one of \"pretty\", \"logrus\", \"json\")")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.namespace, "namespace", "n", apiv1.NamespaceAll, "Only audit resources in the specified namespace. Not currently supported in manifest mode.")
@@ -110,7 +112,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 		return report
 	}
 
-	report, err := auditor.AuditLocal(rootConfig.kubeConfig, kubeaudit.AuditOptions{Namespace: rootConfig.namespace, IncludeGenerated: rootConfig.includeGenerated})
+	report, err := auditor.AuditLocal(rootConfig.kubeConfig, rootConfig.context, kubeaudit.AuditOptions{Namespace: rootConfig.namespace, IncludeGenerated: rootConfig.includeGenerated})
 	if err != nil {
 		log.WithError(err).Fatal("Error auditing cluster in local mode")
 	}

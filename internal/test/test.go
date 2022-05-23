@@ -111,7 +111,7 @@ func GetReport(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.
 		defer DeleteNamespace(t, namespace)
 		CreateNamespace(t, namespace)
 		ApplyManifest(t, fixture, namespace)
-		report, err = auditor.AuditLocal("", k8sinternal.ClientOptions{Namespace: namespace})
+		report, err = auditor.AuditLocal("", "", k8sinternal.ClientOptions{Namespace: namespace})
 	}
 
 	require.NoError(err)
