@@ -35,7 +35,7 @@ kubeaudit deprecatedapis --current-k8s-version 1.22 --targeted-k8s-version 1.24`
 }
 
 func setdeprecatedapisFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&deprecatedapisConfig.CurrentVersion, currentVersionFlagName, "", "Kubernetes current version to migrate to (eg 1.22)")
+	cmd.Flags().StringVar(&deprecatedapisConfig.CurrentVersion, currentVersionFlagName, "", "Kubernetes current version (eg 1.22)")
 	cmd.Flags().StringVar(&deprecatedapisConfig.TargetedVersion, targetedVersionFlagName, "", "Kubernetes version to migrate to (eg 1.24)")
 }
 
