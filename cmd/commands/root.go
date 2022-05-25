@@ -17,12 +17,12 @@ import (
 var rootConfig rootFlags
 
 type rootFlags struct {
-	format      string
-	kubeConfig  string
-	manifest    string
-	namespace   string
-	minSeverity string
-	exitCode    int
+	format           string
+	kubeConfig       string
+	manifest         string
+	namespace        string
+	minSeverity      string
+	exitCode         int
 	includeGenerated bool
 }
 
@@ -91,11 +91,19 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 	auditor := initKubeaudit(auditors...)
 
 	if rootConfig.manifest != "" {
-		manifest, err := os.Open(rootConfig.manifest)
-		if err != nil {
-			log.WithError(err).Fatal("Error opening manifest file")
+		var f *os.File
+		if rootConfig.manifest == "-" {
+			f = os.Stdin
+		} else {
+			manifest, err := os.Open(rootConfig.manifest)
+			if err != nil {
+				log.WithError(err).Fatal("Error opening manifest file")
+			}
+
+			f = manifest
 		}
-		report, err := auditor.AuditManifest(manifest)
+
+		report, err := auditor.AuditManifest(f)
 		if err != nil {
 			log.WithError(err).Fatal("Error auditing manifest")
 		}
