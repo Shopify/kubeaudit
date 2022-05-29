@@ -106,7 +106,7 @@ func TestGetAllResources(t *testing.T) {
 	assert.Len(
 		t,
 		client.GetAllResources(k8sinternal.ClientOptions{Namespace: namespaces[0]}),
-		len(resourceTemplates)-1, // All resources but namespace
+		len(resourceTemplates),
 	)
 }
 
