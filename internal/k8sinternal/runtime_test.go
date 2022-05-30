@@ -45,9 +45,6 @@ func TestEncodeDecode(t *testing.T) {
 
 func TestGetContainers(t *testing.T) {
 	for _, resource := range getAllResources(t) {
-		if !k8s.IsSupportedResourceType(resource) {
-			continue
-		}
 		containers := k8s.GetContainers(resource)
 		switch resource.(type) {
 		case *k8s.NamespaceV1:
@@ -96,9 +93,6 @@ func TestGetObjectMeta(t *testing.T) {
 
 func TestGetPodTemplateSpec(t *testing.T) {
 	for _, resource := range getAllResources(t) {
-		if !k8s.IsSupportedResourceType(resource) {
-			continue
-		}
 		podTemplateSpec := k8s.GetPodTemplateSpec(resource)
 		switch resource.(type) {
 		case *k8s.PodV1, *k8s.NamespaceV1:
