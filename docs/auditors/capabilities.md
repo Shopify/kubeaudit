@@ -23,7 +23,7 @@ $ kubeaudit capabilities -f "auditors/capabilities/fixtures/capabilities-nil.yml
 
 ---------------- Results for ---------------
 
-  apiVersion: apps/v1beta2
+  apiVersion: apps/v1
   kind: Deployment
   metadata:
     name: deployment
@@ -54,7 +54,7 @@ auditors:
 `manifest.yaml`
 
 ```yaml
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deployment
@@ -80,7 +80,7 @@ $ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
 
 ---------------- Results for ---------------
 
-  apiVersion: apps/v1beta2
+  apiVersion: apps/v1
   kind: Deployment
   metadata:
     name: deployment
