@@ -70,17 +70,7 @@ func GetObjectMeta(resource Resource) *ObjectMetaV1 {
 		return &kubeType.ObjectMeta
 	case *DaemonSetV1:
 		return &kubeType.ObjectMeta
-	case *DaemonSetV1Beta1:
-		return &kubeType.ObjectMeta
-	case *DaemonSetV1Beta2:
-		return &kubeType.ObjectMeta
-	case *DeploymentExtensionsV1Beta1:
-		return &kubeType.ObjectMeta
 	case *DeploymentV1:
-		return &kubeType.ObjectMeta
-	case *DeploymentV1Beta1:
-		return &kubeType.ObjectMeta
-	case *DeploymentV1Beta2:
 		return &kubeType.ObjectMeta
 	case *JobV1:
 		return &kubeType.ObjectMeta
@@ -89,8 +79,6 @@ func GetObjectMeta(resource Resource) *ObjectMetaV1 {
 	case *ReplicationControllerV1:
 		return &kubeType.ObjectMeta
 	case *StatefulSetV1:
-		return &kubeType.ObjectMeta
-	case *StatefulSetV1Beta1:
 		return &kubeType.ObjectMeta
 	case *PodV1:
 		return &kubeType.ObjectMeta
@@ -144,17 +132,7 @@ func GetPodTemplateSpec(resource Resource) *PodTemplateSpecV1 {
 		return &kubeType.Spec.JobTemplate.Spec.Template
 	case *DaemonSetV1:
 		return &kubeType.Spec.Template
-	case *DaemonSetV1Beta1:
-		return &kubeType.Spec.Template
-	case *DaemonSetV1Beta2:
-		return &kubeType.Spec.Template
-	case *DeploymentExtensionsV1Beta1:
-		return &kubeType.Spec.Template
 	case *DeploymentV1:
-		return &kubeType.Spec.Template
-	case *DeploymentV1Beta1:
-		return &kubeType.Spec.Template
-	case *DeploymentV1Beta2:
 		return &kubeType.Spec.Template
 	case *JobV1:
 		return &kubeType.Spec.Template
@@ -163,8 +141,6 @@ func GetPodTemplateSpec(resource Resource) *PodTemplateSpecV1 {
 	case *ReplicationControllerV1:
 		return kubeType.Spec.Template
 	case *StatefulSetV1:
-		return &kubeType.Spec.Template
-	case *StatefulSetV1Beta1:
 		return &kubeType.Spec.Template
 	case *PodV1, *NamespaceV1:
 		return nil

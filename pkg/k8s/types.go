@@ -2,12 +2,9 @@ package k8s
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
-	appsv1beta1 "k8s.io/api/apps/v1beta1"
-	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sRuntime "k8s.io/apimachinery/pkg/runtime"
@@ -34,26 +31,11 @@ type DaemonSetSpecV1 = appsv1.DaemonSetSpec
 // DaemonSetV1 is a type alias for the v1 version of the k8s API.
 type DaemonSetV1 = appsv1.DaemonSet
 
-// DaemonSetV1Beta1 is a type alias for the v1beta1 version of the k8s extensions API.
-type DaemonSetV1Beta1 = extensionsv1beta1.DaemonSet
-
-// DaemonSetV1Beta2 is a type alias for the v1beta2 version of the k8s extensions API.
-type DaemonSetV1Beta2 = appsv1beta2.DaemonSet
-
-// DeploymentExtensionsV1Beta1 is a type alias for the v1beta1 version of the k8s extensions API.
-type DeploymentExtensionsV1Beta1 = extensionsv1beta1.Deployment
-
 // DeploymentSpecV1 is a type alias for the v1 version of the k8s apps API.
 type DeploymentSpecV1 = appsv1.DeploymentSpec
 
 // DeploymentV1 is a type alias for the v1 version of the k8s apps API.
 type DeploymentV1 = appsv1.Deployment
-
-// DeploymentV1Beta1 is a type alias for the v1beta1 version of the k8s apps API.
-type DeploymentV1Beta1 = appsv1beta1.Deployment
-
-// DeploymentV1Beta2 is a type alias for the v1beta2 version of the k8s apps API.
-type DeploymentV1Beta2 = appsv1beta2.Deployment
 
 // JobTemplateSpecV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
 type JobTemplateSpecV1Beta1 = batchv1beta1.JobTemplateSpec
@@ -124,9 +106,6 @@ type StatefulSetSpecV1 = appsv1.StatefulSetSpec
 // StatefulSetV1 is a type alias for the v1 version of the k8s apps API.
 type StatefulSetV1 = appsv1.StatefulSet
 
-// StatefulSetV1Beta1 is a type alias for the v1beta1 version of the k8s API.
-type StatefulSetV1Beta1 = appsv1beta1.StatefulSet
-
 // TypeMetaV1 is a type alias for the v1 version of the k8s meta API.
 type TypeMetaV1 = metav1.TypeMeta
 
@@ -137,8 +116,8 @@ type UnsupportedType = apiv1.Binding
 func IsSupportedResourceType(obj Resource) bool {
 	switch obj.(type) {
 	case *CronJobV1Beta1,
-		*DaemonSetV1, *DaemonSetV1Beta1, *DaemonSetV1Beta2,
-		*DeploymentExtensionsV1Beta1, *DeploymentV1, *DeploymentV1Beta1, *DeploymentV1Beta2,
+		*DaemonSetV1,
+		*DeploymentV1,
 		*JobV1,
 		*NamespaceV1,
 		*NetworkPolicyV1,
@@ -147,7 +126,7 @@ func IsSupportedResourceType(obj Resource) bool {
 		*ReplicationControllerV1,
 		*ServiceAccountV1,
 		*ServiceV1,
-		*StatefulSetV1, *StatefulSetV1Beta1:
+		*StatefulSetV1:
 		return true
 	default:
 		return false
