@@ -45,9 +45,6 @@ func TestEncodeDecode(t *testing.T) {
 
 func TestGetContainers(t *testing.T) {
 	for _, resource := range getAllResources(t) {
-		if !k8s.IsSupportedResourceType(resource) {
-			continue
-		}
 		containers := k8s.GetContainers(resource)
 		switch resource.(type) {
 		case *k8s.NamespaceV1:
@@ -80,25 +77,22 @@ func TestGetObjectMeta(t *testing.T) {
 	deployment := k8s.NewDeployment()
 	deployment.ObjectMeta = objectMeta
 	deployment.Spec.Template.ObjectMeta = podObjectMeta
-	assert.Equal(objectMeta, *k8s.GetObjectMeta(deployment))
-	assert.Equal(podObjectMeta, *k8s.GetPodObjectMeta(deployment))
+	assert.Equal(&objectMeta, k8s.GetObjectMeta(deployment))
+	assert.Equal(&podObjectMeta, k8s.GetPodObjectMeta(deployment))
 
 	pod := k8s.NewPod()
 	pod.ObjectMeta = objectMeta
-	assert.Equal(objectMeta, *k8s.GetObjectMeta(pod))
-	assert.Equal(objectMeta, *k8s.GetPodObjectMeta(pod))
+	assert.Equal(&objectMeta, k8s.GetObjectMeta(pod))
+	assert.Equal(&objectMeta, k8s.GetPodObjectMeta(pod))
 
 	namespace := k8s.NewNamespace()
 	namespace.ObjectMeta = objectMeta
-	assert.Equal(objectMeta, *k8s.GetObjectMeta(namespace))
-	assert.Equal(objectMeta, *k8s.GetPodObjectMeta(namespace))
+	assert.Equal(&objectMeta, k8s.GetObjectMeta(namespace))
+	assert.Equal(&objectMeta, k8s.GetPodObjectMeta(namespace))
 }
 
 func TestGetPodTemplateSpec(t *testing.T) {
 	for _, resource := range getAllResources(t) {
-		if !k8s.IsSupportedResourceType(resource) {
-			continue
-		}
 		podTemplateSpec := k8s.GetPodTemplateSpec(resource)
 		switch resource.(type) {
 		case *k8s.PodV1, *k8s.NamespaceV1:

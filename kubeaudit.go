@@ -165,12 +165,12 @@ func (a *Kubeaudit) AuditCluster(options AuditOptions) (*Report, error) {
 		return nil, errors.New("failed to audit resources in cluster mode: not running in cluster")
 	}
 
-	clientset, err := k8sinternal.NewKubeClientCluster(k8sinternal.DefaultClient)
+	client, err := k8sinternal.NewKubeClientCluster(k8sinternal.DefaultClient)
 	if err != nil {
 		return nil, err
 	}
 
-	resources := getResourcesFromClientset(clientset, options)
+	resources := getResourcesFromClient(client, options)
 	results, err := auditResources(resources, a.auditors)
 	if err != nil {
 		return nil, err
@@ -183,14 +183,14 @@ func (a *Kubeaudit) AuditCluster(options AuditOptions) (*Report, error) {
 
 // AuditLocal audits the Kubernetes resources found in the provided Kubernetes config file
 func (a *Kubeaudit) AuditLocal(configpath string, options AuditOptions) (*Report, error) {
-	clientset, err := k8sinternal.NewKubeClientLocal(configpath)
+	client, err := k8sinternal.NewKubeClientLocal(configpath)
 	if err == k8sinternal.ErrNoReadableKubeConfig {
 		return nil, fmt.Errorf("failed to open kubeconfig file %s", configpath)
 	} else if err != nil {
 		return nil, err
 	}
 
-	resources := getResourcesFromClientset(clientset, options)
+	resources := getResourcesFromClient(client, options)
 	results, err := auditResources(resources, a.auditors)
 	if err != nil {
 		return nil, err

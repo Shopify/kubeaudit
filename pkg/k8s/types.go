@@ -111,24 +111,3 @@ type TypeMetaV1 = metav1.TypeMeta
 
 // UnsupportedType is a type alias for v1 version of the k8s apps API, this is meant for testing
 type UnsupportedType = apiv1.Binding
-
-// IsSupportedResourceType returns true if obj is a supported Kubernetes resource type
-func IsSupportedResourceType(obj Resource) bool {
-	switch obj.(type) {
-	case *CronJobV1Beta1,
-		*DaemonSetV1,
-		*DeploymentV1,
-		*JobV1,
-		*NamespaceV1,
-		*NetworkPolicyV1,
-		*PodV1,
-		*PodTemplateV1,
-		*ReplicationControllerV1,
-		*ServiceAccountV1,
-		*ServiceV1,
-		*StatefulSetV1:
-		return true
-	default:
-		return false
-	}
-}
