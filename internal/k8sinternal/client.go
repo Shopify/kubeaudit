@@ -166,7 +166,7 @@ func (kc kubeClient) GetAllResources(options ClientOptions) []k8s.Resource {
 		}
 	}
 
-	if options.IncludeGenerated == false {
+	if !options.IncludeGenerated {
 		resources = excludeGenerated(resources)
 	}
 	return resources
