@@ -16,7 +16,7 @@ const (
 var deprecatedapisCmd = &cobra.Command{
 	Use:   "deprecatedapis",
 	Short: "Audit resource API version deprecations",
-	Long: `This command determines which recource is defined with a depreacted API version.
+	Long: `This command determines which resource is defined with a deprecated API version.
 
 An ERROR result is generated for API version not available in the targeted version
 A WARN result is generated for API version deprecated in the current version
