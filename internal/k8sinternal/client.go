@@ -65,6 +65,9 @@ func NewKubeClientLocal(configPath string) (KubeClient, error) {
 		return nil, err
 	}
 
+	// Ignore warnings from kubeclient as they are expected to be reported by the deprecatedapi auditor.
+	kubeconfig.WarningHandler = rest.NoWarnings{}
+
 	return newKubeClientFromConfig(kubeconfig)
 }
 
