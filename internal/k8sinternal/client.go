@@ -212,7 +212,8 @@ func (kc kubeClient) GetKubernetesVersion() (*version.Info, error) {
 func (kc kubeClient) ServerPreferredResources() ([]*metav1.APIResourceList, error) {
 	list, err := discovery.ServerPreferredResources(kc.discoveryClient)
 	// If a group is not served by the cluster the resources of this group will not be audited.
-	if _, ok := err.(*discovery.ErrGroupDiscoveryFailed); ok {
+	var e *discovery.ErrGroupDiscoveryFailed
+	if errors.As(err, &e) {
 		return list, nil
 	}
 	return list, err
