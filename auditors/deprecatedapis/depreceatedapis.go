@@ -41,23 +41,31 @@ func New(config Config) (*DeprecatedAPIs, error) {
 	}, nil
 }
 
+// APILifecycleDeprecated is a generated function on the available APIs, returning the release in which the API struct was or will be deprecated as int versions of major and minor for comparison.
+// https://github.com/kubernetes/code-generator/blob/v0.24.1/cmd/prerelease-lifecycle-gen/prerelease-lifecycle-generators/status.go#L475-L479
 type apiLifecycleDeprecated interface {
 	APILifecycleDeprecated() (major, minor int)
 }
 
+// APILifecycleRemoved is a generated function on the available APIs, returning the release in which the API is no longer served as int versions of major and minor for comparison.
+// https://github.com/kubernetes/code-generator/blob/v0.24.1/cmd/prerelease-lifecycle-gen/prerelease-lifecycle-generators/status.go#L491-L495
 type apiLifecycleRemoved interface {
 	APILifecycleRemoved() (major, minor int)
 }
 
+// APILifecycleReplacement is a generated function on the available APIs, returning the group, version, and kind that should be used instead of this deprecated type.
+// https://github.com/kubernetes/code-generator/blob/v0.24.1/cmd/prerelease-lifecycle-gen/prerelease-lifecycle-generators/status.go#L482-L487
 type apiLifecycleReplacement interface {
 	APILifecycleReplacement() schema.GroupVersionKind
 }
 
+// APILifecycleIntroduced is a generated function on the available APIs, returning the release in which the API struct was introduced as int versions of major and minor for comparison.
+// https://github.com/kubernetes/code-generator/blob/v0.24.1/cmd/prerelease-lifecycle-gen/prerelease-lifecycle-generators/status.go#L467-L473
 type apiLifecycleIntroduced interface {
 	APILifecycleIntroduced() (major, minor int)
 }
 
-// Audit checks that the resource API version is not deprecetated
+// Audit checks that the resource API version is not deprecated
 func (deprecatedAPIs *DeprecatedAPIs) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 	lastApplied, ok := k8s.GetAnnotations(resource)[v1.LastAppliedConfigAnnotation]
@@ -68,7 +76,7 @@ func (deprecatedAPIs *DeprecatedAPIs) Audit(resource k8s.Resource, _ []k8s.Resou
 	if isDeprecated {
 		deprecatedMajor, deprecatedMinor := deprecated.APILifecycleDeprecated()
 		if deprecatedMajor == 0 && deprecatedMinor == 0 {
-			return nil, fmt.Errorf("Version not found %s (%d.%d)", deprecated, deprecatedMajor, deprecatedMinor)
+			return nil, fmt.Errorf("version not found %s (%d.%d)", deprecated, deprecatedMajor, deprecatedMinor)
 		} else {
 			severity := kubeaudit.Warn
 			metadata := kubeaudit.Metadata{
@@ -94,7 +102,14 @@ func (deprecatedAPIs *DeprecatedAPIs) Audit(resource k8s.Resource, _ []k8s.Resou
 						severity = kubeaudit.Error
 					}
 				}
-
+				if introduced, hasIntroduced := resource.(apiLifecycleIntroduced); hasIntroduced {
+					introducedMajor, introducedMinor := introduced.APILifecycleIntroduced()
+					if introducedMajor != 0 || introducedMinor != 0 {
+						deprecationMessage = deprecationMessage + fmt.Sprintf(", introduced in v%d.%d+", introducedMajor, introducedMinor)
+						metadata["IntroducedMajor"] = strconv.Itoa(introducedMajor)
+						metadata["IntroducedMinor"] = strconv.Itoa(introducedMinor)
+					}
+				}
 				if replaced, hasReplacement := resource.(apiLifecycleReplacement); hasReplacement {
 					replacement := replaced.APILifecycleReplacement()
 					if !replacement.Empty() {

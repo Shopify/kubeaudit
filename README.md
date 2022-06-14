@@ -196,7 +196,7 @@ Auditors can also be run individually.
 | `apparmor`       | Finds containers running without AppArmor.                                                                     | [docs](docs/auditors/apparmor.md)       |
 | `asat`           | Finds pods using an automatically mounted default service account                                              | [docs](docs/auditors/asat.md)           |
 | `capabilities`   | Finds containers that do not drop the recommended capabilities or add new ones.                                | [docs](docs/auditors/capabilities.md)   |
-| `deprecatedapis` | Finds containers that do not drop the recommended capabilities or add new ones.                                | [docs](docs/auditors/deprecatedapis.md) |
+| `deprecatedapis` | Finds any resource defined with a deprecated API version.                                                      | [docs](docs/auditors/deprecatedapis.md) |
 | `hostns`         | Finds containers that have HostPID, HostIPC or HostNetwork enabled.                                            | [docs](docs/auditors/hostns.md)         |
 | `image`          | Finds containers which do not use the desired version of an image (via the tag) or use an image without a tag. | [docs](docs/auditors/image.md)          |
 | `limits`         | Finds containers which exceed the specified CPU and memory limits or do not specify any.                       | [docs](docs/auditors/limits.md)         |
