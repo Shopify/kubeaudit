@@ -1,6 +1,8 @@
 package deprecatedapis
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
@@ -41,23 +43,30 @@ func TestAuditDeprecatedAPIs(t *testing.T) {
 		"ReplacementKind":  "CronJob",
 	}
 
-	for _, tc := range cases {
+	for i, tc := range cases {
 		// These lines are needed because of how scopes work with parallel tests (see https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
 		tc := tc
+		i := i
 		t.Run(tc.file+"-"+tc.currentVersion+"-"+tc.targetedVersion, func(t *testing.T) {
 			t.Parallel()
 			auditor, err := New(Config{CurrentVersion: tc.currentVersion, TargetedVersion: tc.targetedVersion})
 			require.Nil(t, err)
 			report := test.AuditManifest(t, fixtureDir, tc.file, auditor, []string{DeprecatedAPIUsed})
-			assert.Equal(t, 1, len(report.Results()))
-			for _, result := range report.Results() {
-				assert.Equal(t, 1, len(result.GetAuditResults()))
-				for _, auditResult := range result.GetAuditResults() {
-					require.Equal(t, tc.expectedSeverity, auditResult.Severity)
-					require.Equal(t, message, auditResult.Message)
-					require.Equal(t, metadata, auditResult.Metadata)
-				}
-			}
+			assertReport(t, report, tc.expectedSeverity, message, metadata)
+			report = test.AuditLocal(t, fixtureDir, tc.file, auditor, fmt.Sprintf("%s-%d", strings.Split(tc.file, ".")[0], i), []string{DeprecatedAPIUsed})
+			assertReport(t, report, tc.expectedSeverity, message, metadata)
 		})
+	}
+}
+
+func assertReport(t *testing.T, report *kubeaudit.Report, expectedSeverity kubeaudit.SeverityLevel, message string, metadata map[string]string) {
+	assert.Equal(t, 1, len(report.Results()))
+	for _, result := range report.Results() {
+		assert.Equal(t, 1, len(result.GetAuditResults()))
+		for _, auditResult := range result.GetAuditResults() {
+			require.Equal(t, expectedSeverity, auditResult.Severity)
+			require.Equal(t, message, auditResult.Message)
+			require.Equal(t, metadata, auditResult.Metadata)
+		}
 	}
 }
