@@ -102,12 +102,13 @@ func TestGetAllResources(t *testing.T) {
 	}
 
 	client := newFakeKubeClient(resources...)
-	assert.Len(t, client.GetAllResources(k8sinternal.ClientOptions{}), len(resourceTemplates)*len(namespaces))
-	assert.Len(
-		t,
-		client.GetAllResources(k8sinternal.ClientOptions{Namespace: namespaces[0]}),
-		len(resourceTemplates),
-	)
+	k8sresources, err := client.GetAllResources(k8sinternal.ClientOptions{})
+	require.NoError(t, err)
+	assert.Len(t, k8sresources, len(resourceTemplates)*len(namespaces))
+
+	k8sresources, err = client.GetAllResources(k8sinternal.ClientOptions{Namespace: namespaces[0]})
+	require.NoError(t, err)
+	assert.Len(t, k8sresources, len(resourceTemplates))
 }
 
 func setNamespace(resource k8s.Resource, namespace string) {
@@ -147,21 +148,24 @@ func TestIncludeGenerated(t *testing.T) {
 	require.NoError(t, err)
 
 	// Test IncludeGenerated = false
-	resources := client.GetAllResources(
+	resources, err := client.GetAllResources(
 		k8sinternal.ClientOptions{Namespace: namespace, IncludeGenerated: false},
 	)
+	require.NoError(t, err)
 	assert.False(t, hasPod(resources), "Expected no pods for IncludeGenerated=false")
 
 	// Test IncludeGenerated unspecified defaults to false
-	resources = client.GetAllResources(
+	resources, err = client.GetAllResources(
 		k8sinternal.ClientOptions{Namespace: namespace},
 	)
+	require.NoError(t, err)
 	assert.False(t, hasPod(resources), "Expected no pods if IncludeGenerated is unspecified (ie. default to false)")
 
 	// Test IncludeGenerated = true
-	resources = client.GetAllResources(
+	resources, err = client.GetAllResources(
 		k8sinternal.ClientOptions{Namespace: namespace, IncludeGenerated: true},
 	)
+	require.NoError(t, err)
 	assert.True(t, hasPod(resources), "Expected pods for IncludeGenerated=true")
 }
 

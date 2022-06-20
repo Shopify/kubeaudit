@@ -106,7 +106,7 @@ type ClientOptions struct {
 
 type KubeClient interface {
 	// GetAllResources gets all supported resources from the cluster
-	GetAllResources(options ClientOptions) []k8s.Resource
+	GetAllResources(options ClientOptions) ([]k8s.Resource, error)
 	// GetKubernetesVersion returns the kubernetes client version
 	GetKubernetesVersion() (*version.Info, error)
 	// ServerPreferredResources returns the supported resources with the version preferred by the server.
@@ -123,11 +123,14 @@ func NewKubeClient(dynamic dynamic.Interface, discovery discovery.DiscoveryInter
 }
 
 // GetAllResources gets all supported resources from the cluster
-func (kc kubeClient) GetAllResources(options ClientOptions) []k8s.Resource {
+func (kc kubeClient) GetAllResources(options ClientOptions) ([]k8s.Resource, error) {
 	var resources []k8s.Resource
 
 	lists, err := kc.ServerPreferredResources()
-	if err == nil {
+	if err != nil {
+		return nil, err
+	}
+	if lists != nil {
 		for _, list := range lists {
 			if len(list.APIResources) == 0 {
 				continue
@@ -169,7 +172,7 @@ func (kc kubeClient) GetAllResources(options ClientOptions) []k8s.Resource {
 	if !options.IncludeGenerated {
 		resources = excludeGenerated(resources)
 	}
-	return resources
+	return resources, nil
 }
 
 // unstructuredToObject unstructured to Go typed object conversions
@@ -207,5 +210,11 @@ func (kc kubeClient) GetKubernetesVersion() (*version.Info, error) {
 
 // ServerPreferredResources returns the supported resources with the version preferred by the server.
 func (kc kubeClient) ServerPreferredResources() ([]*metav1.APIResourceList, error) {
-	return discovery.ServerPreferredResources(kc.discoveryClient)
+	list, err := discovery.ServerPreferredResources(kc.discoveryClient)
+	// If a group is not served by the cluster the resources of this group will not be audited.
+	var e *discovery.ErrGroupDiscoveryFailed
+	if errors.As(err, &e) {
+		return list, nil
+	}
+	return list, err
 }

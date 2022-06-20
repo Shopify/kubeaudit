@@ -9,14 +9,18 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func getResourcesFromClient(client k8sinternal.KubeClient, options k8sinternal.ClientOptions) []KubeResource {
+func getResourcesFromClient(client k8sinternal.KubeClient, options k8sinternal.ClientOptions) ([]KubeResource, error) {
 	var resources []KubeResource
 
-	for _, resource := range client.GetAllResources(options) {
+	k8sresources, err := client.GetAllResources(options)
+	if err != nil {
+		return nil, err
+	}
+	for _, resource := range k8sresources {
 		resources = append(resources, &kubeResource{object: resource})
 	}
 
-	return resources
+	return resources, nil
 }
 
 func getResourcesFromManifest(data []byte) ([]KubeResource, error) {

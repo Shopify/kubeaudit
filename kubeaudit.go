@@ -170,7 +170,10 @@ func (a *Kubeaudit) AuditCluster(options AuditOptions) (*Report, error) {
 		return nil, err
 	}
 
-	resources := getResourcesFromClient(client, options)
+	resources, err := getResourcesFromClient(client, options)
+	if err != nil {
+		return nil, err
+	}
 	results, err := auditResources(resources, a.auditors)
 	if err != nil {
 		return nil, err
@@ -190,7 +193,10 @@ func (a *Kubeaudit) AuditLocal(configpath string, context string, options AuditO
 		return nil, err
 	}
 
-	resources := getResourcesFromClient(client, options)
+	resources, err := getResourcesFromClient(client, options)
+	if err != nil {
+		return nil, err
+	}
 	results, err := auditResources(resources, a.auditors)
 	if err != nil {
 		return nil, err
