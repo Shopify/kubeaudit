@@ -185,8 +185,8 @@ func (a *Kubeaudit) AuditCluster(options AuditOptions) (*Report, error) {
 }
 
 // AuditLocal audits the Kubernetes resources found in the provided Kubernetes config file
-func (a *Kubeaudit) AuditLocal(configpath string, options AuditOptions) (*Report, error) {
-	client, err := k8sinternal.NewKubeClientLocal(configpath)
+func (a *Kubeaudit) AuditLocal(configpath string, context string, options AuditOptions) (*Report, error) {
+	client, err := k8sinternal.NewKubeClientLocal(configpath, context)
 	if err == k8sinternal.ErrNoReadableKubeConfig {
 		return nil, fmt.Errorf("failed to open kubeconfig file %s", configpath)
 	} else if err != nil {

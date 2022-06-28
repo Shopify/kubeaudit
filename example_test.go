@@ -78,7 +78,7 @@ func Example_auditLocal() {
 	}
 
 	// Run the audit in local mode
-	report, err := auditor.AuditLocal("", kubeaudit.AuditOptions{})
+	report, err := auditor.AuditLocal("", "", kubeaudit.AuditOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -204,7 +204,7 @@ func Example_printOptions() {
 		log.Fatal(err)
 	}
 
-	report, err := auditor.AuditLocal("", kubeaudit.AuditOptions{})
+	report, err := auditor.AuditLocal("", "", kubeaudit.AuditOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
