@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/Shopify/kubeaudit/auditors/deprecatedapis"
 	"github.com/Shopify/kubeaudit/auditors/mounts"
 
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
@@ -47,8 +48,9 @@ func (conf *KubeauditConfig) GetAuditorConfigs() AuditorConfig {
 }
 
 type AuditorConfig struct {
-	Capabilities capabilities.Config `yaml:"capabilities"`
-	Image        image.Config        `yaml:"image"`
-	Limits       limits.Config       `yaml:"limits"`
-	Mounts       mounts.Config       `yaml:"mounts"`
+	Capabilities   capabilities.Config   `yaml:"capabilities"`
+	DeprecatedAPIs deprecatedapis.Config `yaml:"config"`
+	Image          image.Config          `yaml:"image"`
+	Limits         limits.Config         `yaml:"limits"`
+	Mounts         mounts.Config         `yaml:"mounts"`
 }

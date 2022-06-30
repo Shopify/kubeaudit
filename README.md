@@ -191,21 +191,22 @@ For all the ways kubeaudit can be customized, see [Global Flags](#global-flags).
 
 Auditors can also be run individually.
 
-| Command        | Description                                                                                                    | Documentation                         |
-| :------------- | :------------------------------------------------------------------------------------------------------------- | :------------------------------------ |
-| `apparmor`     | Finds containers running without AppArmor.                                                                     | [docs](docs/auditors/apparmor.md)     |
-| `asat`         | Finds pods using an automatically mounted default service account                                              | [docs](docs/auditors/asat.md)         |
-| `capabilities` | Finds containers that do not drop the recommended capabilities or add new ones.                                | [docs](docs/auditors/capabilities.md) |
-| `hostns`       | Finds containers that have HostPID, HostIPC or HostNetwork enabled.                                            | [docs](docs/auditors/hostns.md)       |
-| `image`        | Finds containers which do not use the desired version of an image (via the tag) or use an image without a tag. | [docs](docs/auditors/image.md)        |
-| `limits`       | Finds containers which exceed the specified CPU and memory limits or do not specify any.                       | [docs](docs/auditors/limits.md)       |
-| `mounts`       | Finds containers that have sensitive host paths mounted.                                                       | [docs](docs/auditors/mounts.md)       |
-| `netpols`      | Finds namespaces that do not have a default-deny network policy.                                               | [docs](docs/auditors/netpols.md)      |
-| `nonroot`      | Finds containers running as root.                                                                              | [docs](docs/auditors/nonroot.md)      |
-| `privesc`      | Finds containers that allow privilege escalation.                                                              | [docs](docs/auditors/privesc.md)      |
-| `privileged`   | Finds containers running as privileged.                                                                        | [docs](docs/auditors/privileged.md)   |
-| `rootfs`       | Finds containers which do not have a read-only filesystem.                                                     | [docs](docs/auditors/rootfs.md)       |
-| `seccomp`      | Finds containers running without Seccomp.                                                                      | [docs](docs/auditors/seccomp.md)      |
+| Command          | Description                                                                                                    | Documentation                           |
+| :--------------- | :------------------------------------------------------------------------------------------------------------- | :-------------------------------------- |
+| `apparmor`       | Finds containers running without AppArmor.                                                                     | [docs](docs/auditors/apparmor.md)       |
+| `asat`           | Finds pods using an automatically mounted default service account                                              | [docs](docs/auditors/asat.md)           |
+| `capabilities`   | Finds containers that do not drop the recommended capabilities or add new ones.                                | [docs](docs/auditors/capabilities.md)   |
+| `deprecatedapis` | Finds any resource defined with a deprecated API version.                                                      | [docs](docs/auditors/deprecatedapis.md) |
+| `hostns`         | Finds containers that have HostPID, HostIPC or HostNetwork enabled.                                            | [docs](docs/auditors/hostns.md)         |
+| `image`          | Finds containers which do not use the desired version of an image (via the tag) or use an image without a tag. | [docs](docs/auditors/image.md)          |
+| `limits`         | Finds containers which exceed the specified CPU and memory limits or do not specify any.                       | [docs](docs/auditors/limits.md)         |
+| `mounts`         | Finds containers that have sensitive host paths mounted.                                                       | [docs](docs/auditors/mounts.md)         |
+| `netpols`        | Finds namespaces that do not have a default-deny network policy.                                               | [docs](docs/auditors/netpols.md)        |
+| `nonroot`        | Finds containers running as root.                                                                              | [docs](docs/auditors/nonroot.md)        |
+| `privesc`        | Finds containers that allow privilege escalation.                                                              | [docs](docs/auditors/privesc.md)        |
+| `privileged`     | Finds containers running as privileged.                                                                        | [docs](docs/auditors/privileged.md)     |
+| `rootfs`         | Finds containers which do not have a read-only filesystem.                                                     | [docs](docs/auditors/rootfs.md)         |
+| `seccomp`        | Finds containers running without Seccomp.                                                                      | [docs](docs/auditors/seccomp.md)        |
 
 ### Global Flags
 
@@ -237,6 +238,7 @@ enabledAuditors:
   apparmor: false
   asat: false
   capabilities: true
+  deprecatedapis: true
   hostns: true
   image: true
   limits: true
@@ -251,6 +253,11 @@ auditors:
   capabilities:
     # add capabilities needed to the add list, so kubeaudit won't report errors
     allowAddList: ['AUDIT_WRITE', 'CHOWN']
+  deprecatedapis:
+    # If no versions are specified and the'deprecatedapis' auditor is enabled, WARN
+    # results will be genereted for the resources defined with a deprecated API.
+    currentVersion: '1.22'
+    targetedVersion: '1.25'
   image:
     # If no image is specified and the 'image' auditor is enabled, WARN results
     # will be generated for containers which use an image without a tag

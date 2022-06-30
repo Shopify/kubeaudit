@@ -5,6 +5,7 @@ enabledAuditors:
     apparmor: true
     asat: true
     capabilities: true
+    deprecatedapis: true
     hostns: true
     image: true
     limits: true
@@ -19,6 +20,9 @@ auditors:
     capabilities:
         # add capabilities needed to the add list, so kubeaudit won't report errors
         add: ["AUDIT_WRITE", "CHOWN", "KILL"]
+    deprecatedapis:
+        currentVersion: "1.22"
+        targetedVersion: "1.25"
     image:
         image: "myimage:mytag"
     limits:
