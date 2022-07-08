@@ -10,6 +10,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.23.5
 	k8s.io/apimachinery v0.24.3
 	k8s.io/client-go v0.24.3
+	github.com/owenrumney/go-sarif/v2 v2.1.2
 )
 
 require (

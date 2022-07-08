@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: capabilities-added
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/container: badval
+spec:
+  selector:
+    matchLabels:
+      name: deployment
+  template:
+    metadata:
+      labels:
+        name: deployment
+    spec:
+      containers:
+        - name: container
+          image: scratch
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - CHOWN
+              drop:
+                - ALL
