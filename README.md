@@ -175,6 +175,8 @@ The minimum severity level can be set using the `--minSeverity/-m` flag.
 
 By default kubeaudit will output results in a human-readable way. If the output is intended to be further processed, it can be set to output JSON using the `--format json` flag. To output results as logs (the previous default) use `--format logrus`. Some output formats include colors to make results easier to read in a terminal. To disable colors (for example, if you are sending output to a text file), you can use the `--no-color` flag.
 
+You can generate a kubeaudit report in [SARIF](https://docs.oasis-open.org/sarif/sarif/v2.0/sarif-v2.0.html) and write it to a file by using the `-s/--sarif` flag.
+
 If there are results of severity level `error`, kubeaudit will exit with exit code 2. This can be changed using the `--exitcode/-e` flag.
 
 For all the ways kubeaudit can be customized, see [Global Flags](#global-flags).
@@ -221,6 +223,7 @@ Auditors can also be run individually.
 | -m    | --minseverity      | Set the lowest severity level to report (one of "error", "warning", "info") (default is "info")                                                           |
 | -e    | --exitcode         | Exit code to use if there are results with severity of "error". Conventionally, 0 is used for success and all non-zero codes for an error. (default is 2) |
 |       | --no-color         | Don't use colors in the output (default is false) |
+| -s    | --sarif            | The file location to save the SARIF output |
 
 ## Configuration File
 
