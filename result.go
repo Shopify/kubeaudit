@@ -43,6 +43,7 @@ type AuditResult struct {
 	Message    string        // Message is a human-readable description of the audit result
 	PendingFix PendingFix    // PendingFix is the fix that will be applied to automatically fix the security issue
 	Metadata   Metadata      // Metadata includes additional context for an audit result
+	FilePath   string        // manifest file path
 }
 
 func (result *AuditResult) Fix(resource k8s.Resource) (newResources []k8s.Resource) {

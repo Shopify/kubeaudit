@@ -98,7 +98,7 @@ func Example_customAuditor() {
 	}
 
 	// Run the audit in the mode of your choosing. Here we use manifest mode.
-	report, err := auditor.AuditManifest(strings.NewReader(manifest))
+	report, err := auditor.AuditManifest("", strings.NewReader(manifest))
 	if err != nil {
 		log.Fatal(err)
 	}

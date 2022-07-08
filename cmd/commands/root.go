@@ -108,7 +108,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 			f = manifest
 		}
 
-		report, err := auditor.AuditManifest(f)
+		report, err := auditor.AuditManifest(rootConfig.manifest, f)
 		if err != nil {
 			log.WithError(err).Fatal("Error auditing manifest")
 		}

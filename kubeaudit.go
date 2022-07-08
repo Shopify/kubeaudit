@@ -138,7 +138,7 @@ func New(auditors []Auditable, opts ...Option) (*Kubeaudit, error) {
 }
 
 // AuditManifest audits the Kubernetes resources in the provided manifest
-func (a *Kubeaudit) AuditManifest(manifest io.Reader) (*Report, error) {
+func (a *Kubeaudit) AuditManifest(manifestPath string, manifest io.Reader) (*Report, error) {
 	manifestBytes, err := ioutil.ReadAll(manifest)
 	if err != nil {
 		return nil, err
@@ -152,6 +152,13 @@ func (a *Kubeaudit) AuditManifest(manifest io.Reader) (*Report, error) {
 	results, err := auditResources(resources, a.auditors)
 	if err != nil {
 		return nil, err
+	}
+
+	for _, result := range results {
+		auditResults := result.GetAuditResults()
+		for _, ar := range auditResults {
+			ar.FilePath = manifestPath
+		}
 	}
 
 	report := &Report{results: results}
