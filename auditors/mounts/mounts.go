@@ -100,6 +100,7 @@ func auditContainer(container *k8s.ContainerV1, sensitiveVolumes map[string]v1.V
 	for _, mount := range container.VolumeMounts {
 		if volume, ok := sensitiveVolumes[mount.Name]; ok {
 			auditResults = append(auditResults, &kubeaudit.AuditResult{
+				Auditor:  Name,
 				Name:     SensitivePathsMounted,
 				Severity: kubeaudit.Error,
 				Message:  fmt.Sprintf("Sensitive path mounted as volume: %s (hostPath: %s). It should be removed from the container's mounts list.", mount.Name, volume.HostPath.Path),

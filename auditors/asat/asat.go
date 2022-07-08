@@ -45,6 +45,7 @@ func auditResource(resource k8s.Resource, resources []k8s.Resource) *kubeaudit.A
 
 	if isDeprecatedServiceAccountName(podSpec) && !hasServiceAccountName(podSpec) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     AutomountServiceAccountTokenDeprecated,
 			Severity: kubeaudit.Warn,
 			Message:  "serviceAccount is a deprecated alias for serviceAccountName. serviceAccountName should be used instead.",
@@ -60,6 +61,7 @@ func auditResource(resource k8s.Resource, resources []k8s.Resource) *kubeaudit.A
 	defaultServiceAccount := getDefaultServiceAccount(resources)
 	if usesDefaultServiceAccount(podSpec) && isAutomountTokenTrue(podSpec, defaultServiceAccount) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     AutomountServiceAccountTokenTrueAndDefaultSA,
 			Severity: kubeaudit.Error,
 			Message:  "Default service account with token mounted. automountServiceAccountToken should be set to 'false' on either the ServiceAccount or on the PodSpec or a non-default service account should be used.",

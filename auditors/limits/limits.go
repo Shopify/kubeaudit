@@ -65,6 +65,7 @@ func (limits *Limits) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaud
 func (limits *Limits) auditContainer(container *k8s.ContainerV1) (auditResults []*kubeaudit.AuditResult) {
 	if isLimitsNil(container) {
 		auditResult := &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     LimitsNotSet,
 			Severity: kubeaudit.Warn,
 			Message:  "Resource limits not set.",
@@ -81,6 +82,7 @@ func (limits *Limits) auditContainer(container *k8s.ContainerV1) (auditResults [
 
 	if isCPULimitUnset(container) {
 		auditResult := &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     LimitsCPUNotSet,
 			Severity: kubeaudit.Warn,
 			Message:  "Resource CPU limit not set.",
@@ -92,6 +94,7 @@ func (limits *Limits) auditContainer(container *k8s.ContainerV1) (auditResults [
 	} else if exceedsCPULimit(container, limits) {
 		maxCPU := limits.maxCPU.String()
 		auditResult := &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     LimitsCPUExceeded,
 			Severity: kubeaudit.Warn,
 			Message:  fmt.Sprintf("CPU limit exceeded. It is set to '%s' which exceeds the max CPU limit of '%s'.", cpu, maxCPU),
@@ -106,6 +109,7 @@ func (limits *Limits) auditContainer(container *k8s.ContainerV1) (auditResults [
 
 	if isMemoryLimitUnset(container) {
 		auditResult := &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     LimitsMemoryNotSet,
 			Severity: kubeaudit.Warn,
 			Message:  "Resource Memory limit not set.",
@@ -117,6 +121,7 @@ func (limits *Limits) auditContainer(container *k8s.ContainerV1) (auditResults [
 	} else if exceedsMemoryLimit(container, limits) {
 		maxMemory := limits.maxMemory.String()
 		auditResult := &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     LimitsMemoryExceeded,
 			Severity: kubeaudit.Warn,
 			Message:  fmt.Sprintf("Memory limit exceeded. It is set to '%s' which exceeds the max Memory limit of '%s'.", memory, maxMemory),

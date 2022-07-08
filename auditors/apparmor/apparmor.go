@@ -64,6 +64,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 
 	if isAppArmorAnnotationMissing(containerAnnotation, annotations) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     AppArmorAnnotationMissing,
 			Severity: kubeaudit.Error,
 			Message:  fmt.Sprintf("AppArmor annotation missing. The annotation '%s' should be added.", containerAnnotation),
@@ -80,6 +81,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 
 	if isAppArmorDisabled(containerAnnotation, annotations) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     AppArmorDisabled,
 			Message:  fmt.Sprintf("AppArmor is disabled. The apparmor annotation should be set to '%s' or start with '%s'.", ProfileRuntimeDefault, ProfileNamePrefix),
 			Severity: kubeaudit.Error,
@@ -107,6 +109,7 @@ func auditPodAnnotations(resource k8s.Resource, containerNames []string) []*kube
 		containerName := strings.Split(annotationKey, "/")[1]
 		if !contains(containerNames, containerName) {
 			auditResults = append(auditResults, &kubeaudit.AuditResult{
+				Auditor:  Name,
 				Name:     AppArmorInvalidAnnotation,
 				Severity: kubeaudit.Error,
 				Message:  fmt.Sprintf("AppArmor annotation key refers to a container that doesn't exist. Remove the annotation '%s: %s'.", annotationKey, annotationValue),

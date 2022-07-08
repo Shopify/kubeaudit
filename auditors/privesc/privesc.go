@@ -44,6 +44,7 @@ func (a *AllowPrivilegeEscalation) Audit(resource k8s.Resource, _ []k8s.Resource
 func auditContainer(container *k8s.ContainerV1) *kubeaudit.AuditResult {
 	if isAllowPrivilegeEscalationNil(container) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     AllowPrivilegeEscalationNil,
 			Severity: kubeaudit.Error,
 			Message:  "allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.",
@@ -58,6 +59,7 @@ func auditContainer(container *k8s.ContainerV1) *kubeaudit.AuditResult {
 
 	if isAllowPrivilegeEscalationTrue(container) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     AllowPrivilegeEscalationTrue,
 			Severity: kubeaudit.Error,
 			Message:  "allowPrivilegeEscalation set to 'true'. It should be set to 'false'.",

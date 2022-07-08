@@ -119,6 +119,7 @@ func (deprecatedAPIs *DeprecatedAPIs) Audit(resource k8s.Resource, _ []k8s.Resou
 					}
 				}
 				auditResult := &kubeaudit.AuditResult{
+					Auditor:  Name,
 					Name:     DeprecatedAPIUsed,
 					Severity: severity,
 					Message:  deprecationMessage,

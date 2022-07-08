@@ -75,6 +75,7 @@ func auditContainer(container *k8s.ContainerV1, capability string, allowAddList 
 		if IsCapabilityInAddList(container, capability) {
 			message := fmt.Sprintf("Capability \"%s\" added. It should be removed from the capability add list. If you need this capability, add an override label such as '%s: SomeReason'.", capability, override.GetContainerOverrideLabel(container.Name, getOverrideLabel(capability)))
 			auditResult := &kubeaudit.AuditResult{
+				Auditor:  Name,
 				Name:     CapabilityAdded,
 				Severity: kubeaudit.Error,
 				Message:  message,
@@ -103,6 +104,7 @@ func auditContainerForDropAll(container *k8s.ContainerV1) *kubeaudit.AuditResult
 	if !SecurityContextOrCapabilities(container) {
 		message := "Security Context not set. The Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL."
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     CapabilityOrSecurityContextMissing,
 			Severity: kubeaudit.Error,
 			Message:  message,
@@ -118,6 +120,7 @@ func auditContainerForDropAll(container *k8s.ContainerV1) *kubeaudit.AuditResult
 	if !IsDropAll(container) {
 		message := "Capability Drop list should be set to ALL. Add the specific ones you need to the Add list and set an override label."
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     CapabilityShouldDropAll,
 			Severity: kubeaudit.Error,
 			Message:  message,

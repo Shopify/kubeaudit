@@ -37,6 +37,7 @@ func (s SeverityLevel) String() string {
 
 // AuditResult represents a potential security issue. There may be multiple AuditResults per resource and audit
 type AuditResult struct {
+	Auditor    string        // auditor name
 	Name       string        // Name uniquely identifies a type of audit result
 	Severity   SeverityLevel // Severity is one of Error, Warn, or Info
 	Message    string        // Message is a human-readable description of the audit result

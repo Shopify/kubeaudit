@@ -43,6 +43,7 @@ func (a *ReadOnlyRootFilesystem) Audit(resource k8s.Resource, _ []k8s.Resource) 
 func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudit.AuditResult {
 	if isReadOnlyRootFilesystemNil(container) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     ReadOnlyRootFilesystemNil,
 			Severity: kubeaudit.Error,
 			Message:  "readOnlyRootFilesystem is not set in container SecurityContext. It should be set to 'true'.",
@@ -57,6 +58,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 
 	if isReadOnlyRootFilesystemFalse(container) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     ReadOnlyRootFilesystemFalse,
 			Severity: kubeaudit.Error,
 			Message:  "readOnlyRootFilesystem is set to 'false' in container SecurityContext. It should be set to 'true'.",

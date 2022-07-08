@@ -76,6 +76,7 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 		}
 
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     SeccompAnnotationMissing,
 			Severity: kubeaudit.Error,
 			Message:  fmt.Sprintf("Seccomp annotation is missing. The annotation %s: %s should be added.", PodAnnotationKey, ProfileRuntimeDefault),
@@ -93,6 +94,7 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 
 	if isSeccompProfileDeprecated(podSeccompProfile) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     SeccompDeprecatedPod,
 			Severity: kubeaudit.Error,
 			Message:  fmt.Sprintf("Seccomp pod annotation is set to deprecated value %s. It should be set to %s instead.", podSeccompProfile, ProfileRuntimeDefault),
@@ -109,6 +111,7 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 
 	if !isSeccompEnabled(podSeccompProfile) {
 		return &kubeaudit.AuditResult{
+			Auditor:  Name,
 			Name:     SeccompDisabledPod,
 			Severity: kubeaudit.Error,
 			Message:  fmt.Sprintf("Seccomp pod annotation is set to %s which disables Seccomp. It should be set to the default profile %s or should start with %s.", podSeccompProfile, ProfileRuntimeDefault, ProfileNamePrefix),
@@ -154,6 +157,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 
 	if isSeccompProfileDeprecated(containerSeccompProfile) {
 		return &kubeaudit.AuditResult{
+			Auditor:    Name,
 			Name:       SeccompDeprecatedContainer,
 			Severity:   kubeaudit.Error,
 			Message:    fmt.Sprintf("Seccomp container annotation is set to deprecated value %s. It should be set to %s instead.", containerSeccompProfile, ProfileRuntimeDefault),
@@ -167,6 +171,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 
 	if !isSeccompEnabled(containerSeccompProfile) {
 		return &kubeaudit.AuditResult{
+			Auditor:    Name,
 			Name:       SeccompDisabledContainer,
 			Severity:   kubeaudit.Error,
 			Message:    fmt.Sprintf("Seccomp container annotation is set to %s which disables Seccomp. It should be set to the default profile %s or should start with %s.", containerSeccompProfile, ProfileRuntimeDefault, ProfileNamePrefix),
