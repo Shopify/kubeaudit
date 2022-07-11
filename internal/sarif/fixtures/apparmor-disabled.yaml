@@ -5,7 +5,3 @@ metadata:
   namespace: apparmor-disabled
   annotations:
     container.apparmor.security.beta.kubernetes.io/container: badval
-spec:
-  containers:
-    - name: container
-      image: scratch

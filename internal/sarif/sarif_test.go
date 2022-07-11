@@ -8,34 +8,49 @@ import (
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
+	"github.com/Shopify/kubeaudit/auditors/seccomp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateSarifReport(t *testing.T) {
-	sarifReport, _, err := CreateSarifReport()
+func TestNew(t *testing.T) {
+	sarifReport, _, err := New()
 	require.NoError(t, err)
 	require.Len(t, sarifReport.Runs, 1)
 	assert.Equal(t, "https://github.com/Shopify/kubeaudit", *sarifReport.Runs[0].Tool.Driver.InformationURI)
 }
 
-func TestAddSarifResultToReport(t *testing.T) {
+func TestCreate(t *testing.T) {
 	capabilitiesAuditable := capabilities.New(capabilities.Config{})
 	apparmorAuditable := apparmor.New()
-
-	auditables := []kubeaudit.Auditable{capabilitiesAuditable, apparmorAuditable}
+	seccompAuditable := seccomp.New()
 
 	cases := []struct {
-		file    string
-		auditor string
+		file          string
+		auditorName   string
+		auditors      []kubeaudit.Auditable
+		expectedRules int
 	}{
-		{"apparmor-disabled.yaml", apparmor.Name},
-		{"capabilities-added.yaml", capabilities.Name},
+		{"apparmor-disabled.yaml",
+			apparmor.Name,
+			[]kubeaudit.Auditable{apparmorAuditable},
+			1,
+		},
+		{"capabilities-added.yaml",
+			capabilities.Name,
+			[]kubeaudit.Auditable{capabilitiesAuditable, seccompAuditable},
+			2,
+		},
+		{"capabilities-added.yaml",
+			capabilities.Name,
+			[]kubeaudit.Auditable{capabilitiesAuditable},
+			1,
+		},
 	}
 
 	for _, tc := range cases {
 		fixture := filepath.Join("fixtures", tc.file)
-		auditor, err := kubeaudit.New(auditables)
+		auditor, err := kubeaudit.New(tc.auditors)
 		require.NoError(t, err)
 
 		manifest, openErr := os.Open(fixture)
@@ -45,6 +60,7 @@ func TestAddSarifResultToReport(t *testing.T) {
 		require.NoError(t, err)
 
 		// we're only appending sarif to the path here for testing purposes
+		// this allows us to visualize the sarif output preview correctly
 		for _, reportResult := range kubeAuditReport.Results() {
 			r := reportResult.GetAuditResults()
 
@@ -56,17 +72,12 @@ func TestAddSarifResultToReport(t *testing.T) {
 		// verify that the file path is correct
 		assert.Contains(t, kubeAuditReport.Results()[0].GetAuditResults()[0].FilePath, "sarif/fixtures")
 
-		sarifReport, sarifRun, err := CreateSarifReport()
-
+		sarifReport, sarifRun, err := New()
 		require.NoError(t, err)
 
-		AddSarifRules(kubeAuditReport, sarifRun)
+		Create(kubeAuditReport, sarifRun)
 
-		// verify that the 2 rules (auditors) enabled have been added to the report
-		require.Len(t, *&sarifReport.Runs[0].Tool.Driver.Rules, 2)
-
-		AddSarifResult(kubeAuditReport, sarifRun)
+		// verify that the rules have been added as per report findings
+		assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, tc.expectedRules)
 	}
 }
-
-// todo: verify the contents of the report

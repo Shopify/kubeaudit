@@ -21,7 +21,7 @@ import (
 	"github.com/owenrumney/go-sarif/v2/sarif"
 )
 
-var AuditorNames = map[string]string{
+var Auditors = map[string]string{
 	apparmor.Name:     "Finds containers that do not have AppArmor enabled",
 	asat.Name:         "Finds containers where the deprecated SA field is used or with a mounted default SA",
 	capabilities.Name: "Finds containers that do not drop the recommended capabilities or add new ones",
@@ -37,8 +37,8 @@ var AuditorNames = map[string]string{
 	seccomp.Name:      "Finds containers running without seccomp",
 }
 
-// CreateSarifReport creates a new sarif Report and Run or returns an error
-func CreateSarifReport() (*sarif.Report, *sarif.Run, error) {
+// New creates a new sarif Report and Run or returns an error
+func New() (*sarif.Report, *sarif.Run, error) {
 	// create a new report object
 	report, err := sarif.New(sarif.Version210)
 	if err != nil {
@@ -53,7 +53,8 @@ func CreateSarifReport() (*sarif.Report, *sarif.Run, error) {
 	return report, run, nil
 }
 
-func AddSarifRules(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
+// Create adds SARIF rules to the run and adds results to the report
+func Create(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
 	var results []*kubeaudit.AuditResult
 
 	for _, reportResult := range kubeauditReport.Results() {
@@ -62,16 +63,18 @@ func AddSarifRules(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
 	}
 
 	for _, result := range results {
+		severityLevel := result.Severity.String()
 		auditor := strings.ToLower(result.Auditor)
 		ruleID := strings.ToLower(result.Rule)
-		var docsURL string
 
+		var docsURL string
 		if strings.Contains(ruleID, auditor) {
 			docsURL = "https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/" + auditor + ".md"
 		}
 
-		helpMessage := fmt.Sprintf("**Type**: kubernetes\n**Docs**: %s\n**Description:** %s", docsURL, AuditorNames[auditor])
+		helpMessage := fmt.Sprintf("**Type**: kubernetes\n**Docs**: %s\n**Description:** %s", docsURL, Auditors[auditor])
 
+		// we only add rules to the report based on the result findings
 		run.AddRule(result.Rule).
 			WithName(result.Auditor).
 			WithMarkdownHelp(helpMessage).
@@ -83,32 +86,19 @@ func AddSarifRules(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
 				},
 				"precision": "very-high",
 			})
-	}
-}
-
-func AddSarifResult(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
-	var results []*kubeaudit.AuditResult
-
-	for _, reportResult := range kubeauditReport.Results() {
-		r := reportResult.GetAuditResults()
-		results = append(results, r...)
-	}
-
-	for _, r := range results {
-		severityLevel := r.Severity.String()
 
 		// SARIF specifies the following severity levels: warning, error, note and none
 		// https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
 		// so we're converting info to none here so we get valid SARIF output
-		if r.Severity.String() == "info" {
+		if result.Severity.String() == "info" {
 			severityLevel = "note"
 		}
 
 		location := sarif.NewPhysicalLocation().
-			WithArtifactLocation(sarif.NewSimpleArtifactLocation(r.FilePath).WithUriBaseId("ROOTPATH")).
+			WithArtifactLocation(sarif.NewSimpleArtifactLocation(result.FilePath).WithUriBaseId("ROOTPATH")).
 			WithRegion(sarif.NewRegion().WithStartLine(1))
-		result := sarif.NewRuleResult(r.Rule).
-			WithMessage(sarif.NewTextMessage(r.Message)).
+		result := sarif.NewRuleResult(result.Rule).
+			WithMessage(sarif.NewTextMessage(result.Message)).
 			WithLevel(severityLevel).
 			WithLocations([]*sarif.Location{sarif.NewLocation().WithPhysicalLocation(location)})
 		run.AddResult(result)

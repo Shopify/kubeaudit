@@ -1,10 +1,5 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata:
-  name: deployment
-  namespace: capabilities-added
-  annotations:
-    container.apparmor.security.beta.kubernetes.io/container: badval
 spec:
   selector:
     matchLabels:
