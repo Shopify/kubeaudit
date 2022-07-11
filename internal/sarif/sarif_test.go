@@ -13,7 +13,8 @@ import (
 )
 
 func TestCreateSarifReport(t *testing.T) {
-	sarifReport, _ := CreateSarifReport()
+	sarifReport, _, err := CreateSarifReport()
+	require.NoError(t, err)
 	require.Len(t, sarifReport.Runs, 1)
 	assert.Equal(t, "https://github.com/Shopify/kubeaudit", *sarifReport.Runs[0].Tool.Driver.InformationURI)
 }
@@ -55,7 +56,9 @@ func TestAddSarifResultToReport(t *testing.T) {
 		// verify that the file path is correct
 		assert.Contains(t, kubeAuditReport.Results()[0].GetAuditResults()[0].FilePath, "sarif/fixtures")
 
-		sarifReport, sarifRun := CreateSarifReport()
+		sarifReport, sarifRun, err := CreateSarifReport()
+
+		require.NoError(t, err)
 
 		AddSarifRules(kubeAuditReport, sarifRun)
 

@@ -37,11 +37,12 @@ var AuditorNames = map[string]string{
 	seccomp.Name:      "Finds containers running without seccomp",
 }
 
-func CreateSarifReport() (*sarif.Report, *sarif.Run) {
+// CreateSarifReport creates a new sarif Report and Run or returns an error
+func CreateSarifReport() (*sarif.Report, *sarif.Run, error) {
 	// create a new report object
 	report, err := sarif.New(sarif.Version210)
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
 	// create a run for kubeaudit
@@ -49,7 +50,7 @@ func CreateSarifReport() (*sarif.Report, *sarif.Run) {
 
 	report.AddRun(run)
 
-	return report, run
+	return report, run, nil
 }
 
 func AddSarifRules(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
@@ -62,16 +63,16 @@ func AddSarifRules(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
 
 	for _, result := range results {
 		auditor := strings.ToLower(result.Auditor)
-		ruleID := strings.ToLower(result.Name)
+		ruleID := strings.ToLower(result.Rule)
 		var docsURL string
-		// create a new rule for each rule id
+
 		if strings.Contains(ruleID, auditor) {
 			docsURL = "https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/" + auditor + ".md"
 		}
 
 		helpMessage := fmt.Sprintf("**Type**: kubernetes\n**Docs**: %s\n**Description:** %s", docsURL, AuditorNames[auditor])
 
-		run.AddRule(result.Name).
+		run.AddRule(result.Rule).
 			WithName(result.Auditor).
 			WithMarkdownHelp(helpMessage).
 			WithProperties(sarif.Properties{
@@ -106,7 +107,7 @@ func AddSarifResult(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
 		location := sarif.NewPhysicalLocation().
 			WithArtifactLocation(sarif.NewSimpleArtifactLocation(r.FilePath).WithUriBaseId("ROOTPATH")).
 			WithRegion(sarif.NewRegion().WithStartLine(1))
-		result := sarif.NewRuleResult(r.Name).
+		result := sarif.NewRuleResult(r.Rule).
 			WithMessage(sarif.NewTextMessage(r.Message)).
 			WithLevel(severityLevel).
 			WithLocations([]*sarif.Location{sarif.NewLocation().WithPhysicalLocation(location)})

@@ -51,7 +51,7 @@ func auditContainer(container *k8s.ContainerV1, image string) *kubeaudit.AuditRe
 	if isImageTagMissing(containerTag) {
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     ImageTagMissing,
+			Rule:     ImageTagMissing,
 			Severity: kubeaudit.Warn,
 			Message:  "Image tag is missing.",
 			Metadata: kubeaudit.Metadata{
@@ -63,7 +63,7 @@ func auditContainer(container *k8s.ContainerV1, image string) *kubeaudit.AuditRe
 	if isImageTagIncorrect(name, tag, containerName, containerTag) {
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     ImageTagIncorrect,
+			Rule:     ImageTagIncorrect,
 			Severity: kubeaudit.Error,
 			Message:  fmt.Sprintf("Container tag is incorrect. It should be set to '%s'.", tag),
 			Metadata: kubeaudit.Metadata{
@@ -75,7 +75,7 @@ func auditContainer(container *k8s.ContainerV1, image string) *kubeaudit.AuditRe
 	if isImageCorrect(name, tag, containerName, containerTag) {
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     ImageCorrect,
+			Rule:     ImageCorrect,
 			Severity: kubeaudit.Info,
 			Message:  "Image tag is correct",
 			Metadata: kubeaudit.Metadata{

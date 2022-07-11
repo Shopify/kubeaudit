@@ -57,7 +57,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 		if *container.SecurityContext.RunAsUser == 0 {
 			return &kubeaudit.AuditResult{
 				Auditor:  Name,
-				Name:     RunAsUserCSCRoot,
+				Rule:     RunAsUserCSCRoot,
 				Severity: kubeaudit.Error,
 				Message:  "runAsUser is set to UID 0 (root user) in the container SecurityContext. Either set it to a value > 0 or remove it and set runAsNonRoot to true.",
 				PendingFix: &fixRunAsNonRoot{
@@ -73,7 +73,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 			if *podSpec.SecurityContext.RunAsUser == 0 {
 				return &kubeaudit.AuditResult{
 					Auditor:  Name,
-					Name:     RunAsUserPSCRoot,
+					Rule:     RunAsUserPSCRoot,
 					Severity: kubeaudit.Warn,
 					Message:  "runAsUser is set to UID 0 (root user) in the PodSecurityContext. Either set it to a value > 0 or remove it and set runAsNonRoot to true.",
 					Metadata: kubeaudit.Metadata{
@@ -90,7 +90,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 		if *podSpec.SecurityContext.RunAsUser == 0 {
 			return &kubeaudit.AuditResult{
 				Auditor:  Name,
-				Name:     RunAsUserPSCRoot,
+				Rule:     RunAsUserPSCRoot,
 				Severity: kubeaudit.Error,
 				Message:  "runAsUser is set to UID 0 (root user) in the PodSecurityContext. Either set it to a value > 0 or remove it and set runAsNonRoot to true.",
 				PendingFix: &fixRunAsNonRoot{
@@ -108,7 +108,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 	if isContainerRunAsNonRootCSCFalse(container) {
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     RunAsNonRootCSCFalse,
+			Rule:     RunAsNonRootCSCFalse,
 			Severity: kubeaudit.Error,
 			Message:  "runAsNonRoot is set to false in the container SecurityContext. Either set it to true or set runAsUser to a value > 0.",
 			PendingFix: &fixRunAsNonRoot{
@@ -124,7 +124,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 		if isPodRunAsNonRootNil(podSpec) {
 			return &kubeaudit.AuditResult{
 				Auditor:  Name,
-				Name:     RunAsNonRootPSCNilCSCNil,
+				Rule:     RunAsNonRootPSCNilCSCNil,
 				Severity: kubeaudit.Error,
 				Message:  "runAsNonRoot should be set to true or runAsUser should be set to a value > 0 either in the container SecurityContext or PodSecurityContext.",
 				PendingFix: &fixRunAsNonRoot{
@@ -139,7 +139,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 		if isPodRunAsNonRootFalse(podSpec) {
 			return &kubeaudit.AuditResult{
 				Auditor:  Name,
-				Name:     RunAsNonRootPSCFalseCSCNil,
+				Rule:     RunAsNonRootPSCFalseCSCNil,
 				Severity: kubeaudit.Error,
 				Message:  "runAsNonRoot is set to false in the PodSecurityContext. Either set it to true or set runAsUser to a value > 0.",
 				PendingFix: &fixRunAsNonRoot{

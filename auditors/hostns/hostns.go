@@ -63,7 +63,7 @@ func auditHostNetwork(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 		}
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     NamespaceHostNetworkTrue,
+			Rule:     NamespaceHostNetworkTrue,
 			Severity: kubeaudit.Error,
 			Message:  "hostNetwork is set to 'true' in PodSpec. It should be set to 'false'.",
 			PendingFix: &fixHostNetworkTrue{
@@ -84,7 +84,7 @@ func auditHostIPC(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 		}
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     NamespaceHostIPCTrue,
+			Rule:     NamespaceHostIPCTrue,
 			Severity: kubeaudit.Error,
 			Message:  "hostIPC is set to 'true' in PodSpec. It should be set to 'false'.",
 			PendingFix: &fixHostIPCTrue{
@@ -105,7 +105,7 @@ func auditHostPID(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 		}
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     NamespaceHostPIDTrue,
+			Rule:     NamespaceHostPIDTrue,
 			Severity: kubeaudit.Error,
 			Message:  "hostPID is set to 'true' in PodSpec. It should be set to 'false'.",
 			PendingFix: &fixHostPIDTrue{

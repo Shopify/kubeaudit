@@ -29,7 +29,7 @@ type myAuditor struct{}
 func (a *myAuditor) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	return []*kubeaudit.AuditResult{
 		{
-			Name:     "MyAudit",
+			Rule:     "MyAudit",
 			Severity: kubeaudit.Error,
 			Message:  "My custom error",
 			PendingFix: &myAuditorFix{

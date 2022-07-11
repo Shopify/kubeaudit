@@ -26,7 +26,7 @@ func GetOverriddenResultName(resultName string) string {
 // label because there are no security issues found, so the label is redundant
 func NewRedundantOverrideResult(containerName string, overrideReason, overrideLabel string) *kubeaudit.AuditResult {
 	return &kubeaudit.AuditResult{
-		Name:     kubeaudit.RedundantAuditorOverride,
+		Rule:     kubeaudit.RedundantAuditorOverride,
 		Severity: kubeaudit.Warn,
 		Message:  "Auditor is disabled via label but there were no security issues found by the auditor. The label should be removed.",
 		Metadata: kubeaudit.Metadata{
@@ -49,7 +49,7 @@ func ApplyOverride(auditResult *kubeaudit.AuditResult, containerName string, res
 		return NewRedundantOverrideResult(containerName, overrideReason, overrideLabel)
 	}
 
-	auditResult.Name = GetOverriddenResultName(auditResult.Name)
+	auditResult.Rule = GetOverriddenResultName(auditResult.Rule)
 	auditResult.PendingFix = nil
 	auditResult.Severity = kubeaudit.Info
 	auditResult.Message = "Audit result overridden: " + auditResult.Message

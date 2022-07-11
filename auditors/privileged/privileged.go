@@ -44,7 +44,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 	if isPrivilegedNil(container) {
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     PrivilegedNil,
+			Rule:     PrivilegedNil,
 			Severity: kubeaudit.Warn,
 			Message:  "privileged is not set in container SecurityContext. Privileged defaults to 'false' but it should be explicitly set to 'false'.",
 			PendingFix: &fixPrivileged{
@@ -59,7 +59,7 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 	if isPrivilegedTrue(container) {
 		return &kubeaudit.AuditResult{
 			Auditor:  Name,
-			Name:     PrivilegedTrue,
+			Rule:     PrivilegedTrue,
 			Severity: kubeaudit.Error,
 			Message:  "privileged is set to 'true' in container SecurityContext. It should be set to 'false'.",
 			PendingFix: &fixPrivileged{

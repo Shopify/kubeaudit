@@ -109,7 +109,7 @@ func (p *Printer) prettyPrintReport(report *Report) {
 			}
 			p.print("-- ")
 			p.printColor(severityColor, "["+auditResult.Severity.String()+"] ")
-			p.print(auditResult.Name + "\n")
+			p.print(auditResult.Rule + "\n")
 			p.print("   Message: " + auditResult.Message + "\n")
 			if len(auditResult.Metadata) > 0 {
 				p.print("   Metadata:\n")
@@ -166,7 +166,7 @@ func (p *Printer) getLogFieldsForResult(resource k8s.Resource, result *AuditResu
 	objectMeta := k8s.GetObjectMeta(resource)
 
 	fields := log.Fields{
-		"AuditResultName":    result.Name,
+		"AuditResultName":    result.Rule,
 		"ResourceKind":       kind,
 		"ResourceApiVersion": apiVersion,
 	}
