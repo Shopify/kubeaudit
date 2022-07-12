@@ -13,45 +13,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNew(t *testing.T) {
-	sarifReport, _, err := New()
-	require.NoError(t, err)
-	require.Len(t, sarifReport.Runs, 1)
-	assert.Equal(t, "https://github.com/Shopify/kubeaudit",
-		*sarifReport.Runs[0].Tool.Driver.InformationURI)
-}
-
 func TestCreate(t *testing.T) {
 	capabilitiesAuditable := capabilities.New(capabilities.Config{})
 	apparmorAuditable := apparmor.New()
 	seccompAuditable := seccomp.New()
 
 	cases := []struct {
-		file              string
-		auditorName       string
-		auditors          []kubeaudit.Auditable
-		expectedRuleCount int
-		expectedRules     []string
+		file          string
+		auditorName   string
+		auditors      []kubeaudit.Auditable
+		expectedRules []string
 	}{
 		{
 			"apparmor-disabled.yaml",
 			apparmor.Name,
 			[]kubeaudit.Auditable{apparmorAuditable},
-			1,
 			[]string{"AppArmorInvalidAnnotation"},
 		},
 		{
 			"capabilities-added.yaml",
 			capabilities.Name,
 			[]kubeaudit.Auditable{capabilitiesAuditable, seccompAuditable},
-			2,
-			[]string{"CapabilityAdded, SeccompAnnotationMissing"},
+			[]string{"CapabilityAdded", "SeccompAnnotationMissing"},
 		},
 		{
 			"capabilities-added.yaml",
 			capabilities.Name,
 			[]kubeaudit.Auditable{capabilitiesAuditable},
-			1,
 			[]string{"CapabilityAdded"},
 		},
 	}
@@ -75,22 +63,28 @@ func TestCreate(t *testing.T) {
 			for _, auditResult := range r {
 				auditResult.FilePath = filepath.Join("sarif/", auditResult.FilePath)
 			}
-		}
 
+		}
 		// verify that the file path is correct
 		assert.Contains(t, kubeAuditReport.Results()[0].GetAuditResults()[0].FilePath, "sarif/fixtures")
 
-		sarifReport, sarifRun, err := New()
+		sarifReport, err := Create(kubeAuditReport)
 		require.NoError(t, err)
 
-		Create(kubeAuditReport, sarifRun)
+		assert.Equal(t, "https://github.com/Shopify/kubeaudit",
+			*sarifReport.Runs[0].Tool.Driver.InformationURI)
 
 		// verify that the rules have been added as per report findings
-		assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, tc.expectedRuleCount)
+		assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, len(tc.expectedRules))
 
+		var ruleNames []string
 		// check for rules occurrences
+		for _, sarifRule := range sarifReport.Runs[0].Tool.Driver.Rules {
+			ruleNames = append(ruleNames, sarifRule.ID)
+		}
+
 		for _, expectedRule := range tc.expectedRules {
-			assert.Contains(t, expectedRule, sarifReport.Runs[0].Tool.Driver.Rules)
+			assert.Contains(t, ruleNames, expectedRule)
 		}
 	}
 }

@@ -37,12 +37,12 @@ var Auditors = map[string]string{
 	seccomp.Name:      "Finds containers running without seccomp",
 }
 
-// New creates a new sarif Report and Run or returns an error
-func New() (*sarif.Report, *sarif.Run, error) {
+// Create generates new sarif Report or returns an error
+func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 	// create a new report object
 	report, err := sarif.New(sarif.Version210)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// create a run for kubeaudit
@@ -50,11 +50,6 @@ func New() (*sarif.Report, *sarif.Run, error) {
 
 	report.AddRun(run)
 
-	return report, run, nil
-}
-
-// Create adds SARIF rules to the run and adds results to the report
-func Create(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
 	var results []*kubeaudit.AuditResult
 
 	for _, reportResult := range kubeauditReport.Results() {
@@ -103,4 +98,6 @@ func Create(kubeauditReport *kubeaudit.Report, run *sarif.Run) {
 			WithLocations([]*sarif.Location{sarif.NewLocation().WithPhysicalLocation(location)})
 		run.AddResult(result)
 	}
+
+	return report, nil
 }
