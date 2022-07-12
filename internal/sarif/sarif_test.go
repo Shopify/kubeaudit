@@ -17,7 +17,8 @@ func TestNew(t *testing.T) {
 	sarifReport, _, err := New()
 	require.NoError(t, err)
 	require.Len(t, sarifReport.Runs, 1)
-	assert.Equal(t, "https://github.com/Shopify/kubeaudit", *sarifReport.Runs[0].Tool.Driver.InformationURI)
+	assert.Equal(t, "https://github.com/Shopify/kubeaudit",
+		*sarifReport.Runs[0].Tool.Driver.InformationURI)
 }
 
 func TestCreate(t *testing.T) {
@@ -26,25 +27,32 @@ func TestCreate(t *testing.T) {
 	seccompAuditable := seccomp.New()
 
 	cases := []struct {
-		file          string
-		auditorName   string
-		auditors      []kubeaudit.Auditable
-		expectedRules int
+		file              string
+		auditorName       string
+		auditors          []kubeaudit.Auditable
+		expectedRuleCount int
+		expectedRules     []string
 	}{
-		{"apparmor-disabled.yaml",
+		{
+			"apparmor-disabled.yaml",
 			apparmor.Name,
 			[]kubeaudit.Auditable{apparmorAuditable},
 			1,
+			[]string{"AppArmorInvalidAnnotation"},
 		},
-		{"capabilities-added.yaml",
+		{
+			"capabilities-added.yaml",
 			capabilities.Name,
 			[]kubeaudit.Auditable{capabilitiesAuditable, seccompAuditable},
 			2,
+			[]string{"CapabilityAdded, SeccompAnnotationMissing"},
 		},
-		{"capabilities-added.yaml",
+		{
+			"capabilities-added.yaml",
 			capabilities.Name,
 			[]kubeaudit.Auditable{capabilitiesAuditable},
 			1,
+			[]string{"CapabilityAdded"},
 		},
 	}
 
@@ -78,6 +86,11 @@ func TestCreate(t *testing.T) {
 		Create(kubeAuditReport, sarifRun)
 
 		// verify that the rules have been added as per report findings
-		assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, tc.expectedRules)
+		assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, tc.expectedRuleCount)
+
+		// check for rules occurrences
+		for _, expectedRule := range tc.expectedRules {
+			assert.Contains(t, expectedRule, sarifReport.Runs[0].Tool.Driver.Rules)
+		}
 	}
 }
