@@ -1,0 +1,239 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [{
+      "tool": {
+        "driver": {
+          "name": "LGTM.com",
+          "organization": "Semmle",
+          "version": "1.24.0-SNAPSHOT",
+          "rules": [{
+            "id": "js/unused-local-variable",
+            "name": "js/unused-local-variable",
+            "shortDescription": {
+              "text": "Unused variable, import, function or class"
+            },
+            "fullDescription": {
+              "text": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
+            },
+            "defaultConfiguration": {
+              "level": "note"
+            },
+            "properties": {
+              "tags": ["maintainability"],
+              "kind": "problem",
+              "precision": "very-high",
+              "name": "Unused variable, import, function or class",
+              "description": "Unused variables, imports, functions or classes may be a symptom of a bug\n              and should be examined carefully.",
+              "id": "js/unused-local-variable",
+              "problem.severity": "recommendation"
+            }
+          }]
+        }
+      },
+      "results": [{
+        "ruleId": "js/unused-local-variable",
+        "ruleIndex": 0,
+        "message": {
+          "text": "Unused variable foo."
+        },
+        "locations": [{
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "main.js",
+              "uriBaseId": "%SRCROOT%",
+              "index": 0
+            },
+            "region": {
+              "startLine": 2,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          }
+        }],
+        "partialFingerprints": {
+          "primaryLocationLineHash": "39fa2ee980eb94b0:1",
+          "primaryLocationStartColumnFingerprint": "4"
+        }
+      }],
+      "columnKind": "utf16CodeUnits",
+      "properties": {
+        "semmle.formatSpecifier": "2.1.0",
+        "semmle.sourceLanguage": "java"
+      }
+    },
+    {
+      "tool" : {
+        "driver" : {
+          "name" : "CodeQL command-line toolchain",
+          "organization" : "GitHub",
+          "semanticVersion" : "2.0.0",
+          "rules" : [ {
+            "id" : "js/unused-local-variable",
+            "name" : "js/unused-local-variable",
+            "shortDescription" : {
+              "text" : "Unused variable, import, function or class"
+            },
+            "fullDescription" : {
+              "text" : "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
+            },
+            "defaultConfiguration" : {
+              "level": "note"
+            },
+            "properties" : {
+              "tags" : [ "maintainability" ],
+              "kind" : "problem",
+              "precision" : "very-high",
+              "name" : "Unused variable, import, function or class",
+              "description" : "Unused variables, imports, functions or classes may be a symptom of a bug\n and should be examined carefully.",
+              "id" : "js/unused-local-variable",
+              "problem.severity" : "recommendation"
+            }
+          },
+          {
+            "id": "js/inconsistent-use-of-new",
+            "name": "js/inconsistent-use-of-new",
+            "shortDescription": {
+              "text": "Inconsistent use of 'new'"
+            },
+            "fullDescription": {
+              "text": "If a function is intended to be a constructor, it should always be invoked with 'new'. Otherwise, it should always be invoked as a normal function, that is, without 'new'."
+            },
+            "defaultConfiguration": {
+              "level": "note"
+            },
+            "properties": {
+              "tags": [
+                "reliability",
+                "correctness",
+                "language-features"
+              ],
+              "kind": "problem",
+              "precision": "very-high",
+              "problem.severity": "warning"
+            }
+          } ]
+        }
+      },
+      "artifacts" : [ {
+        "location" : {
+          "uri" : "main.js",
+          "uriBaseId" : "%SRCROOT%",
+          "index" : 0
+        }
+      },
+      {
+        "location": {
+          "uri": "src/promiseUtils.js",
+          "uriBaseId": "%SRCROOT%",
+          "index": 1
+        }
+      },
+      {
+        "location": {
+          "uri": "src/LiveQueryClient.js",
+          "uriBaseId": "%SRCROOT%",
+          "index": 2
+        }
+      },
+      {
+        "location": {
+          "uri": "src/ParseObject.js",
+          "uriBaseId": "%SRCROOT%",
+          "index": 3
+        }
+      } ],
+      "results" : [ {
+        "ruleId" : "js/unused-local-variable",
+        "ruleIndex" : 0,
+        "message" : {
+          "text" : "Unused variable foo."
+        },
+        "locations" : [ {
+          "physicalLocation" : {
+            "artifactLocation" : {
+              "uri" : "main.js",
+              "uriBaseId" : "%SRCROOT%",
+              "index" : 0
+            },
+            "region" : {
+              "startLine" : 2,
+              "startColumn" : 7,
+              "endColumn" : 10
+            }
+          }
+        } ],
+        "partialFingerprints" : {
+          "primaryLocationLineHash" : "39fa2ee980eb94b0:1",
+          "primaryLocationStartColumnFingerprint" : "4"
+        }
+      },
+      {
+        "ruleId": "js/inconsistent-use-of-new",
+        "ruleIndex": 1,
+        "message": {
+          "text": "Function resolvingPromise is sometimes invoked as a constructor (for example [here](1)), and sometimes as a normal function (for example [here](2))."
+        },
+        "locations": [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "src/promiseUtils.js",
+                "uriBaseId": "%SRCROOT%",
+                "index": 1
+              },
+              "region": {
+                "startLine": 2
+              }
+            }
+          }
+        ],
+        "partialFingerprints": {
+          "primaryLocationLineHash": "5061c3315a741b7d:1",
+          "primaryLocationStartColumnFingerprint": "7"
+        },
+        "relatedLocations": [
+          {
+            "id": 1,
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "src/ParseObject.js",
+                "uriBaseId": "%SRCROOT%",
+                "index": 3
+              },
+              "region": {
+                "startLine": 2281,
+                "startColumn": 33,
+                "endColumn": 55
+              }
+            },
+            "message": {
+              "text": "here"
+            }
+          },
+          {
+            "id": 2,
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "src/LiveQueryClient.js",
+                "uriBaseId": "%SRCROOT%",
+                "index": 2
+              },
+              "region": {
+                "startLine": 166
+              }
+            },
+            "message": {
+              "text": "here"
+            }
+          }
+        ]
+      } ],
+      "newlineSequences" : [ "\r\n", "\n", "", "" ],
+      "columnKind" : "utf16CodeUnits",
+      "properties" : {
+        "semmle.formatSpecifier" : "sarif-latest"
+      }
+    }
+  ]
+}

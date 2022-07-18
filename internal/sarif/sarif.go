@@ -1,7 +1,12 @@
 package sarif
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
@@ -19,6 +24,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/rootfs"
 	"github.com/Shopify/kubeaudit/auditors/seccomp"
 	"github.com/owenrumney/go-sarif/v2/sarif"
+	"github.com/qri-io/jsonschema"
 )
 
 var Auditors = map[string]string{
@@ -79,7 +85,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 					"kubernetes",
 					"infrastructure",
 				},
-				"precision": "very-high",
+				"precision": "very-high", // TODO: can we remove this?
 			})
 
 		// SARIF specifies the following severity levels: warning, error, note and none
@@ -99,5 +105,46 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		run.AddResult(result)
 	}
 
+	var reportBytes bytes.Buffer
+
+	err = report.Write(&reportBytes)
+	if err != nil {
+		return nil, nil
+	}
+
+	err, errs := Validate(&reportBytes)
+
+	if err != nil {
+		return nil, fmt.Errorf("error validating SARIF schema: %s. %s", err, errs)
+	}
+
 	return report, nil
+}
+
+func Validate(report io.Reader) (error, []jsonschema.KeyError) {
+	schemaData, err := ioutil.ReadFile("sarif-schema.json")
+	if err != nil {
+		return err, nil
+	}
+
+	jsonSchema := &jsonschema.Schema{}
+
+	if err := json.Unmarshal(schemaData, jsonSchema); err != nil {
+		return err, nil
+	}
+
+	_, ok := report.(*bytes.Buffer)
+
+	if ok {
+		errs, err := jsonSchema.ValidateBytes(context.Background(), report.(*bytes.Buffer).Bytes())
+		if err != nil {
+			return err, nil
+		}
+
+		if len(errs) > 0 {
+			return nil, errs
+		}
+	}
+
+	return nil, nil
 }

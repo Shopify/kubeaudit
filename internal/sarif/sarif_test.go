@@ -1,6 +1,9 @@
 package sarif
 
 import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -80,11 +83,47 @@ func TestCreate(t *testing.T) {
 		var ruleNames []string
 		// check for rules occurrences
 		for _, sarifRule := range sarifReport.Runs[0].Tool.Driver.Rules {
+			assert.NotEqual(t, *sarifRule.Help.Markdown, "")
+
+			assert.Equal(t, sarifRule.Properties["tags"], []string{
+				"security",
+				"kubernetes",
+				"infrastructure",
+			})
+
 			ruleNames = append(ruleNames, sarifRule.ID)
 		}
 
 		for _, expectedRule := range tc.expectedRules {
 			assert.Contains(t, ruleNames, expectedRule)
 		}
+
+		// for _, sarifResult := range sarifReport.Runs[0].Results {
+		// 	// TODO: test for severity, message and location
+		// 	// assert.Equal(sarifResult.Level,
+		// }
+
+		// also add a fixture with info level so that we capture the conversion to note
+
 	}
+}
+
+// Validates that the given file path refers to a valid SARIF file.
+// Throws an error if the file is invalid.
+
+func TestValidate(t *testing.T) {
+	var reportBytes bytes.Buffer
+	testSarif, err := ioutil.ReadFile("fixtures/valid.sarif")
+	require.NoError(t, err)
+
+	reportBytes.Write(testSarif)
+
+	err, errs := Validate(&reportBytes)
+	require.NoError(t, err)
+	if len(errs) > 0 {
+		fmt.Println(errs)
+	}
+
+	assert.Len(t, errs, 0)
+
 }
