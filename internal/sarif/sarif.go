@@ -25,6 +25,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/seccomp"
 	"github.com/owenrumney/go-sarif/v2/sarif"
 	"github.com/qri-io/jsonschema"
+	"github.com/sirupsen/logrus"
 )
 
 var Auditors = map[string]string{
@@ -105,6 +106,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		run.AddResult(result)
 	}
 
+	// todo: remove this after trying the library
 	var reportBytes bytes.Buffer
 
 	err = report.Write(&reportBytes)
@@ -112,16 +114,27 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		return nil, nil
 	}
 
-	err, errs := Validate(&reportBytes)
-
+	err, errs := validate(&reportBytes)
 	if err != nil {
-		return nil, fmt.Errorf("error validating SARIF schema: %s. %s", err, errs)
+		return nil, fmt.Errorf("error validating SARIF schema: %s", err)
 	}
+
+	if len(errs) > 0 {
+		for _, errorMsg := range errs {
+			// not sure if we want to return the errors here
+			// so just logging them for now
+			logrus.Info(errorMsg)
+		}
+	}
+
+	// todo: remove validate
 
 	return report, nil
 }
 
-func Validate(report io.Reader) (error, []jsonschema.KeyError) {
+// Validates that the SARIF file is valid as per sarif spec
+// https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Documents/CommitteeSpecifications/2.1.0/sarif-schema-2.1.0.json
+func validate(report io.Reader) (error, []jsonschema.KeyError) {
 	schemaData, err := ioutil.ReadFile("sarif-schema.json")
 	if err != nil {
 		return err, nil
@@ -134,7 +147,6 @@ func Validate(report io.Reader) (error, []jsonschema.KeyError) {
 	}
 
 	_, ok := report.(*bytes.Buffer)
-
 	if ok {
 		errs, err := jsonSchema.ValidateBytes(context.Background(), report.(*bytes.Buffer).Bytes())
 		if err != nil {

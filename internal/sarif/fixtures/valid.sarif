@@ -1,239 +1,1373 @@
 {
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
   "version": "2.1.0",
-  "runs": [{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
       "tool": {
         "driver": {
-          "name": "LGTM.com",
-          "organization": "Semmle",
-          "version": "1.24.0-SNAPSHOT",
-          "rules": [{
-            "id": "js/unused-local-variable",
-            "name": "js/unused-local-variable",
-            "shortDescription": {
-              "text": "Unused variable, import, function or class"
+          "fullName": "Trivy Vulnerability Scanner",
+          "informationUri": "https://github.com/aquasecurity/trivy",
+          "name": "Trivy",
+          "rules": [
+            {
+              "id": "KSV008",
+              "name": "Misconfiguration",
+              "shortDescription": {
+                "text": "KSV008"
+              },
+              "fullDescription": {
+                "text": "Sharing the host’s IPC namespace allows container processes to communicate with processes on the host."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/appshield/ksv008",
+              "help": {
+                "text": "Misconfiguration KSV008\nType: Kubernetes Security Check\nSeverity: HIGH\nCheck: Access to host IPC namespace\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)\nSharing the host’s IPC namespace allows container processes to communicate with processes on the host.",
+                "markdown": "**Misconfiguration KSV008**\n| Type | Severity | Check | Message | Link |\n| --- | --- | --- | --- | --- |\n|Kubernetes Security Check|HIGH|Access to host IPC namespace|StatefulSet 'statefulset' should not set 'spec.template.spec.hostIPC' to true|[KSV008](https://avd.aquasec.com/appshield/ksv008)|\n\nSharing the host’s IPC namespace allows container processes to communicate with processes on the host."
+              },
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
             },
-            "fullDescription": {
-              "text": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
+            {
+              "id": "KSV009",
+              "name": "Misconfiguration",
+              "shortDescription": {
+                "text": "KSV009"
+              },
+              "fullDescription": {
+                "text": "Sharing the host’s network namespace permits processes in the pod to communicate with processes bound to the host’s loopback adapter."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/appshield/ksv009",
+              "help": {
+                "text": "Misconfiguration KSV009\nType: Kubernetes Security Check\nSeverity: HIGH\nCheck: Access to host network\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)\nSharing the host’s network namespace permits processes in the pod to communicate with processes bound to the host’s loopback adapter.",
+                "markdown": "**Misconfiguration KSV009**\n| Type | Severity | Check | Message | Link |\n| --- | --- | --- | --- | --- |\n|Kubernetes Security Check|HIGH|Access to host network|StatefulSet 'statefulset' should not set 'spec.template.spec.hostNetwork' to true|[KSV009](https://avd.aquasec.com/appshield/ksv009)|\n\nSharing the host’s network namespace permits processes in the pod to communicate with processes bound to the host’s loopback adapter."
+              },
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
             },
-            "defaultConfiguration": {
-              "level": "note"
+            {
+              "id": "KSV010",
+              "name": "Misconfiguration",
+              "shortDescription": {
+                "text": "KSV010"
+              },
+              "fullDescription": {
+                "text": "Sharing the host’s PID namespace allows visibility on host processes, potentially leaking information such as environment variables and configuration."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/appshield/ksv010",
+              "help": {
+                "text": "Misconfiguration KSV010\nType: Kubernetes Security Check\nSeverity: HIGH\nCheck: Access to host PID\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)\nSharing the host’s PID namespace allows visibility on host processes, potentially leaking information such as environment variables and configuration.",
+                "markdown": "**Misconfiguration KSV010**\n| Type | Severity | Check | Message | Link |\n| --- | --- | --- | --- | --- |\n|Kubernetes Security Check|HIGH|Access to host PID|StatefulSet 'statefulset' should not set 'spec.template.spec.hostPID' to true|[KSV010](https://avd.aquasec.com/appshield/ksv010)|\n\nSharing the host’s PID namespace allows visibility on host processes, potentially leaking information such as environment variables and configuration."
+              },
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
             },
-            "properties": {
-              "tags": ["maintainability"],
-              "kind": "problem",
-              "precision": "very-high",
-              "name": "Unused variable, import, function or class",
-              "description": "Unused variables, imports, functions or classes may be a symptom of a bug\n              and should be examined carefully.",
-              "id": "js/unused-local-variable",
-              "problem.severity": "recommendation"
+            {
+              "id": "KSV006",
+              "name": "Misconfiguration",
+              "shortDescription": {
+                "text": "KSV006"
+              },
+              "fullDescription": {
+                "text": "Mounting docker.sock from the host can give the container full root access to the host."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/appshield/ksv006",
+              "help": {
+                "text": "Misconfiguration KSV006\nType: Kubernetes Security Check\nSeverity: HIGH\nCheck: hostPath volume mounted with docker.sock\nMessage: Pod 'pod' should not specify '/var/run/docker.socker' in 'spec.template.volumes.hostPath.path'\nLink: [KSV006](https://avd.aquasec.com/appshield/ksv006)\nMounting docker.sock from the host can give the container full root access to the host.",
+                "markdown": "**Misconfiguration KSV006**\n| Type | Severity | Check | Message | Link |\n| --- | --- | --- | --- | --- |\n|Kubernetes Security Check|HIGH|hostPath volume mounted with docker.sock|Pod 'pod' should not specify '/var/run/docker.socker' in 'spec.template.volumes.hostPath.path'|[KSV006](https://avd.aquasec.com/appshield/ksv006)|\n\nMounting docker.sock from the host can give the container full root access to the host."
+              },
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
+            },
+            {
+              "id": "KSV017",
+              "name": "Misconfiguration",
+              "shortDescription": {
+                "text": "KSV017"
+              },
+              "fullDescription": {
+                "text": "Privileged containers share namespaces with the host system and do not offer any security. They should be used exclusively for system containers that require high privileges."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/appshield/ksv017",
+              "help": {
+                "text": "Misconfiguration KSV017\nType: Kubernetes Security Check\nSeverity: HIGH\nCheck: Privileged container\nMessage: Container 'container' of DaemonSet 'daemonset' should set 'securityContext.privileged' to false\nLink: [KSV017](https://avd.aquasec.com/appshield/ksv017)\nPrivileged containers share namespaces with the host system and do not offer any security. They should be used exclusively for system containers that require high privileges.",
+                "markdown": "**Misconfiguration KSV017**\n| Type | Severity | Check | Message | Link |\n| --- | --- | --- | --- | --- |\n|Kubernetes Security Check|HIGH|Privileged container|Container 'container' of DaemonSet 'daemonset' should set 'securityContext.privileged' to false|[KSV017](https://avd.aquasec.com/appshield/ksv017)|\n\nPrivileged containers share namespaces with the host system and do not offer any security. They should be used exclusively for system containers that require high privileges."
+              },
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
             }
-          }]
+          ],
+          "version": "0.27.1"
         }
       },
-      "results": [{
-        "ruleId": "js/unused-local-variable",
-        "ruleIndex": 0,
-        "message": {
-          "text": "Unused variable foo."
-        },
-        "locations": [{
-          "physicalLocation": {
-            "artifactLocation": {
-              "uri": "main.js",
-              "uriBaseId": "%SRCROOT%",
-              "index": 0
-            },
-            "region": {
-              "startLine": 2,
-              "startColumn": 7,
-              "endColumn": 10
-            }
-          }
-        }],
-        "partialFingerprints": {
-          "primaryLocationLineHash": "39fa2ee980eb94b0:1",
-          "primaryLocationStartColumnFingerprint": "4"
-        }
-      }],
-      "columnKind": "utf16CodeUnits",
-      "properties": {
-        "semmle.formatSpecifier": "2.1.0",
-        "semmle.sourceLanguage": "java"
-      }
-    },
-    {
-      "tool" : {
-        "driver" : {
-          "name" : "CodeQL command-line toolchain",
-          "organization" : "GitHub",
-          "semanticVersion" : "2.0.0",
-          "rules" : [ {
-            "id" : "js/unused-local-variable",
-            "name" : "js/unused-local-variable",
-            "shortDescription" : {
-              "text" : "Unused variable, import, function or class"
-            },
-            "fullDescription" : {
-              "text" : "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully."
-            },
-            "defaultConfiguration" : {
-              "level": "note"
-            },
-            "properties" : {
-              "tags" : [ "maintainability" ],
-              "kind" : "problem",
-              "precision" : "very-high",
-              "name" : "Unused variable, import, function or class",
-              "description" : "Unused variables, imports, functions or classes may be a symptom of a bug\n and should be examined carefully.",
-              "id" : "js/unused-local-variable",
-              "problem.severity" : "recommendation"
-            }
+      "results": [
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/host-ipc-true-allowed.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
           },
-          {
-            "id": "js/inconsistent-use-of-new",
-            "name": "js/inconsistent-use-of-new",
-            "shortDescription": {
-              "text": "Inconsistent use of 'new'"
-            },
-            "fullDescription": {
-              "text": "If a function is intended to be a constructor, it should always be invoked with 'new'. Otherwise, it should always be invoked as a normal function, that is, without 'new'."
-            },
-            "defaultConfiguration": {
-              "level": "note"
-            },
-            "properties": {
-              "tags": [
-                "reliability",
-                "correctness",
-                "language-features"
-              ],
-              "kind": "problem",
-              "precision": "very-high",
-              "problem.severity": "warning"
-            }
-          } ]
-        }
-      },
-      "artifacts" : [ {
-        "location" : {
-          "uri" : "main.js",
-          "uriBaseId" : "%SRCROOT%",
-          "index" : 0
-        }
-      },
-      {
-        "location": {
-          "uri": "src/promiseUtils.js",
-          "uriBaseId": "%SRCROOT%",
-          "index": 1
-        }
-      },
-      {
-        "location": {
-          "uri": "src/LiveQueryClient.js",
-          "uriBaseId": "%SRCROOT%",
-          "index": 2
-        }
-      },
-      {
-        "location": {
-          "uri": "src/ParseObject.js",
-          "uriBaseId": "%SRCROOT%",
-          "index": 3
-        }
-      } ],
-      "results" : [ {
-        "ruleId" : "js/unused-local-variable",
-        "ruleIndex" : 0,
-        "message" : {
-          "text" : "Unused variable foo."
-        },
-        "locations" : [ {
-          "physicalLocation" : {
-            "artifactLocation" : {
-              "uri" : "main.js",
-              "uriBaseId" : "%SRCROOT%",
-              "index" : 0
-            },
-            "region" : {
-              "startLine" : 2,
-              "startColumn" : 7,
-              "endColumn" : 10
-            }
-          }
-        } ],
-        "partialFingerprints" : {
-          "primaryLocationLineHash" : "39fa2ee980eb94b0:1",
-          "primaryLocationStartColumnFingerprint" : "4"
-        }
-      },
-      {
-        "ruleId": "js/inconsistent-use-of-new",
-        "ruleIndex": 1,
-        "message": {
-          "text": "Function resolvingPromise is sometimes invoked as a constructor (for example [here](1)), and sometimes as a normal function (for example [here](2))."
-        },
-        "locations": [
-          {
-            "physicalLocation": {
-              "artifactLocation": {
-                "uri": "src/promiseUtils.js",
-                "uriBaseId": "%SRCROOT%",
-                "index": 1
-              },
-              "region": {
-                "startLine": 2
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/host-ipc-true-allowed.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
               }
             }
-          }
-        ],
-        "partialFingerprints": {
-          "primaryLocationLineHash": "5061c3315a741b7d:1",
-          "primaryLocationStartColumnFingerprint": "7"
+          ]
         },
-        "relatedLocations": [
-          {
-            "id": 1,
-            "physicalLocation": {
-              "artifactLocation": {
-                "uri": "src/ParseObject.js",
-                "uriBaseId": "%SRCROOT%",
-                "index": 3
-              },
-              "region": {
-                "startLine": 2281,
-                "startColumn": 33,
-                "endColumn": 55
-              }
-            },
-            "message": {
-              "text": "here"
-            }
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/host-ipc-true.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
           },
-          {
-            "id": 2,
-            "physicalLocation": {
-              "artifactLocation": {
-                "uri": "src/LiveQueryClient.js",
-                "uriBaseId": "%SRCROOT%",
-                "index": 2
-              },
-              "region": {
-                "startLine": 166
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/host-ipc-true.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
               }
-            },
-            "message": {
-              "text": "here"
             }
-          }
-        ]
-      } ],
-      "newlineSequences" : [ "\r\n", "\n", "", "" ],
-      "columnKind" : "utf16CodeUnits",
-      "properties" : {
-        "semmle.formatSpecifier" : "sarif-latest"
-      }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/host-network-true-allowed.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/host-network-true-allowed.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/host-network-true.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/host-network-true.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/host-pid-true-allowed.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/host-pid-true-allowed.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/host-pid-true.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/host-pid-true.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/namespaces-all-true-allowed.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/namespaces-all-true-allowed.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/namespaces-all-true-allowed.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/namespaces-all-true-allowed.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/namespaces-all-true-allowed.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/namespaces-all-true-allowed.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/namespaces-all-true.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/namespaces-all-true.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/namespaces-all-true.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/namespaces-all-true.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/hostns/fixtures/namespaces-all-true.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/hostns/fixtures/namespaces-all-true.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV006",
+          "ruleIndex": 3,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/mounts/fixtures/docker-sock-mounted.yml\nType: kubernetes\nVulnerability KSV006\nSeverity: HIGH\nMessage: Pod 'pod' should not specify '/var/run/docker.socker' in 'spec.template.volumes.hostPath.path'\nLink: [KSV006](https://avd.aquasec.com/appshield/ksv006)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/mounts/fixtures/docker-sock-mounted.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV017",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/privileged/fixtures/privileged-true-allowed-multi-containers-multi-labels.yml\nType: kubernetes\nVulnerability KSV017\nSeverity: HIGH\nMessage: Container 'container1' of DaemonSet 'daemonset' should set 'securityContext.privileged' to false\nLink: [KSV017](https://avd.aquasec.com/appshield/ksv017)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/privileged/fixtures/privileged-true-allowed-multi-containers-multi-labels.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV017",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/privileged/fixtures/privileged-true-allowed-multi-containers-multi-labels.yml\nType: kubernetes\nVulnerability KSV017\nSeverity: HIGH\nMessage: Container 'container2' of DaemonSet 'daemonset' should set 'securityContext.privileged' to false\nLink: [KSV017](https://avd.aquasec.com/appshield/ksv017)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/privileged/fixtures/privileged-true-allowed-multi-containers-multi-labels.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV017",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/privileged/fixtures/privileged-true-allowed-multi-containers-single-label.yml\nType: kubernetes\nVulnerability KSV017\nSeverity: HIGH\nMessage: Container 'container1' of DaemonSet 'daemonset' should set 'securityContext.privileged' to false\nLink: [KSV017](https://avd.aquasec.com/appshield/ksv017)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/privileged/fixtures/privileged-true-allowed-multi-containers-single-label.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV017",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/privileged/fixtures/privileged-true-allowed-multi-containers-single-label.yml\nType: kubernetes\nVulnerability KSV017\nSeverity: HIGH\nMessage: Container 'container2' of DaemonSet 'daemonset' should set 'securityContext.privileged' to false\nLink: [KSV017](https://avd.aquasec.com/appshield/ksv017)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/privileged/fixtures/privileged-true-allowed-multi-containers-single-label.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV017",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/privileged/fixtures/privileged-true-allowed.yml\nType: kubernetes\nVulnerability KSV017\nSeverity: HIGH\nMessage: Container 'container' of DaemonSet 'daemonset' should set 'securityContext.privileged' to false\nLink: [KSV017](https://avd.aquasec.com/appshield/ksv017)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/privileged/fixtures/privileged-true-allowed.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV017",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "Artifact: auditors/privileged/fixtures/privileged-true.yml\nType: kubernetes\nVulnerability KSV017\nSeverity: HIGH\nMessage: Container 'container' of DaemonSet 'daemonset' should set 'securityContext.privileged' to false\nLink: [KSV017](https://avd.aquasec.com/appshield/ksv017)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "auditors/privileged/fixtures/privileged-true.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/cronjob.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: CronJob 'cronjob' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/cronjob.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/cronjob.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: CronJob 'cronjob' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/cronjob.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/cronjob.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: CronJob 'cronjob' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/cronjob.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1beta1.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1beta1.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1beta1.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1beta2.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1beta2.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1beta2.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1beta2.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/daemonset-v1beta2.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: DaemonSet 'daemonset1' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/daemonset-v1beta2.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1beta1.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1beta1.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1beta1.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1beta2.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1beta2.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1beta2.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1beta2.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-apps-v1beta2.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-apps-v1beta2.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-extensions-v1beta1.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-extensions-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-extensions-v1beta1.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-extensions-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/deployment-extensions-v1beta1.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Deployment 'deployment' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/deployment-extensions-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/job.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Job 'job' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/job.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/job.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Job 'job' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/job.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/job.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Job 'job' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/job.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/pod.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/pod.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/pod.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/pod.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/pod.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: Pod 'pod' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/pod.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/replicationcontroller.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: ReplicationController 'replicationcontroller' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/replicationcontroller.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/replicationcontroller.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: ReplicationController 'replicationcontroller' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/replicationcontroller.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/replicationcontroller.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: ReplicationController 'replicationcontroller' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/replicationcontroller.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/statefulset-v1.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/statefulset-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/statefulset-v1.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/statefulset-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/statefulset-v1.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/statefulset-v1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV008",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/statefulset-v1beta1.yml\nType: kubernetes\nVulnerability KSV008\nSeverity: HIGH\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostIPC' to true\nLink: [KSV008](https://avd.aquasec.com/appshield/ksv008)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/statefulset-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV009",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/statefulset-v1beta1.yml\nType: kubernetes\nVulnerability KSV009\nSeverity: HIGH\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV009](https://avd.aquasec.com/appshield/ksv009)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/statefulset-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "KSV010",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Artifact: internal/test/fixtures/all_resources/statefulset-v1beta1.yml\nType: kubernetes\nVulnerability KSV010\nSeverity: HIGH\nMessage: StatefulSet 'statefulset' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV010](https://avd.aquasec.com/appshield/ksv010)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/test/fixtures/all_resources/statefulset-v1beta1.yml",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

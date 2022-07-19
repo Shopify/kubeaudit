@@ -108,9 +108,6 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-// Validates that the given file path refers to a valid SARIF file.
-// Throws an error if the file is invalid.
-
 func TestValidate(t *testing.T) {
 	var reportBytes bytes.Buffer
 	testSarif, err := ioutil.ReadFile("fixtures/valid.sarif")
@@ -118,12 +115,12 @@ func TestValidate(t *testing.T) {
 
 	reportBytes.Write(testSarif)
 
-	err, errs := Validate(&reportBytes)
+	err, errs := validate(&reportBytes)
 	require.NoError(t, err)
+
 	if len(errs) > 0 {
 		fmt.Println(errs)
 	}
 
 	assert.Len(t, errs, 0)
-
 }
