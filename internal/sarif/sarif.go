@@ -2,11 +2,8 @@ package sarif
 
 import (
 	"bytes"
-	"context"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
@@ -24,8 +21,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/rootfs"
 	"github.com/Shopify/kubeaudit/auditors/seccomp"
 	"github.com/owenrumney/go-sarif/v2/sarif"
-	"github.com/qri-io/jsonschema"
-	"github.com/sirupsen/logrus"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 var Auditors = map[string]string{
@@ -80,13 +76,15 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		run.AddRule(result.Rule).
 			WithName(result.Auditor).
 			WithMarkdownHelp(helpMessage).
+			WithHelp(&sarif.MultiformatMessageString{Text: &docsURL}).
+			WithShortDescription(&sarif.MultiformatMessageString{Text: &result.Rule}).
 			WithProperties(sarif.Properties{
 				"tags": []string{
 					"security",
 					"kubernetes",
 					"infrastructure",
 				},
-				"precision": "very-high", // TODO: can we remove this?
+				"precision": "very-high",
 			})
 
 		// SARIF specifies the following severity levels: warning, error, note and none
@@ -106,7 +104,6 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		run.AddResult(result)
 	}
 
-	// todo: remove this after trying the library
 	var reportBytes bytes.Buffer
 
 	err = report.Write(&reportBytes)
@@ -120,43 +117,32 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 	}
 
 	if len(errs) > 0 {
-		for _, errorMsg := range errs {
-			// not sure if we want to return the errors here
-			// so just logging them for now
-			logrus.Info(errorMsg)
-		}
+		return nil, fmt.Errorf("SARIF schema validation errors: %s", errs)
 	}
-
-	// todo: remove validate
 
 	return report, nil
 }
 
 // Validates that the SARIF file is valid as per sarif spec
 // https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Documents/CommitteeSpecifications/2.1.0/sarif-schema-2.1.0.json
-func validate(report io.Reader) (error, []jsonschema.KeyError) {
-	schemaData, err := ioutil.ReadFile("sarif-schema.json")
-	if err != nil {
-		return err, nil
-	}
-
-	jsonSchema := &jsonschema.Schema{}
-
-	if err := json.Unmarshal(schemaData, jsonSchema); err != nil {
-		return err, nil
-	}
+func validate(report io.Reader) (error, []gojsonschema.ResultError) {
+	schemaLoader := gojsonschema.NewReferenceLoader("http://json.schemastore.org/sarif-2.1.0")
+	var reportLoader gojsonschema.JSONLoader
 
 	_, ok := report.(*bytes.Buffer)
 	if ok {
-		errs, err := jsonSchema.ValidateBytes(context.Background(), report.(*bytes.Buffer).Bytes())
-		if err != nil {
-			return err, nil
-		}
-
-		if len(errs) > 0 {
-			return nil, errs
-		}
+		reportLoader = gojsonschema.NewStringLoader(report.(*bytes.Buffer).String())
 	}
 
-	return nil, nil
+	result, err := gojsonschema.Validate(schemaLoader, reportLoader)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if result.Valid() {
+		return nil, nil
+	} else {
+		return nil, result.Errors()
+	}
 }

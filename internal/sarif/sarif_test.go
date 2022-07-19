@@ -2,7 +2,6 @@ package sarif
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -109,18 +108,36 @@ func TestCreate(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	var reportBytes bytes.Buffer
-	testSarif, err := ioutil.ReadFile("fixtures/valid.sarif")
-	require.NoError(t, err)
 
-	reportBytes.Write(testSarif)
-
-	err, errs := validate(&reportBytes)
-	require.NoError(t, err)
-
-	if len(errs) > 0 {
-		fmt.Println(errs)
+	cases := []struct {
+		file          string
+		shouldBeValid bool
+	}{
+		{
+			file:          "invalid.sarif",
+			shouldBeValid: false,
+		},
+		{
+			file:          "valid.sarif",
+			shouldBeValid: true,
+		},
 	}
 
-	assert.Len(t, errs, 0)
+	for _, tc := range cases {
+		var reportBytes bytes.Buffer
+
+		testSarif, err := ioutil.ReadFile("fixtures/" + tc.file)
+		require.NoError(t, err)
+
+		reportBytes.Write(testSarif)
+
+		err, errs := validate(&reportBytes)
+		require.NoError(t, err)
+
+		if !tc.shouldBeValid {
+			assert.True(t, len(errs) > 0)
+		} else {
+			assert.Len(t, errs, 0)
+		}
+	}
 }
