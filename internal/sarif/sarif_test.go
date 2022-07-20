@@ -96,7 +96,7 @@ func TestCreate(t *testing.T) {
 			assert.Contains(t, ruleNames, *sarifResult.RuleID)
 			assert.Equal(t, tc.expectedErrorLevel, *sarifResult.Level)
 			assert.Contains(t, *sarifResult.Message.Text, tc.expectedMessage)
-			assert.Contains(t, *sarifResult.Locations[0].PhysicalLocation.ArtifactLocation.URI, "sarif/fixtures/"+tc.file)
+			assert.Contains(t, "sarif/fixtures/"+tc.file, *sarifResult.Locations[0].PhysicalLocation.ArtifactLocation.URI)
 		}
 	}
 }
