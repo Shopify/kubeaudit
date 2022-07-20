@@ -108,6 +108,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/Shopify/kubeaudit/internal/k8sinternal"
 	"github.com/Shopify/kubeaudit/pkg/k8s"
@@ -157,7 +158,12 @@ func (a *Kubeaudit) AuditManifest(manifestPath string, manifest io.Reader) (*Rep
 	for _, result := range results {
 		auditResults := result.GetAuditResults()
 		for _, ar := range auditResults {
-			ar.FilePath = manifestPath
+			path, err := filepath.Abs(manifestPath)
+			if err != nil {
+				return nil, err
+			}
+
+			ar.FilePath = path
 		}
 	}
 

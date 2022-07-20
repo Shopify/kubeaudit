@@ -27,6 +27,7 @@ func TestCreate(t *testing.T) {
 		expectedRule       string
 		expectedErrorLevel string
 		expectedMessage    string
+		expectedURI        string
 	}{
 		{
 			"apparmor-invalid.yaml",
@@ -35,6 +36,7 @@ func TestCreate(t *testing.T) {
 			apparmor.AppArmorInvalidAnnotation,
 			"error",
 			"AppArmor annotation key refers to a container that doesn't exist",
+			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/apparmor.md",
 		},
 		{
 			"capabilities-added.yaml",
@@ -43,6 +45,7 @@ func TestCreate(t *testing.T) {
 			capabilities.CapabilityAdded,
 			"error",
 			"It should be removed from the capability add list",
+			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/capabilities.md",
 		},
 		{
 			"image-tag-present.yaml",
@@ -51,6 +54,7 @@ func TestCreate(t *testing.T) {
 			image.ImageCorrect,
 			"note",
 			"Image tag is correct",
+			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/image.md",
 		},
 	}
 
@@ -64,17 +68,6 @@ func TestCreate(t *testing.T) {
 
 		kubeAuditReport, err := auditor.AuditManifest(fixture, manifest)
 		require.NoError(t, err)
-
-		// we're only appending sarif to the path here for testing purposes
-		// this allows us to visualize the sarif output preview correctly
-		for _, reportResult := range kubeAuditReport.Results() {
-			r := reportResult.GetAuditResults()
-
-			for _, auditResult := range r {
-				auditResult.FilePath = filepath.Join("sarif/", auditResult.FilePath)
-			}
-
-		}
 
 		sarifReport, err := Create(kubeAuditReport)
 		require.NoError(t, err)
@@ -95,13 +88,15 @@ func TestCreate(t *testing.T) {
 			})
 
 			ruleNames = append(ruleNames, sarifRule.ID)
+
+			assert.Equal(t, tc.expectedURI, *sarifRule.Help.Text)
 		}
 
 		for _, sarifResult := range sarifReport.Runs[0].Results {
 			assert.Contains(t, ruleNames, *sarifResult.RuleID)
 			assert.Equal(t, tc.expectedErrorLevel, *sarifResult.Level)
 			assert.Contains(t, *sarifResult.Message.Text, tc.expectedMessage)
-			assert.Equal(t, "sarif/fixtures/"+tc.file, *sarifResult.Locations[0].PhysicalLocation.ArtifactLocation.URI)
+			assert.Contains(t, *sarifResult.Locations[0].PhysicalLocation.ArtifactLocation.URI, "sarif/fixtures/"+tc.file)
 		}
 	}
 }
