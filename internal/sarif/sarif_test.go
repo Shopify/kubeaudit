@@ -10,7 +10,7 @@ import (
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
-	"github.com/Shopify/kubeaudit/auditors/seccomp"
+	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,31 +18,39 @@ import (
 func TestCreate(t *testing.T) {
 	capabilitiesAuditable := capabilities.New(capabilities.Config{})
 	apparmorAuditable := apparmor.New()
-	seccompAuditable := seccomp.New()
+	imageAuditable := image.New(image.Config{Image: "scratch:1.5"})
 
 	cases := []struct {
-		file          string
-		auditorName   string
-		auditors      []kubeaudit.Auditable
-		expectedRules []string
+		file               string
+		auditorName        string
+		auditors           []kubeaudit.Auditable
+		expectedRule       string
+		expectedErrorLevel string
+		expectedMessage    string
 	}{
 		{
-			"apparmor-disabled.yaml",
+			"apparmor-invalid.yaml",
 			apparmor.Name,
 			[]kubeaudit.Auditable{apparmorAuditable},
-			[]string{"AppArmorInvalidAnnotation"},
-		},
-		{
-			"capabilities-added.yaml",
-			capabilities.Name,
-			[]kubeaudit.Auditable{capabilitiesAuditable, seccompAuditable},
-			[]string{"CapabilityAdded", "SeccompAnnotationMissing"},
+			apparmor.AppArmorInvalidAnnotation,
+			"error",
+			"AppArmor annotation key refers to a container that doesn't exist",
 		},
 		{
 			"capabilities-added.yaml",
 			capabilities.Name,
 			[]kubeaudit.Auditable{capabilitiesAuditable},
-			[]string{"CapabilityAdded"},
+			capabilities.CapabilityAdded,
+			"error",
+			"It should be removed from the capability add list",
+		},
+		{
+			"image-tag-present.yaml",
+			capabilities.Name,
+			[]kubeaudit.Auditable{imageAuditable},
+			image.ImageCorrect,
+			"note",
+			"Image tag is correct",
 		},
 	}
 
@@ -67,8 +75,6 @@ func TestCreate(t *testing.T) {
 			}
 
 		}
-		// verify that the file path is correct
-		assert.Contains(t, kubeAuditReport.Results()[0].GetAuditResults()[0].FilePath, "sarif/fixtures")
 
 		sarifReport, err := Create(kubeAuditReport)
 		require.NoError(t, err)
@@ -77,13 +83,11 @@ func TestCreate(t *testing.T) {
 			*sarifReport.Runs[0].Tool.Driver.InformationURI)
 
 		// verify that the rules have been added as per report findings
-		assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, len(tc.expectedRules))
+		assert.Equal(t, sarifReport.Runs[0].Tool.Driver.Rules[0].ID, tc.expectedRule)
 
 		var ruleNames []string
 		// check for rules occurrences
 		for _, sarifRule := range sarifReport.Runs[0].Tool.Driver.Rules {
-			assert.NotEqual(t, *sarifRule.Help.Markdown, "")
-
 			assert.Equal(t, sarifRule.Properties["tags"], []string{
 				"security",
 				"kubernetes",
@@ -93,17 +97,12 @@ func TestCreate(t *testing.T) {
 			ruleNames = append(ruleNames, sarifRule.ID)
 		}
 
-		for _, expectedRule := range tc.expectedRules {
-			assert.Contains(t, ruleNames, expectedRule)
+		for _, sarifResult := range sarifReport.Runs[0].Results {
+			assert.Contains(t, ruleNames, *sarifResult.RuleID)
+			assert.Equal(t, tc.expectedErrorLevel, *sarifResult.Level)
+			assert.Contains(t, *sarifResult.Message.Text, tc.expectedMessage)
+			assert.Equal(t, "sarif/fixtures/"+tc.file, *sarifResult.Locations[0].PhysicalLocation.ArtifactLocation.URI)
 		}
-
-		// for _, sarifResult := range sarifReport.Runs[0].Results {
-		// 	// TODO: test for severity, message and location
-		// 	// assert.Equal(sarifResult.Level,
-		// }
-
-		// also add a fixture with info level so that we capture the conversion to note
-
 	}
 }
 
