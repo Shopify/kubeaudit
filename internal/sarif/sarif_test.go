@@ -89,7 +89,7 @@ func TestCreate(t *testing.T) {
 
 			ruleNames = append(ruleNames, sarifRule.ID)
 
-			assert.Equal(t, tc.expectedURI, *sarifRule.Help.Text)
+			assert.Contains(t, *sarifRule.Help.Text, tc.expectedURI)
 		}
 
 		for _, sarifResult := range sarifReport.Runs[0].Results {

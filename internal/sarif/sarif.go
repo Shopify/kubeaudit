@@ -42,13 +42,14 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 			docsURL = "https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/" + auditor + ".md"
 		}
 
-		helpMessage := fmt.Sprintf("**Type**: kubernetes\n**Docs**: %s\n**Description:** %s", docsURL, allAuditors[auditor])
+		helpMessage := fmt.Sprintf("**Type**: kubernetes\n**Auditor Docs**: To find out more about the issue and how to fix it, follow [this link](%s)\n**Description:** %s\n\n *Note*: These audit results are generated with `kubeaudit`, a command line tool and a Go package that checks for potential security concerns in kubernetes manifest specs. You can read more about it at https://github.com/Shopify/kubeaudit ",
+			docsURL, allAuditors[auditor])
 
 		// we only add rules to the report based on the result findings
 		run.AddRule(result.Rule).
 			WithName(result.Auditor).
 			WithMarkdownHelp(helpMessage).
-			WithHelp(&sarif.MultiformatMessageString{Text: &docsURL}).
+			WithHelp(&sarif.MultiformatMessageString{Text: &helpMessage}).
 			WithShortDescription(&sarif.MultiformatMessageString{Text: &result.Rule}).
 			WithProperties(sarif.Properties{
 				"tags": []string{
@@ -66,11 +67,14 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 			severityLevel = "note"
 		}
 
+		details := fmt.Sprintf("Details: %s\n Auditor: %s\nDescription: %s\nAuditor docs: %s ",
+			result.Message, result.Auditor, allAuditors[auditor], docsURL)
+
 		location := sarif.NewPhysicalLocation().
 			WithArtifactLocation(sarif.NewSimpleArtifactLocation(result.FilePath).WithUriBaseId("ROOTPATH")).
 			WithRegion(sarif.NewRegion().WithStartLine(1))
 		result := sarif.NewRuleResult(result.Rule).
-			WithMessage(sarif.NewTextMessage(result.Message)).
+			WithMessage(sarif.NewTextMessage(details)).
 			WithLevel(severityLevel).
 			WithLocations([]*sarif.Location{sarif.NewLocation().WithPhysicalLocation(location)})
 		run.AddResult(result)
