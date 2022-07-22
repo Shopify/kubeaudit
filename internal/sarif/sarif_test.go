@@ -62,6 +62,14 @@ func TestCreate(t *testing.T) {
 			"Resource limits not set.",
 			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/limits.md",
 		},
+		{
+			"apparmor-valid.yaml",
+			[]kubeaudit.Auditable{apparmorAuditable},
+			"",
+			"",
+			"",
+			"",
+		},
 	}
 
 	for _, tc := range cases {
@@ -80,6 +88,12 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(t, "https://github.com/Shopify/kubeaudit",
 			*sarifReport.Runs[0].Tool.Driver.InformationURI)
+
+		// verify that we only add rules to the report
+		// if vulnerabilities are found
+		if len(kubeAuditReport.Results()) == 0 {
+			break
+		}
 
 		// verify that the rules have been added as per report findings
 		assert.Equal(t, sarifReport.Runs[0].Tool.Driver.Rules[0].ID, tc.expectedRule)
