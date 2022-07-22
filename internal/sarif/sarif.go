@@ -33,11 +33,13 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 
 	for _, result := range results {
 		severityLevel := result.Severity.String()
+
 		auditor := strings.ToLower(result.Auditor)
 
 		var docsURL string
 
 		auditor, ok := violationsToRules[result.Rule]
+
 		if ok {
 			docsURL = "https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/" + auditor + ".md"
 		}
@@ -48,7 +50,6 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		// we only add rules to the report based on the result findings
 		run.AddRule(result.Rule).
 			WithName(result.Auditor).
-			WithMarkdownHelp(helpMessage).
 			WithHelp(&sarif.MultiformatMessageString{Text: &helpMessage}).
 			WithShortDescription(&sarif.MultiformatMessageString{Text: &result.Rule}).
 			WithProperties(sarif.Properties{
@@ -57,7 +58,6 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 					"kubernetes",
 					"infrastructure",
 				},
-				"precision": "very-high",
 			})
 
 		// SARIF specifies the following severity levels: warning, error, note and none
@@ -113,12 +113,12 @@ func validate(report io.Reader) (error, []gojsonschema.ResultError) {
 	result, err := gojsonschema.Validate(schemaLoader, reportLoader)
 
 	if err != nil {
-		panic(err.Error())
+		return err, nil
 	}
 
 	if result.Valid() {
 		return nil, nil
-	} else {
-		return nil, result.Errors()
 	}
+
+	return nil, result.Errors()
 }

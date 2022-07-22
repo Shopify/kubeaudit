@@ -11,6 +11,7 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
 	"github.com/Shopify/kubeaudit/auditors/capabilities"
 	"github.com/Shopify/kubeaudit/auditors/image"
+	"github.com/Shopify/kubeaudit/auditors/limits"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,10 +20,10 @@ func TestCreate(t *testing.T) {
 	capabilitiesAuditable := capabilities.New(capabilities.Config{})
 	apparmorAuditable := apparmor.New()
 	imageAuditable := image.New(image.Config{Image: "scratch:1.5"})
+	limitsAuditable, _ := limits.New(limits.Config{})
 
 	cases := []struct {
 		file               string
-		auditorName        string
 		auditors           []kubeaudit.Auditable
 		expectedRule       string
 		expectedErrorLevel string
@@ -31,7 +32,6 @@ func TestCreate(t *testing.T) {
 	}{
 		{
 			"apparmor-invalid.yaml",
-			apparmor.Name,
 			[]kubeaudit.Auditable{apparmorAuditable},
 			apparmor.AppArmorInvalidAnnotation,
 			"error",
@@ -40,7 +40,6 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			"capabilities-added.yaml",
-			capabilities.Name,
 			[]kubeaudit.Auditable{capabilitiesAuditable},
 			capabilities.CapabilityAdded,
 			"error",
@@ -49,12 +48,19 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			"image-tag-present.yaml",
-			capabilities.Name,
 			[]kubeaudit.Auditable{imageAuditable},
 			image.ImageCorrect,
 			"note",
 			"Image tag is correct",
 			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/image.md",
+		},
+		{
+			"limits-nil.yaml",
+			[]kubeaudit.Auditable{limitsAuditable},
+			limits.LimitsNotSet,
+			"warning",
+			"Resource limits not set.",
+			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/limits.md",
 		},
 	}
 
@@ -79,6 +85,7 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, sarifReport.Runs[0].Tool.Driver.Rules[0].ID, tc.expectedRule)
 
 		var ruleNames []string
+
 		// check for rules occurrences
 		for _, sarifRule := range sarifReport.Runs[0].Tool.Driver.Rules {
 			assert.Equal(t, sarifRule.Properties["tags"], []string{

@@ -7,13 +7,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuditorsLength(t *testing.T) {
+func TestAuditorsLengthAndDescription(t *testing.T) {
 	// if new auditors are created
 	// make sure they're added with a matching description
 	assert.Len(t, allAuditors, len(all.AuditorNames))
+	for _, description := range allAuditors {
+		assert.True(t, description != "")
+	}
 }
 
 func TestViolationToRules(t *testing.T) {
+	// if new rules are added to any of the auditors
+	// they should be captured in the mapping
 	cases := []struct {
 		auditorName   string
 		expectedCount int
