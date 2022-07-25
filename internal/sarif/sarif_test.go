@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreate(t *testing.T) {
+func TestCreateWithResults(t *testing.T) {
 	capabilitiesAuditable := capabilities.New(capabilities.Config{})
 	apparmorAuditable := apparmor.New()
 	imageAuditable := image.New(image.Config{Image: "scratch:1.5"})
@@ -62,14 +62,6 @@ func TestCreate(t *testing.T) {
 			"Resource limits not set.",
 			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/limits.md",
 		},
-		{
-			"apparmor-valid.yaml",
-			[]kubeaudit.Auditable{apparmorAuditable},
-			"",
-			"",
-			"",
-			"",
-		},
 	}
 
 	for _, tc := range cases {
@@ -88,12 +80,6 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(t, "https://github.com/Shopify/kubeaudit",
 			*sarifReport.Runs[0].Tool.Driver.InformationURI)
-
-		// verify that we only add rules to the report
-		// if vulnerabilities are found
-		if len(kubeAuditReport.Results()) == 0 {
-			break
-		}
 
 		// verify that the rules have been added as per report findings
 		assert.Equal(t, sarifReport.Runs[0].Tool.Driver.Rules[0].ID, tc.expectedRule)
@@ -155,4 +141,26 @@ func TestValidate(t *testing.T) {
 			assert.Len(t, errs, 0)
 		}
 	}
+}
+
+func TestCreateWithNoResults(t *testing.T) {
+	apparmorAuditable := apparmor.New()
+
+	fixture := filepath.Join("fixtures", "apparmor-valid.yaml")
+	auditor, err := kubeaudit.New([]kubeaudit.Auditable{apparmorAuditable})
+	require.NoError(t, err)
+
+	manifest, openErr := os.Open(fixture)
+	require.NoError(t, openErr)
+
+	kubeAuditReport, err := auditor.AuditManifest(fixture, manifest)
+	require.NoError(t, err)
+
+	sarifReport, err := Create(kubeAuditReport)
+	require.NoError(t, err)
+
+	require.NotEmpty(t, *sarifReport.Runs[0])
+
+	// verify that the rules are only added as per report findings
+	assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, 0)
 }
