@@ -82,17 +82,19 @@ func TestCreateWithResults(t *testing.T) {
 			*sarifReport.Runs[0].Tool.Driver.InformationURI)
 
 		// verify that the rules have been added as per report findings
-		assert.Equal(t, sarifReport.Runs[0].Tool.Driver.Rules[0].ID, tc.expectedRule)
+		assert.Equal(t, tc.expectedRule, sarifReport.Runs[0].Tool.Driver.Rules[0].ID)
 
 		var ruleNames []string
 
 		// check for rules occurrences
 		for _, sarifRule := range sarifReport.Runs[0].Tool.Driver.Rules {
-			assert.Equal(t, sarifRule.Properties["tags"], []string{
+			assert.Equal(t, []string{
 				"security",
 				"kubernetes",
 				"infrastructure",
-			})
+			},
+				sarifRule.Properties["tags"],
+			)
 
 			ruleNames = append(ruleNames, sarifRule.ID)
 
