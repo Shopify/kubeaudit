@@ -1,5 +1,4 @@
 enabled:
-  - cla
   - welcome
   - triage-new-issues
   - probot-labeler
