@@ -59,56 +59,58 @@ func TestCreateWithResults(t *testing.T) {
 			[]kubeaudit.Auditable{limitsAuditable},
 			limits.LimitsNotSet,
 			"warning",
-			"Resource limits not set.",
+			"Resource limits not set",
 			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/limits.md",
 		},
 	}
 
 	for _, tc := range cases {
-		fixture := filepath.Join("fixtures", tc.file)
-		auditor, err := kubeaudit.New(tc.auditors)
-		require.NoError(t, err)
+		t.Run(tc.file, func(t *testing.T) {
+			fixture := filepath.Join("fixtures", tc.file)
+			auditor, err := kubeaudit.New(tc.auditors)
+			require.NoError(t, err)
 
-		manifest, openErr := os.Open(fixture)
-		require.NoError(t, openErr)
+			manifest, openErr := os.Open(fixture)
+			require.NoError(t, openErr)
 
-		defer manifest.Close()
+			defer manifest.Close()
 
-		kubeAuditReport, err := auditor.AuditManifest(fixture, manifest)
-		require.NoError(t, err)
+			kubeAuditReport, err := auditor.AuditManifest(fixture, manifest)
+			require.NoError(t, err)
 
-		sarifReport, err := Create(kubeAuditReport)
-		require.NoError(t, err)
+			sarifReport, err := Create(kubeAuditReport)
+			require.NoError(t, err)
 
-		assert.Equal(t, "https://github.com/Shopify/kubeaudit",
-			*sarifReport.Runs[0].Tool.Driver.InformationURI)
+			assert.Equal(t, "https://github.com/Shopify/kubeaudit",
+				*sarifReport.Runs[0].Tool.Driver.InformationURI)
 
-		// verify that the rules have been added as per report findings
-		assert.Equal(t, tc.expectedRule, sarifReport.Runs[0].Tool.Driver.Rules[0].ID)
+			// verify that the rules have been added as per report findings
+			assert.Equal(t, tc.expectedRule, sarifReport.Runs[0].Tool.Driver.Rules[0].ID)
 
-		var ruleNames []string
+			var ruleNames []string
 
-		// check for rules occurrences
-		for _, sarifRule := range sarifReport.Runs[0].Tool.Driver.Rules {
-			assert.Equal(t, []string{
-				"security",
-				"kubernetes",
-				"infrastructure",
-			},
-				sarifRule.Properties["tags"],
-			)
+			// check for rules occurrences
+			for _, sarifRule := range sarifReport.Runs[0].Tool.Driver.Rules {
+				assert.Equal(t, []string{
+					"security",
+					"kubernetes",
+					"infrastructure",
+				},
+					sarifRule.Properties["tags"],
+				)
 
-			ruleNames = append(ruleNames, sarifRule.ID)
+				ruleNames = append(ruleNames, sarifRule.ID)
 
-			assert.Contains(t, *sarifRule.Help.Text, tc.expectedURI)
-		}
+				assert.Contains(t, *sarifRule.Help.Text, tc.expectedURI)
+			}
 
-		for _, sarifResult := range sarifReport.Runs[0].Results {
-			assert.Contains(t, ruleNames, *sarifResult.RuleID)
-			assert.Equal(t, tc.expectedErrorLevel, *sarifResult.Level)
-			assert.Contains(t, *sarifResult.Message.Text, tc.expectedMessage)
-			assert.Contains(t, "sarif/fixtures/"+tc.file, *sarifResult.Locations[0].PhysicalLocation.ArtifactLocation.URI)
-		}
+			for _, sarifResult := range sarifReport.Runs[0].Results {
+				assert.Contains(t, ruleNames, *sarifResult.RuleID)
+				assert.Equal(t, tc.expectedErrorLevel, *sarifResult.Level)
+				assert.Contains(t, *sarifResult.Message.Text, tc.expectedMessage)
+				assert.Contains(t, "sarif/fixtures/"+tc.file, *sarifResult.Locations[0].PhysicalLocation.ArtifactLocation.URI)
+			}
+		})
 	}
 }
 
@@ -129,21 +131,23 @@ func TestValidate(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		var reportBytes bytes.Buffer
+		t.Run(tc.file, func(t *testing.T) {
+			var reportBytes bytes.Buffer
 
-		testSarif, err := ioutil.ReadFile("fixtures/" + tc.file)
-		require.NoError(t, err)
+			testSarif, err := ioutil.ReadFile("fixtures/" + tc.file)
+			require.NoError(t, err)
 
-		reportBytes.Write(testSarif)
+			reportBytes.Write(testSarif)
 
-		err, errs := validate(&reportBytes)
-		require.NoError(t, err)
+			err, errs := validate(&reportBytes)
+			require.NoError(t, err)
 
-		if !tc.shouldBeValid {
-			assert.True(t, len(errs) > 0)
-		} else {
-			assert.Len(t, errs, 0)
-		}
+			if !tc.shouldBeValid {
+				assert.True(t, len(errs) > 0)
+			} else {
+				assert.Len(t, errs, 0)
+			}
+		})
 	}
 }
 
