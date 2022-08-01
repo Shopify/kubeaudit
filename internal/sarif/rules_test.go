@@ -12,7 +12,7 @@ func TestAuditorsLengthAndDescription(t *testing.T) {
 	// make sure they're added with a matching description
 	assert.Len(t, allAuditors, len(all.AuditorNames))
 	for _, description := range allAuditors {
-		assert.True(t, description != "")
+		assert.NotEmpty(t, description)
 	}
 }
 

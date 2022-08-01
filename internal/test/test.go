@@ -107,6 +107,7 @@ func GetReport(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.
 	case MANIFEST_MODE:
 		manifest, openErr := os.Open(fixture)
 		require.NoError(openErr)
+		defer manifest.Close()
 		report, err = auditor.AuditManifest("", manifest)
 	case LOCAL_MODE:
 		defer DeleteNamespace(t, namespace)

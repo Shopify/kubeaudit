@@ -64,7 +64,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 
 		// SARIF specifies the following severity levels: warning, error, note and none
 		// https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
-		// so we're converting info to none here so we get valid SARIF output
+		// so we're converting info to note here so we get valid SARIF output
 		if result.Severity.String() == "info" {
 			severityLevel = "note"
 		}
@@ -91,7 +91,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 
 	err, errs := validate(&reportBytes)
 	if err != nil {
-		return nil, fmt.Errorf("error validating SARIF schema: %s", err)
+		return nil, fmt.Errorf("error validating SARIF schema: %w", err)
 	}
 
 	if len(errs) > 0 {

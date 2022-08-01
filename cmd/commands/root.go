@@ -84,7 +84,7 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 			sarifReport, err := sarif.Create(report)
 
 			if err != nil {
-				log.WithError(err).Fatal("error generating the SARIF output")
+				log.WithError(err).Fatal("Error generating the SARIF output")
 			}
 
 			sarifReport.WriteFile(rootConfig.sarifOut)

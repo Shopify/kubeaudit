@@ -21,7 +21,7 @@ var allAuditors = map[string]string{
 	apparmor.Name:       "Finds containers that do not have AppArmor enabled",
 	asat.Name:           "Finds containers where the deprecated SA field is used or with a mounted default SA",
 	capabilities.Name:   "Finds containers that do not drop the recommended capabilities or add new ones",
-	deprecatedapis.Name: "Finds any resource defined with a deprecated API version.",
+	deprecatedapis.Name: "Finds any resource defined with a deprecated API version",
 	hostns.Name:         "Finds containers that have HostPID, HostIPC or HostNetwork enabled",
 	image.Name:          "Finds containers which do not use the desired version of an image (via the tag) or use an image without a tag",
 	limits.Name:         "Finds containers which exceed the specified CPU and memory limits or do not specify any",

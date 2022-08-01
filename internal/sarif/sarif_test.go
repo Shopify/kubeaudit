@@ -72,6 +72,8 @@ func TestCreateWithResults(t *testing.T) {
 		manifest, openErr := os.Open(fixture)
 		require.NoError(t, openErr)
 
+		defer manifest.Close()
+
 		kubeAuditReport, err := auditor.AuditManifest(fixture, manifest)
 		require.NoError(t, err)
 
@@ -154,6 +156,8 @@ func TestCreateWithNoResults(t *testing.T) {
 
 	manifest, openErr := os.Open(fixture)
 	require.NoError(t, openErr)
+
+	defer manifest.Close()
 
 	kubeAuditReport, err := auditor.AuditManifest(fixture, manifest)
 	require.NoError(t, err)
