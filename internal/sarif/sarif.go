@@ -11,6 +11,8 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
+const repoURL = "https://github.com/Shopify/kubeaudit"
+
 // Create generates new sarif Report or returns an error
 func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 	// create a new report object
@@ -20,7 +22,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 	}
 
 	// create a run for kubeaudit
-	run := sarif.NewRunWithInformationURI("kubeaudit", "https://github.com/Shopify/kubeaudit")
+	run := sarif.NewRunWithInformationURI("kubeaudit", repoURL)
 
 	report.AddRun(run)
 
@@ -65,7 +67,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		// SARIF specifies the following severity levels: warning, error, note and none
 		// https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
 		// so we're converting info to note here so we get valid SARIF output
-		if result.Severity.String() == "info" {
+		if result.Severity.String() == kubeaudit.Info.String() {
 			severityLevel = "note"
 		}
 

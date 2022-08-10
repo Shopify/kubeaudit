@@ -81,7 +81,7 @@ func TestCreateWithResults(t *testing.T) {
 			sarifReport, err := Create(kubeAuditReport)
 			require.NoError(t, err)
 
-			assert.Equal(t, "https://github.com/Shopify/kubeaudit",
+			assert.Equal(t, repoURL,
 				*sarifReport.Runs[0].Tool.Driver.InformationURI)
 
 			// verify that the rules have been added as per report findings

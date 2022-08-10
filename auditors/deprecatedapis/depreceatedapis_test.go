@@ -2,7 +2,6 @@ package deprecatedapis
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -55,13 +54,11 @@ func TestAuditDeprecatedAPIs(t *testing.T) {
 			report := test.AuditManifest(t, fixtureDir, tc.file, auditor, []string{DeprecatedAPIUsed})
 			assertReport(t, report, tc.expectedSeverity, message, metadata)
 
-			// disable local tests when running in dev mode
-			if os.Getenv("USE_KIND") == "false" {
-				return
-			}
-
 			report = test.AuditLocal(t, fixtureDir, tc.file, auditor, fmt.Sprintf("%s-%d", strings.Split(tc.file, ".")[0], i), []string{DeprecatedAPIUsed})
-			assertReport(t, report, tc.expectedSeverity, message, metadata)
+
+			if report != nil {
+				assertReport(t, report, tc.expectedSeverity, message, metadata)
+			}
 		})
 	}
 }

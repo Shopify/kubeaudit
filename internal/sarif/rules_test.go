@@ -10,9 +10,9 @@ import (
 func TestAuditorsLengthAndDescription(t *testing.T) {
 	// if new auditors are created
 	// make sure they're added with a matching description
-	assert.Len(t, allAuditors, len(all.AuditorNames))
-	for _, description := range allAuditors {
-		assert.NotEmpty(t, description)
+	for _, auditorName := range all.AuditorNames {
+		description, ok := allAuditors[auditorName]
+		assert.Truef(t, ok && description != "", "missing description for auditor %s", auditorName)
 	}
 }
 
