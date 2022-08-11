@@ -16,8 +16,8 @@ const (
 	SensitivePathsMounted = "SensitivePathsMounted"
 )
 
-// DefaultSensitivePaths is the default list of sensitive mount paths (from Falco rule: https://github.com/falcosecurity/falco/blob/master/rules/k8s_audit_rules.yaml#L155)
-var DefaultSensitivePaths = []string{"/proc", "/var/run/docker.sock", "/", "/etc", "/root", "/var/run/crio/crio.sock", "/home/admin", "/var/lib/kubelet", "/var/lib/kubelet/pki", "/etc/kubernetes", "/etc/kubernetes/manifests"}
+// DefaultSensitivePaths is the default list of sensitive mount paths (from Falco rule: https://github.com/falcosecurity/falco/blob/master/rules/falco_rules.yaml#L1945)
+var DefaultSensitivePaths = []string{"/proc", "/var/run/docker.sock", "/", "/etc", "/root", "/var/run/crio/crio.sock", "/run/containerd/containerd.sock", "/home/admin", "/var/lib/kubelet", "/var/lib/kubelet/pki", "/etc/kubernetes", "/etc/kubernetes/manifests"}
 
 const overrideLabelPrefix = "allow-host-path-mount-"
 

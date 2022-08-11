@@ -29,4 +29,4 @@ auditors:
         cpu: "750m"
         memory: "500m"
     mounts:
-        denyPathsList: ["/proc", "/var/run/docker.sock", "/", "/etc", "/root", "/var/run/crio/crio.sock", "/home/admin", "/var/lib/kubelet", "/var/lib/kubelet/pki", "/etc/kubernetes", "/etc/kubernetes/manifests"]
+        denyPathsList: ["/proc", "/var/run/docker.sock", "/", "/etc", "/root", "/var/run/crio/crio.sock", "/run/containerd/containerd.sock", /home/admin", "/var/lib/kubelet", "/var/lib/kubelet/pki", "/etc/kubernetes", "/etc/kubernetes/manifests"]
