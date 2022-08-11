@@ -18,19 +18,21 @@ Also see [Global Flags](/README.md#global-flags)
 
 #### Default sensitive host paths list
 
-| Host path                 | Description                                                                              |
-| :------------------------ | :--------------------------------------------------------------------------------------- |
-| /proc                     |  Pseudo-filesystem which provides an interface to kernel data structures                                                  |
-| /var/run/docker.sock      |  Unix socket used to communicate with Docker daemon                                   |
-| /                         |  Filesystem's root |
-| /etc                      |  Directory that usually contains all system related configurations files         |
-| /root                     |  Home directory of the `root` user                                             |
-| /var/run/crio/crio.sock   |  Unix socket used to communicate with the CRI-O Container Engine                                                 |
-| /home/admin               |  Home directory of the `admin` user        |
-| /var/lib/kubelet          |  Directory for Kublet-related configuration                                                             |
-| /var/lib/kubelet/pki      |  Directory containing the certificate and private key of the kublet                                                               |
-| /etc/kubernetes           |  Directory containing Kubernetes related configuration              |
-| /etc/kubernetes/manifests |  Directory containing manifest of Kubernetes components                                                         |
+| Host path                       | Description                                                             |
+| :------------------------------ | :---------------------------------------------------------------------- |
+| /proc                           | Pseudo-filesystem which provides an interface to kernel data structures |
+| /                               | Filesystem's root                                                       |
+| /etc                            | Directory that usually contains all system related configurations files |
+| /root                           | Home directory of the `root` user                                       |
+| /var/run/docker.sock            | Unix socket used to communicate with Docker daemon                      |
+| /var/run/crio/crio.sock         | Unix socket used to communicate with the CRI-O Container Engine         |
+| /run/containerd/containerd.sock | Unix socket used to communicate with the Containerd container runtime   |
+| /home/admin                     | Home directory of the `admin` user                                      |
+| /var/lib/kubelet                | Directory for Kublet-related configuration                              |
+| /var/lib/kubelet/pki            | Directory containing the certificate and private key of the kublet      |
+| /etc/kubernetes                 | Directory containing Kubernetes related configuration                   |
+| /etc/kubernetes/manifests       | Directory containing manifest of Kubernetes components                  |
+
 
 ## Examples
 
