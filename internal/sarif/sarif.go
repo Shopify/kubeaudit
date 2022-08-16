@@ -7,7 +7,6 @@ import (
 
 	"github.com/Shopify/kubeaudit"
 	"github.com/owenrumney/go-sarif/v2/sarif"
-	"github.com/xeipuuv/gojsonschema"
 )
 
 const repoURL = "https://github.com/Shopify/kubeaudit"
@@ -84,31 +83,5 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		return nil, nil
 	}
 
-	err, errs := validate(&reportBytes)
-	if err != nil {
-		return nil, fmt.Errorf("error validating SARIF schema: %w", err)
-	}
-
-	if len(errs) > 0 {
-		return nil, fmt.Errorf("SARIF schema validation errors: %s", errs)
-	}
-
 	return report, nil
-}
-
-// Validates that the SARIF file is valid as per sarif spec
-// https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Documents/CommitteeSpecifications/2.1.0/sarif-schema-2.1.0.json
-func validate(report *bytes.Buffer) (error, []gojsonschema.ResultError) {
-	schemaLoader := gojsonschema.NewReferenceLoader("http://json.schemastore.org/sarif-2.1.0")
-	reportLoader := gojsonschema.NewStringLoader(report.String())
-	result, err := gojsonschema.Validate(schemaLoader, reportLoader)
-	if err != nil {
-		return err, nil
-	}
-
-	if result.Valid() {
-		return nil, nil
-	}
-
-	return nil, result.Errors()
 }

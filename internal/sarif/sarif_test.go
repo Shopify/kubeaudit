@@ -1,8 +1,6 @@
 package sarif
 
 import (
-	"bytes"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -109,43 +107,6 @@ func TestCreateWithResults(t *testing.T) {
 				assert.Equal(t, tc.expectedErrorLevel, *sarifResult.Level)
 				assert.Contains(t, *sarifResult.Message.Text, tc.expectedMessage)
 				assert.Contains(t, "sarif/fixtures/"+tc.file, *sarifResult.Locations[0].PhysicalLocation.ArtifactLocation.URI)
-			}
-		})
-	}
-}
-
-func TestValidate(t *testing.T) {
-
-	cases := []struct {
-		file          string
-		shouldBeValid bool
-	}{
-		{
-			file:          "invalid.sarif",
-			shouldBeValid: false,
-		},
-		{
-			file:          "valid.sarif",
-			shouldBeValid: true,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.file, func(t *testing.T) {
-			var reportBytes bytes.Buffer
-
-			testSarif, err := ioutil.ReadFile("fixtures/" + tc.file)
-			require.NoError(t, err)
-
-			reportBytes.Write(testSarif)
-
-			err, errs := validate(&reportBytes)
-			require.NoError(t, err)
-
-			if !tc.shouldBeValid {
-				assert.True(t, len(errs) > 0)
-			} else {
-				assert.Len(t, errs, 0)
 			}
 		})
 	}
