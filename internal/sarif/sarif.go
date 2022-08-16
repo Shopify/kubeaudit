@@ -38,13 +38,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 
 		auditor := strings.ToLower(result.Auditor)
 
-		var docsURL string
-
-		auditor, ok := violationsToRules[result.Rule]
-
-		if ok {
-			docsURL = "https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/" + auditor + ".md"
-		}
+		docsURL := "https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/" + auditor + ".md"
 
 		helpText := fmt.Sprintf("Type: kubernetes\nAuditor Docs: To find out more about the issue and how to fix it, follow [this link](%s)\nDescription: %s\n\n Note: These audit results are generated with `kubeaudit`, a command line tool and a Go package that checks for potential security concerns in kubernetes manifest specs. You can read more about it at https://github.com/Shopify/kubeaudit ", docsURL, allAuditors[auditor])
 
