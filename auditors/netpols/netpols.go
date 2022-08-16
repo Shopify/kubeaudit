@@ -122,7 +122,7 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 					policyType:    Ingress,
 				},
 			}
-			auditResult = override.ApplyOverride(auditResult, "", resource, IngressOverrideLabel)
+			auditResult = override.ApplyOverride(auditResult, Name, "", resource, IngressOverrideLabel)
 			auditResults = append(auditResults, auditResult)
 		}
 
@@ -140,7 +140,7 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 					policyType:    Egress,
 				},
 			}
-			auditResult = override.ApplyOverride(auditResult, "", resource, EgressOverrideLabel)
+			auditResult = override.ApplyOverride(auditResult, Name, "", resource, EgressOverrideLabel)
 			auditResults = append(auditResults, auditResult)
 		}
 
@@ -197,7 +197,7 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 			namespace:  namespace,
 		},
 	}
-	auditResult = override.ApplyOverride(auditResult, "", resource, IngressOverrideLabel)
+	auditResult = override.ApplyOverride(auditResult, Name, "", resource, IngressOverrideLabel)
 	auditResults = append(auditResults, auditResult)
 
 	auditResult = &kubeaudit.AuditResult{
@@ -213,7 +213,7 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 			namespace:  namespace,
 		},
 	}
-	auditResult = override.ApplyOverride(auditResult, "", resource, EgressOverrideLabel)
+	auditResult = override.ApplyOverride(auditResult, Name, "", resource, EgressOverrideLabel)
 	auditResults = append(auditResults, auditResult)
 
 	return auditResults

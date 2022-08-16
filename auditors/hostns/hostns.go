@@ -46,7 +46,7 @@ func (a *HostNamespaces) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kube
 		{auditHostPID, HostPIDOverrideLabel},
 	} {
 		auditResult := check.auditFunc(podSpec)
-		auditResult = override.ApplyOverride(auditResult, "", resource, check.overrideLabel)
+		auditResult = override.ApplyOverride(auditResult, Name, "", resource, check.overrideLabel)
 		if auditResult != nil {
 			auditResults = append(auditResults, auditResult)
 		}

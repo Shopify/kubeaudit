@@ -29,7 +29,7 @@ func New() *AutomountServiceAccountToken {
 // being automatically mounted
 func (a *AutomountServiceAccountToken) Audit(resource k8s.Resource, resources []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	auditResult := auditResource(resource, resources)
-	auditResult = override.ApplyOverride(auditResult, "", resource, OverrideLabel)
+	auditResult = override.ApplyOverride(auditResult, Name, "", resource, OverrideLabel)
 	if auditResult != nil {
 		return []*kubeaudit.AuditResult{auditResult}, nil
 	}

@@ -61,7 +61,7 @@ func (sensitive *SensitivePathMounts) Audit(resource k8s.Resource, _ []k8s.Resou
 
 	for _, container := range k8s.GetContainers(resource) {
 		for _, auditResult := range auditContainer(container, sensitiveVolumes) {
-			auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(auditResult.Metadata[MountNameMetadataKey]))
+			auditResult = override.ApplyOverride(auditResult, Name, container.Name, resource, getOverrideLabel(auditResult.Metadata[MountNameMetadataKey]))
 			if auditResult != nil {
 				auditResults = append(auditResults, auditResult)
 			}

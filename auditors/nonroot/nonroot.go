@@ -38,7 +38,7 @@ func (a *RunAsNonRoot) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeau
 
 	for _, container := range k8s.GetContainers(resource) {
 		auditResult := auditContainer(container, resource)
-		auditResult = override.ApplyOverride(auditResult, container.Name, resource, OverrideLabel)
+		auditResult = override.ApplyOverride(auditResult, Name, container.Name, resource, OverrideLabel)
 		if auditResult != nil {
 			auditResults = append(auditResults, auditResult)
 		}

@@ -49,7 +49,7 @@ func (a *Capabilities) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeau
 
 		for _, capability := range uniqueCapabilities(container) {
 			for _, auditResult := range auditContainer(container, capability, a.allowAddList) {
-				auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(capability))
+				auditResult = override.ApplyOverride(auditResult, Name, container.Name, resource, getOverrideLabel(capability))
 				if auditResult != nil {
 					auditResults = append(auditResults, auditResult)
 				}
