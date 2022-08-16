@@ -3,7 +3,6 @@ package sarif
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
@@ -99,17 +98,10 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 
 // Validates that the SARIF file is valid as per sarif spec
 // https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Documents/CommitteeSpecifications/2.1.0/sarif-schema-2.1.0.json
-func validate(report io.Reader) (error, []gojsonschema.ResultError) {
+func validate(report *bytes.Buffer) (error, []gojsonschema.ResultError) {
 	schemaLoader := gojsonschema.NewReferenceLoader("http://json.schemastore.org/sarif-2.1.0")
-	var reportLoader gojsonschema.JSONLoader
-
-	_, ok := report.(*bytes.Buffer)
-	if ok {
-		reportLoader = gojsonschema.NewStringLoader(report.(*bytes.Buffer).String())
-	}
-
+	reportLoader := gojsonschema.NewStringLoader(report.String())
 	result, err := gojsonschema.Validate(schemaLoader, reportLoader)
-
 	if err != nil {
 		return err, nil
 	}
