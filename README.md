@@ -175,7 +175,7 @@ The minimum severity level can be set using the `--minSeverity/-m` flag.
 
 By default kubeaudit will output results in a human-readable way. If the output is intended to be further processed, it can be set to output JSON using the `--format json` flag. To output results as logs (the previous default) use `--format logrus`. Some output formats include colors to make results easier to read in a terminal. To disable colors (for example, if you are sending output to a text file), you can use the `--no-color` flag.
 
-You can generate a kubeaudit report in [SARIF](https://docs.oasis-open.org/sarif/sarif/v2.0/sarif-v2.0.html) and write it to a file by using the `--format sarif` flag and redirect the stdout output to a file with `>`. For example:
+You can generate a kubeaudit report in [SARIF](https://docs.oasis-open.org/sarif/sarif/v2.0/sarif-v2.0.html) using the `--format sarif` flag. To write the SARIF results to a file, you can redirect the output with `>`. For example:
 ```
 kubeaudit all -f path-to-my-file.yaml --format="sarif" > example.sarif
 ```
