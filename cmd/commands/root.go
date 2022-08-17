@@ -107,6 +107,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 		var f *os.File
 		if rootConfig.manifest == "-" {
 			f = os.Stdin
+			rootConfig.manifest = ""
 		} else {
 			manifest, err := os.Open(rootConfig.manifest)
 			if err != nil {
