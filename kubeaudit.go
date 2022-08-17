@@ -168,7 +168,7 @@ func (a *Kubeaudit) AuditManifest(manifestPath string, manifest io.Reader) (*Rep
 		}
 	}
 
-	report := &Report{results: results}
+	report := &Report{Results: results}
 
 	return report, nil
 }
@@ -193,7 +193,7 @@ func (a *Kubeaudit) AuditCluster(options AuditOptions) (*Report, error) {
 		return nil, err
 	}
 
-	report := &Report{results: results}
+	report := &Report{Results: results}
 
 	return report, nil
 }
@@ -216,26 +216,26 @@ func (a *Kubeaudit) AuditLocal(configpath string, context string, options AuditO
 		return nil, err
 	}
 
-	report := &Report{results: results}
+	report := &Report{Results: results}
 
 	return report, nil
 }
 
 // Report contains the results after auditing
 type Report struct {
-	results []Result
+	Results []Result
 }
 
 // RawResults returns all of the results for each Kubernetes resource, including ones that had no audit results.
 // Generally, you will want to use Results() instead.
 func (r *Report) RawResults() []Result {
-	return r.results
+	return r.Results
 }
 
 // Results returns the audit results for each Kubernetes resource
-func (r *Report) Results() []Result {
-	results := make([]Result, 0, len(r.results))
-	for _, result := range r.results {
+func (r *Report) GetResults() []Result {
+	results := make([]Result, 0, len(r.Results))
+	for _, result := range r.Results {
 		if len(result.GetAuditResults()) > 0 {
 			results = append(results, result)
 		}
@@ -246,7 +246,7 @@ func (r *Report) Results() []Result {
 // ResultsWithMinSeverity returns the audit results for each Kubernetes resource with a minimum severity
 func (r *Report) ResultsWithMinSeverity(minSeverity SeverityLevel) []Result {
 	var results []Result
-	for _, result := range r.results {
+	for _, result := range r.Results {
 		var filteredAuditResults []*AuditResult
 		for _, auditResult := range result.GetAuditResults() {
 			if auditResult.Severity >= minSeverity {
@@ -265,7 +265,7 @@ func (r *Report) ResultsWithMinSeverity(minSeverity SeverityLevel) []Result {
 
 // HasErrors returns true if any findings have the level of Error
 func (r *Report) HasErrors() (errorsFound bool) {
-	for _, workloadResult := range r.Results() {
+	for _, workloadResult := range r.GetResults() {
 		for _, auditResult := range workloadResult.GetAuditResults() {
 			if auditResult.Severity >= Error {
 				return true
@@ -284,7 +284,7 @@ func (r *Report) PrintResults(printOptions ...PrintOption) {
 // Fix tries to automatically patch any security concerns and writes the resulting manifest to the provided writer.
 // Only applies when audit was performed on a manifest (not local or cluster)
 func (r *Report) Fix(writer io.Writer) error {
-	fixed, err := fix(r.results)
+	fixed, err := fix(r.Results)
 	if err != nil {
 		return err
 	}
@@ -296,7 +296,7 @@ func (r *Report) Fix(writer io.Writer) error {
 // PrintPlan writes the actions that will be performed by the Fix() function in a human-readable way to the
 // provided writer. Only applies when audit was performed on a manifest (not local or cluster)
 func (r *Report) PrintPlan(writer io.Writer) {
-	for _, result := range r.Results() {
+	for _, result := range r.GetResults() {
 		for _, auditResult := range result.GetAuditResults() {
 			ok, plan := auditResult.FixPlan()
 			if ok {
