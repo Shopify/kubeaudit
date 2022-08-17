@@ -226,7 +226,6 @@ Auditors can also be run individually.
 | -m    | --minseverity      | Set the lowest severity level to report (one of "error", "warning", "info") (default is "info")                                                           |
 | -e    | --exitcode         | Exit code to use if there are results with severity of "error". Conventionally, 0 is used for success and all non-zero codes for an error. (default is 2) |
 |       | --no-color         | Don't use colors in the output (default is false) |
-| -s    | --sarif            | The file location to save the SARIF output |
 
 ## Configuration File
 
