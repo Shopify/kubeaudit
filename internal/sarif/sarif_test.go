@@ -1,19 +1,21 @@
 package sarif
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/apparmor"
+	"github.com/Shopify/kubeaudit/auditors/capabilities"
+	"github.com/Shopify/kubeaudit/auditors/image"
+	"github.com/Shopify/kubeaudit/auditors/limits"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestCreateWithResults(t *testing.T) {
 	cases := []struct {
-		name               string
+		description        string
+		auditResult        testAuditResult
 		expectedRule       string
 		expectedErrorLevel string
 		expectedMessage    string
@@ -22,48 +24,71 @@ func TestCreateWithResults(t *testing.T) {
 	}{
 		{
 			"apparmor invalid",
+			testAuditResult{
+				Auditor:  apparmor.Name,
+				Rule:     apparmor.AppArmorInvalidAnnotation,
+				Severity: kubeaudit.Error,
+				Message:  "AppArmor annotation key refers to a container that doesn't exist",
+				FilePath: "apparmorPath",
+			},
 			apparmor.AppArmorInvalidAnnotation,
 			"error",
 			"AppArmor annotation key refers to a container that doesn't exist",
 			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/apparmor.md",
-			"random",
+			"apparmorPath",
 		},
-		// {
-		// 	"capabilities-added.yaml",
-		// 	[]kubeaudit.Auditable{capabilitiesAuditable},
-		// 	capabilities.CapabilityAdded,
-		// 	"error",
-		// 	"It should be removed from the capability add list",
-		// 	"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/capabilities.md",
-		// },
-		// {
-		// 	"image-tag-present.yaml",
-		// 	[]kubeaudit.Auditable{imageAuditable},
-		// 	image.ImageCorrect,
-		// 	"note",
-		// 	"Image tag is correct",
-		// 	"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/image.md",
-		// },
-		// {
-		// 	"limits-nil.yaml",
-		// 	[]kubeaudit.Auditable{limitsAuditable},
-		// 	limits.LimitsNotSet,
-		// 	"warning",
-		// 	"Resource limits not set",
-		// 	"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/limits.md",
-		// },
+		{
+			"capabilities added",
+			testAuditResult{
+				Auditor:  capabilities.Name,
+				Rule:     capabilities.CapabilityAdded,
+				Severity: kubeaudit.Error,
+				Message:  "It should be removed from the capability add list",
+				FilePath: "capsPath",
+			},
+			capabilities.CapabilityAdded,
+			"error",
+			"It should be removed from the capability add list",
+			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/capabilities.md",
+			"capsPath",
+		},
+		{
+			"image tag is present",
+			testAuditResult{
+				Auditor:  image.Name,
+				Rule:     image.ImageCorrect,
+				Severity: kubeaudit.Info,
+				Message:  "Image tag is correct",
+				FilePath: "imagePath",
+			},
+			image.ImageCorrect,
+			"note",
+			"Image tag is correct",
+			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/image.md",
+			"imagePath",
+		},
+		{
+			"limits is nil",
+			testAuditResult{
+				Auditor:  limits.Name,
+				Rule:     limits.LimitsNotSet,
+				Severity: kubeaudit.Warn,
+				Message:  "Resource limits not set",
+				FilePath: "limitsPath",
+			},
+			limits.LimitsNotSet,
+			"warning",
+			"Resource limits not set",
+			"https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/limits.md",
+			"limitsPath",
+		},
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			tR := TestAuditResult{}
-
+		t.Run(tc.description, func(t *testing.T) {
 			kubeAuditReport := &kubeaudit.Report{
-				Results: []kubeaudit.Result{tR},
+				Results: []kubeaudit.Result{tc.auditResult},
 			}
-
-			// kubeAuditReport, err := auditor.AuditManifest(fixture, manifest)
-			// require.NoError(t, err)
 
 			sarifReport, err := Create(kubeAuditReport)
 			require.NoError(t, err)
@@ -71,7 +96,7 @@ func TestCreateWithResults(t *testing.T) {
 			assert.Equal(t, repoURL,
 				*sarifReport.Runs[0].Tool.Driver.InformationURI)
 
-			// // verify that the rules have been added as per report findings
+			// verify that the rules have been added as per report findings
 			assert.Equal(t, tc.expectedRule, sarifReport.Runs[0].Tool.Driver.Rules[0].ID)
 
 			var ruleNames []string
@@ -102,46 +127,38 @@ func TestCreateWithResults(t *testing.T) {
 }
 
 func TestCreateWithNoResults(t *testing.T) {
-	apparmorAuditable := apparmor.New()
-
-	fixture := filepath.Join("fixtures", "apparmor-valid.yaml")
-	auditor, err := kubeaudit.New([]kubeaudit.Auditable{apparmorAuditable})
+	sarifReport, err := Create(&kubeaudit.Report{})
 	require.NoError(t, err)
-
-	manifest, openErr := os.Open(fixture)
-	require.NoError(t, openErr)
-
-	defer manifest.Close()
-
-	kubeAuditReport, err := auditor.AuditManifest(fixture, manifest)
-	require.NoError(t, err)
-
-	sarifReport, err := Create(kubeAuditReport)
-	require.NoError(t, err)
-
 	require.NotEmpty(t, *sarifReport.Runs[0])
-
 	// verify that the rules are only added as per report findings
 	assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, 0)
 }
 
-type TestAuditResult struct{}
+type testAuditResult struct {
+	Auditor  string
+	Rule     string
+	Severity kubeaudit.SeverityLevel
+	Message  string
+	Metadata kubeaudit.Metadata
+	FilePath string
+}
 
-func (t TestAuditResult) GetResource() kubeaudit.KubeResource {
+func (tr testAuditResult) GetResource() kubeaudit.KubeResource {
 	return nil
 }
 
-func (t TestAuditResult) GetAuditResults() []*kubeaudit.AuditResult {
-	ar := &kubeaudit.AuditResult{
-		Auditor:    apparmor.Name,
-		Rule:       apparmor.AppArmorInvalidAnnotation,
-		Severity:   kubeaudit.Error,
-		Message:    "AppArmor annotation key refers to a container that doesn't exist",
+func (tr testAuditResult) GetAuditResults() []*kubeaudit.AuditResult {
+	result := &kubeaudit.AuditResult{
+		Auditor:    tr.Auditor,
+		Rule:       tr.Rule,
+		Severity:   tr.Severity,
+		Message:    tr.Message,
 		PendingFix: nil,
 		Metadata:   kubeaudit.Metadata{},
-		FilePath:   "random",
+		FilePath:   tr.FilePath,
 	}
+
 	return []*kubeaudit.AuditResult{
-		ar,
+		result,
 	}
 }
