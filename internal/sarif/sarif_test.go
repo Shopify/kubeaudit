@@ -15,7 +15,7 @@ import (
 func TestCreateWithResults(t *testing.T) {
 	cases := []struct {
 		description        string
-		auditResult        testAuditResult
+		auditResults       []*kubeaudit.AuditResult
 		expectedRule       string
 		expectedErrorLevel string
 		expectedMessage    string
@@ -24,13 +24,13 @@ func TestCreateWithResults(t *testing.T) {
 	}{
 		{
 			"apparmor invalid",
-			testAuditResult{
+			[]*kubeaudit.AuditResult{{
 				Auditor:  apparmor.Name,
 				Rule:     apparmor.AppArmorInvalidAnnotation,
 				Severity: kubeaudit.Error,
 				Message:  "AppArmor annotation key refers to a container that doesn't exist",
 				FilePath: "apparmorPath",
-			},
+			}},
 			apparmor.AppArmorInvalidAnnotation,
 			"error",
 			"AppArmor annotation key refers to a container that doesn't exist",
@@ -39,13 +39,13 @@ func TestCreateWithResults(t *testing.T) {
 		},
 		{
 			"capabilities added",
-			testAuditResult{
+			[]*kubeaudit.AuditResult{{
 				Auditor:  capabilities.Name,
 				Rule:     capabilities.CapabilityAdded,
 				Severity: kubeaudit.Error,
 				Message:  "It should be removed from the capability add list",
 				FilePath: "capsPath",
-			},
+			}},
 			capabilities.CapabilityAdded,
 			"error",
 			"It should be removed from the capability add list",
@@ -54,13 +54,13 @@ func TestCreateWithResults(t *testing.T) {
 		},
 		{
 			"image tag is present",
-			testAuditResult{
+			[]*kubeaudit.AuditResult{{
 				Auditor:  image.Name,
 				Rule:     image.ImageCorrect,
 				Severity: kubeaudit.Info,
 				Message:  "Image tag is correct",
 				FilePath: "imagePath",
-			},
+			}},
 			image.ImageCorrect,
 			"note",
 			"Image tag is correct",
@@ -69,13 +69,13 @@ func TestCreateWithResults(t *testing.T) {
 		},
 		{
 			"limits is nil",
-			testAuditResult{
+			[]*kubeaudit.AuditResult{{
 				Auditor:  limits.Name,
 				Rule:     limits.LimitsNotSet,
 				Severity: kubeaudit.Warn,
 				Message:  "Resource limits not set",
 				FilePath: "limitsPath",
-			},
+			}},
 			limits.LimitsNotSet,
 			"warning",
 			"Resource limits not set",
@@ -86,7 +86,9 @@ func TestCreateWithResults(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.description, func(t *testing.T) {
-			kubeAuditReport := kubeaudit.NewReport([]kubeaudit.Result{tc.auditResult})
+			kubeAuditReport := kubeaudit.NewReport([]kubeaudit.Result{&kubeaudit.WorkloadResult{
+				AuditResults: tc.auditResults,
+			}})
 
 			sarifReport, err := Create(kubeAuditReport)
 			require.NoError(t, err)
@@ -130,33 +132,4 @@ func TestCreateWithNoResults(t *testing.T) {
 	require.NotEmpty(t, *sarifReport.Runs[0])
 	// verify that the rules are only added as per report findings
 	assert.Len(t, sarifReport.Runs[0].Tool.Driver.Rules, 0)
-}
-
-type testAuditResult struct {
-	Auditor  string
-	Rule     string
-	Severity kubeaudit.SeverityLevel
-	Message  string
-	Metadata kubeaudit.Metadata
-	FilePath string
-}
-
-func (tr testAuditResult) GetResource() kubeaudit.KubeResource {
-	return nil
-}
-
-func (tr testAuditResult) GetAuditResults() []*kubeaudit.AuditResult {
-	result := &kubeaudit.AuditResult{
-		Auditor:    tr.Auditor,
-		Rule:       tr.Rule,
-		Severity:   tr.Severity,
-		Message:    tr.Message,
-		PendingFix: nil,
-		Metadata:   kubeaudit.Metadata{},
-		FilePath:   tr.FilePath,
-	}
-
-	return []*kubeaudit.AuditResult{
-		result,
-	}
 }

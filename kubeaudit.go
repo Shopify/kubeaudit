@@ -258,7 +258,7 @@ func (r *Report) ResultsWithMinSeverity(minSeverity SeverityLevel) []Result {
 			}
 		}
 		if len(filteredAuditResults) > 0 {
-			results = append(results, &workloadResult{
+			results = append(results, &WorkloadResult{
 				Resource:     result.GetResource(),
 				AuditResults: filteredAuditResults,
 			})
