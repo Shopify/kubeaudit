@@ -46,7 +46,7 @@ func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeau
 	errors := make(map[string]bool)
 	for _, result := range report.Results() {
 		for _, auditResult := range result.GetAuditResults() {
-			errors[auditResult.Name] = true
+			errors[auditResult.Rule] = true
 		}
 	}
 
@@ -79,7 +79,7 @@ func FixSetupMultiple(t *testing.T, fixtureDir, fixture string, auditables []kub
 	auditor, err := kubeaudit.New(auditables)
 	require.Nil(err)
 
-	report, err = auditor.AuditManifest(fixedManifest)
+	report, err = auditor.AuditManifest("", fixedManifest)
 	require.Nil(err)
 
 	results := report.RawResults()
@@ -107,7 +107,8 @@ func GetReport(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.
 	case MANIFEST_MODE:
 		manifest, openErr := os.Open(fixture)
 		require.NoError(openErr)
-		report, err = auditor.AuditManifest(manifest)
+		defer manifest.Close()
+		report, err = auditor.AuditManifest("", manifest)
 	case LOCAL_MODE:
 		defer DeleteNamespace(t, namespace)
 		CreateNamespace(t, namespace)

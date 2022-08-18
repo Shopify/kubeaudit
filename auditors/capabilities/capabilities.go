@@ -49,7 +49,7 @@ func (a *Capabilities) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeau
 
 		for _, capability := range uniqueCapabilities(container) {
 			for _, auditResult := range auditContainer(container, capability, a.allowAddList) {
-				auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(capability))
+				auditResult = override.ApplyOverride(auditResult, Name, container.Name, resource, getOverrideLabel(capability))
 				if auditResult != nil {
 					auditResults = append(auditResults, auditResult)
 				}
@@ -75,7 +75,8 @@ func auditContainer(container *k8s.ContainerV1, capability string, allowAddList 
 		if IsCapabilityInAddList(container, capability) {
 			message := fmt.Sprintf("Capability \"%s\" added. It should be removed from the capability add list. If you need this capability, add an override label such as '%s: SomeReason'.", capability, override.GetContainerOverrideLabel(container.Name, getOverrideLabel(capability)))
 			auditResult := &kubeaudit.AuditResult{
-				Name:     CapabilityAdded,
+				Auditor:  Name,
+				Rule:     CapabilityAdded,
 				Severity: kubeaudit.Error,
 				Message:  message,
 				PendingFix: &fixCapabilityAdded{
@@ -103,7 +104,8 @@ func auditContainerForDropAll(container *k8s.ContainerV1) *kubeaudit.AuditResult
 	if !SecurityContextOrCapabilities(container) {
 		message := "Security Context not set. The Security Context should be specified and all Capabilities should be dropped by setting the Drop list to ALL."
 		return &kubeaudit.AuditResult{
-			Name:     CapabilityOrSecurityContextMissing,
+			Auditor:  Name,
+			Rule:     CapabilityOrSecurityContextMissing,
 			Severity: kubeaudit.Error,
 			Message:  message,
 			PendingFix: &fixMissingSecurityContextOrCapability{
@@ -118,7 +120,8 @@ func auditContainerForDropAll(container *k8s.ContainerV1) *kubeaudit.AuditResult
 	if !IsDropAll(container) {
 		message := "Capability Drop list should be set to ALL. Add the specific ones you need to the Add list and set an override label."
 		return &kubeaudit.AuditResult{
-			Name:     CapabilityShouldDropAll,
+			Auditor:  Name,
+			Rule:     CapabilityShouldDropAll,
 			Severity: kubeaudit.Error,
 			Message:  message,
 			PendingFix: &fixCapabilityNotDroppedAll{

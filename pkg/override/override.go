@@ -24,9 +24,10 @@ func GetOverriddenResultName(resultName string) string {
 
 // NewRedundantOverrideResult creates a new AuditResult at warning level telling the user to remove the override
 // label because there are no security issues found, so the label is redundant
-func NewRedundantOverrideResult(containerName string, overrideReason, overrideLabel string) *kubeaudit.AuditResult {
+func NewRedundantOverrideResult(auditorName, containerName, overrideReason, overrideLabel string) *kubeaudit.AuditResult {
 	return &kubeaudit.AuditResult{
-		Name:     kubeaudit.RedundantAuditorOverride,
+		Auditor:  auditorName,
+		Rule:     kubeaudit.RedundantAuditorOverride,
 		Severity: kubeaudit.Warn,
 		Message:  "Auditor is disabled via label but there were no security issues found by the auditor. The label should be removed.",
 		Metadata: kubeaudit.Metadata{
@@ -38,7 +39,7 @@ func NewRedundantOverrideResult(containerName string, overrideReason, overrideLa
 
 // ApplyOverride checks if hasOverride is true. If it is, it changes the severity of the audit result from error to
 // warn, adds the override reason to the metadata and removes the pending fix
-func ApplyOverride(auditResult *kubeaudit.AuditResult, containerName string, resource k8s.Resource, overrideLabel string) *kubeaudit.AuditResult {
+func ApplyOverride(auditResult *kubeaudit.AuditResult, auditorName, containerName string, resource k8s.Resource, overrideLabel string) *kubeaudit.AuditResult {
 	hasOverride, overrideReason := GetContainerOverrideReason(containerName, resource, overrideLabel)
 
 	if !hasOverride {
@@ -46,10 +47,10 @@ func ApplyOverride(auditResult *kubeaudit.AuditResult, containerName string, res
 	}
 
 	if auditResult == nil {
-		return NewRedundantOverrideResult(containerName, overrideReason, overrideLabel)
+		return NewRedundantOverrideResult(auditorName, containerName, overrideReason, overrideLabel)
 	}
 
-	auditResult.Name = GetOverriddenResultName(auditResult.Name)
+	auditResult.Rule = GetOverriddenResultName(auditResult.Rule)
 	auditResult.PendingFix = nil
 	auditResult.Severity = kubeaudit.Info
 	auditResult.Message = "Audit result overridden: " + auditResult.Message

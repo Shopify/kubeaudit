@@ -29,7 +29,8 @@ type myAuditor struct{}
 func (a *myAuditor) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	return []*kubeaudit.AuditResult{
 		{
-			Name:     "MyAudit",
+			Auditor:  "Awesome",
+			Rule:     "MyAudit",
 			Severity: kubeaudit.Error,
 			Message:  "My custom error",
 			PendingFix: &myAuditorFix{
@@ -98,7 +99,7 @@ func Example_customAuditor() {
 	}
 
 	// Run the audit in the mode of your choosing. Here we use manifest mode.
-	report, err := auditor.AuditManifest(strings.NewReader(manifest))
+	report, err := auditor.AuditManifest("", strings.NewReader(manifest))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -32,7 +32,7 @@ func (a *AllowPrivilegeEscalation) Audit(resource k8s.Resource, _ []k8s.Resource
 
 	for _, container := range k8s.GetContainers(resource) {
 		auditResult := auditContainer(container)
-		auditResult = override.ApplyOverride(auditResult, container.Name, resource, OverrideLabel)
+		auditResult = override.ApplyOverride(auditResult, Name, container.Name, resource, OverrideLabel)
 		if auditResult != nil {
 			auditResults = append(auditResults, auditResult)
 		}
@@ -44,7 +44,8 @@ func (a *AllowPrivilegeEscalation) Audit(resource k8s.Resource, _ []k8s.Resource
 func auditContainer(container *k8s.ContainerV1) *kubeaudit.AuditResult {
 	if isAllowPrivilegeEscalationNil(container) {
 		return &kubeaudit.AuditResult{
-			Name:     AllowPrivilegeEscalationNil,
+			Auditor:  Name,
+			Rule:     AllowPrivilegeEscalationNil,
 			Severity: kubeaudit.Error,
 			Message:  "allowPrivilegeEscalation not set which allows privilege escalation. It should be set to 'false'.",
 			PendingFix: &fixBySettingAllowPrivilegeEscalationFalse{
@@ -58,7 +59,8 @@ func auditContainer(container *k8s.ContainerV1) *kubeaudit.AuditResult {
 
 	if isAllowPrivilegeEscalationTrue(container) {
 		return &kubeaudit.AuditResult{
-			Name:     AllowPrivilegeEscalationTrue,
+			Auditor:  Name,
+			Rule:     AllowPrivilegeEscalationTrue,
 			Severity: kubeaudit.Error,
 			Message:  "allowPrivilegeEscalation set to 'true'. It should be set to 'false'.",
 			PendingFix: &fixBySettingAllowPrivilegeEscalationFalse{

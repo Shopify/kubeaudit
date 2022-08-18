@@ -175,6 +175,11 @@ The minimum severity level can be set using the `--minSeverity/-m` flag.
 
 By default kubeaudit will output results in a human-readable way. If the output is intended to be further processed, it can be set to output JSON using the `--format json` flag. To output results as logs (the previous default) use `--format logrus`. Some output formats include colors to make results easier to read in a terminal. To disable colors (for example, if you are sending output to a text file), you can use the `--no-color` flag.
 
+You can generate a kubeaudit report in [SARIF](https://docs.oasis-open.org/sarif/sarif/v2.0/sarif-v2.0.html) using the `--format sarif` flag. To write the SARIF results to a file, you can redirect the output with `>`. For example:
+```
+kubeaudit all -f path-to-my-file.yaml --format="sarif" > example.sarif
+```
+
 If there are results of severity level `error`, kubeaudit will exit with exit code 2. This can be changed using the `--exitcode/-e` flag.
 
 For all the ways kubeaudit can be customized, see [Global Flags](#global-flags).
@@ -212,7 +217,7 @@ Auditors can also be run individually.
 
 | Short | Long               | Description                                                                                                                                            |
 | :---- | :----------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
-|       | --format           | The output format to use (one of "pretty", "logrus", "json") (default is "pretty")                                                                     |
+|       | --format           | The output format to use (one of "sarif", "pretty", "logrus", "json") (default is "pretty")                                                                     |
 |       | --kubeconfig       | Path to local Kubernetes config file. Only used in local mode (default is `$HOME/.kube/config`)                                                        |
 | -c    | --context          | The name of the kubeconfig context to use                                                                                                              |
 | -f    | --manifest         | Path to the yaml configuration to audit. Only used in manifest mode. You may use `-` to read from stdin.                                               |

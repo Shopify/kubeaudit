@@ -46,7 +46,7 @@ func (a *HostNamespaces) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kube
 		{auditHostPID, HostPIDOverrideLabel},
 	} {
 		auditResult := check.auditFunc(podSpec)
-		auditResult = override.ApplyOverride(auditResult, "", resource, check.overrideLabel)
+		auditResult = override.ApplyOverride(auditResult, Name, "", resource, check.overrideLabel)
 		if auditResult != nil {
 			auditResults = append(auditResults, auditResult)
 		}
@@ -62,7 +62,8 @@ func auditHostNetwork(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 			metadata["PodHost"] = podSpec.Hostname
 		}
 		return &kubeaudit.AuditResult{
-			Name:     NamespaceHostNetworkTrue,
+			Auditor:  Name,
+			Rule:     NamespaceHostNetworkTrue,
 			Severity: kubeaudit.Error,
 			Message:  "hostNetwork is set to 'true' in PodSpec. It should be set to 'false'.",
 			PendingFix: &fixHostNetworkTrue{
@@ -82,7 +83,8 @@ func auditHostIPC(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 			metadata["PodHost"] = podSpec.Hostname
 		}
 		return &kubeaudit.AuditResult{
-			Name:     NamespaceHostIPCTrue,
+			Auditor:  Name,
+			Rule:     NamespaceHostIPCTrue,
 			Severity: kubeaudit.Error,
 			Message:  "hostIPC is set to 'true' in PodSpec. It should be set to 'false'.",
 			PendingFix: &fixHostIPCTrue{
@@ -102,7 +104,8 @@ func auditHostPID(podSpec *k8s.PodSpecV1) *kubeaudit.AuditResult {
 			metadata["PodHost"] = podSpec.Hostname
 		}
 		return &kubeaudit.AuditResult{
-			Name:     NamespaceHostPIDTrue,
+			Auditor:  Name,
+			Rule:     NamespaceHostPIDTrue,
 			Severity: kubeaudit.Error,
 			Message:  "hostPID is set to 'true' in PodSpec. It should be set to 'false'.",
 			PendingFix: &fixHostPIDTrue{

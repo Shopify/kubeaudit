@@ -56,7 +56,7 @@ func TestPrintResults(t *testing.T) {
 
 func newTestAuditResult(severity SeverityLevel) *AuditResult {
 	return &AuditResult{
-		Name:     "MyAuditResult",
+		Rule:     "MyAuditResult",
 		Severity: severity,
 		Metadata: Metadata{"Foo": "bar"},
 	}

@@ -72,7 +72,8 @@ func auditNetworkPolicy(networkPolicy *k8s.NetworkPolicyV1) []*kubeaudit.AuditRe
 
 	if allIngressTrafficAllowed(networkPolicy) {
 		auditResult := &kubeaudit.AuditResult{
-			Name:     AllowAllIngressNetworkPolicyExists,
+			Auditor:  Name,
+			Rule:     AllowAllIngressNetworkPolicyExists,
 			Severity: kubeaudit.Warn,
 			Message:  "Found allow all ingress traffic NetworkPolicy.",
 			Metadata: kubeaudit.Metadata{
@@ -84,7 +85,8 @@ func auditNetworkPolicy(networkPolicy *k8s.NetworkPolicyV1) []*kubeaudit.AuditRe
 
 	if allEgressTrafficAllowed(networkPolicy) {
 		auditResult := &kubeaudit.AuditResult{
-			Name:     AllowAllEgressNetworkPolicyExists,
+			Auditor:  Name,
+			Rule:     AllowAllEgressNetworkPolicyExists,
 			Severity: kubeaudit.Warn,
 			Message:  "Found allow all egress traffic NetworkPolicy.",
 			Metadata: kubeaudit.Metadata{
@@ -108,7 +110,8 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 	if hasCatchAllNetPol {
 		if !hasDefaultDenyIngress {
 			auditResult := &kubeaudit.AuditResult{
-				Name:     MissingDefaultDenyIngressNetworkPolicy,
+				Auditor:  Name,
+				Rule:     MissingDefaultDenyIngressNetworkPolicy,
 				Severity: kubeaudit.Error,
 				Message:  fmt.Sprintf("All ingress traffic should be blocked by default for namespace %s.", namespace),
 				Metadata: kubeaudit.Metadata{
@@ -119,13 +122,14 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 					policyType:    Ingress,
 				},
 			}
-			auditResult = override.ApplyOverride(auditResult, "", resource, IngressOverrideLabel)
+			auditResult = override.ApplyOverride(auditResult, Name, "", resource, IngressOverrideLabel)
 			auditResults = append(auditResults, auditResult)
 		}
 
 		if !hasDefaultDenyEgress {
 			auditResult := &kubeaudit.AuditResult{
-				Name:     MissingDefaultDenyEgressNetworkPolicy,
+				Auditor:  Name,
+				Rule:     MissingDefaultDenyEgressNetworkPolicy,
 				Severity: kubeaudit.Error,
 				Message:  fmt.Sprintf("All egress traffic should be blocked by default for namespace %s.", namespace),
 				Metadata: kubeaudit.Metadata{
@@ -136,7 +140,7 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 					policyType:    Egress,
 				},
 			}
-			auditResult = override.ApplyOverride(auditResult, "", resource, EgressOverrideLabel)
+			auditResult = override.ApplyOverride(auditResult, Name, "", resource, EgressOverrideLabel)
 			auditResults = append(auditResults, auditResult)
 		}
 
@@ -149,7 +153,8 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 
 	if !hasIngressOverride && !hasEgressOverride {
 		auditResult := &kubeaudit.AuditResult{
-			Name:     MissingDefaultDenyIngressAndEgressNetworkPolicy,
+			Auditor:  Name,
+			Rule:     MissingDefaultDenyIngressAndEgressNetworkPolicy,
 			Severity: kubeaudit.Error,
 			Message:  "Namespace is missing a default deny ingress and egress NetworkPolicy.",
 			Metadata: kubeaudit.Metadata{
@@ -165,7 +170,8 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 
 	if hasIngressOverride && hasEgressOverride {
 		auditResult := &kubeaudit.AuditResult{
-			Name:     override.GetOverriddenResultName(MissingDefaultDenyIngressAndEgressNetworkPolicy),
+			Auditor:  Name,
+			Rule:     override.GetOverriddenResultName(MissingDefaultDenyIngressAndEgressNetworkPolicy),
 			Severity: kubeaudit.Warn,
 			Message:  "Namespace is missing a default deny ingress and egress NetworkPolicy.",
 			Metadata: kubeaudit.Metadata{
@@ -179,7 +185,8 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 	// At this point there is exactly one override label for either ingress or egress which means one needs to be
 	// fixed and the other is overridden
 	auditResult := &kubeaudit.AuditResult{
-		Name:     MissingDefaultDenyIngressNetworkPolicy,
+		Auditor:  Name,
+		Rule:     MissingDefaultDenyIngressNetworkPolicy,
 		Severity: kubeaudit.Error,
 		Message:  "Namespace is missing a default deny ingress NetworkPolicy.",
 		Metadata: kubeaudit.Metadata{
@@ -190,11 +197,12 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 			namespace:  namespace,
 		},
 	}
-	auditResult = override.ApplyOverride(auditResult, "", resource, IngressOverrideLabel)
+	auditResult = override.ApplyOverride(auditResult, Name, "", resource, IngressOverrideLabel)
 	auditResults = append(auditResults, auditResult)
 
 	auditResult = &kubeaudit.AuditResult{
-		Name:     MissingDefaultDenyEgressNetworkPolicy,
+		Auditor:  Name,
+		Rule:     MissingDefaultDenyEgressNetworkPolicy,
 		Severity: kubeaudit.Error,
 		Message:  "Namespace is missing a default deny egress NetworkPolicy.",
 		Metadata: kubeaudit.Metadata{
@@ -205,7 +213,7 @@ func auditNetworkPoliciesForDenyAll(resource k8s.Resource, resources []k8s.Resou
 			namespace:  namespace,
 		},
 	}
-	auditResult = override.ApplyOverride(auditResult, "", resource, EgressOverrideLabel)
+	auditResult = override.ApplyOverride(auditResult, Name, "", resource, EgressOverrideLabel)
 	auditResults = append(auditResults, auditResult)
 
 	return auditResults

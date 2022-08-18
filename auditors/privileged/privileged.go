@@ -31,7 +31,7 @@ func (a *Privileged) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudi
 
 	for _, container := range k8s.GetContainers(resource) {
 		auditResult := auditContainer(container, resource)
-		auditResult = override.ApplyOverride(auditResult, container.Name, resource, OverrideLabel)
+		auditResult = override.ApplyOverride(auditResult, Name, container.Name, resource, OverrideLabel)
 		if auditResult != nil {
 			auditResults = append(auditResults, auditResult)
 		}
@@ -43,7 +43,8 @@ func (a *Privileged) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudi
 func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudit.AuditResult {
 	if isPrivilegedNil(container) {
 		return &kubeaudit.AuditResult{
-			Name:     PrivilegedNil,
+			Auditor:  Name,
+			Rule:     PrivilegedNil,
 			Severity: kubeaudit.Warn,
 			Message:  "privileged is not set in container SecurityContext. Privileged defaults to 'false' but it should be explicitly set to 'false'.",
 			PendingFix: &fixPrivileged{
@@ -57,7 +58,8 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 
 	if isPrivilegedTrue(container) {
 		return &kubeaudit.AuditResult{
-			Name:     PrivilegedTrue,
+			Auditor:  Name,
+			Rule:     PrivilegedTrue,
 			Severity: kubeaudit.Error,
 			Message:  "privileged is set to 'true' in container SecurityContext. It should be set to 'false'.",
 			PendingFix: &fixPrivileged{

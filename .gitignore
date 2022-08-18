@@ -10,3 +10,4 @@ coverage.txt
 /vendor
 /.vscode
 .go-version
+profile.out

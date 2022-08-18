@@ -76,7 +76,8 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 		}
 
 		return &kubeaudit.AuditResult{
-			Name:     SeccompAnnotationMissing,
+			Auditor:  Name,
+			Rule:     SeccompAnnotationMissing,
 			Severity: kubeaudit.Error,
 			Message:  fmt.Sprintf("Seccomp annotation is missing. The annotation %s: %s should be added.", PodAnnotationKey, ProfileRuntimeDefault),
 			PendingFix: &fix.ByAddingPodAnnotation{
@@ -93,7 +94,8 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 
 	if isSeccompProfileDeprecated(podSeccompProfile) {
 		return &kubeaudit.AuditResult{
-			Name:     SeccompDeprecatedPod,
+			Auditor:  Name,
+			Rule:     SeccompDeprecatedPod,
 			Severity: kubeaudit.Error,
 			Message:  fmt.Sprintf("Seccomp pod annotation is set to deprecated value %s. It should be set to %s instead.", podSeccompProfile, ProfileRuntimeDefault),
 			PendingFix: &fix.BySettingPodAnnotation{
@@ -109,7 +111,8 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 
 	if !isSeccompEnabled(podSeccompProfile) {
 		return &kubeaudit.AuditResult{
-			Name:     SeccompDisabledPod,
+			Auditor:  Name,
+			Rule:     SeccompDisabledPod,
 			Severity: kubeaudit.Error,
 			Message:  fmt.Sprintf("Seccomp pod annotation is set to %s which disables Seccomp. It should be set to the default profile %s or should start with %s.", podSeccompProfile, ProfileRuntimeDefault, ProfileNamePrefix),
 			PendingFix: &fix.BySettingPodAnnotation{
@@ -154,7 +157,8 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 
 	if isSeccompProfileDeprecated(containerSeccompProfile) {
 		return &kubeaudit.AuditResult{
-			Name:       SeccompDeprecatedContainer,
+			Auditor:    Name,
+			Rule:       SeccompDeprecatedContainer,
 			Severity:   kubeaudit.Error,
 			Message:    fmt.Sprintf("Seccomp container annotation is set to deprecated value %s. It should be set to %s instead.", containerSeccompProfile, ProfileRuntimeDefault),
 			PendingFix: pendingFix,
@@ -167,7 +171,8 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 
 	if !isSeccompEnabled(containerSeccompProfile) {
 		return &kubeaudit.AuditResult{
-			Name:       SeccompDisabledContainer,
+			Auditor:    Name,
+			Rule:       SeccompDisabledContainer,
 			Severity:   kubeaudit.Error,
 			Message:    fmt.Sprintf("Seccomp container annotation is set to %s which disables Seccomp. It should be set to the default profile %s or should start with %s.", containerSeccompProfile, ProfileRuntimeDefault, ProfileNamePrefix),
 			PendingFix: pendingFix,

@@ -61,7 +61,7 @@ func (sensitive *SensitivePathMounts) Audit(resource k8s.Resource, _ []k8s.Resou
 
 	for _, container := range k8s.GetContainers(resource) {
 		for _, auditResult := range auditContainer(container, sensitiveVolumes) {
-			auditResult = override.ApplyOverride(auditResult, container.Name, resource, getOverrideLabel(auditResult.Metadata[MountNameMetadataKey]))
+			auditResult = override.ApplyOverride(auditResult, Name, container.Name, resource, getOverrideLabel(auditResult.Metadata[MountNameMetadataKey]))
 			if auditResult != nil {
 				auditResults = append(auditResults, auditResult)
 			}
@@ -100,7 +100,8 @@ func auditContainer(container *k8s.ContainerV1, sensitiveVolumes map[string]v1.V
 	for _, mount := range container.VolumeMounts {
 		if volume, ok := sensitiveVolumes[mount.Name]; ok {
 			auditResults = append(auditResults, &kubeaudit.AuditResult{
-				Name:     SensitivePathsMounted,
+				Auditor:  Name,
+				Rule:     SensitivePathsMounted,
 				Severity: kubeaudit.Error,
 				Message:  fmt.Sprintf("Sensitive path mounted as volume: %s (hostPath: %s). It should be removed from the container's mounts list.", mount.Name, volume.HostPath.Path),
 				Metadata: kubeaudit.Metadata{
