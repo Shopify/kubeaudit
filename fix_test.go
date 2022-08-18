@@ -41,7 +41,7 @@ func TestFix(t *testing.T) {
 		for _, fixture := range fixtureFiles {
 			t.Run(filepath.Join(fixturesDirPath, fixture.Name()), func(t *testing.T) {
 				_, report := test.FixSetupMultiple(t, fixturesDirPath, fixture.Name(), allAuditors)
-				for _, result := range report.GetResults() {
+				for _, result := range report.Results() {
 					for _, auditResult := range result.GetAuditResults() {
 						if !assert.NotEqual(t, kubeaudit.Error, auditResult.Severity) {
 							return

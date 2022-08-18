@@ -26,7 +26,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 
 	var results []*kubeaudit.AuditResult
 
-	for _, reportResult := range kubeauditReport.GetResults() {
+	for _, reportResult := range kubeauditReport.Results() {
 		r := reportResult.GetAuditResults()
 		results = append(results, r...)
 	}

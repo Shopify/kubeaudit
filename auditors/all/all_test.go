@@ -70,7 +70,7 @@ func TestFixAll(t *testing.T) {
 	for _, file := range files {
 		t.Run(file, func(t *testing.T) {
 			_, report := test.FixSetupMultiple(t, fixtureDir, file, allAuditors)
-			for _, result := range report.GetResults() {
+			for _, result := range report.Results() {
 				for _, auditResult := range result.GetAuditResults() {
 					require.NotEqual(t, kubeaudit.Error, auditResult.Severity)
 				}

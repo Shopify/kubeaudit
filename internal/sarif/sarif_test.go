@@ -86,9 +86,7 @@ func TestCreateWithResults(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.description, func(t *testing.T) {
-			kubeAuditReport := &kubeaudit.Report{
-				Results: []kubeaudit.Result{tc.auditResult},
-			}
+			kubeAuditReport := kubeaudit.NewReport([]kubeaudit.Result{tc.auditResult})
 
 			sarifReport, err := Create(kubeAuditReport)
 			require.NoError(t, err)
