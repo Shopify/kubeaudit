@@ -64,8 +64,8 @@ func TestAuditDeprecatedAPIs(t *testing.T) {
 }
 
 func assertReport(t *testing.T, report *kubeaudit.Report, expectedSeverity kubeaudit.SeverityLevel, message string, metadata map[string]string) {
-	assert.Equal(t, 1, len(report.Results()))
-	for _, result := range report.Results() {
+	assert.Equal(t, 1, len(report.GetResults()))
+	for _, result := range report.GetResults() {
 		assert.Equal(t, 1, len(result.GetAuditResults()))
 		for _, auditResult := range result.GetAuditResults() {
 			require.Equal(t, expectedSeverity, auditResult.Severity)

@@ -44,7 +44,7 @@ func AuditMultiple(t *testing.T, fixtureDir, fixture string, auditables []kubeau
 	require.NotNil(t, report)
 
 	errors := make(map[string]bool)
-	for _, result := range report.Results() {
+	for _, result := range report.GetResults() {
 		for _, auditResult := range result.GetAuditResults() {
 			errors[auditResult.Rule] = true
 		}

@@ -75,7 +75,7 @@ func TestUnknownResource(t *testing.T) {
 		t.Run(file, func(t *testing.T) {
 			_, report := test.FixSetupMultiple(t, "internal/test/fixtures", file, allAuditors)
 			require.NotNil(t, report)
-			for _, result := range report.Results() {
+			for _, result := range report.GetResults() {
 				for _, auditResult := range result.GetAuditResults() {
 					assert.Equal(t, kubeaudit.Warn, auditResult.Severity)
 				}
