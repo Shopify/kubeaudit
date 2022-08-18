@@ -78,7 +78,7 @@
 //
 // Or, to get the result objects:
 //
-//   results := report.GetResults()
+//   results := report.Results()
 //
 // Autofix
 //
