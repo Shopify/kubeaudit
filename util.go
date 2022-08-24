@@ -60,7 +60,7 @@ func auditResources(resources []KubeResource, auditable []Auditable) ([]Result, 
 }
 
 func auditResource(resource KubeResource, resources []KubeResource, auditables []Auditable) (Result, error) {
-	result := &workloadResult{
+	result := &WorkloadResult{
 		Resource:     resource,
 		AuditResults: []*AuditResult{},
 	}

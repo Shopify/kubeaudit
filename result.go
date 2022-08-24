@@ -75,15 +75,15 @@ type PendingFix interface {
 type Metadata = map[string]string
 
 // Implements Result
-type workloadResult struct {
+type WorkloadResult struct {
 	Resource     KubeResource
 	AuditResults []*AuditResult
 }
 
-func (wlResult *workloadResult) GetResource() KubeResource {
+func (wlResult *WorkloadResult) GetResource() KubeResource {
 	return wlResult.Resource
 }
 
-func (wlResult *workloadResult) GetAuditResults() []*AuditResult {
+func (wlResult *WorkloadResult) GetAuditResults() []*AuditResult {
 	return wlResult.AuditResults
 }
