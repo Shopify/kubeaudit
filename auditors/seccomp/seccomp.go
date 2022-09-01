@@ -2,10 +2,8 @@ package seccomp
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Shopify/kubeaudit"
-	"github.com/Shopify/kubeaudit/pkg/fix"
 	"github.com/Shopify/kubeaudit/pkg/k8s"
 	apiv1 "k8s.io/api/core/v1"
 )
@@ -13,30 +11,19 @@ import (
 const Name = "seccomp"
 
 const (
-	// SeccompAnnotationMissing occurs when there are no seccomp annotations (pod nor container level)
-	SeccompAnnotationMissing = "SeccompAnnotationMissing"
-	// SeccompDeprecatedPod occurs when the pod-level seccomp annotation is set to a deprecated value
-	SeccompDeprecatedPod = "SeccompDeprecatedPod"
+	// SeccompProfileMissing occurs when there are no seccomp annotations (pod nor container level)
+	SeccompProfileMissing = "SeccompProfileMissing"
 	// SeccompDisabledPod occurs when the pod-level seccomp annotation is set to a value which disables seccomp
 	SeccompDisabledPod = "SeccompDisabledPod"
-	// SeccompDeprecatedContainer occurs when the container-level seccomp annotation is set to a deprecated value
-	SeccompDeprecatedContainer = "SeccompDeprecatedContainer"
 	// SeccompDisabledContainer occurs when the container-level seccomp annotation is set to a value which disables seccomp
 	SeccompDisabledContainer = "SeccompDisabledContainer"
 )
 
 const (
-	// ContainerAnnotationKeyPrefix represents the key of a seccomp profile applied to one container of a pod
-	ContainerAnnotationKeyPrefix = apiv1.SeccompContainerAnnotationKeyPrefix
-	// PodAnnotationKey represents the key of a seccomp profile applied to all containers of a pod
-	PodAnnotationKey = apiv1.SeccompPodAnnotationKey
 	// ProfileRuntimeDefault represents the default seccomp profile used by container runtime
-	ProfileRuntimeDefault = apiv1.SeccompProfileRuntimeDefault
-	// ProfileNamePrefix is the prefix for a custom seccomp profile
-	ProfileNamePrefix = "localhost/"
-	// DeprecatedProfileRuntimeDefault represents the default seccomp profile used by docker.
-	// This is now deprecated and should be replaced by SeccompProfileRuntimeDefault
-	DeprecatedProfileRuntimeDefault = apiv1.DeprecatedSeccompProfileDockerDefault
+	ProfileRuntimeDefault = apiv1.SeccompProfileTypeRuntimeDefault
+	// ProfileLocalhost represents the localhost seccomp profile used by container runtime
+	ProfileLocalhost = apiv1.SeccompProfileTypeLocalhost
 )
 
 // Seccomp implements Auditable
@@ -66,63 +53,37 @@ func (a *Seccomp) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.A
 }
 
 func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
-	annotations := k8s.GetAnnotations(resource)
-	PodAnnotationKey := apiv1.SeccompPodAnnotationKey
+	podSpec := k8s.GetPodSpec(resource)
+	if podSpec == nil {
+		return nil
+	}
 
-	if isSeccompAnnotationMissing(annotations, PodAnnotationKey) {
-		// If all the containers have container-level seccomp annotations then we don't need a pod-level annotation
-		if isSeccompEnabledForContainers(annotations, resource) {
+	if isPodSeccompProfileMissing(podSpec.SecurityContext) {
+		// If all the containers have container-level seccomp profiles then we don't need a pod-level annotation
+		if isSeccompEnabledForContainers(resource) {
 			return nil
 		}
 
 		return &kubeaudit.AuditResult{
-			Auditor:  Name,
-			Rule:     SeccompAnnotationMissing,
-			Severity: kubeaudit.Error,
-			Message:  fmt.Sprintf("Seccomp annotation is missing. The annotation %s: %s should be added.", PodAnnotationKey, ProfileRuntimeDefault),
-			PendingFix: &fix.ByAddingPodAnnotation{
-				Key:   PodAnnotationKey,
-				Value: ProfileRuntimeDefault,
-			},
-			Metadata: kubeaudit.Metadata{
-				"MissingAnnotation": PodAnnotationKey,
-			},
+			Auditor:    Name,
+			Rule:       SeccompProfileMissing,
+			Severity:   kubeaudit.Error,
+			Message:    "Pod Seccomp profile is missing. Seccomp profile should be added to the pod SecurityContext.",
+			PendingFix: &BySettingSeccompProfile{seccompProfileType: ProfileRuntimeDefault},
+			Metadata:   kubeaudit.Metadata{},
 		}
 	}
 
-	podSeccompProfile := annotations[PodAnnotationKey]
+	podSeccompProfileType := podSpec.SecurityContext.SeccompProfile.Type
 
-	if isSeccompProfileDeprecated(podSeccompProfile) {
+	if !isSeccompEnabled(podSeccompProfileType) {
 		return &kubeaudit.AuditResult{
-			Auditor:  Name,
-			Rule:     SeccompDeprecatedPod,
-			Severity: kubeaudit.Error,
-			Message:  fmt.Sprintf("Seccomp pod annotation is set to deprecated value %s. It should be set to %s instead.", podSeccompProfile, ProfileRuntimeDefault),
-			PendingFix: &fix.BySettingPodAnnotation{
-				Key:   PodAnnotationKey,
-				Value: ProfileRuntimeDefault,
-			},
-			Metadata: kubeaudit.Metadata{
-				"AnnotationKey":   PodAnnotationKey,
-				"AnnotationValue": podSeccompProfile,
-			},
-		}
-	}
-
-	if !isSeccompEnabled(podSeccompProfile) {
-		return &kubeaudit.AuditResult{
-			Auditor:  Name,
-			Rule:     SeccompDisabledPod,
-			Severity: kubeaudit.Error,
-			Message:  fmt.Sprintf("Seccomp pod annotation is set to %s which disables Seccomp. It should be set to the default profile %s or should start with %s.", podSeccompProfile, ProfileRuntimeDefault, ProfileNamePrefix),
-			PendingFix: &fix.BySettingPodAnnotation{
-				Key:   PodAnnotationKey,
-				Value: ProfileRuntimeDefault,
-			},
-			Metadata: kubeaudit.Metadata{
-				"AnnotationKey":   PodAnnotationKey,
-				"AnnotationValue": podSeccompProfile,
-			},
+			Auditor:    Name,
+			Rule:       SeccompDisabledPod,
+			Severity:   kubeaudit.Error,
+			Message:    fmt.Sprintf("Pod Seccomp profile is set to %s which disables Seccomp. It should be set to the `%s` or `%s`.", podSeccompProfileType, ProfileRuntimeDefault, ProfileLocalhost),
+			PendingFix: &BySettingSeccompProfile{seccompProfileType: ProfileRuntimeDefault},
+			Metadata:   kubeaudit.Metadata{"SeccompProfileType": string(podSeccompProfileType)},
 		}
 	}
 
@@ -130,55 +91,39 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 }
 
 func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudit.AuditResult {
-	annotations := k8s.GetAnnotations(resource)
-	containerAnnotationKey := getContainerAnnotationKey(container)
-	PodAnnotationKey := apiv1.SeccompPodAnnotationKey
-
-	// Assume that the container will be covered by the pod-level seccomp annotation. If there is no pod-level
-	// seccomp annotation, assume that it will be added as part of the pod annotation audit / autofix
-	if isSeccompAnnotationMissing(annotations, containerAnnotationKey) {
+	// Assume that the container will be covered by the pod-level seccomp profile. If there is no pod-level
+	// seccomp profile, assume that it will be added as part of the pod seccomp profile audit / autofix
+	if isContainerSeccompProfileMissing(container.SecurityContext) {
 		return nil
 	}
 
-	// If the pod seccomp profile is a custom profile, and the container seccomp profile is set to a bad value,
-	// then set the container annotation to the default profile. Otherwise, if the container annotation is set to a
-	// bad value, then remove the container annotation in favour of the pod annotation (assumes the pod annotation is
-	// the default profile because even if the pod annotation is set to a bad value, it will be autofixed to be the
-	// default profile)
-	var pendingFix kubeaudit.PendingFix
-	podSeccompProfile := annotations[PodAnnotationKey]
-	if isSeccompProfileCustom(podSeccompProfile) {
-		pendingFix = &fix.BySettingPodAnnotation{Key: containerAnnotationKey, Value: ProfileRuntimeDefault}
-	} else {
-		pendingFix = &fix.ByRemovingPodAnnotation{Key: containerAnnotationKey}
-	}
-
-	containerSeccompProfile := annotations[containerAnnotationKey]
-
-	if isSeccompProfileDeprecated(containerSeccompProfile) {
-		return &kubeaudit.AuditResult{
-			Auditor:    Name,
-			Rule:       SeccompDeprecatedContainer,
-			Severity:   kubeaudit.Error,
-			Message:    fmt.Sprintf("Seccomp container annotation is set to deprecated value %s. It should be set to %s instead.", containerSeccompProfile, ProfileRuntimeDefault),
-			PendingFix: pendingFix,
-			Metadata: kubeaudit.Metadata{
-				"AnnotationKey":   containerAnnotationKey,
-				"AnnotationValue": containerSeccompProfile,
-			},
-		}
-	}
-
+	containerSeccompProfile := container.SecurityContext.SeccompProfile.Type
 	if !isSeccompEnabled(containerSeccompProfile) {
+
+		// If the pod seccomp profile is set, and the container seccomp profile is disabled,
+		// then remove the container seccomp profile in favour of the pod profile.
+		// Otherwise, set the container seccomp profile to the default profile.
+		var pendingFix kubeaudit.PendingFix
+		var msg string
+
+		podSpec := k8s.GetPodSpec(resource)
+		if isPodSeccompProfileMissing(podSpec.SecurityContext) {
+			pendingFix = &BySettingSeccompProfileInContainer{container: container, seccompProfileType: ProfileRuntimeDefault}
+			msg = fmt.Sprintf("Container Seccomp profile is set to %s which disables Seccomp. It should be set to the `%s` or `%s`.", containerSeccompProfile, ProfileRuntimeDefault, ProfileLocalhost)
+		} else {
+			pendingFix = &ByRemovingSeccompProfileInContainer{container: container}
+			msg = fmt.Sprintf("Container Seccomp profile is set to %s which disables Seccomp. It should be removed from the container SecurityContext, as the pod SeccompProfile is set.", containerSeccompProfile)
+		}
+
 		return &kubeaudit.AuditResult{
 			Auditor:    Name,
 			Rule:       SeccompDisabledContainer,
 			Severity:   kubeaudit.Error,
-			Message:    fmt.Sprintf("Seccomp container annotation is set to %s which disables Seccomp. It should be set to the default profile %s or should start with %s.", containerSeccompProfile, ProfileRuntimeDefault, ProfileNamePrefix),
+			Message:    msg,
 			PendingFix: pendingFix,
 			Metadata: kubeaudit.Metadata{
-				"AnnotationKey":   containerAnnotationKey,
-				"AnnotationValue": containerSeccompProfile,
+				"Container":          container.Name,
+				"SeccompProfileType": string(containerSeccompProfile),
 			},
 		}
 	}
@@ -186,21 +131,24 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 	return nil
 }
 
-func isSeccompAnnotationMissing(annotations map[string]string, annotationKey string) bool {
-	_, ok := annotations[annotationKey]
-	return !ok
+func isPodSeccompProfileMissing(securityContext *apiv1.PodSecurityContext) bool {
+	return securityContext == nil || securityContext.SeccompProfile == nil
+}
+
+func isContainerSeccompProfileMissing(securityContext *apiv1.SecurityContext) bool {
+	return securityContext == nil || securityContext.SeccompProfile == nil
 }
 
 // returns false if there is at least one container that is not covered by a container-level seccomp annotation
-func isSeccompEnabledForContainers(annotations map[string]string, resource k8s.Resource) bool {
+func isSeccompEnabledForContainers(resource k8s.Resource) bool {
 	for _, container := range k8s.GetContainers(resource) {
-		containerAnnotationKey := getContainerAnnotationKey(container)
-		if isSeccompAnnotationMissing(annotations, containerAnnotationKey) {
+		securityContext := container.SecurityContext
+		if isContainerSeccompProfileMissing(securityContext) {
 			return false
 		}
 
-		containerSeccompProfile := annotations[containerAnnotationKey]
-		if !isSeccompEnabled(containerSeccompProfile) {
+		containerSeccompProfileType := securityContext.SeccompProfile.Type
+		if !isSeccompEnabled(containerSeccompProfileType) {
 			return false
 		}
 	}
@@ -208,22 +156,14 @@ func isSeccompEnabledForContainers(annotations map[string]string, resource k8s.R
 	return true
 }
 
-func isSeccompProfileDeprecated(seccompProfile string) bool {
-	return seccompProfile == DeprecatedProfileRuntimeDefault
+func isSeccompEnabled(seccompProfileType apiv1.SeccompProfileType) bool {
+	return isSeccompProfileDefault(seccompProfileType) || isSeccompProfileLocalhost(seccompProfileType)
 }
 
-func isSeccompProfileCustom(seccompProfile string) bool {
-	return strings.HasPrefix(seccompProfile, ProfileNamePrefix)
+func isSeccompProfileDefault(seccompProfileType apiv1.SeccompProfileType) bool {
+	return seccompProfileType == apiv1.SeccompProfileTypeRuntimeDefault
 }
 
-func isSeccompEnabled(seccompProfile string) bool {
-	return isSeccompProfileDefault(seccompProfile) || isSeccompProfileCustom(seccompProfile)
-}
-
-func isSeccompProfileDefault(seccompProfile string) bool {
-	return seccompProfile == ProfileRuntimeDefault
-}
-
-func getContainerAnnotationKey(container *k8s.ContainerV1) string {
-	return ContainerAnnotationKeyPrefix + container.Name
+func isSeccompProfileLocalhost(seccompProfileType apiv1.SeccompProfileType) bool {
+	return seccompProfileType == apiv1.SeccompProfileTypeLocalhost
 }

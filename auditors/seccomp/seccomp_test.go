@@ -18,9 +18,8 @@ func TestAuditSeccomp(t *testing.T) {
 		expectedErrors []string
 		testLocalMode  bool
 	}{
-		{"seccomp-annotation-missing.yml", []string{SeccompAnnotationMissing}, true},
-		{"seccomp-deprecated-pod.yml", []string{SeccompDeprecatedPod}, true},
-		{"seccomp-deprecated.yml", []string{SeccompDeprecatedContainer, SeccompAnnotationMissing}, true},
+		{"seccomp-profile-missing-disabled-container.yml", []string{SeccompProfileMissing, SeccompDisabledContainer}, true},
+		{"seccomp-profile-missing.yml", []string{SeccompProfileMissing}, true},
 		{"seccomp-disabled-pod.yml", []string{SeccompDisabledPod}, true},
 		{"seccomp-disabled.yml", []string{SeccompDisabledContainer}, false},
 		{"seccomp-enabled-pod.yml", nil, true},

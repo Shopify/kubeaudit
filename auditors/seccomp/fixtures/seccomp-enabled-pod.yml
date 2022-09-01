@@ -3,9 +3,11 @@ kind: Pod
 metadata:
   name: pod
   namespace: seccomp-enabled-pod
-  annotations:
-    seccomp.security.alpha.kubernetes.io/pod: localhost/bla
 spec:
+  securityContext:
+        seccompProfile:
+          type: Localhost
+          localhostProfile: my-seccomp-profile.json
   containers:
     - name: container
       image: scratch

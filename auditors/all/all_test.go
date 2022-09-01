@@ -43,7 +43,7 @@ func TestAuditAll(t *testing.T) {
 		privesc.AllowPrivilegeEscalationNil,
 		privileged.PrivilegedNil,
 		rootfs.ReadOnlyRootFilesystemNil,
-		seccomp.SeccompAnnotationMissing,
+		seccomp.SeccompProfileMissing,
 	}
 
 	allAuditors, err := Auditors(
@@ -86,7 +86,7 @@ func TestAllWithConfig(t *testing.T) {
 	}
 	expectedErrors := []string{
 		apparmor.AppArmorAnnotationMissing,
-		seccomp.SeccompAnnotationMissing,
+		seccomp.SeccompProfileMissing,
 	}
 
 	conf := config.KubeauditConfig{
