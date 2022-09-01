@@ -16,6 +16,7 @@ func TestAuditSeccomp(t *testing.T) {
 		{"seccomp-profile-missing-disabled-container.yml", []string{SeccompProfileMissing, SeccompDisabledContainer}},
 		{"seccomp-disabled-pod.yml", []string{SeccompDisabledPod}},
 		{"seccomp-disabled.yml", []string{SeccompDisabledContainer}},
+		{"seccomp-disabled-localhost.yml", []string{SeccompDisabledContainer}},
 		{"seccomp-enabled-pod.yml", nil},
 		{"seccomp-enabled.yml", nil},
 	}

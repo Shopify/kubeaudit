@@ -59,7 +59,7 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 	}
 
 	if isPodSeccompProfileMissing(podSpec.SecurityContext) {
-		// If all the containers have container-level seccomp profiles then we don't need a pod-level annotation
+		// If all the containers have container-level seccomp profiles then we don't need a pod-level profile
 		if isSeccompEnabledForContainers(resource) {
 			return nil
 		}
@@ -100,19 +100,20 @@ func auditContainer(container *k8s.ContainerV1, resource k8s.Resource) *kubeaudi
 	containerSeccompProfile := container.SecurityContext.SeccompProfile.Type
 	if !isSeccompEnabled(containerSeccompProfile) {
 
-		// If the pod seccomp profile is set, and the container seccomp profile is disabled,
-		// then remove the container seccomp profile in favour of the pod profile.
-		// Otherwise, set the container seccomp profile to the default profile.
+		// If the pod seccomp profile is set to Localhost, and the container seccomp profile is disabled,
+		// then set the container seccomp profile to the default profile.
+		// Otherwise, remove the container seccomp profile in favour of the pod profile.
 		var pendingFix kubeaudit.PendingFix
 		var msg string
 
 		podSpec := k8s.GetPodSpec(resource)
-		if isPodSeccompProfileMissing(podSpec.SecurityContext) {
-			pendingFix = &BySettingSeccompProfileInContainer{container: container, seccompProfileType: ProfileRuntimeDefault}
-			msg = fmt.Sprintf("Container Seccomp profile is set to %s which disables Seccomp. It should be set to the `%s` or `%s`.", containerSeccompProfile, ProfileRuntimeDefault, ProfileLocalhost)
-		} else {
+		if isPodSeccompProfileMissing(podSpec.SecurityContext) || isSeccompProfileDefault(podSpec.SecurityContext.SeccompProfile.Type) {
 			pendingFix = &ByRemovingSeccompProfileInContainer{container: container}
 			msg = fmt.Sprintf("Container Seccomp profile is set to %s which disables Seccomp. It should be removed from the container SecurityContext, as the pod SeccompProfile is set.", containerSeccompProfile)
+
+		} else {
+			pendingFix = &BySettingSeccompProfileInContainer{container: container, seccompProfileType: ProfileRuntimeDefault}
+			msg = fmt.Sprintf("Container Seccomp profile is set to %s which disables Seccomp. It should be set to the `%s` or `%s`.", containerSeccompProfile, ProfileRuntimeDefault, ProfileLocalhost)
 		}
 
 		return &kubeaudit.AuditResult{

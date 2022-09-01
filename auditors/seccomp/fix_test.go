@@ -22,9 +22,10 @@ func TestFixSeccomp(t *testing.T) {
 		expectedContainerSeccompProfiles []apiv1.SeccompProfileType
 	}{
 		{"seccomp-profile-missing.yml", defaultProfile, []apiv1.SeccompProfileType{emptyProfile}},
-		{"seccomp-profile-missing-disabled-container.yml", defaultProfile, []apiv1.SeccompProfileType{defaultProfile}},
+		{"seccomp-profile-missing-disabled-container.yml", defaultProfile, []apiv1.SeccompProfileType{emptyProfile}},
 		{"seccomp-disabled-pod.yml", defaultProfile, []apiv1.SeccompProfileType{defaultProfile}},
 		{"seccomp-disabled.yml", defaultProfile, []apiv1.SeccompProfileType{emptyProfile, emptyProfile}},
+		{"seccomp-disabled-localhost.yml", localhostProfile, []apiv1.SeccompProfileType{defaultProfile, emptyProfile}},
 	}
 
 	for _, tc := range cases {
