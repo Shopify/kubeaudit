@@ -2,7 +2,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Shopify/kubeaudit)](https://goreportcard.com/report/github.com/Shopify/kubeaudit)
 [![GoDoc](https://godoc.org/github.com/Shopify/kubeaudit?status.png)](https://godoc.org/github.com/Shopify/kubeaudit)
 
-> Kubeaudit no longer supports APIs deprecated as of [Kubernetes v.1.16 release](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/). So, it is now a requirement for clusters to run Kubernetes >=1.16
+> It is now a requirement for clusters to run Kubernetes >=1.19.
 
 
 # kubeaudit :cloud: :lock: :muscle:
