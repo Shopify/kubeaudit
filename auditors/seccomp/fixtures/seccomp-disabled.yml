@@ -12,11 +12,6 @@ spec:
       image: scratch
       securityContext:
         seccompProfile:
-          type: BadVal
-    - name: container2
-      image: scratch
-      securityContext:
-        seccompProfile:
           type: Unconfined
-    - name: container3
+    - name: container2
       image: scratch
