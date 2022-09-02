@@ -1,0 +1,39 @@
+# This is a sample Kubernetes config file
+#
+# Autofix supports comments!
+
+%YAML   1.1
+%TAG    !   !foo
+%TAG    !yaml!  tag:yaml.org,2002:
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+# PodSpec
+spec:
+  # PodTemplate
+  template:
+    # ContainerSpec
+    spec:
+      containers:
+        - name: myContainer # this is a sample container
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+    metadata:
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/myContainer: runtime/default
+  selector: null
+  strategy: {}
+metadata:

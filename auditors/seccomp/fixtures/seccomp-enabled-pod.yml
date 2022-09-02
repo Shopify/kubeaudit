@@ -5,9 +5,9 @@ metadata:
   namespace: seccomp-enabled-pod
 spec:
   securityContext:
-        seccompProfile:
-          type: Localhost
-          localhostProfile: my-seccomp-profile.json
+    seccompProfile:
+      type: Localhost
+      localhostProfile: my-seccomp-profile.json
   containers:
     - name: container
       image: scratch
