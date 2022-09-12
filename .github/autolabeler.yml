@@ -1,6 +1,0 @@
-core: ["/cmd"]
-legal: ["LICENSE*", "CODE_OF_CONDUCT*"]
-config: [".github","build","Makefile","/configs"]
-go-modules: ["go.*"]
-readme: ["README*"]
-datafiles: ["/fixtures"]

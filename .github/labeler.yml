@@ -1,0 +1,17 @@
+core:
+- '/cmd'
+
+legal:
+- any: ['LICENSE*', 'CODE_OF_CONDUCT*']
+
+config:
+- any: ['.github','build','Makefile','/config']
+
+go-modules:
+- 'go.*'
+
+readme:
+- 'README*'
+
+datafiles:
+- '/fixtures'
