@@ -1,6 +1,7 @@
 package seccomp
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/Shopify/kubeaudit/internal/test"
@@ -23,6 +24,7 @@ func TestFixSeccomp(t *testing.T) {
 	}{
 		{"seccomp-profile-missing.yml", defaultProfile, []apiv1.SeccompProfileType{emptyProfile}},
 		{"seccomp-profile-missing-disabled-container.yml", defaultProfile, []apiv1.SeccompProfileType{emptyProfile}},
+		{"seccomp-profile-missing-annotations.yml", defaultProfile, []apiv1.SeccompProfileType{emptyProfile}},
 		{"seccomp-disabled-pod.yml", defaultProfile, []apiv1.SeccompProfileType{defaultProfile}},
 		{"seccomp-disabled.yml", defaultProfile, []apiv1.SeccompProfileType{emptyProfile, emptyProfile}},
 		{"seccomp-disabled-localhost.yml", localhostProfile, []apiv1.SeccompProfileType{defaultProfile, emptyProfile}},
@@ -39,6 +41,7 @@ func TestFixSeccomp(t *testing.T) {
 			updatedPodSpec := k8s.GetPodSpec(resource)
 			checkPodSeccompProfile(t, updatedPodSpec, tc.expectedPodSeccompProfile)
 			checkContainerSeccompProfiles(t, updatedPodSpec, tc.expectedContainerSeccompProfiles)
+			checkNoSeccompAnnotations(t, resource)
 		})
 	}
 }
@@ -62,4 +65,19 @@ func checkContainerSeccompProfiles(t *testing.T, podSpec *apiv1.PodSpec, expecte
 			assert.Equal(t, expectedProfile, securityContext.SeccompProfile.Type)
 		}
 	}
+}
+
+func checkNoSeccompAnnotations(t *testing.T, resource k8s.Resource) {
+	annotations := k8s.GetAnnotations(resource)
+	if annotations == nil {
+		return
+	}
+
+	seccompAnnotations := []string{}
+	for annotation := range annotations {
+		if annotation == PodAnnotationKey || strings.HasPrefix(annotation, ContainerAnnotationKeyPrefix) {
+			seccompAnnotations = append(seccompAnnotations, annotation)
+		}
+	}
+	assert.Empty(t, seccompAnnotations)
 }

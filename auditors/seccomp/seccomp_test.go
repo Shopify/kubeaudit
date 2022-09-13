@@ -11,14 +11,16 @@ func TestAuditSeccomp(t *testing.T) {
 	cases := []struct {
 		file           string
 		expectedErrors []string
+		testLocal      bool
 	}{
-		{"seccomp-profile-missing.yml", []string{SeccompProfileMissing}},
-		{"seccomp-profile-missing-disabled-container.yml", []string{SeccompProfileMissing, SeccompDisabledContainer}},
-		{"seccomp-disabled-pod.yml", []string{SeccompDisabledPod}},
-		{"seccomp-disabled.yml", []string{SeccompDisabledContainer}},
-		{"seccomp-disabled-localhost.yml", []string{SeccompDisabledContainer}},
-		{"seccomp-enabled-pod.yml", nil},
-		{"seccomp-enabled.yml", nil},
+		{"seccomp-profile-missing.yml", []string{SeccompProfileMissing}, true},
+		{"seccomp-profile-missing-disabled-container.yml", []string{SeccompProfileMissing, SeccompDisabledContainer}, true},
+		{"seccomp-profile-missing-annotations.yml", []string{SeccompProfileMissing}, false},
+		{"seccomp-disabled-pod.yml", []string{SeccompDisabledPod}, true},
+		{"seccomp-disabled.yml", []string{SeccompDisabledContainer}, true},
+		{"seccomp-disabled-localhost.yml", []string{SeccompDisabledContainer}, true},
+		{"seccomp-enabled-pod.yml", nil, true},
+		{"seccomp-enabled.yml", nil, true},
 	}
 
 	for _, tc := range cases {
@@ -27,7 +29,9 @@ func TestAuditSeccomp(t *testing.T) {
 		t.Run(tc.file, func(t *testing.T) {
 			t.Parallel()
 			test.AuditManifest(t, fixtureDir, tc.file, New(), tc.expectedErrors)
-			test.AuditLocal(t, fixtureDir, tc.file, New(), strings.Split(tc.file, ".")[0], tc.expectedErrors)
+			if tc.testLocal {
+				test.AuditLocal(t, fixtureDir, tc.file, New(), strings.Split(tc.file, ".")[0], tc.expectedErrors)
+			}
 		})
 	}
 }

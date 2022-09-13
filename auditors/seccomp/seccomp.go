@@ -2,6 +2,7 @@ package seccomp
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/pkg/k8s"
@@ -24,6 +25,10 @@ const (
 	ProfileRuntimeDefault = apiv1.SeccompProfileTypeRuntimeDefault
 	// ProfileLocalhost represents the localhost seccomp profile used by container runtime
 	ProfileLocalhost = apiv1.SeccompProfileTypeLocalhost
+	// ContainerAnnotationKeyPrefix represents the key of a seccomp profile applied to one container of a pod
+	ContainerAnnotationKeyPrefix = apiv1.SeccompContainerAnnotationKeyPrefix
+	// PodAnnotationKey represents the key of a seccomp profile applied to all containers of a pod
+	PodAnnotationKey = apiv1.SeccompPodAnnotationKey
 )
 
 // Seccomp implements Auditable
@@ -60,17 +65,29 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 
 	if isPodSeccompProfileMissing(podSpec.SecurityContext) {
 		// If all the containers have container-level seccomp profiles then we don't need a pod-level profile
-		if isSeccompEnabledForContainers(resource) {
+		if isSeccompEnabledForAllContainers(resource) {
 			return nil
+		}
+
+		var msg string
+		var severity kubeaudit.SeverityLevel
+
+		seccompAnnotations := findSeccompAnnottations(resource)
+		if len(seccompAnnotations) > 0 {
+			msg = "Pod Seccomp annotations are deprecated. Seccomp profile should be added to the pod SecurityContext."
+			severity = kubeaudit.Warn
+		} else {
+			msg = "Pod Seccomp profile is missing. Seccomp profile should be added to the pod SecurityContext."
+			severity = kubeaudit.Error
 		}
 
 		return &kubeaudit.AuditResult{
 			Auditor:    Name,
 			Rule:       SeccompProfileMissing,
-			Severity:   kubeaudit.Error,
-			Message:    "Pod Seccomp profile is missing. Seccomp profile should be added to the pod SecurityContext.",
-			PendingFix: &BySettingSeccompProfile{seccompProfileType: ProfileRuntimeDefault},
-			Metadata:   kubeaudit.Metadata{},
+			Severity:   severity,
+			Message:    msg,
+			PendingFix: &BySettingSeccompProfileAndRemovingAnnotations{seccompProfileType: ProfileRuntimeDefault, annotationsToRemove: seccompAnnotations},
+			Metadata:   kubeaudit.Metadata{"AnnotationKeys": strings.Join(seccompAnnotations, ", ")},
 		}
 	}
 
@@ -82,7 +99,7 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 			Rule:       SeccompDisabledPod,
 			Severity:   kubeaudit.Error,
 			Message:    fmt.Sprintf("Pod Seccomp profile is set to %s which disables Seccomp. It should be set to the `%s` or `%s`.", podSeccompProfileType, ProfileRuntimeDefault, ProfileLocalhost),
-			PendingFix: &BySettingSeccompProfile{seccompProfileType: ProfileRuntimeDefault},
+			PendingFix: &BySettingSeccompProfileAndRemovingAnnotations{seccompProfileType: ProfileRuntimeDefault},
 			Metadata:   kubeaudit.Metadata{"SeccompProfileType": string(podSeccompProfileType)},
 		}
 	}
@@ -141,7 +158,7 @@ func isContainerSeccompProfileMissing(securityContext *apiv1.SecurityContext) bo
 }
 
 // returns false if there is at least one container that is not covered by a container-level seccomp annotation
-func isSeccompEnabledForContainers(resource k8s.Resource) bool {
+func isSeccompEnabledForAllContainers(resource k8s.Resource) bool {
 	for _, container := range k8s.GetContainers(resource) {
 		securityContext := container.SecurityContext
 		if isContainerSeccompProfileMissing(securityContext) {
@@ -167,4 +184,17 @@ func isSeccompProfileDefault(seccompProfileType apiv1.SeccompProfileType) bool {
 
 func isSeccompProfileLocalhost(seccompProfileType apiv1.SeccompProfileType) bool {
 	return seccompProfileType == apiv1.SeccompProfileTypeLocalhost
+}
+
+func findSeccompAnnottations(resource k8s.Resource) []string {
+	annotations := k8s.GetAnnotations(resource)
+
+	seccompAnnotations := []string{}
+	for annotation := range annotations {
+		if annotation == PodAnnotationKey || strings.HasPrefix(annotation, ContainerAnnotationKeyPrefix) {
+			seccompAnnotations = append(seccompAnnotations, annotation)
+		}
+	}
+
+	return seccompAnnotations
 }

@@ -7,25 +7,41 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-type BySettingSeccompProfile struct {
-	seccompProfileType apiv1.SeccompProfileType
+type BySettingSeccompProfileAndRemovingAnnotations struct {
+	seccompProfileType  apiv1.SeccompProfileType
+	annotationsToRemove []string
 }
 
-func (pending *BySettingSeccompProfile) Plan() string {
-	return fmt.Sprintf("Set SeccompProfile type to '%s' in pod SecurityContext", pending.seccompProfileType)
+func (pending *BySettingSeccompProfileAndRemovingAnnotations) Plan() string {
+	annotationsMessage := ""
+	if len(pending.annotationsToRemove) > 0 {
+		annotationsMessage = fmt.Sprintf(" and remove the following annotations %s", pending.annotationsToRemove)
+	}
+	return fmt.Sprintf("Set SeccompProfile type to '%s' in pod SecurityContext%s", pending.seccompProfileType, annotationsMessage)
 }
 
-func (pending *BySettingSeccompProfile) Apply(resource k8s.Resource) []k8s.Resource {
+func (pending *BySettingSeccompProfileAndRemovingAnnotations) Apply(resource k8s.Resource) []k8s.Resource {
 	podSpec := k8s.GetPodSpec(resource)
 	if podSpec.SecurityContext == nil {
 		podSpec.SecurityContext = &apiv1.PodSecurityContext{}
 	}
 	podSpec.SecurityContext.SeccompProfile = &apiv1.SeccompProfile{Type: pending.seccompProfileType}
+
+	objectMeta := k8s.GetPodObjectMeta(resource)
+
+	if objectMeta.GetAnnotations() == nil {
+		return nil
+	}
+
+	for _, annotationToDelete := range pending.annotationsToRemove {
+		delete(objectMeta.GetAnnotations(), annotationToDelete)
+	}
+
 	return nil
 }
 
 type BySettingSeccompProfileInContainer struct {
-	container *k8s.ContainerV1
+	container          *k8s.ContainerV1
 	seccompProfileType apiv1.SeccompProfileType
 }
 
