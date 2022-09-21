@@ -117,8 +117,8 @@ func auditPodAnnotations(resource k8s.Resource, containerNames []string) []*kube
 					"Container":  containerName,
 					"Annotation": fmt.Sprintf("%s: %s", annotationKey, annotationValue),
 				},
-				PendingFix: &fix.ByRemovingPodAnnotation{
-					Key: annotationKey,
+				PendingFix: &fix.ByRemovingPodAnnotations{
+					Keys: []string{annotationKey},
 				},
 			})
 		}

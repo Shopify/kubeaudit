@@ -41,15 +41,17 @@ func TestFix(t *testing.T) {
 			},
 		},
 		{
-			testName:   "ByRemovingPodAnnotation",
-			pendingFix: &ByRemovingPodAnnotation{Key: "mykey"},
+			testName:   "ByRemovingPodAnnotations",
+			pendingFix: &ByRemovingPodAnnotations{Keys: []string{"mykey", "mykey2"}},
 			preFix: func(resource k8s.Resource) {
-				k8s.GetPodObjectMeta(resource).SetAnnotations(map[string]string{"mykey": "myvalue"})
+				k8s.GetPodObjectMeta(resource).SetAnnotations(map[string]string{"mykey": "myvalue", "mykey2": "myvalue2"})
 			},
 			assertFixed: func(t *testing.T, resource k8s.Resource) {
 				annotations := k8s.GetAnnotations(resource)
 				_, ok := annotations["mykey"]
 				assert.False(t, ok)
+				_, ok2 := annotations["mykey2"]
+				assert.False(t, ok2)
 			},
 		},
 	}

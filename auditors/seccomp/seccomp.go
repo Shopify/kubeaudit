@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Shopify/kubeaudit"
+	"github.com/Shopify/kubeaudit/pkg/fix"
 	"github.com/Shopify/kubeaudit/pkg/k8s"
 	apiv1 "k8s.io/api/core/v1"
 )
@@ -12,11 +13,13 @@ import (
 const Name = "seccomp"
 
 const (
-	// SeccompProfileMissing occurs when there are no seccomp annotations (pod nor container level)
+	// SeccompDeprecatedAnnotations occurs when deprecated seccomp annotations are present
+	SeccompDeprecatedAnnotations = "SeccompDeprecatedAnnotations"
+	// SeccompProfileMissing occurs when there are no seccomp profiles (pod nor container level)
 	SeccompProfileMissing = "SeccompProfileMissing"
-	// SeccompDisabledPod occurs when the pod-level seccomp annotation is set to a value which disables seccomp
+	// SeccompDisabledPod occurs when the pod-level seccomp profile is set to a value which disables seccomp
 	SeccompDisabledPod = "SeccompDisabledPod"
-	// SeccompDisabledContainer occurs when the container-level seccomp annotation is set to a value which disables seccomp
+	// SeccompDisabledContainer occurs when the container-level seccomp profile is set to a value which disables seccomp
 	SeccompDisabledContainer = "SeccompDisabledContainer"
 )
 
@@ -42,19 +45,55 @@ func New() *Seccomp {
 func (a *Seccomp) Audit(resource k8s.Resource, _ []k8s.Resource) ([]*kubeaudit.AuditResult, error) {
 	var auditResults []*kubeaudit.AuditResult
 
+	annotationAuditResult := auditAnnotations(resource)
+	auditResults = appendNotNil(auditResults, annotationAuditResult)
+
 	auditResult := auditPod(resource)
-	if auditResult != nil {
-		auditResults = append(auditResults, auditResult)
-	}
+	auditResults = appendNotNil(auditResults, auditResult)
 
 	for _, container := range k8s.GetContainers(resource) {
 		auditResult := auditContainer(container, resource)
-		if auditResult != nil {
-			auditResults = append(auditResults, auditResult)
-		}
+		auditResults = appendNotNil(auditResults, auditResult)
 	}
 
 	return auditResults, nil
+}
+
+func appendNotNil(auditResults []*kubeaudit.AuditResult, auditResult *kubeaudit.AuditResult) []*kubeaudit.AuditResult {
+	if auditResult != nil {
+		return append(auditResults, auditResult)
+	}
+	return auditResults
+}
+
+func auditAnnotations(resource k8s.Resource) *kubeaudit.AuditResult {
+	podSpec := k8s.GetPodSpec(resource)
+	if podSpec == nil {
+		return nil
+	}
+
+	// We check annotations only when seccomp profile is missing for both pod and all containers
+	// This way we ensure that we're in Manifest mode. 
+	// In Local and Cluster mode Kubernetes automatically populates seccomp profile in Security context when seccomp annotations are provided.
+	if !isPodSeccompProfileMissing(podSpec.SecurityContext) || !isSeccompProfileMissingForAllContainers(resource) {
+		return nil
+	}
+
+	seccompAnnotations := findSeccompAnnottations(resource)
+
+	if len(seccompAnnotations) > 0 {
+
+		return &kubeaudit.AuditResult{
+			Auditor:    Name,
+			Rule:       SeccompDeprecatedAnnotations,
+			Severity:   kubeaudit.Warn,
+			Message:    "Pod Seccomp annotations are deprecated. Seccomp profile should be added to the pod SecurityContext.",
+			PendingFix: &fix.ByRemovingPodAnnotations{Keys: seccompAnnotations},
+			Metadata:   kubeaudit.Metadata{"AnnotationKeys": strings.Join(seccompAnnotations, ", ")},
+		}
+	}
+
+	return nil
 }
 
 func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
@@ -69,25 +108,13 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 			return nil
 		}
 
-		var msg string
-		var severity kubeaudit.SeverityLevel
-
-		seccompAnnotations := findSeccompAnnottations(resource)
-		if len(seccompAnnotations) > 0 {
-			msg = "Pod Seccomp annotations are deprecated. Seccomp profile should be added to the pod SecurityContext."
-			severity = kubeaudit.Warn
-		} else {
-			msg = "Pod Seccomp profile is missing. Seccomp profile should be added to the pod SecurityContext."
-			severity = kubeaudit.Error
-		}
-
 		return &kubeaudit.AuditResult{
 			Auditor:    Name,
 			Rule:       SeccompProfileMissing,
-			Severity:   severity,
-			Message:    msg,
-			PendingFix: &BySettingSeccompProfileAndRemovingAnnotations{seccompProfileType: ProfileRuntimeDefault, annotationsToRemove: seccompAnnotations},
-			Metadata:   kubeaudit.Metadata{"AnnotationKeys": strings.Join(seccompAnnotations, ", ")},
+			Severity:   kubeaudit.Error,
+			Message:    "Pod Seccomp profile is missing. Seccomp profile should be added to the pod SecurityContext.",
+			PendingFix: &BySettingSeccompProfile{seccompProfileType: ProfileRuntimeDefault},
+			Metadata:   kubeaudit.Metadata{},
 		}
 	}
 
@@ -99,7 +126,7 @@ func auditPod(resource k8s.Resource) *kubeaudit.AuditResult {
 			Rule:       SeccompDisabledPod,
 			Severity:   kubeaudit.Error,
 			Message:    fmt.Sprintf("Pod Seccomp profile is set to %s which disables Seccomp. It should be set to the `%s` or `%s`.", podSeccompProfileType, ProfileRuntimeDefault, ProfileLocalhost),
-			PendingFix: &BySettingSeccompProfileAndRemovingAnnotations{seccompProfileType: ProfileRuntimeDefault},
+			PendingFix: &BySettingSeccompProfile{seccompProfileType: ProfileRuntimeDefault},
 			Metadata:   kubeaudit.Metadata{"SeccompProfileType": string(podSeccompProfileType)},
 		}
 	}
@@ -174,6 +201,17 @@ func isSeccompEnabledForAllContainers(resource k8s.Resource) bool {
 	return true
 }
 
+func isSeccompProfileMissingForAllContainers(resource k8s.Resource) bool {
+	for _, container := range k8s.GetContainers(resource) {
+		securityContext := container.SecurityContext
+		if !isContainerSeccompProfileMissing(securityContext) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func isSeccompEnabled(seccompProfileType apiv1.SeccompProfileType) bool {
 	return isSeccompProfileDefault(seccompProfileType) || isSeccompProfileLocalhost(seccompProfileType)
 }
@@ -188,7 +226,6 @@ func isSeccompProfileLocalhost(seccompProfileType apiv1.SeccompProfileType) bool
 
 func findSeccompAnnottations(resource k8s.Resource) []string {
 	annotations := k8s.GetAnnotations(resource)
-
 	seccompAnnotations := []string{}
 	for annotation := range annotations {
 		if annotation == PodAnnotationKey || strings.HasPrefix(annotation, ContainerAnnotationKeyPrefix) {
