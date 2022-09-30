@@ -79,7 +79,7 @@ func auditAnnotations(resource k8s.Resource) *kubeaudit.AuditResult {
 		return nil
 	}
 
-	seccompAnnotations := findSeccompAnnottations(resource)
+	seccompAnnotations := findSeccompAnnotations(resource)
 
 	if len(seccompAnnotations) > 0 {
 
