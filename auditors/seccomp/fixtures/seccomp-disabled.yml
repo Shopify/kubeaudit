@@ -5,8 +5,8 @@ metadata:
   namespace: seccomp-disabled
 spec:
   securityContext:
-        seccompProfile:
-          type: RuntimeDefault
+    seccompProfile:
+      type: RuntimeDefault
   containers:
     - name: container1
       image: scratch

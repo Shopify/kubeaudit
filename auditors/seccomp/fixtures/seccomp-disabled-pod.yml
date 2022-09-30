@@ -5,8 +5,8 @@ metadata:
   namespace: seccomp-disabled-pod
 spec:
   securityContext:
-        seccompProfile:
-          type: Unconfined
+    seccompProfile:
+      type: Unconfined
   containers:
     - name: container
       image: scratch
