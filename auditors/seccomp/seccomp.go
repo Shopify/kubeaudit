@@ -224,7 +224,7 @@ func isSeccompProfileLocalhost(seccompProfileType apiv1.SeccompProfileType) bool
 	return seccompProfileType == apiv1.SeccompProfileTypeLocalhost
 }
 
-func findSeccompAnnottations(resource k8s.Resource) []string {
+func findSeccompAnnotations(resource k8s.Resource) []string {
 	annotations := k8s.GetAnnotations(resource)
 	seccompAnnotations := []string{}
 	for annotation := range annotations {
