@@ -25,10 +25,12 @@ spec:
     metadata:
       annotations:
         container.apparmor.security.beta.kubernetes.io/kubeaudit: runtime/default
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       serviceAccountName: kubeaudit
       restartPolicy: OnFailure
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: kubeaudit
           image: shopify/kubeaudit:v0.11
@@ -110,10 +112,12 @@ spec:
     metadata:
       annotations:
         container.apparmor.security.beta.kubernetes.io/kubeaudit: runtime/default
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       serviceAccountName: kubeaudit
       restartPolicy: OnFailure
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: kubeaudit
           image: shopify/kubeaudit:v0.11
@@ -247,10 +251,12 @@ spec:
     metadata:
       annotations:
         container.apparmor.security.beta.kubernetes.io/kubeaudit: runtime/default
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       serviceAccountName: kubeaudit
       restartPolicy: OnFailure
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: kubeaudit
           image: shopify/kubeaudit:v0.11

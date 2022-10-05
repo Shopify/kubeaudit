@@ -54,24 +54,26 @@ func (pending *ByAddingPodAnnotation) Plan() string {
 	return fmt.Sprintf("Add pod-level annotation '%v: %v'", pending.Key, pending.Value)
 }
 
-type ByRemovingPodAnnotation struct {
-	Key string
+type ByRemovingPodAnnotations struct {
+	Keys []string
 }
 
 // Apply removes the pod annotation
-func (pending *ByRemovingPodAnnotation) Apply(resource k8s.Resource) []k8s.Resource {
+func (pending *ByRemovingPodAnnotations) Apply(resource k8s.Resource) []k8s.Resource {
 	objectMeta := k8s.GetPodObjectMeta(resource)
 
 	if objectMeta.GetAnnotations() == nil {
 		return nil
 	}
 
-	delete(objectMeta.GetAnnotations(), pending.Key)
+	for _, key := range pending.Keys {
+		delete(objectMeta.GetAnnotations(), key)
+	}
 
 	return nil
 }
 
 // Plan is a description of what apply will do
-func (pending *ByRemovingPodAnnotation) Plan() string {
-	return fmt.Sprintf("Remove pod-level annotation '%v'", pending.Key)
+func (pending *ByRemovingPodAnnotations) Plan() string {
+	return fmt.Sprintf("Remove pod-level annotations '%v'", pending.Keys)
 }

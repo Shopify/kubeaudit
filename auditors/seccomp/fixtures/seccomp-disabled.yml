@@ -3,15 +3,15 @@ kind: Pod
 metadata:
   name: pod
   namespace: seccomp-disabled
-  annotations:
-    seccomp.security.alpha.kubernetes.io/pod: runtime/default
-    container.seccomp.security.alpha.kubernetes.io/container1: badval
-    container.seccomp.security.alpha.kubernetes.io/container2: unconfined
 spec:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
   containers:
     - name: container1
       image: scratch
+      securityContext:
+        seccompProfile:
+          type: Unconfined
     - name: container2
-      image: scratch
-    - name: container3
       image: scratch

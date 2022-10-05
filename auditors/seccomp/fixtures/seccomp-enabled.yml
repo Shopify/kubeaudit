@@ -3,9 +3,10 @@ kind: Pod
 metadata:
   name: pod
   namespace: seccomp-enabled
-  annotations:
-    container.seccomp.security.alpha.kubernetes.io/container: runtime/default
 spec:
   containers:
     - name: container
       image: scratch
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault

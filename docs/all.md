@@ -115,10 +115,8 @@ $ kubeaudit all -f "internal/test/fixtures/all_resources/deployment-apps-v1.yml"
    Metadata:
       Container: container
 
--- [error] SeccompAnnotationMissing
-   Message: Seccomp annotation is missing. The annotation seccomp.security.alpha.kubernetes.io/pod: runtime/default should be added.
-   Metadata:
-      MissingAnnotation: seccomp.security.alpha.kubernetes.io/pod
+-- [error] SeccompProfileMissing
+   Message: Pod Seccomp profile is missing. Seccomp profile should be added to the pod SecurityContext.
 ```
 
 ### Example with Kubeaudit Config

@@ -2,12 +2,17 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod
-  namespace: seccomp-enabled-pod
+  namespace: seccomp-disabled-localhost
 spec:
   securityContext:
     seccompProfile:
       type: Localhost
       localhostProfile: my-seccomp-profile.json
   containers:
-    - name: container
+    - name: container1
+      image: scratch
+      securityContext:
+        seccompProfile:
+          type: Unconfined
+    - name: container2
       image: scratch

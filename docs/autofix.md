@@ -45,21 +45,23 @@ spec:
   template:
     spec:
       containers:
-      - name: myContainer
-        resources: {}
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          privileged: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
+        - name: myContainer
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
       automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
     metadata:
       annotations:
-        container.apparmor.security.beta.kubernetes.io/fakeContainerSC: runtime/default
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+        container.apparmor.security.beta.kubernetes.io/myContainer: runtime/default
   selector: null
   strategy: {}
 metadata:
@@ -95,34 +97,23 @@ spec:
   template:
     spec:
       containers:
-      - name: myContainer
-        resources: {}
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - AUDIT_WRITE
-            - CHOWN
-            - DAC_OVERRIDE
-            - FOWNER
-            - FSETID
-            - KILL
-            - MKNOD
-            - NET_BIND_SERVICE
-            - NET_RAW
-            - SETFCAP
-            - SETGID
-            - SETPCAP
-            - SETUID
-            - SYS_CHROOT
-          privileged: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
+        - name: myContainer
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
       automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
     metadata:
       annotations:
         container.apparmor.security.beta.kubernetes.io/myContainer: runtime/default
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
   selector: null
   strategy: {}
 metadata:
@@ -133,35 +124,24 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: myContainer2
-    image: polinux/stress
-    resources: {}
-    securityContext:
-      allowPrivilegeEscalation: false
-      capabilities:
-        drop:
-        - AUDIT_WRITE
-        - CHOWN
-        - DAC_OVERRIDE
-        - FOWNER
-        - FSETID
-        - KILL
-        - MKNOD
-        - NET_BIND_SERVICE
-        - NET_RAW
-        - SETFCAP
-        - SETGID
-        - SETPCAP
-        - SETUID
-        - SYS_CHROOT
-      privileged: false
-      readOnlyRootFilesystem: true
-      runAsNonRoot: true
+    - name: myContainer2
+      image: polinux/stress
+      resources: {}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        privileged: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
   automountServiceAccountToken: false
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
 metadata:
   annotations:
     container.apparmor.security.beta.kubernetes.io/myContainer2: runtime/default
-    seccomp.security.alpha.kubernetes.io/pod: runtime/default
 ```
 
 ### Example with Comments
@@ -211,38 +191,26 @@ spec:
     # ContainerSpec
     spec:
       containers:
-      - name: myContainer # this is a sample container
-        resources: {}
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - AUDIT_WRITE
-            - CHOWN
-            - DAC_OVERRIDE
-            - FOWNER
-            - FSETID
-            - KILL
-            - MKNOD
-            - NET_BIND_SERVICE
-            - NET_RAW
-            - SETFCAP
-            - SETGID
-            - SETPCAP
-            - SETUID
-            - SYS_CHROOT
-          privileged: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
+        - name: myContainer # this is a sample container
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
       automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
     metadata:
       annotations:
         container.apparmor.security.beta.kubernetes.io/myContainer: runtime/default
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
   selector: null
   strategy: {}
 metadata:
-
 ```
 
 ### Example with Custom Output File

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod
-  namespace: seccomp-annotation-missing
+  namespace: seccomp-profile-missing
 spec:
   containers:
     - name: container

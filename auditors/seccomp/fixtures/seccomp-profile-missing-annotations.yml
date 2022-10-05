@@ -2,9 +2,9 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod
-  namespace: seccomp-deprecated-pod
+  namespace: seccomp-profile-missing-annotations
   annotations:
-    seccomp.security.alpha.kubernetes.io/pod: docker/default
+    seccomp.security.alpha.kubernetes.io/pod: runtime/default
     container.seccomp.security.alpha.kubernetes.io/container: localhost/bla
 spec:
   containers:
