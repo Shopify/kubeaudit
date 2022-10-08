@@ -38,7 +38,7 @@ func NewRedundantOverrideResult(auditorName, containerName, overrideReason, over
 }
 
 // ApplyOverride checks if hasOverride is true. If it is, it changes the severity of the audit result from error to
-// warn, adds the override reason to the metadata and removes the pending fix
+// info, adds the override reason to the metadata and removes the pending fix
 func ApplyOverride(auditResult *kubeaudit.AuditResult, auditorName, containerName string, resource k8s.Resource, overrideLabel string) *kubeaudit.AuditResult {
 	hasOverride, overrideReason := GetContainerOverrideReason(containerName, resource, overrideLabel)
 

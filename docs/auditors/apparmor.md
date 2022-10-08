@@ -80,4 +80,28 @@ To learn more about AppArmor in Kubernetes, see https://kubernetes.io/docs/tutor
 
 ## Override Errors
 
-Overrides are not currently supported for `apparmor`.
+First, see the [Introduction to Override Errors](/README.md#override-errors).
+
+Override identifier for the `unconfined` apparmor profile value: `allow-disabled-apparmor`
+
+Container overrides have the form:
+```yaml
+container.audit.kubernetes.io/[container name].allow-disabled-apparmor: "SomeReason"
+```
+
+Example of resource with the `unconfined` apparmor profile overridden for a specific container:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    metadata:
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/myContainer: unconfined
+      labels:
+        container.audit.kubernetes.io/myContainer.allow-disabled-apparmor: "SomeReason"
+    spec:
+      containers:
+      - name: myContainer
+        image: scratch
+```

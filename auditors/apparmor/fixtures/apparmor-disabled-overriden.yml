@@ -2,9 +2,11 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod
-  namespace: apparmor-disabled
+  namespace: apparmor-disabled-overriden
   annotations:
     container.apparmor.security.beta.kubernetes.io/container: unconfined
+  labels:
+    container.audit.kubernetes.io/container.allow-disabled-apparmor: "SomeReason"
 spec:
   containers:
     - name: container
