@@ -15,7 +15,7 @@ const Name = "apparmor"
 const (
 	// AppArmorAnnotationMissing occurs when the apparmor annotation is missing
 	AppArmorAnnotationMissing = "AppArmorAnnotationMissing"
-	// AppArmorDisabled occurs when the apparmor annotation is set to the uncofined value
+	// AppArmorDisabled occurs when the apparmor annotation is set to the unconfined value
 	AppArmorDisabled = "AppArmorDisabled"
 	// AppArmorDisabled occurs when the apparmor annotation is set to a bad value
 	AppArmorBadValue = "AppArmorBadValue"
