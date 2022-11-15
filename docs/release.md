@@ -34,7 +34,7 @@ Login to the Shopify Docker account using `docker login`. Find the credentials i
 
 7. Run Goreleaser
 
-Make sure you have Docker running.
+Make sure you have Docker daemon running. If you're on a Mac, one option is to install [colima](https://github.com/abiosoft/colima) by running `brew install colima`, followed by `colima start`. This will allow you to run the docker daemon in the background. You can verify that colima has started correctly by running `docker context list`. You should be able to see the colima context on the list. If not, follow the troubleshooting steps described in [these docs](https://github.com/abiosoft/colima/blob/main/docs/FAQ.md#cannot-connect-to-the-docker-daemon-at-unixvarrundockersock-is-the-docker-daemon-running).
 
 ```
 GITHUB_TOKEN=<YOUR TOKEN> goreleaser --rm-dist
