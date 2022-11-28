@@ -8,6 +8,7 @@ import (
 	"github.com/Shopify/kubeaudit/internal/color"
 	"github.com/Shopify/kubeaudit/pkg/k8s"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/util/jsonpath"
 )
 
 type Printer struct {
@@ -171,13 +172,11 @@ func (p *Printer) logAuditResult(resource k8s.Resource, result *AuditResult, bas
 func (p *Printer) getLogFieldsForResult(resource k8s.Resource, result *AuditResult) log.Fields {
 	apiVersion, kind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
 	objectMeta := k8s.GetObjectMeta(resource)
-	additionalMetadata := make(map[string]interface{})
 
 	fields := log.Fields{
 		"AuditResultName":    result.Rule,
 		"ResourceKind":       kind,
 		"ResourceApiVersion": apiVersion,
-		"AdditionalMetadata": additionalMetadata,
 	}
 
 	if objectMeta != nil {
@@ -193,10 +192,6 @@ func (p *Printer) getLogFieldsForResult(resource k8s.Resource, result *AuditResu
 	for k, v := range result.Metadata {
 		fields[k] = v
 	}
-
-	for k, v := range result.AdditionalMetadata {
-		fmt.Printf("Additional Metadata: %s: %v\n", k, v)
-		additionalMetadata[k] = v
-	}
+	result.AdditionalMetadata
 	return fields
 }

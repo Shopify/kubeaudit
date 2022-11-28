@@ -104,13 +104,9 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 
 func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 	auditor := initKubeaudit(auditors...)
-	// We need something broader than just the JSONPath object, which hides a number of details.
-	// In particular, we need a (should be unique) user key, followed by the JSONPath expression.
-	// That suggests the CLI flag we capture should be of the form: "$RESULT_KEY1=$JSONPATHEXPR1,$RESULT_KEY2=$JSONPATHEXPR2"
 	var jsonPaths []*k8sinternal.AdditionalMetadataOptions
 	if rootConfig.metadata != nil {
 		for _, jsonPathExpr := range rootConfig.metadata {
-			fmt.Print("HERE")
 			// Need to separate out keys and expressions...
 			split := strings.SplitN(jsonPathExpr, "=", 2)
 			if split == nil || len(split) != 2 {
@@ -118,7 +114,6 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 			}
 			key := split[0]
 			expression := split[1]
-			fmt.Printf("SPLIT IS: %s, %s\n", key, expression)
 			jsonPath := jsonpath.New("")
 			err := jsonPath.Parse(expression)
 			if err != nil {

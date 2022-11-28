@@ -75,7 +75,6 @@ func auditResource(resource KubeResource, resources []KubeResource, auditables [
 			return nil, err
 		}
 
-		addAdditionalFields(resource, auditResults, &options)
 		result.AuditResults = append(result.AuditResults, auditResults...)
 	}
 
@@ -88,24 +87,4 @@ func unwrapResources(resources []KubeResource) []k8s.Resource {
 		unwrappedResources = append(unwrappedResources, resource.Object())
 	}
 	return unwrappedResources
-}
-
-func addAdditionalFields(resource KubeResource, auditResults []*AuditResult, options *k8sinternal.ClientOptions) error {
-	if options.MetadataJSONPaths == nil {
-		return nil
-	}
-	additionalMetadata := map[string]interface{}{}
-	for _, metadataOptions := range options.MetadataJSONPaths {
-		metadataOptions.JSONPath.AllowMissingKeys(true) // Set as sensible default
-		metadata := k8s.GetObjectMeta(resource.Object())
-		result, err := metadataOptions.JSONPath.FindResults(metadata)
-		if err != nil {
-			return err
-		}
-		additionalMetadata[metadataOptions.Key] = result
-	}
-	for _, v := range auditResults {
-		v.AdditionalMetadata = additionalMetadata
-	}
-	return nil
 }
