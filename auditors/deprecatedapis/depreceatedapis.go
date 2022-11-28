@@ -72,6 +72,7 @@ func (deprecatedAPIs *DeprecatedAPIs) Audit(resource k8s.Resource, _ []k8s.Resou
 	if ok && len(lastApplied) > 0 {
 		resource, _ = k8sinternal.DecodeResource([]byte(lastApplied))
 	}
+
 	deprecated, isDeprecated := resource.(apiLifecycleDeprecated)
 	if isDeprecated {
 		deprecatedMajor, deprecatedMinor := deprecated.APILifecycleDeprecated()

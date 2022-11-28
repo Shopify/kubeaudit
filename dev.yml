@@ -1,0 +1,26 @@
+name: kubeaudit
+
+type: go
+
+up:
+  - go:
+      version: 1.17.4
+      modules: true
+  - homebrew:
+      - golangci/tap/golangci-lint
+
+# `dev run` runs `dev build` and then `dev run-built` if these are both defined.
+commands:
+  build:
+    run: go build -o bin/ ./cmd/...
+  run-built:
+    desc: |
+      Run the target after `dev build`.
+      `dev run` is a special command that will run `dev build` and then `dev run-built` if they are both defined.
+    run: ./bin/kubeaudit
+  test:
+    run: go test -v -race -cover ./...
+  style:
+    run: golangci-lint run ./...
+  fmt:
+    run: go fmt ./...

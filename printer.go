@@ -117,6 +117,13 @@ func (p *Printer) prettyPrintReport(report *Report) {
 			for k, v := range auditResult.Metadata {
 				p.print(fmt.Sprintf("      %s: %s\n", k, v))
 			}
+
+			if len(auditResult.AdditionalMetadata) > 0 {
+				p.print("   AdditionalMetadata:\n")
+			}
+			for k, v := range auditResult.AdditionalMetadata {
+				p.print(fmt.Sprintf("      %s: %s\n", k, v))
+			}
 			p.print("\n")
 		}
 	}
@@ -164,11 +171,13 @@ func (p *Printer) logAuditResult(resource k8s.Resource, result *AuditResult, bas
 func (p *Printer) getLogFieldsForResult(resource k8s.Resource, result *AuditResult) log.Fields {
 	apiVersion, kind := resource.GetObjectKind().GroupVersionKind().ToAPIVersionAndKind()
 	objectMeta := k8s.GetObjectMeta(resource)
+	additionalMetadata := make(map[string]interface{})
 
 	fields := log.Fields{
 		"AuditResultName":    result.Rule,
 		"ResourceKind":       kind,
 		"ResourceApiVersion": apiVersion,
+		"AdditionalMetadata": additionalMetadata,
 	}
 
 	if objectMeta != nil {
@@ -185,5 +194,9 @@ func (p *Printer) getLogFieldsForResult(resource k8s.Resource, result *AuditResu
 		fields[k] = v
 	}
 
+	for k, v := range result.AdditionalMetadata {
+		fmt.Printf("Additional Metadata: %s: %v\n", k, v)
+		additionalMetadata[k] = v
+	}
 	return fields
 }

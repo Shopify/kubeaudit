@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/k8sinternal"
 	"github.com/Shopify/kubeaudit/internal/sarif"
+	"k8s.io/client-go/util/jsonpath"
 )
 
 var rootConfig rootFlags
@@ -22,6 +24,7 @@ type rootFlags struct {
 	kubeConfig       string
 	context          string
 	manifest         string
+	metadata         []string
 	namespace        string
 	minSeverity      string
 	exitCode         int
@@ -59,6 +62,7 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&rootConfig.noColor, "no-color", false, "Don't produce colored output.")
 	RootCmd.PersistentFlags().StringVarP(&rootConfig.manifest, "manifest", "f", "", "Path to the yaml configuration to audit. Only used in manifest mode.")
 	RootCmd.PersistentFlags().IntVarP(&rootConfig.exitCode, "exitcode", "e", 2, "Exit code to use if there are results with severity of \"error\". Conventionally, 0 is used for success and all non-zero codes for an error.")
+	RootCmd.PersistentFlags().StringArrayVarP(&rootConfig.metadata, "metadata", "", nil, "comma-separated list of key=JSONPath expressions to retrieve additional metadata from selected resources")
 }
 
 // KubeauditLogLevels represents an enum for the supported log levels.
@@ -72,12 +76,10 @@ var KubeauditLogLevels = map[string]kubeaudit.SeverityLevel{
 func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		report := getReport(auditable...)
-
 		printOptions := []kubeaudit.PrintOption{
 			kubeaudit.WithMinSeverity(KubeauditLogLevels[strings.ToLower(rootConfig.minSeverity)]),
 			kubeaudit.WithColor(!rootConfig.noColor),
 		}
-
 		switch rootConfig.format {
 		case "sarif":
 			sarifReport, err := sarif.Create(report)
@@ -102,7 +104,34 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 
 func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 	auditor := initKubeaudit(auditors...)
-
+	// We need something broader than just the JSONPath object, which hides a number of details.
+	// In particular, we need a (should be unique) user key, followed by the JSONPath expression.
+	// That suggests the CLI flag we capture should be of the form: "$RESULT_KEY1=$JSONPATHEXPR1,$RESULT_KEY2=$JSONPATHEXPR2"
+	var jsonPaths []*k8sinternal.AdditionalMetadataOptions
+	if rootConfig.metadata != nil {
+		for _, jsonPathExpr := range rootConfig.metadata {
+			fmt.Print("HERE")
+			// Need to separate out keys and expressions...
+			split := strings.SplitN(jsonPathExpr, "=", 2)
+			if split == nil || len(split) != 2 {
+				log.Fatalf("Failed to parse \"%s\" as a key=JSONPathExpression")
+			}
+			key := split[0]
+			expression := split[1]
+			fmt.Printf("SPLIT IS: %s, %s\n", key, expression)
+			jsonPath := jsonpath.New("")
+			err := jsonPath.Parse(expression)
+			if err != nil {
+				log.WithError(err).Fatalf("Failed to parse \"%s\" as JSONPath expression", expression)
+			}
+			metadataFinder := &k8sinternal.AdditionalMetadataOptions{
+				Key:        key,
+				Expression: expression,
+				JSONPath:   jsonPath,
+			}
+			jsonPaths = append(jsonPaths, metadataFinder)
+		}
+	}
 	if rootConfig.manifest != "" {
 		var f *os.File
 		if rootConfig.manifest == "-" {
@@ -117,7 +146,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 			f = manifest
 		}
 
-		report, err := auditor.AuditManifest(rootConfig.manifest, f)
+		report, err := auditor.AuditManifest(rootConfig.manifest, f, kubeaudit.AuditOptions{MetadataJSONPaths: jsonPaths})
 		if err != nil {
 			log.WithError(err).Fatal("Error auditing manifest")
 		}
@@ -125,14 +154,14 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 	}
 
 	if k8sinternal.IsRunningInCluster(k8sinternal.DefaultClient) && rootConfig.kubeConfig == "" {
-		report, err := auditor.AuditCluster(k8sinternal.ClientOptions{Namespace: rootConfig.namespace, IncludeGenerated: rootConfig.includeGenerated})
+		report, err := auditor.AuditCluster(k8sinternal.ClientOptions{Namespace: rootConfig.namespace, IncludeGenerated: rootConfig.includeGenerated, MetadataJSONPaths: jsonPaths})
 		if err != nil {
 			log.WithError(err).Fatal("Error auditing cluster")
 		}
 		return report
 	}
 
-	report, err := auditor.AuditLocal(rootConfig.kubeConfig, rootConfig.context, kubeaudit.AuditOptions{Namespace: rootConfig.namespace, IncludeGenerated: rootConfig.includeGenerated})
+	report, err := auditor.AuditLocal(rootConfig.kubeConfig, rootConfig.context, kubeaudit.AuditOptions{Namespace: rootConfig.namespace, IncludeGenerated: rootConfig.includeGenerated, MetadataJSONPaths: jsonPaths})
 	if err != nil {
 		log.WithError(err).Fatal("Error auditing cluster in local mode")
 	}

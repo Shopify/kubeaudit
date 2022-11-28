@@ -45,11 +45,11 @@ func getResourcesFromManifest(data []byte) ([]KubeResource, error) {
 	return resources, nil
 }
 
-func auditResources(resources []KubeResource, auditable []Auditable) ([]Result, error) {
+func auditResources(resources []KubeResource, auditable []Auditable, options k8sinternal.ClientOptions) ([]Result, error) {
 	var results []Result
 
 	for _, resource := range resources {
-		result, err := auditResource(resource, resources, auditable)
+		result, err := auditResource(resource, resources, auditable, options)
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +59,7 @@ func auditResources(resources []KubeResource, auditable []Auditable) ([]Result, 
 	return results, nil
 }
 
-func auditResource(resource KubeResource, resources []KubeResource, auditables []Auditable) (Result, error) {
+func auditResource(resource KubeResource, resources []KubeResource, auditables []Auditable, options k8sinternal.ClientOptions) (Result, error) {
 	result := &WorkloadResult{
 		Resource:     resource,
 		AuditResults: []*AuditResult{},
@@ -74,6 +74,8 @@ func auditResource(resource KubeResource, resources []KubeResource, auditables [
 		if err != nil {
 			return nil, err
 		}
+
+		addAdditionalFields(resource, auditResults, &options)
 		result.AuditResults = append(result.AuditResults, auditResults...)
 	}
 
@@ -86,4 +88,24 @@ func unwrapResources(resources []KubeResource) []k8s.Resource {
 		unwrappedResources = append(unwrappedResources, resource.Object())
 	}
 	return unwrappedResources
+}
+
+func addAdditionalFields(resource KubeResource, auditResults []*AuditResult, options *k8sinternal.ClientOptions) error {
+	if options.MetadataJSONPaths == nil {
+		return nil
+	}
+	additionalMetadata := map[string]interface{}{}
+	for _, metadataOptions := range options.MetadataJSONPaths {
+		metadataOptions.JSONPath.AllowMissingKeys(true) // Set as sensible default
+		metadata := k8s.GetObjectMeta(resource.Object())
+		result, err := metadataOptions.JSONPath.FindResults(metadata)
+		if err != nil {
+			return err
+		}
+		additionalMetadata[metadataOptions.Key] = result
+	}
+	for _, v := range auditResults {
+		v.AdditionalMetadata = additionalMetadata
+	}
+	return nil
 }

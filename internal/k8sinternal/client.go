@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/client-go/util/jsonpath"
 
 	// add authentication support to the kubernetes code
 	_ "k8s.io/client-go/plugin/pkg/client/auth/azure"
@@ -42,6 +43,12 @@ type k8sClient struct{}
 // InClusterConfig wraps the client-go method with the same name.
 func (kc k8sClient) InClusterConfig() (*rest.Config, error) {
 	return rest.InClusterConfig()
+}
+
+type AdditionalMetadataOptions struct {
+	Key        string             // The key that will be used in the structured response
+	Expression string             // The JSONPath expression to be evaluated
+	JSONPath   *jsonpath.JSONPath // Internal representation of Expression
 }
 
 // NewKubeClientLocal creates a new kube client for local mode
@@ -105,6 +112,8 @@ type ClientOptions struct {
 	Namespace string
 	// IncludeGenerated is a boolean option to include generated resources.
 	IncludeGenerated bool
+	// AdditionalMetadata is a slice of JSONPath expressions to retrieve additional metadata in the audit response.
+	MetadataJSONPaths []*AdditionalMetadataOptions
 }
 
 type KubeClient interface {

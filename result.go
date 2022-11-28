@@ -37,13 +37,14 @@ func (s SeverityLevel) String() string {
 
 // AuditResult represents a potential security issue. There may be multiple AuditResults per resource and audit
 type AuditResult struct {
-	Auditor    string        // Auditor name
-	Rule       string        // Rule uniquely identifies a type of violation
-	Severity   SeverityLevel // Severity is one of Error, Warn, or Info
-	Message    string        // Message is a human-readable description of the audit result
-	PendingFix PendingFix    // PendingFix is the fix that will be applied to automatically fix the security issue
-	Metadata   Metadata      // Metadata includes additional context for an audit result
-	FilePath   string        // Manifest file path
+	Auditor            string           // Auditor name
+	Rule               string           // Rule uniquely identifies a type of violation
+	Severity           SeverityLevel    // Severity is one of Error, Warn, or Info
+	Message            string           // Message is a human-readable description of the audit result
+	PendingFix         PendingFix       // PendingFix is the fix that will be applied to automatically fix the security issue
+	Metadata           Metadata         // Metadata includes additional context for an audit result
+	AdditionalMetadata OptionalMetadata // User-requested metadata fields for additional context for an audit result
+	FilePath           string           // Manifest file path
 }
 
 func (result *AuditResult) Fix(resource k8s.Resource) (newResources []k8s.Resource) {
@@ -73,6 +74,7 @@ type PendingFix interface {
 
 // Metadata holds metadata for a potential security issue
 type Metadata = map[string]string
+type OptionalMetadata = map[string]interface{}
 
 // Implements Result
 type WorkloadResult struct {
