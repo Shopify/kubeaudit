@@ -78,6 +78,15 @@ func auditResource(resource KubeResource, resources []KubeResource, auditables [
 		result.AuditResults = append(result.AuditResults, auditResults...)
 	}
 
+	for _, auditResult := range result.AuditResults {
+		additionalMetadata := Metadata{}
+		for _, v := range options.MetadataJSONPaths {
+			additionalMetadata[v.Key] = AdditionalMetadata{
+				JSONPath: v.JSONPath,
+			}
+		}
+	}
+
 	return result, nil
 }
 

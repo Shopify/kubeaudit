@@ -2,7 +2,7 @@ package kubeaudit
 
 import (
 	"github.com/Shopify/kubeaudit/pkg/k8s"
-	"k8s.io/client-go/util/jsonpath"
+	"github.com/ohler55/ojg/jp"
 )
 
 // AuditResult severity levels. They also correspond to log levels
@@ -40,13 +40,19 @@ func (s SeverityLevel) String() string {
 
 // AuditResult represents a potential security issue. There may be multiple AuditResults per resource and audit
 type AuditResult struct {
-	Auditor    string        // Auditor name
-	Rule       string        // Rule uniquely identifies a type of violation
-	Severity   SeverityLevel // Severity is one of Error, Warn, or Info
-	Message    string        // Message is a human-readable description of the audit result
-	PendingFix PendingFix    // PendingFix is the fix that will be applied to automatically fix the security issue
-	Metadata   Metadata      // Metadata includes additional context for an audit result
-	FilePath   string        // Manifest file path
+	Auditor            string        // Auditor name
+	Rule               string        // Rule uniquely identifies a type of violation
+	Severity           SeverityLevel // Severity is one of Error, Warn, or Info
+	Message            string        // Message is a human-readable description of the audit result
+	PendingFix         PendingFix    // PendingFix is the fix that will be applied to automatically fix the security issue
+	Metadata           Metadata      // Metadata includes additional context for an audit result
+	AdditionalMetadata Metadata      // Additional Metadata includes user-provided context for an audit result
+	FilePath           string        // Manifest file path
+}
+
+type AdditionalMetadata struct {
+	Key      string  // The key that will be used in the structured response
+	JSONPath jp.Expr // Internal representation of Expression
 }
 
 func (result *AuditResult) Fix(resource k8s.Resource) (newResources []k8s.Resource) {

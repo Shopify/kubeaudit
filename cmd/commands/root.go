@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 	"github.com/Shopify/kubeaudit/config"
 	"github.com/Shopify/kubeaudit/internal/k8sinternal"
 	"github.com/Shopify/kubeaudit/internal/sarif"
-	"k8s.io/client-go/util/jsonpath"
+	"github.com/ohler55/ojg/jp"
 )
 
 var rootConfig rootFlags
@@ -114,15 +113,10 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 			}
 			key := split[0]
 			expression := split[1]
-			jsonPath := jsonpath.New("")
-			err := jsonPath.Parse(expression)
-			if err != nil {
-				log.WithError(err).Fatalf("Failed to parse \"%s\" as JSONPath expression", expression)
-			}
+			jsonPath := jp.MustParseString(expression)
 			metadataFinder := &k8sinternal.AdditionalMetadataOptions{
-				Key:        key,
-				Expression: expression,
-				JSONPath:   jsonPath,
+				Key:      key,
+				JSONPath: jsonPath,
 			}
 			jsonPaths = append(jsonPaths, metadataFinder)
 		}

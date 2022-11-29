@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Shopify/kubeaudit/pkg/k8s"
+	"github.com/ohler55/ojg/jp"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -17,7 +18,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"k8s.io/client-go/util/jsonpath"
 
 	// add authentication support to the kubernetes code
 	_ "k8s.io/client-go/plugin/pkg/client/auth/azure"
@@ -46,9 +46,8 @@ func (kc k8sClient) InClusterConfig() (*rest.Config, error) {
 }
 
 type AdditionalMetadataOptions struct {
-	Key        string             // The key that will be used in the structured response
-	Expression string             // The JSONPath expression to be evaluated
-	JSONPath   *jsonpath.JSONPath // Internal representation of Expression
+	Key      string  // The key that will be used in the structured response
+	JSONPath jp.Expr // Internal representation of Expression
 }
 
 // NewKubeClientLocal creates a new kube client for local mode
