@@ -107,7 +107,7 @@ func getReport(auditors ...kubeaudit.Auditable) *kubeaudit.Report {
 	if rootConfig.metadata != nil {
 		for _, jsonPathExpr := range rootConfig.metadata {
 			// Need to separate out keys and expressions...
-			split := strings.SplitN(jsonPathExpr, "=", 2)
+			split := strings.SplitN(jsonPathExpr, "=", 2) // name={.name} => [name, {.name}]
 			if split == nil || len(split) != 2 {
 				log.Fatalf("Failed to parse \"%s\" as a key=JSONPathExpression")
 			}
