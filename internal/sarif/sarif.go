@@ -40,18 +40,23 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 		formattedMap := make(map[string]string)
 
 		for k, v := range result.Metadata {
-			formattedMap[k] = "`" + v + "`"
+			formattedMap[k] = v
 		}
 
 		metadata, jsonErr := json.Marshal(formattedMap)
-
 		if jsonErr != nil {
 			metadata = []byte(jsonErr.Error())
 		}
 
+		var metadataTxt string
+
+		if len(formattedMap) > 0 {
+			metadataTxt = fmt.Sprintf("Metadata: %s\n", string(metadata))
+		}
+
 		docsURL := "https://github.com/Shopify/kubeaudit/blob/main/docs/auditors/" + auditor + ".md"
 
-		helpText := fmt.Sprintf("Type: kubernetes\nAuditor Docs: To find out more about the issue and how to fix it, follow [this link](%s)\nDescription: %s\nMetadata: %s\n\n Note: These audit results are generated with `kubeaudit`, a command line tool and a Go package that checks for potential security concerns in kubernetes manifest specs. You can read more about it at https://github.com/Shopify/kubeaudit ", docsURL, allAuditors[auditor], string(metadata))
+		helpText := fmt.Sprintf("Type: kubernetes\nAuditor Docs: To find out more about the issue and how to fix it, follow [this link](%s)\nDescription: %s\n%s\n\n Note: These audit results are generated with `kubeaudit`, a command line tool and a Go package that checks for potential security concerns in kubernetes manifest specs. You can read more about it at https://github.com/Shopify/kubeaudit ", docsURL, allAuditors[auditor], metadataTxt)
 
 		helpMarkdown := fmt.Sprintf("**Type**: kubernetes\n**Auditor Docs**: To find out more about the issue and how to fix it, follow [this link](%s)\n**Description:** %s\n **Metadata**: %s\n\n *Note*: These audit results are generated with `kubeaudit`, a command line tool and a Go package that checks for potential security concerns in kubernetes manifest specs. You can read more about it at https://github.com/Shopify/kubeaudit ",
 			docsURL, allAuditors[auditor], string(metadata))
