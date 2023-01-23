@@ -45,7 +45,7 @@ func Create(kubeauditReport *kubeaudit.Report) (*sarif.Report, error) {
 
 		metadata, jsonErr := json.Marshal(formattedMap)
 
-		if err != nil {
+		if jsonErr != nil {
 			metadata = []byte(jsonErr.Error())
 		}
 
