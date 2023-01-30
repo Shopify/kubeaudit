@@ -111,6 +111,8 @@ func GetPodTemplateSpec(resource Resource) *PodTemplateSpecV1 {
 	switch kubeType := resource.(type) {
 	case *CronJobV1Beta1:
 		return &kubeType.Spec.JobTemplate.Spec.Template
+	case *CronJobV1:
+		return &kubeType.Spec.JobTemplate.Spec.Template
 	case *DaemonSetV1:
 		return &kubeType.Spec.Template
 	case *DeploymentV1:
