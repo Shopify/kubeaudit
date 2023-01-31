@@ -47,7 +47,7 @@ show-coverage: test
 
 setup:
 	$(GOMOD) download
-	$(GOMOD) tidy
+	$(GOMOD) tidy -compat=1.17
 
 clean:
 	$(GOCLEAN)
