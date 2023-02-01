@@ -1,7 +1,6 @@
 package kubeaudit_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/Shopify/kubeaudit"
@@ -29,7 +28,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestAuditLocal(t *testing.T) {
-	if os.Getenv("USE_KIND") == "false" {
+	if !test.UseKind() {
 		return
 	}
 

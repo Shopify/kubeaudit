@@ -5,13 +5,13 @@ set -e
 echo "Starting tests. This may take a while..."
 
 function finish {
-    if [ "$USE_KIND" != "false" ] ; then
+    if [ "$USE_KIND" == "true" ] ; then
         make test-teardown
     fi
 }
 trap finish EXIT
 
-if [ "$USE_KIND" != "false" ] ; then
+if [ "$USE_KIND" == "true" ] ; then
     make test-setup
 fi
 
