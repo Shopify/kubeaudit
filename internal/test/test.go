@@ -137,7 +137,7 @@ func GetAllFileNames(t *testing.T, directory string) []string {
 
 // UseKind returns true if tests which utilize Kind should run
 func UseKind() bool {
-	return os.Getenv("USE_KIND") != "false"
+	return os.Getenv("USE_KIND") == "true"
 }
 
 func ApplyManifest(t *testing.T, manifestPath, namespace string) {

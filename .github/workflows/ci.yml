@@ -22,4 +22,6 @@ jobs:
       - name: Go mod download and go tidy
         run: make setup
       - name: Run tests
+        env:
+          USE_KIND: "true"
         run: make test
