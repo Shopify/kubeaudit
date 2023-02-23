@@ -292,13 +292,13 @@ The `key` is a combination of the override type (container or pod) and an `overr
 1. **Container overrides**, which override the auditor for that specific container, are formatted as follows:
 
 ```yaml
-container.audit.kubernetes.io/[container name].[override identifier]
+container.audit.kubeaudit.io/[container name].[override identifier]
 ```
 
 2. **Pod overrides**, which override the auditor for all containers within the pod, are formatted as follows:
 
 ```yaml
-audit.kubernetes.io/pod.[override identifier]
+audit.kubeaudit.io/pod.[override identifier]
 ```
 
 If the `value` is set to a non-empty string, it will be displayed in the `info` result as the `OverrideReason`:

@@ -12,7 +12,7 @@ spec:
     metadata:
       labels:
         name: statefulset
-        audit.kubernetes.io/pod.allow-privilege-escalation: ""
+        audit.kubeaudit.io/pod.allow-privilege-escalation: ""
     spec:
       containers:
         - name: container

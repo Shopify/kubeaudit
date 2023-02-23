@@ -9,11 +9,11 @@ import (
 
 const (
 	// ContainerOverrideLabelPrefix is used to disable an auditor for a specific container
-	ContainerOverrideLabelPrefix = "container.audit.kubernetes.io/"
+	ContainerOverrideLabelPrefix = "container.audit.kubeaudit.io/"
 	// PodOverrideLabelPrefix is used to disable an auditor for a specific pod
-	PodOverrideLabelPrefix = "audit.kubernetes.io/pod."
+	PodOverrideLabelPrefix = "audit.kubeaudit.io/pod."
 	// NamespaceOverrideLabelPrefix is used to disable an auditor for a specific namespace resource
-	NamespaceOverrideLabelPrefix = "audit.kubernetes.io/namespace."
+	NamespaceOverrideLabelPrefix = "audit.kubeaudit.io/namespace."
 )
 
 // GetOverriddenResultName takes an audit result name and modifies it to indicate that the security issue was
@@ -69,7 +69,8 @@ func ApplyOverride(auditResult *kubeaudit.AuditResult, auditorName, containerNam
 // value of the label which is meant to represent the reason for overriding the auditor
 //
 // Container override labels disable the auditor for that specific container and have the following format:
-// 		container.audit.kubernetes.io/[container name].[auditor override label]
+//
+//	container.audit.kubeaudit.io/[container name].[auditor override label]
 //
 // If there is no container override label, it calls GetResourceOverrideReason()
 func GetContainerOverrideReason(containerName string, resource k8s.Resource, overrideLabel string) (hasOverride bool, reason string) {
@@ -88,9 +89,12 @@ func GetContainerOverrideReason(containerName string, resource k8s.Resource, ove
 // label which is meant to represent the reason for overriding the auditor
 //
 // Pod override labels disable the auditor for the pod and all containers within the pod and have the following format:
-// 		audit.kubernetes.io/pod.[auditor override label]
+//
+//	audit.kubeaudit.io/pod.[auditor override label]
+//
 // Namespace override labels disable the auditor for the namespace resource and have the following format:
-// 		audit.kubernetes.io/namespace.[auditor override label]
+//
+//	audit.kubeaudit.io/namespace.[auditor override label]
 func GetResourceOverrideReason(resource k8s.Resource, auditorOverrideLabel string) (hasOverride bool, reason string) {
 	labelFuncs := []func(overrideLabel string) string{
 		GetPodOverrideLabel,

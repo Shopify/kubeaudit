@@ -233,7 +233,7 @@ spec:
   template: #PodTemplateSpec
     metadata:
       labels:
-        container.audit.kubernetes.io/container2.allow-host-path-mount-proc-volume: "SomeReason"
+        container.audit.kubeaudit.io/container2.allow-host-path-mount-proc-volume: "SomeReason"
     spec: #PodSpec
       containers:
         - name: container1
@@ -258,7 +258,7 @@ spec:
   template: #PodTemplateSpec
     metadata:
       labels:
-        audit.kubernetes.io/pod.allow-host-path-mount-proc-volume: "SomeReason"
+        audit.kubeaudit.io/pod.allow-host-path-mount-proc-volume: "SomeReason"
     spec: #PodSpec
       containers:
         - name: container1
