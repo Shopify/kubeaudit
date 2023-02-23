@@ -8,6 +8,17 @@ import (
 )
 
 const (
+	// TODO: remove deprecated unregistered labels after warning users about the breaking change
+
+	// DeprecatedContainerOverrideLabelPrefix is used to disable an auditor for a specific container
+	DeprecatedContainerOverrideLabelPrefix = "container.audit.kubernetes.io/"
+
+	// DeprecatedPodOverrideLabelPrefix is used to disable an auditor for a specific pod
+	DeprecatedPodOverrideLabelPrefix = "audit.kubernetes.io/pod."
+
+	// DeprecatedNamespaceOverrideLabelPrefix is used to disable an auditor for a specific namespace resource
+	DeprecatedNamespaceOverrideLabelPrefix = "audit.kubernetes.io/namespace."
+
 	// ContainerOverrideLabelPrefix is used to disable an auditor for a specific container
 	ContainerOverrideLabelPrefix = "container.audit.kubeaudit.io/"
 	// PodOverrideLabelPrefix is used to disable an auditor for a specific pod
@@ -77,6 +88,10 @@ func GetContainerOverrideReason(containerName string, resource k8s.Resource, ove
 	labels := k8s.GetLabels(resource)
 
 	if containerName != "" {
+		if reason, hasOverride = labels[GetDeprecatedContainerOverrideLabel(containerName, overrideLabel)]; hasOverride {
+			return
+		}
+
 		if reason, hasOverride = labels[GetContainerOverrideLabel(containerName, overrideLabel)]; hasOverride {
 			return
 		}
@@ -98,7 +113,9 @@ func GetContainerOverrideReason(containerName string, resource k8s.Resource, ove
 func GetResourceOverrideReason(resource k8s.Resource, auditorOverrideLabel string) (hasOverride bool, reason string) {
 	labelFuncs := []func(overrideLabel string) string{
 		GetPodOverrideLabel,
+		GetDeprecatedPodOverrideLabel,
 		GetNamespaceOverrideLabel,
+		GetDeprecatedNamespaceOverrideLabel,
 	}
 
 	labels := k8s.GetLabels(resource)
@@ -111,12 +128,25 @@ func GetResourceOverrideReason(resource k8s.Resource, auditorOverrideLabel strin
 	return false, ""
 }
 
-func GetPodOverrideLabel(overrideLabel string) string {
-	return PodOverrideLabelPrefix + overrideLabel
+// TODO: remove deprecated getters
+func GetDeprecatedPodOverrideLabel(overrideLabel string) string {
+	return DeprecatedPodOverrideLabelPrefix + overrideLabel
+}
+
+func GetDeprecatedNamespaceOverrideLabel(overrideLabel string) string {
+	return DeprecatedNamespaceOverrideLabelPrefix + overrideLabel
+}
+
+func GetDeprecatedContainerOverrideLabel(containerName, overrideLabel string) string {
+	return DeprecatedContainerOverrideLabelPrefix + containerName + "." + overrideLabel
 }
 
 func GetNamespaceOverrideLabel(overrideLabel string) string {
 	return NamespaceOverrideLabelPrefix + overrideLabel
+}
+
+func GetPodOverrideLabel(overrideLabel string) string {
+	return PodOverrideLabelPrefix + overrideLabel
 }
 
 func GetContainerOverrideLabel(containerName, overrideLabel string) string {
