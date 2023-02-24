@@ -82,12 +82,12 @@ func (p *Printer) PrintReport(report *Report) {
 }
 
 func (p *Printer) prettyPrintReport(report *Report) {
+	p.printColor(color.YellowColor, p.deprecationWarning)
+
 	if len(report.ResultsWithMinSeverity(p.minSeverity)) < 1 {
 		p.printColor(color.GreenColor, "All checks completed. 0 high-risk vulnerabilities found\n")
 		return
 	}
-
-	p.printColor(color.YellowColor, p.deprecationWarning)
 
 	for _, workloadResult := range report.ResultsWithMinSeverity(p.minSeverity) {
 		resource := workloadResult.GetResource().Object()

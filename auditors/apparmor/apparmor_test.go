@@ -24,7 +24,7 @@ func TestAuditAppArmor(t *testing.T) {
 		{"apparmor-annotation-init-container-missing.yml", []string{AppArmorAnnotationMissing}, true},
 		{"apparmor-disabled.yml", []string{AppArmorDisabled}, true},
 		{"apparmor-disabled-overriden.yml", []string{override.GetOverriddenResultName(AppArmorDisabled)}, true},
-		// {"apparmor-disabled-overriden-old-label.yml", []string{override.GetOverriddenResultName(AppArmorDisabled)}, true},
+		{"apparmor-disabled-overriden-old-label.yml", []string{override.GetOverriddenResultName(AppArmorDisabled)}, true},
 		{"apparmor-disabled-overriden-multiple.yml", []string{AppArmorAnnotationMissing, override.GetOverriddenResultName(AppArmorDisabled)}, true},
 		// These are invalid manifests so we should only test it in manifest mode as kubernetes will fail to apply it
 		{"apparmor-bad-value.yml", []string{AppArmorBadValue}, false},

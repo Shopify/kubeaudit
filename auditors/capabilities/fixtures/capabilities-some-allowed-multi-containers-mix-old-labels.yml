@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deployment
-  namespace: capabilities-some-allowed-multi-containers-mix-labels
+  namespace: capabilities-some-allowed-multi-containers-mix-old-labels
 spec:
   selector:
     matchLabels:
