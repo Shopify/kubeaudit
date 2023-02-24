@@ -76,6 +76,7 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 		printOptions := []kubeaudit.PrintOption{
 			kubeaudit.WithMinSeverity(KubeauditLogLevels[strings.ToLower(rootConfig.minSeverity)]),
 			kubeaudit.WithColor(!rootConfig.noColor),
+			kubeaudit.WithDeprecationWarning("\n[WARNING]: kubernetes.io for override labels will soon be deprecated. Please, update them to use kubeaudit.io instead.\n"),
 		}
 
 		switch rootConfig.format {
