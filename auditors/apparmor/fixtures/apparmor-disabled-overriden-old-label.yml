@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod
-  namespace: apparmor-disabled-overriden
+  namespace: apparmor-disabled-overriden-old
   annotations:
     container.apparmor.security.beta.kubernetes.io/container: unconfined
   labels:

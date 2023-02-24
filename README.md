@@ -4,6 +4,8 @@
 
 > It is now a requirement for clusters to run Kubernetes >=1.19.
 
+> override labels with unregistered `kubernetes.io` annotations will be deprecated. It'll soon be a requirement to use `kubeaudit.io` instead.
+Refer to this [discussion](https://github.com/Shopify/kubeaudit/issues/457) for additional context.
 
 # kubeaudit :cloud: :lock: :muscle:
 
