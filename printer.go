@@ -11,11 +11,10 @@ import (
 )
 
 type Printer struct {
-	writer             io.Writer
-	minSeverity        SeverityLevel
-	formatter          log.Formatter
-	color              bool
-	deprecationWarning string
+	writer      io.Writer
+	minSeverity SeverityLevel
+	formatter   log.Formatter
+	color       bool
 }
 
 type PrintOption func(p *Printer)
@@ -49,13 +48,6 @@ func WithColor(color bool) PrintOption {
 	}
 }
 
-// WithDeprecationWarning allows us to send a message about deprecations to end users
-func WithDeprecationWarning(warning string) PrintOption {
-	return func(p *Printer) {
-		p.deprecationWarning = warning
-	}
-}
-
 func (p *Printer) parseOptions(opts ...PrintOption) {
 	for _, opt := range opts {
 		opt(p)
@@ -64,10 +56,9 @@ func (p *Printer) parseOptions(opts ...PrintOption) {
 
 func NewPrinter(opts ...PrintOption) Printer {
 	p := Printer{
-		writer:             os.Stdout,
-		minSeverity:        Info,
-		color:              true,
-		deprecationWarning: "",
+		writer:      os.Stdout,
+		minSeverity: Info,
+		color:       true,
 	}
 	p.parseOptions(opts...)
 	return p
@@ -82,8 +73,6 @@ func (p *Printer) PrintReport(report *Report) {
 }
 
 func (p *Printer) prettyPrintReport(report *Report) {
-	p.printColor(color.YellowColor, p.deprecationWarning)
-
 	if len(report.ResultsWithMinSeverity(p.minSeverity)) < 1 {
 		p.printColor(color.GreenColor, "All checks completed. 0 high-risk vulnerabilities found\n")
 		return
