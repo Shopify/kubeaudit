@@ -95,7 +95,7 @@ Override identifier: `allow-automount-service-account-token`
 
 Only pod overrides are supported:
 ```yaml
-audit.kubeaudit.io/pod.allow-automount-service-account-token: ""
+kubeaudit.io/allow-automount-service-account-token: ""
 ```
 
 Example of a resource with `asat` results overridden:
@@ -106,7 +106,7 @@ spec:
   template:
     metadata:
       labels:
-        audit.kubeaudit.io/pod.allow-automount-service-account-token: ""
+        kubeaudit.io/allow-automount-service-account-token: ""
     spec:
       automountServiceAccountToken: true
       containers:

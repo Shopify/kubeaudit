@@ -12,7 +12,7 @@ spec:
     metadata:
       labels:
         name: deployment
-        audit.kubeaudit.io/pod.allow-run-as-root: "SuperuserPrivilegesNeeded"
+        kubeaudit.io/allow-run-as-root: "SuperuserPrivilegesNeeded"
     spec:
       containers:
         - name: container

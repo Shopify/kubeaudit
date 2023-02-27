@@ -81,12 +81,12 @@ Override identifer: `allow-run-as-root`
 
 Container overrides have the form:
 ```yaml
-container.audit.kubeaudit.io/[container name].allow-run-as-root: ""
+container.kubeaudit.io/[container name].allow-run-as-root: ""
 ```
 
 Pod overrides have the form:
 ```yaml
-audit.kubeaudit.io/pod.allow-run-as-root: ""
+kubeaudit.io/allow-run-as-root: ""
 ```
 
 Example of resource with `nonroot` overridden for a specific container:
@@ -97,7 +97,7 @@ spec:
   template: #PodTemplateSpec
     metadata:
       labels:
-        container.audit.kubeaudit.io/myContainer.allow-run-as-root: ""
+        container.kubeaudit.io/myContainer.allow-run-as-root: ""
     spec: #PodSpec
       securityContext: #PodSecurityContext
         runAsNonRoot: true
@@ -116,7 +116,7 @@ spec:
   template: #PodTemplateSpec
     metadata:
       labels:
-        audit.kubeaudit.io/pod.allow-run-as-root: ""
+        kubeaudit.io/allow-run-as-root: ""
     spec: #PodSpec
       securityContext: #PodSecurityContext
         runAsNonRoot: true
@@ -137,7 +137,7 @@ spec:
   template: #PodTemplateSpec
     metadata:
       labels:
-        container.audit.kubeaudit.io/myContainer.allow-run-as-root: ""
+        container.kubeaudit.io/myContainer.allow-run-as-root: ""
     spec: #PodSpec
       securityContext: #PodSecurityContext
         runAsUser: 1000

@@ -86,7 +86,7 @@ Override identifier for the `unconfined` apparmor profile value: `allow-disabled
 
 Container overrides have the form:
 ```yaml
-container.audit.kubeaudit.io/[container name].allow-disabled-apparmor: "SomeReason"
+container.kubeaudit.io/[container name].allow-disabled-apparmor: "SomeReason"
 ```
 
 Example of resource with the `unconfined` apparmor profile overridden for a specific container:
@@ -99,7 +99,7 @@ spec:
       annotations:
         container.apparmor.security.beta.kubernetes.io/myContainer: unconfined
       labels:
-        container.audit.kubeaudit.io/myContainer.allow-disabled-apparmor: "SomeReason"
+        container.kubeaudit.io/myContainer.allow-disabled-apparmor: "SomeReason"
     spec:
       containers:
       - name: myContainer

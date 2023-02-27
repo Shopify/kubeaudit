@@ -8,7 +8,7 @@ metadata:
   annotations:
     container.apparmor.security.beta.kubernetes.io/container: unconfined
   labels:
-    container.audit.kubeaudit.io/container.allow-disabled-apparmor: "SomeReason"
+    container.kubeaudit.io/container.allow-disabled-apparmor: "SomeReason"
 spec:
   containers:
     - name: container
