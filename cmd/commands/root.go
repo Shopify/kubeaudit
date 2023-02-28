@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/Shopify/kubeaudit"
 	"github.com/Shopify/kubeaudit/auditors/all"
 	"github.com/Shopify/kubeaudit/config"
+	"github.com/Shopify/kubeaudit/internal/color"
 	"github.com/Shopify/kubeaudit/internal/k8sinternal"
 	"github.com/Shopify/kubeaudit/internal/sarif"
 )
@@ -72,6 +74,8 @@ var KubeauditLogLevels = map[string]kubeaudit.SeverityLevel{
 func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		report := getReport(auditable...)
+
+		fmt.Fprintln(os.Stderr, color.Yellow("\n[WARNING]: kubernetes.io for override labels will soon be deprecated. Please, update them to use kubeaudit.io instead."))
 
 		printOptions := []kubeaudit.PrintOption{
 			kubeaudit.WithMinSeverity(KubeauditLogLevels[strings.ToLower(rootConfig.minSeverity)]),

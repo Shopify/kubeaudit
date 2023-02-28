@@ -60,12 +60,12 @@ Override identifier: `allow-read-only-root-filesystem-false`
 
 Container overrides have the form:
 ```yaml
-container.audit.kubernetes.io/[container name].allow-read-only-root-filesystem-false: ""
+container.kubeaudit.io/[container name].allow-read-only-root-filesystem-false: ""
 ```
 
 Pod overrides have the form:
 ```yaml
-audit.kubernetes.io/pod.allow-read-only-root-filesystem-false: ""
+kubeaudit.io/allow-read-only-root-filesystem-false: ""
 ```
 
 Example of resource with `rootfs` overridden for a specific container:
@@ -76,7 +76,7 @@ spec:
   template:
     metadata:
       labels:
-        container.audit.kubernetes.io/myContainer.allow-read-only-root-filesystem-false: ""
+        container.kubeaudit.io/myContainer.allow-read-only-root-filesystem-false: ""
     spec:
       containers:
       - name: myContainer
@@ -92,7 +92,7 @@ spec:
   template:
     metadata:
       labels:
-        audit.kubernetes.io/pod.allow-read-only-root-filesystem-false: ""
+        kubeaudit.io/allow-read-only-root-filesystem-false: ""
     spec:
       containers:
       - name: myContainer

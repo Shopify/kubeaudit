@@ -59,12 +59,12 @@ Override identifier: `allow-privileged`
 
 Container overrides have the form:
 ```yaml
-container.audit.kubernetes.io/[container name].allow-privileged: ""
+container.kubeaudit.io/[container name].allow-privileged: ""
 ```
 
 Pod overrides have the form:
 ```yaml
-audit.kubernetes.io/pod.allow-privileged: ""
+kubeaudit.io/allow-privileged: ""
 ```
 
 Example of resource with `privileged` overridden for a specific container:
@@ -75,7 +75,7 @@ spec:
   template:
     metadata:
       labels:
-        container.audit.kubernetes.io/myContainer.allow-privilege-escalation: ""
+        container.kubeaudit.io/myContainer.allow-privilege-escalation: ""
     spec:
       containers:
       - name: myContainer
@@ -91,7 +91,7 @@ spec:
   template:
     metadata:
       labels:
-        audit.kubernetes.io/pod.allow-privileged: ""
+        kubeaudit.io/allow-privileged: ""
     spec:
       containers:
       - name: myContainer

@@ -4,8 +4,8 @@ metadata:
   name: pod
   labels:
     name: pod
-    container.audit.kubernetes.io/container1.allow-host-path-mount-proc-volume: "SomeReason"
-    container.audit.kubernetes.io/container2.allow-host-path-mount-proc-volume: "SomeReason"
+    container.kubeaudit.io/container1.allow-host-path-mount-proc-volume: "SomeReason"
+    container.kubeaudit.io/container2.allow-host-path-mount-proc-volume: "SomeReason"
   namespace: proc-mounted-allowed-multi-containers-multi-labels
 spec:
   containers:

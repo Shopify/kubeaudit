@@ -13,7 +13,7 @@ spec:
     metadata:
       labels:
         name: statefulset
-        container.audit.kubernetes.io/container1.allow-read-only-root-filesystem-false: "SomeReason"
+        container.kubeaudit.io/container1.allow-read-only-root-filesystem-false: "SomeReason"
     spec:
       containers:
         - name: container1

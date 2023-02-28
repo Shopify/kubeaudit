@@ -1,8 +1,10 @@
+# this is to test backwards compatibility with old unregistered annotations (kubernetes.io)
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deployment
-  namespace: capabilities-some-allowed-multi-containers-mix-labels
+  namespace: capabilities-some-allowed-multi-containers-mix-old-labels
 spec:
   selector:
     matchLabels:
@@ -11,10 +13,10 @@ spec:
     metadata:
       labels:
         name: deployment
-        kubeaudit.io/allow-capability-chown: "SomeReason"
-        container.kubeaudit.io/container1.allow-capability-chown: "SomeReason"
-        container.kubeaudit.io/container1.allow-capability-sys-time: "SomeReason"
-        container.kubeaudit.io/container2.allow-capability-sys-time: "SomeReason"
+        audit.kubernetes.io/pod.allow-capability-chown: "SomeReason"
+        container.audit.kubernetes.io/container1.allow-capability-chown: "SomeReason"
+        container.audit.kubernetes.io/container1.allow-capability-sys-time: "SomeReason"
+        container.audit.kubernetes.io/container2.allow-capability-sys-time: "SomeReason"
     spec:
       containers:
         - name: container1

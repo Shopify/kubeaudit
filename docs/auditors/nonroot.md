@@ -52,7 +52,7 @@ spec:
       - name: myContainer
 ```
 
-Alternatively it's possible to enforce non-root containers by setting `runAsUser` to a non-root UID (>0) in either the PodSecurityContext or container SecurityContext. Conversely, if `runAsUser` is set to `0` in either the PodSecurityContext or container SecurityContext then the container will always run as root and so the audit will fail. 
+Alternatively it's possible to enforce non-root containers by setting `runAsUser` to a non-root UID (>0) in either the PodSecurityContext or container SecurityContext. Conversely, if `runAsUser` is set to `0` in either the PodSecurityContext or container SecurityContext then the container will always run as root and so the audit will fail.
 
 If `runAsUser` is set to a non-root UID (either in PodSecurityContext or container SecurityContext) it won't matter if `runAsNonRoot` is set to `false` or `nil` and so the audit will always pass.
 
@@ -81,12 +81,12 @@ Override identifer: `allow-run-as-root`
 
 Container overrides have the form:
 ```yaml
-container.audit.kubernetes.io/[container name].allow-run-as-root: ""
+container.kubeaudit.io/[container name].allow-run-as-root: ""
 ```
 
 Pod overrides have the form:
 ```yaml
-audit.kubernetes.io/pod.allow-run-as-root: ""
+kubeaudit.io/allow-run-as-root: ""
 ```
 
 Example of resource with `nonroot` overridden for a specific container:
@@ -97,7 +97,7 @@ spec:
   template: #PodTemplateSpec
     metadata:
       labels:
-        container.audit.kubernetes.io/myContainer.allow-run-as-root: ""
+        container.kubeaudit.io/myContainer.allow-run-as-root: ""
     spec: #PodSpec
       securityContext: #PodSecurityContext
         runAsNonRoot: true
@@ -116,7 +116,7 @@ spec:
   template: #PodTemplateSpec
     metadata:
       labels:
-        audit.kubernetes.io/pod.allow-run-as-root: ""
+        kubeaudit.io/allow-run-as-root: ""
     spec: #PodSpec
       securityContext: #PodSecurityContext
         runAsNonRoot: true
@@ -137,7 +137,7 @@ spec:
   template: #PodTemplateSpec
     metadata:
       labels:
-        container.audit.kubernetes.io/myContainer.allow-run-as-root: ""
+        container.kubeaudit.io/myContainer.allow-run-as-root: ""
     spec: #PodSpec
       securityContext: #PodSecurityContext
         runAsUser: 1000

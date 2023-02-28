@@ -74,12 +74,12 @@ Each host namespace field can be individually overridden using their respective 
 
 Container overrides have the form:
 ```yaml
-container.audit.kubernetes.io/[container name].[override identifier]: ""
+container.kubeaudit.io/[container name].[override identifier]: ""
 ```
 
 Pod overrides have the form:
 ```yaml
-audit.kubernetes.io/pod.[override identifier]: ""
+kubeaudit.io/[override identifier]: ""
 ```
 
 Example of a resource with `HostPID` overridden for a specific container:
@@ -90,7 +90,7 @@ spec:
   template:
     metadata:
       labels:
-        container.audit.kubernetes.io/myContainer.allow-namespace-host-PID: ""
+        container.kubeaudit.io/myContainer.allow-namespace-host-PID: ""
     spec:
       hostPID: true
       containers:
@@ -105,7 +105,7 @@ spec:
   template:
     metadata:
       labels:
-        audit.kubernetes.io/pod.allow-namespace-host-PID: ""
+        kubeaudit.io/allow-namespace-host-PID: ""
     spec:
       hostPID: true
       containers:

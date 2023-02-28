@@ -40,6 +40,11 @@ func TestAuditCapabilities(t *testing.T) {
 			CapabilityShouldDropAll,
 			override.GetOverriddenResultName(CapabilityAdded),
 		}},
+		{"capabilities-some-allowed-multi-containers-mix-old-labels.yml", fixtureDir, []string{
+			CapabilityAdded,
+			CapabilityShouldDropAll,
+			override.GetOverriddenResultName(CapabilityAdded),
+		}},
 	}
 
 	for _, tc := range cases {

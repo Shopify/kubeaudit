@@ -4,7 +4,7 @@ metadata:
   name: pod
   namespace: namespaces-redundant-override
   labels:
-    audit.kubernetes.io/pod.allow-namespace-host-network: "SomeReason"
+    kubeaudit.io/allow-namespace-host-network: "SomeReason"
 spec:
   hostNetwork: false
   containers:

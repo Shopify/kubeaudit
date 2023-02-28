@@ -3,8 +3,8 @@ kind: Namespace
 metadata:
   name: namespace-missing-default-deny-netpol-allowed
   labels:
-    audit.kubernetes.io/namespace.allow-non-default-deny-egress-network-policy: "SomeReason"
-    audit.kubernetes.io/namespace.allow-non-default-deny-ingress-network-policy: "SomeReason"
+    kubeaudit.io/allow-non-default-deny-egress-network-policy: "SomeReason"
+    kubeaudit.io/allow-non-default-deny-ingress-network-policy: "SomeReason"
 ---
 # https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/07-allow-traffic-from-some-pods-in-another-namespace.md
 kind: NetworkPolicy

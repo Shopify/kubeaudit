@@ -59,7 +59,7 @@ First, see the [Introduction to Override Errors](/README.md#override-errors).
 
 The `netpols` auditor uses a unique override label type not used by any other auditor because the label applies to a namespace (rather than a container or pod):
 ```
-audit.kubernetes.io/namespace.[override identifier]: ""
+kubeaudit.io/[override identifier]: ""
 ```
 
 Deny-all ingress and egress network policies can be individually overridden using their respective override identifiers:
@@ -76,7 +76,7 @@ kind: Namespace
 metadata:
   name: "default"
   labels:
-    audit.kubernetes.io/namespace.allow-non-default-deny-ingress-network-policy: ""
+    kubeaudit.io/allow-non-default-deny-ingress-network-policy: ""
 ```
 
 ### Override Example
@@ -118,14 +118,14 @@ The `netpols` auditor will produce an error because there is no `deny-all` Netwo
       Namespace: my-namespace
 ```
 
-This error can be overridden by adding the `audit.kubernetes.io/namespace.allow-non-default-deny-ingress-network-policy: ""` label to the corresponding Namespace resource:
+This error can be overridden by adding the `kubeaudit.io/allow-non-default-deny-ingress-network-policy: ""` label to the corresponding Namespace resource:
 ```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   name: "my-namespace"
   labels:
-    audit.kubernetes.io/namespace.allow-non-default-deny-ingress-network-policy: ""
+    kubeaudit.io/allow-non-default-deny-ingress-network-policy: ""
 ```
 
 The auditor will now produce a warning instead of an error:

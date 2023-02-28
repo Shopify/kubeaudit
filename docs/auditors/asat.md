@@ -1,7 +1,7 @@
 # automountServiceAccountToken Auditor (asat)
 
 Finds containers that meet either of the following conditions:
-1. The deprecated `serviceAccount` field is used 
+1. The deprecated `serviceAccount` field is used
 1. The default service account is automatically mounted
 
 ## General Usage
@@ -95,7 +95,7 @@ Override identifier: `allow-automount-service-account-token`
 
 Only pod overrides are supported:
 ```yaml
-audit.kubernetes.io/pod.allow-automount-service-account-token: ""
+kubeaudit.io/allow-automount-service-account-token: ""
 ```
 
 Example of a resource with `asat` results overridden:
@@ -106,7 +106,7 @@ spec:
   template:
     metadata:
       labels:
-        audit.kubernetes.io/pod.allow-automount-service-account-token: ""
+        kubeaudit.io/allow-automount-service-account-token: ""
     spec:
       automountServiceAccountToken: true
       containers:

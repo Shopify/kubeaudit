@@ -11,7 +11,7 @@ spec:
     metadata:
       labels:
         name: daemonset
-        audit.kubernetes.io/pod.allow-privileged: "SomeReason"
+        kubeaudit.io/allow-privileged: "SomeReason"
     spec:
       containers:
         - name: container

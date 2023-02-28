@@ -4,7 +4,7 @@ metadata:
   name: pod
   labels:
     name: pod
-    audit.kubernetes.io/pod.allow-host-path-mount-proc-volume: "SomeReason"
+    kubeaudit.io/allow-host-path-mount-proc-volume: "SomeReason"
   namespace: proc-mounted-allowed
 spec:
   containers:

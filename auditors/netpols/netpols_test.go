@@ -23,6 +23,7 @@ func TestAuditDefaultDenyNetworkPolicies(t *testing.T) {
 		{"namespace-missing-default-deny-netpol-allowed.yml", []string{override.GetOverriddenResultName(MissingDefaultDenyIngressAndEgressNetworkPolicy)}},
 		{"namespace-missing-default-deny-egress-netpol-allowed.yml", []string{override.GetOverriddenResultName(MissingDefaultDenyEgressNetworkPolicy)}},
 		{"namespace-missing-default-deny-ingress-netpol-allowed.yml", []string{override.GetOverriddenResultName(MissingDefaultDenyIngressNetworkPolicy)}},
+		{"namespace-allow-missing-default-deny-ingress-old-label.yml", []string{override.GetOverriddenResultName(MissingDefaultDenyIngressNetworkPolicy)}},
 	}
 
 	for _, tc := range cases {

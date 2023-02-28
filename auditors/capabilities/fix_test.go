@@ -71,7 +71,7 @@ func TestFixCapabilities(t *testing.T) {
 		},
 		{
 			testName:     "Pod override",
-			overrides:    []string{override.GetPodOverrideLabel(getOverrideLabel("orange"))},
+			overrides:    []string{override.GetOverrideLabel(getOverrideLabel("orange"))},
 			add:          []string{"orange"},
 			expectedAdd:  []string{"orange"},
 			drop:         []string{},

@@ -89,7 +89,7 @@ $ kubeaudit all --kconfig "config.yaml" -f "manifest.yaml"
 --------------------------------------------
 
 -- [error] CapabilityAdded
-   Message: Capability "CHOWN" added. It should be removed from the capability add list. If you need this capability, add an override label such as'container.audit.kubernetes.io/container1.allow-capability-chown: SomeReason'.
+   Message: Capability "CHOWN" added. It should be removed from the capability add list. If you need this capability, add an override label such as'container.kubeaudit.io/container1.allow-capability-chown: SomeReason'.
    Metadata:
       Container: container1
 ```
@@ -126,7 +126,7 @@ Here we're only adding 3 capabilities to the add list to be ignored. Since we di
 --------------------------------------------
 
 -- [error] CapabilityAdded
-   Message: Capability "NET_ADMIN" added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.audit.kubernetes.io/container1.allow-capability-net-admin: SomeReason'.
+   Message: Capability "NET_ADMIN" added. It should be removed from the capability add list. If you need this capability, add an override label such as 'container.kubeaudit.io/container1.allow-capability-net-admin: SomeReason'.
    Metadata:
       Container: container1
       Capabiliy: NET_ADMIN
@@ -193,13 +193,13 @@ For example, the override identifier for the `AUDIT_WRITE` capability would be `
 Container overrides have the form:
 
 ```yaml
-container.audit.kubernetes.io/[container name].[override identifier]: ''
+container.kubeaudit.io/[container name].[override identifier]: ''
 ```
 
 Pod overrides have the form:
 
 ```yaml
-audit.kubernetes.io/pod.[override identifier]: ''
+kubeaudit.io/[override identifier]: ''
 ```
 
 Example of a resource with `AUDIT_WRITE` and `DAC_OVERRIDE` capabilities overridden for a specific container:
@@ -211,8 +211,8 @@ spec:
   template:
     metadata:
       labels:
-        container.audit.kubernetes.io/myContainer.allow-capability-audit-write: ''
-        container.audit.kubernetes.io/myContainer.allow-capability-dac-override: ''
+        container.kubeaudit.io/myContainer.allow-capability-audit-write: ''
+        container.kubeaudit.io/myContainer.allow-capability-dac-override: ''
     spec:
       containers:
         - name: myContainer
@@ -234,8 +234,8 @@ spec:
   template:
     metadata:
       labels:
-        audit.kubernetes.io/pod.allow-capability-audit-write: ''
-        audit.kubernetes.io/pod.allow-capability-dac-override: ''
+        kubeaudit.io/allow-capability-audit-write: ''
+        kubeaudit.io/allow-capability-dac-override: ''
     spec:
       containers:
         - name: myContainer

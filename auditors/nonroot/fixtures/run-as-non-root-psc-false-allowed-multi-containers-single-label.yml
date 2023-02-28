@@ -4,7 +4,7 @@ metadata:
   name: pod
   labels:
     name: pod
-    container.audit.kubernetes.io/container1.allow-run-as-root: "SuperuserPrivilegesNeeded"
+    container.kubeaudit.io/container1.allow-run-as-root: "SuperuserPrivilegesNeeded"
   namespace: run-as-non-root-psc-false-allowed-multi-containers-single-label
 spec:
   securityContext:

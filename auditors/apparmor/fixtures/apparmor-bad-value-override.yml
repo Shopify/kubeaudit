@@ -6,7 +6,7 @@ metadata:
   annotations:
     container.apparmor.security.beta.kubernetes.io/container: badval
   labels:
-    container.audit.kubernetes.io/container.allow-disabled-apparmor: "SomeReason"
+    container.kubeaudit.io/container.allow-disabled-apparmor: "SomeReason"
 spec:
   containers:
     - name: container

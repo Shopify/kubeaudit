@@ -12,8 +12,8 @@ spec:
     metadata:
       labels:
         name: statefulset
-        container.audit.kubernetes.io/container1.allow-privilege-escalation: "SuperuserPrivilegesNeeded"
-        container.audit.kubernetes.io/container2.allow-privilege-escalation: "SuperuserPrivilegesNeeded"
+        container.kubeaudit.io/container1.allow-privilege-escalation: "SuperuserPrivilegesNeeded"
+        container.kubeaudit.io/container2.allow-privilege-escalation: "SuperuserPrivilegesNeeded"
     spec:
       containers:
         - name: container1

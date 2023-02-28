@@ -58,12 +58,12 @@ Override identifier: `allow-privilege-escalation`
 
 Container overrides have the form:
 ```yaml
-container.audit.kubernetes.io/[container name].allow-privilege-escalation: ""
+container.kubeaudit.io/[container name].allow-privilege-escalation: ""
 ```
 
 Pod overrides have the form:
 ```yaml
-audit.kubernetes.io/pod.allow-privilege-escalation: ""
+kubeaudit.io/allow-privilege-escalation: ""
 ```
 
 Example of resource with `privesc` overridden for a specific container:
@@ -74,7 +74,7 @@ spec:
   template:
     metadata:
       labels:
-        container.audit.kubernetes.io/myContainer.allow-privilege-escalation: ""
+        container.kubeaudit.io/myContainer.allow-privilege-escalation: ""
     spec:
       containers:
       - name: myContainer
@@ -90,7 +90,7 @@ spec:
   template:
     metadata:
       labels:
-        audit.kubernetes.io/pod.allow-privilege-escalation: ""
+        kubeaudit.io/allow-privilege-escalation: ""
     spec:
       containers:
       - name: myContainer

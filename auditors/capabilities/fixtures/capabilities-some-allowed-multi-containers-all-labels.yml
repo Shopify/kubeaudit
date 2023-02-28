@@ -11,10 +11,10 @@ spec:
     metadata:
       labels:
         name: deployment
-        container.audit.kubernetes.io/container1.allow-capability-chown: "SomeReason"
-        container.audit.kubernetes.io/container1.allow-capability-sys-time: "SomeReason"
-        container.audit.kubernetes.io/container2.allow-capability-chown: "SomeReason"
-        container.audit.kubernetes.io/container2.allow-capability-sys-time: "SomeReason"
+        container.kubeaudit.io/container1.allow-capability-chown: "SomeReason"
+        container.kubeaudit.io/container1.allow-capability-sys-time: "SomeReason"
+        container.kubeaudit.io/container2.allow-capability-chown: "SomeReason"
+        container.kubeaudit.io/container2.allow-capability-sys-time: "SomeReason"
     spec:
       containers:
         - name: container1

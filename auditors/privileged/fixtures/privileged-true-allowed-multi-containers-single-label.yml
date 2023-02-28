@@ -12,7 +12,7 @@ spec:
     metadata:
       labels:
         name: daemonset
-        container.audit.kubernetes.io/container2.allow-privileged: "SomeReason"
+        container.kubeaudit.io/container2.allow-privileged: "SomeReason"
     spec:
       containers:
         - name: container1

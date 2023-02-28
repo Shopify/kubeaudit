@@ -4,6 +4,8 @@
 
 > It is now a requirement for clusters to run Kubernetes >=1.19.
 
+> override labels with unregistered `kubernetes.io` annotations will be deprecated. It'll soon be a requirement to use `kubeaudit.io` instead.
+Refer to this [discussion](https://github.com/Shopify/kubeaudit/issues/457) for additional context.
 
 # kubeaudit :cloud: :lock: :muscle:
 
@@ -292,13 +294,13 @@ The `key` is a combination of the override type (container or pod) and an `overr
 1. **Container overrides**, which override the auditor for that specific container, are formatted as follows:
 
 ```yaml
-container.audit.kubernetes.io/[container name].[override identifier]
+container.kubeaudit.io/[container name].[override identifier]
 ```
 
 2. **Pod overrides**, which override the auditor for all containers within the pod, are formatted as follows:
 
 ```yaml
-audit.kubernetes.io/pod.[override identifier]
+kubeaudit.io/[override identifier]
 ```
 
 If the `value` is set to a non-empty string, it will be displayed in the `info` result as the `OverrideReason`:
