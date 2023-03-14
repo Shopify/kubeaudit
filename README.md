@@ -54,7 +54,9 @@ feature not yet included in a release, make sure you're using Go 1.17+ and run
 the following:
 
 ```sh
-go get -v github.com/Shopify/kubeaudit
+go install -v github.com/Shopify/kubeaudit/cmd@latest
+mv ~/go/bin/cmd ~/go/bin/kubeaudit
+#Add $HOME/go/bin/ to your PATH
 ```
 
 Start using `kubeaudit` with the [Quick Start](#quick-start) or view all the [supported commands](#commands).
