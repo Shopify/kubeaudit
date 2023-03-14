@@ -49,7 +49,7 @@ Kubeaudit has official releases that are blessed and stable:
 
 ### DIY build
 
-Master may have newer features than the stable releases. If you need a newer
+Main may have newer features than the stable releases. If you need a newer
 feature not yet included in a release, make sure you're using Go 1.17+ and run
 the following:
 
@@ -73,7 +73,9 @@ or
 
 ### Docker
 
-We also release a [Docker image](https://hub.docker.com/r/shopify/kubeaudit): `shopify/kubeaudit`. To run kubeaudit as a job in your cluster see [Running kubeaudit in a cluster](docs/cluster.md).
+We no longer release images to Docker Hub (since Docker Hub sunset Free Team organizations). For the time being, [old images](https://hub.docker.com/r/shopify/kubeaudit) are still available but may stop being available at any time. We will start publishing images to the Github Container registry soon.
+
+To run kubeaudit as a job in your cluster see [Running kubeaudit in a cluster](docs/cluster.md).
 
 ## Quick Start
 
@@ -334,7 +336,7 @@ To learn more about labels, see https://kubernetes.io/docs/concepts/overview/wor
 
 ## Contributing
 
-If you'd like to fix a bug, contribute a feature or just correct a typo, please feel free to do so as long as you follow our [Code of Conduct](https://github.com/Shopify/kubeaudit/blob/master/CODE_OF_CONDUCT.md).
+If you'd like to fix a bug, contribute a feature or just correct a typo, please feel free to do so as long as you follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 1. Create your own fork!
 1. Get the source: `go get github.com/Shopify/kubeaudit`

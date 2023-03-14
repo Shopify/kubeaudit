@@ -5,15 +5,6 @@ release:
     name: kubeaudit
   draft: true
   name_template: "{{.ProjectName}}-v{{.Version}}"
-dockers:
-- dockerfile: goreleaser.Dockerfile
-  goos: linux
-  goarch: amd64
-  goarm: ''
-  image_templates:
-  - "shopify/kubeaudit:latest"
-  - "shopify/kubeaudit:{{ .Tag }}"
-  - "shopify/kubeaudit:v{{ .Major }}.{{ .Minor }}"
 builds:
 - goos:
   - linux
