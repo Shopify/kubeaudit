@@ -5,6 +5,15 @@ release:
     name: kubeaudit
   draft: true
   name_template: "{{.ProjectName}}-v{{.Version}}"
+dockers:
+- dockerfile: goreleaser.Dockerfile
+  goos: linux
+  goarch: amd64
+  goarm: ''
+  image_templates:
+  - "ghcr.io/shopify/kubeaudit:latest"
+  - "ghcr.io/shopify/kubeaudit:{{ .Tag }}"
+  - "ghcr.io/shopify/kubeaudit:v{{ .Major }}.{{ .Minor }}"
 builds:
 - goos:
   - linux
@@ -31,3 +40,11 @@ snapshot:
   name_template: SNAPSHOT-{{ .Commit }}
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - ^Merge
