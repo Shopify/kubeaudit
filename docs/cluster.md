@@ -1,6 +1,8 @@
 # Running kubeaudit in a Cluster
 
-Kubeaudit can be run in a Kubernetes cluster by using the [official Docker image](https://hub.docker.com/r/shopify/kubeaudit): `shopify/kubeaudit`.
+Kubeaudit can be run in a Kubernetes cluster by using a Docker image.
+
+We no longer release images to Docker Hub (since Docker Hub sunset Free Team organizations). For the time being, [old images](https://hub.docker.com/r/shopify/kubeaudit) are still available but may stop being available at any time. We will start publishing images to the Github Container registry soon.
 
 ## Without RBAC
 

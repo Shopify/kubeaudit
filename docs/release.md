@@ -1,12 +1,12 @@
 # How to Create a Kubeaudit Release
 
-1. Make sure you're on master and have the latest changes.
+1. Make sure you're on main and have the latest changes.
 
 2. Find the [latest release](https://github.com/Shopify/kubeaudit/releases).
 
 > We use [semver](https://semver.org/) versioning. In semver, version numbers have the format `v<MAJOR>.<MINOR>.<PATCH>`. However, because we still consider Kubeaudit to be in "alpha", the major number is always 0. This means that we do not maintain versions from before a breaking change, and updating to a new minor version may introduce a breaking change.
 
-If the changes since the most recent release are bug fixes only, bump the last number (the patch version). If any of the changes since the last release include a new feature or breaking change, bump the second number (the minor version) and set the last number to 0 (the patch version). For example, if the latest release is `v0.11.5` and there were only bug fixes merged to master since then, the next version number will be `v0.11.6`. If there were new features added or a breaking change was made, the next version would be `v0.12.0`.
+If the changes since the most recent release are bug fixes only, bump the last number (the patch version). If any of the changes since the last release include a new feature or breaking change, bump the second number (the minor version) and set the last number to 0 (the patch version). For example, if the latest release is `v0.11.5` and there were only bug fixes merged to main since then, the next version number will be `v0.11.6`. If there were new features added or a breaking change was made, the next version would be `v0.12.0`.
 
 3. Update the `VERSION` file if necessary. You'll have to open / merge a PR to do this.
 
@@ -24,31 +24,21 @@ git tag -a v0.11.6 -m "v0.11.6"
 git push origin v0.11.6
 ```
 
-5. Login to Docker
-
-Login to the Shopify Docker account using `docker login`. Find the credentials in password manager.
-
-6. You will need a Github token in order for Goreleaser to be able to create a release in Github. If you already have one, skip to the next step.
+5. You will need a Github token in order for Goreleaser to be able to create a release in Github. If you already have one, skip to the next step.
 
 [Create a Github token](https://github.com/settings/tokens/new) with the `repo` scope.
 
-7. Run Goreleaser
-
-Make sure you have Docker daemon running. If you're on a Mac, one option is to install [colima](https://github.com/abiosoft/colima) by running `brew install colima`, followed by `colima start`. This will allow you to run the docker daemon in the background. You can verify that colima has started correctly by running `docker context list`. You should be able to see the colima context on the list. If not, follow the troubleshooting steps described in [these docs](https://github.com/abiosoft/colima/blob/main/docs/FAQ.md#cannot-connect-to-the-docker-daemon-at-unixvarrundockersock-is-the-docker-daemon-running).
+6. Run Goreleaser
 
 ```
 GITHUB_TOKEN=<YOUR TOKEN> goreleaser --rm-dist
 ```
 
-8. Logout of docker
+7. Publish the release in Github
 
-Logout of the Shopify Docker account: `docker logout`
+Goreleaser is set to draft mode which means it will create a draft release in Github, allowing you to double check the release and make changes to the Changelog. Find the [draft release](https://github.com/Shopify/kubeaudit/releases) and make sure there are no commits to main since the release.
 
-9. Publish the release in Github
-
-Goreleaser is set to draft mode which means it will create a draft release in Github, allowing you to double check the release and make changes to the Changelog. Find the [draft release](https://github.com/Shopify/kubeaudit/releases) and make sure there are no commits to master since the release.
-
-> If there are commits to master since the release, this may mean you didn't make the tag on master or your master is out of date.
+> If there are commits to main since the release, this may mean you didn't make the tag on main or your main is out of date.
 
 Click `Edit` on the right of the draft release and tidy up the Changelog if necessary. We like to add thank you's to external contributors, for example:
 
