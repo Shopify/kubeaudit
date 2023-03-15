@@ -32,17 +32,6 @@ jobs:
           EOF
 
       -
-        name: Verify tag signature
-        run: |
-          # NOTE: Solve the problem with Github action checkout
-          # https://github.com/actions/checkout/issues/290
-          git fetch --tags --force
-
-          version=${GITHUB_REF#refs/tags/*}
-          git show $version
-          git tag -v $version
-
-      -
         name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:

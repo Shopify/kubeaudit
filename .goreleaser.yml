@@ -26,6 +26,15 @@ builds:
   binary: kubeaudit
   ldflags:
   - -s -w -X github.com/Shopify/kubeaudit/cmd.Version={{.Version}} -X github.com/Shopify/kubeaudit/cmd.Commit={{.Commit}} -X github.com/Shopify/kubeaudit/cmd.BuildDate={{.Date}}
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - ^Merge
+
 archives:
 - format: tar.gz
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{.Arm }}{{ end }}'
@@ -40,11 +49,3 @@ snapshot:
   name_template: SNAPSHOT-{{ .Commit }}
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
-
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
-      - ^Merge
