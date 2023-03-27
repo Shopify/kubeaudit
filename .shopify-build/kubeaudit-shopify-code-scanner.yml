@@ -1,0 +1,10 @@
+containers:
+  code-scanner:
+    docker: gcr.io/shopify-docker-images/apps/production/security-code-scanner:main
+
+steps:
+  - label: ":buildkite: Configure Security Code Scanner"
+    run:
+      - configure-shopify-code-scanning
+    container: code-scanner
+    timeout: 10m
