@@ -23,15 +23,6 @@ jobs:
           fetch-depth: 0
 
       -
-        name: GPG config
-        run: |
-          mkdir -p ~/.gnupg
-          cat << EOF >> ~/.gnupg/options
-          keyserver keys.openpgp.org
-          keyserver-options auto-key-retrieve
-          EOF
-
-      -
         name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
@@ -46,12 +37,6 @@ jobs:
           go-version: 1.19
           check-latest: true
           cache: true
-      -
-        name: Build release changelog
-        run: |
-          version=${GITHUB_REF#refs/tags/v*}
-          mkdir -p tmp
-          sed '/^# \['$version'\]/,/^# \[/!d;//d;/^\s*$/d' CHANGELOG.md > tmp/release_changelog.md
 
       -
         name: Release
@@ -59,6 +44,6 @@ jobs:
         with:
           distribution: goreleaser
           version: v1.10.3
-          args: release --rm-dist --release-notes=tmp/release_changelog.md
+          args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

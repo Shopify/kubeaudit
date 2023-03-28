@@ -10,9 +10,7 @@ If the changes since the most recent release are bug fixes only, bump the last n
 
 3. Update the `VERSION` file if necessary. You'll have to open / merge a PR to do this.
 
-4. update `CHANGELOG.md` with a summary of what has changed. Add a new version header at the top of the document, just after `Unreleased`
-
-5. Create a tag with the new version and push it up to Github:
+4. Create a tag with the new version and push it up to Github:
 
 ```
 git tag -a <VERSION> -m "<VERSION>"
