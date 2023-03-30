@@ -24,26 +24,17 @@ git tag -a v0.11.6 -m "v0.11.6"
 git push origin v0.11.6
 ```
 
-5. You will need a Github token in order for Goreleaser to be able to create a release in Github. If you already have one, skip to the next step.
 
-[Create a Github token](https://github.com/settings/tokens/new) with the `repo` scope.
-
-6. Run Goreleaser
-
-```
-GITHUB_TOKEN=<YOUR TOKEN> goreleaser --rm-dist
-```
-
-7. Publish the release in Github
-
-Goreleaser is set to draft mode which means it will create a draft release in Github, allowing you to double check the release and make changes to the Changelog. Find the [draft release](https://github.com/Shopify/kubeaudit/releases) and make sure there are no commits to main since the release.
+5. Once you push the tag, the release Github action will be triggered and generate a draft release in Github, allowing you to double check it and make changes to the Changelog. Find the [draft release](https://github.com/Shopify/kubeaudit/releases) and make sure there are no commits to main since the release.
 
 > If there are commits to main since the release, this may mean you didn't make the tag on main or your main is out of date.
 
-Click `Edit` on the right of the draft release and tidy up the Changelog if necessary. We like to add thank you's to external contributors, for example:
+6. Click `Edit` on the right of the draft release and tidy up the Changelog if necessary. We like to add thank you's to external contributors, for example:
 
 ```
 202e355 Fixed code quality issues using DeepSource (#315) - Thank you @withshubh for the contribution!
 ```
 
-Click on `Publish release` at the bottom.
+Optionally, you can click on "Generate release notes", which adds Markdown for all the merged pull requests from the diff and contributors of the release.
+
+7. Click on `Publish release` at the bottom.
