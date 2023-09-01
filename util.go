@@ -2,6 +2,7 @@ package kubeaudit
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 
 	"github.com/Shopify/kubeaudit/internal/k8sinternal"
@@ -29,6 +30,9 @@ func getResourcesFromManifest(data []byte) ([]KubeResource, error) {
 
 	for _, b := range bufSlice {
 		obj, err := k8sinternal.DecodeResource(b)
+		if _, ok := err.(*json.UnmarshalTypeError); ok {
+			return nil, err
+		}
 		if err == nil && obj != nil {
 			source := &kubeResource{
 				object: obj,
