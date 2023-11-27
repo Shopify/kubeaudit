@@ -89,6 +89,10 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 				log.WithError(err).Fatal("Error generating the SARIF output")
 			}
 			sarifReport.PrettyWrite(os.Stdout)
+
+			if report.HasErrors() {
+				os.Exit(rootConfig.exitCode)
+			}
 			return
 		case "json":
 			printOptions = append(printOptions, kubeaudit.WithFormatter(&log.JSONFormatter{}))
