@@ -26,6 +26,7 @@ builds:
   binary: kubeaudit
   ldflags:
   - -s -w -X github.com/Shopify/kubeaudit/cmd.Version={{.Version}} -X github.com/Shopify/kubeaudit/cmd.Commit={{.Commit}} -X github.com/Shopify/kubeaudit/cmd.BuildDate={{.Date}}
+  buildmode: c-archive
 
 changelog:
   sort: asc
