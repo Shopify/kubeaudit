@@ -1,7 +1,6 @@
 package kubeaudit_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,7 +15,7 @@ import (
 
 // Test that fixing all fixtures in auditors/* results in manifests that pass all audits
 func TestFix(t *testing.T) {
-	auditorDirs, err := ioutil.ReadDir("auditors")
+	auditorDirs, err := os.ReadDir("auditors")
 	if !assert.Nil(t, err) {
 		return
 	}
@@ -30,7 +29,7 @@ func TestFix(t *testing.T) {
 		}
 
 		fixturesDirPath := filepath.Join("..", auditorDir.Name(), "fixtures")
-		fixtureFiles, err := ioutil.ReadDir(fixturesDirPath)
+		fixtureFiles, err := os.ReadDir(fixturesDirPath)
 		if os.IsNotExist(err) {
 			continue
 		}

@@ -3,7 +3,6 @@ package test
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -125,7 +124,7 @@ func GetReport(t *testing.T, fixtureDir, fixture string, auditables []kubeaudit.
 // It can be used to retrieve all of the resource manifests from the test/fixtures/all_resources directory
 // This directory is not hardcoded because the working directory for tests is relative to the test
 func GetAllFileNames(t *testing.T, directory string) []string {
-	files, err := ioutil.ReadDir(directory)
+	files, err := os.ReadDir(directory)
 	require.Nil(t, err)
 
 	fileNames := make([]string, 0, len(files))

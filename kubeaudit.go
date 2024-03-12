@@ -1,6 +1,6 @@
 // Package kubeaudit provides methods to find and fix security issues in Kubernetes resources.
 //
-// Modes
+// # Modes
 //
 // Kubeaudit supports three different modes. The mode used depends on the audit method used.
 //
@@ -14,100 +14,98 @@
 //
 // Follow the instructions below to use kubeaudit:
 //
-// First initialize the security auditors
+// # First initialize the security auditors
 //
 // The auditors determine which security issues kubeaudit will look for. Each auditor is responsible for a different
 // security issue. For an explanation of what each auditor checks for, see https://github.com/Shopify/kubeaudit#auditors.
 //
 // To initialize all available auditors:
 //
-//   import "github.com/Shopify/kubeaudit/auditors/all"
+//	import "github.com/Shopify/kubeaudit/auditors/all"
 //
-//   auditors, err := all.Auditors(config.KubeauditConfig{})
+//	auditors, err := all.Auditors(config.KubeauditConfig{})
 //
 // Or, to initialize specific auditors, import each one:
 //
-//   import (
-//     "github.com/Shopify/kubeaudit/auditors/apparmor"
-//     "github.com/Shopify/kubeaudit/auditors/image"
-//   )
+//	import (
+//	  "github.com/Shopify/kubeaudit/auditors/apparmor"
+//	  "github.com/Shopify/kubeaudit/auditors/image"
+//	)
 //
-//   auditors := []kubeaudit.Auditable{
-//     apparmor.New(),
-//     image.New(image.Config{Image: "myimage:mytag"}),
-//   }
+//	auditors := []kubeaudit.Auditable{
+//	  apparmor.New(),
+//	  image.New(image.Config{Image: "myimage:mytag"}),
+//	}
 //
-// Initialize Kubeaudit
+// # Initialize Kubeaudit
 //
 // Create a new instance of kubeaudit:
 //
-//   kubeAuditor, err := kubeaudit.New(auditors)
+//	kubeAuditor, err := kubeaudit.New(auditors)
 //
-// Run the audit
+// # Run the audit
 //
 // To run the audit in manifest mode:
 //
-//   import "os"
+//	import "os"
 //
-//   manifest, err := os.Open("/path/to/manifest.yaml")
-//   if err != nil {
-//     ...
-//   }
+//	manifest, err := os.Open("/path/to/manifest.yaml")
+//	if err != nil {
+//	  ...
+//	}
 //
-//   report, err := kubeAuditor.AuditManifest(manifest)
+//	report, err := kubeAuditor.AuditManifest(manifest)
 //
 // Or, to run the audit in local mode:
 //
-//   report, err := kubeAuditor.AuditLocal("/path/to/kubeconfig.yml", kubeaudit.AuditOptions{})
+//	report, err := kubeAuditor.AuditLocal("/path/to/kubeconfig.yml", kubeaudit.AuditOptions{})
 //
 // Or, to run the audit in cluster mode (pass it a namespace name as a string to only audit resources in that namespace, or an empty string to audit resources in all namespaces):
 //
-//   report, err := auditor.AuditCluster(kubeaudit.AuditOptions{})
+//	report, err := auditor.AuditCluster(kubeaudit.AuditOptions{})
 //
-// Get the results
+// # Get the results
 //
 // To print the results in a human readable way:
 //
-//   report.PrintResults()
+//	report.PrintResults()
 //
 // Results are printed to standard out by default. To print to a string instead:
 //
-//   var buf bytes.Buffer
-//   report.PrintResults(kubeaudit.WithWriter(&buf), kubeaudit.WithColor(false))
-//   resultsString := buf.String()
+//	var buf bytes.Buffer
+//	report.PrintResults(kubeaudit.WithWriter(&buf), kubeaudit.WithColor(false))
+//	resultsString := buf.String()
 //
 // Or, to get the result objects:
 //
-//   results := report.Results()
+//	results := report.Results()
 //
-// Autofix
+// # Autofix
 //
 // Note that autofixing is only supported in manifest mode.
 //
 // To print the plan (what will be fixed):
 //
-//  report.PrintPlan(os.Stdout)
+//	report.PrintPlan(os.Stdout)
 //
 // To automatically fix the security issues and print the fixed manifest:
 //
-//   err = report.Fix(os.Stdout)
+//	err = report.Fix(os.Stdout)
 //
-// Override Errors
+// # Override Errors
 //
 // Overrides can be used to ignore specific auditors for specific containers or pods.
 // See the documentation for the specific auditor you wish to override at https://github.com/Shopify/kubeaudit#auditors.
 //
-// Custom Auditors
+// # Custom Auditors
 //
 // Kubeaudit supports custom auditors. See the Custom Auditor example.
-//
 package kubeaudit
 
 import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 
@@ -141,7 +139,7 @@ func New(auditors []Auditable, opts ...Option) (*Kubeaudit, error) {
 
 // AuditManifest audits the Kubernetes resources in the provided manifest
 func (a *Kubeaudit) AuditManifest(manifestPath string, manifest io.Reader) (*Report, error) {
-	manifestBytes, err := ioutil.ReadAll(manifest)
+	manifestBytes, err := io.ReadAll(manifest)
 	if err != nil {
 		return nil, err
 	}

@@ -88,7 +88,9 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 			if err != nil {
 				log.WithError(err).Fatal("Error generating the SARIF output")
 			}
-			sarifReport.PrettyWrite(os.Stdout)
+			if err := sarifReport.PrettyWrite(os.Stdout); err != nil {
+				log.WithError(err).Fatal("Error executing SARIF PrettyWrite")
+			}
 
 			if report.HasErrors() {
 				os.Exit(rootConfig.exitCode)
