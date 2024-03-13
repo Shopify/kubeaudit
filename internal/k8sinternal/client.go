@@ -133,38 +133,37 @@ func (kc kubeClient) GetAllResources(options ClientOptions) ([]k8s.Resource, err
 	if err != nil {
 		return nil, err
 	}
-	if lists != nil {
-		for _, list := range lists {
-			if len(list.APIResources) == 0 {
-				continue
-			}
-			gv, err := schema.ParseGroupVersion(list.GroupVersion)
-			if err != nil {
-				continue
-			}
-			for _, apiresource := range list.APIResources {
-				if len(apiresource.Verbs) == 0 {
-					continue
-				}
-				gvr := schema.GroupVersionResource{Group: gv.Group, Version: gv.Version, Resource: apiresource.Name}
 
-				// Namespace has to be included as a resource to audit if it is specified.
-				if apiresource.Name == "namespaces" && options.Namespace != "" {
-					unstructured, err := kc.dynamicClient.Resource(gvr).Get(context.Background(), options.Namespace, metav1.GetOptions{})
+	for _, list := range lists {
+		if list == nil || len(list.APIResources) == 0 {
+			continue
+		}
+		gv, err := schema.ParseGroupVersion(list.GroupVersion)
+		if err != nil {
+			continue
+		}
+		for _, apiresource := range list.APIResources {
+			if len(apiresource.Verbs) == 0 {
+				continue
+			}
+			gvr := schema.GroupVersionResource{Group: gv.Group, Version: gv.Version, Resource: apiresource.Name}
+
+			// Namespace has to be included as a resource to audit if it is specified.
+			if apiresource.Name == "namespaces" && options.Namespace != "" {
+				unstructured, err := kc.dynamicClient.Resource(gvr).Get(context.Background(), options.Namespace, metav1.GetOptions{})
+				if err == nil {
+					r, err := unstructuredToObject(unstructured)
 					if err == nil {
-						r, err := unstructuredToObject(unstructured)
+						resources = append(resources, r)
+					}
+				}
+			} else {
+				unstructuredList, err := kc.dynamicClient.Resource(gvr).Namespace(options.Namespace).List(context.Background(), metav1.ListOptions{})
+				if err == nil {
+					for _, unstructured := range unstructuredList.Items {
+						r, err := unstructuredToObject(&unstructured)
 						if err == nil {
 							resources = append(resources, r)
-						}
-					}
-				} else {
-					unstructuredList, err := kc.dynamicClient.Resource(gvr).Namespace(options.Namespace).List(context.Background(), metav1.ListOptions{})
-					if err == nil {
-						for _, unstructured := range unstructuredList.Items {
-							r, err := unstructuredToObject(&unstructured)
-							if err == nil {
-								resources = append(resources, r)
-							}
 						}
 					}
 				}

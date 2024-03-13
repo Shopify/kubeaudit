@@ -2,7 +2,7 @@ package k8sinternal_test
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"path"
 	"testing"
 
@@ -12,8 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-const fixtureDir = "../test/fixtures"
 
 func TestNewTrue(t *testing.T) {
 	assert.True(t, *k8s.NewTrue())
@@ -31,7 +29,7 @@ func TestEncodeDecode(t *testing.T) {
 	deployment.ObjectMeta = k8s.ObjectMetaV1{Namespace: "foo"}
 	deployment.Spec.Template.Spec.Containers = []k8s.ContainerV1{{Name: "bar"}}
 
-	expectedManifest, err := ioutil.ReadFile("fixtures/test-encode-decode.yml")
+	expectedManifest, err := os.ReadFile("fixtures/test-encode-decode.yml")
 	require.NoError(err)
 
 	encoded, err := k8sinternal.EncodeResource(deployment)
@@ -121,7 +119,7 @@ func getAllResources(t *testing.T) (resources []k8s.Resource) {
 func getResourcesFromManifest(t *testing.T, manifest string) (resources []k8s.Resource) {
 	assert := assert.New(t)
 
-	data, err := ioutil.ReadFile(manifest)
+	data, err := os.ReadFile(manifest)
 	require.NoError(t, err)
 
 	bufSlice := bytes.Split(data, []byte("---"))

@@ -2,7 +2,6 @@ package config
 
 import (
 	"io"
-	"io/ioutil"
 
 	"github.com/Shopify/kubeaudit/auditors/deprecatedapis"
 	"github.com/Shopify/kubeaudit/auditors/mounts"
@@ -14,7 +13,7 @@ import (
 )
 
 func New(configData io.Reader) (KubeauditConfig, error) {
-	configBytes, err := ioutil.ReadAll(configData)
+	configBytes, err := io.ReadAll(configData)
 	if err != nil {
 		return KubeauditConfig{}, err
 	}
