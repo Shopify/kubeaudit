@@ -1,3 +1,13 @@
+# 🚨 Deprecation Notice 🚨
+
+Kubeaudit is planned for deprecation by October 2024.
+
+We are actively seeking maintainers who are interested in taking over the stewardship of this project. If you are passionate about continuing its development and maintenance, please reach out to us.
+
+For users looking for alternatives, we recommend transitioning to Kubebench, which offers similar functionality and is actively maintained.
+
+Thank you to the community for your contributions and support.
+
 <!-- Please erase any parts of this template not applicable to your issue. -->
 
 ##### ISSUE TYPE

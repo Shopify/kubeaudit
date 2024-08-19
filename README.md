@@ -7,6 +7,16 @@
 > override labels with unregistered `kubernetes.io` annotations will be deprecated. It'll soon be a requirement to use `kubeaudit.io` instead.
 Refer to this [discussion](https://github.com/Shopify/kubeaudit/issues/457) for additional context.
 
+# 🚨 Deprecation Notice 🚨
+
+Kubeaudit is planned for deprecation by October 2024.
+
+We are actively seeking maintainers who are interested in taking over the stewardship of this project. If you are passionate about continuing its development and maintenance, please reach out to us.
+
+For users looking for alternatives, we recommend transitioning to Kubebench, which offers similar functionality and is actively maintained.
+
+Thank you to the community for your contributions and support.
+
 # kubeaudit :cloud: :lock: :muscle:
 
 `kubeaudit` is a command line tool and a Go package to audit Kubernetes clusters for various

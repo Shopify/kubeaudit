@@ -35,7 +35,19 @@ type rootFlags struct {
 var RootCmd = &cobra.Command{
 	Use:   "kubeaudit",
 	Short: "A Kubernetes security auditor",
-	Long: `Kubeaudit audits Kubernetes clusters for common security controls.
+	Long: `🚨 Deprecation Notice 🚨
+
+Kubeaudit is planned for deprecation by October 2024.
+
+We are actively seeking maintainers who are interested in taking over the stewardship of this project. If you are passionate about continuing its development and maintenance, please reach out to us.
+
+For users looking for alternatives, we recommend transitioning to Kubebench, which offers similar functionality and is actively maintained.
+
+Thank you to the community for your contributions and support.
+
+--------------------------------------------------------------------
+
+	Kubeaudit audits Kubernetes clusters for common security controls.
 
 kubeaudit has three modes:
   1. Manifest mode: If a Kubernetes manifest file is provided using the -f/--manifest flag, kubeaudit will audit the manifest file. Kubeaudit also supports autofixing in manifest mode using the 'autofix' command. This will fix the manifest in-place. The fixed manifest can be written to a different file using the -o/--out flag.
@@ -75,6 +87,7 @@ func runAudit(auditable ...kubeaudit.Auditable) func(cmd *cobra.Command, args []
 	return func(cmd *cobra.Command, args []string) {
 		report := getReport(auditable...)
 
+		fmt.Fprintln(os.Stderr, color.Yellow("\n[Deprecation Notice]: Kubeaudit is planned for deprecation by October 2024.\nWe are actively seeking maintainers who are interested in taking over the stewardship of this project. If you are passionate about continuing its development and maintenance, please reach out to us.\nFor users looking for alternatives, we recommend transitioning to Kubebench, which offers similar functionality and is actively maintained.\nThank you to the community for your contributions and support."))
 		fmt.Fprintln(os.Stderr, color.Yellow("\n[WARNING]: kubernetes.io for override labels will soon be deprecated. Please, update them to use kubeaudit.io instead."))
 
 		printOptions := []kubeaudit.PrintOption{
