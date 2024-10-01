@@ -11,7 +11,6 @@ import (
 	"github.com/Shopify/kubeaudit/auditors/image"
 	"github.com/Shopify/kubeaudit/config"
 
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -222,5 +221,5 @@ func Example_printOptions() {
 	report.PrintResults(kubeaudit.WithMinSeverity(kubeaudit.Error))
 
 	// Print results as JSON
-	report.PrintResults(kubeaudit.WithFormatter(&logrus.JSONFormatter{}))
+	report.PrintResults(kubeaudit.WithFormatter(&log.JSONFormatter{}))
 }
