@@ -127,6 +127,24 @@ func NewCronJob() *CronJobV1Beta1 {
 	}
 }
 
+// NewCronJobV1 creates a new CronJob resource
+func NewCronJobV1() *CronJobV1 {
+	return &CronJobV1{
+		TypeMeta: TypeMetaV1{
+			Kind:       "CronJob",
+			APIVersion: "batch/v1",
+		},
+		ObjectMeta: ObjectMetaV1{},
+		Spec: CronJobSpecV1{
+			JobTemplate: JobTemplateSpecV1{
+				Spec: JobSpecV1{
+					Template: podTemplateSpec,
+				},
+			},
+		},
+	}
+}
+
 // NewServiceAccount creates a new ServiceAccount resource
 func NewServiceAccount() *ServiceAccountV1 {
 	return &ServiceAccountV1{

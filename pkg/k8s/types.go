@@ -25,6 +25,12 @@ type CronJobV1Beta1 = batchv1beta1.CronJob
 // CronJobSpecV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
 type CronJobSpecV1Beta1 = batchv1beta1.CronJobSpec
 
+// CronJobV1 is a type alias for the v1 version of the k8s batch API.
+type CronJobV1 = batchv1.CronJob
+
+// CronJobSpecV1 is a type alias for the v1 version of the k8s batch API.
+type CronJobSpecV1 = batchv1.CronJobSpec
+
 // DaemonSetSpecV1 is a type alias for the v1 version of the k8s apps API.
 type DaemonSetSpecV1 = appsv1.DaemonSetSpec
 
@@ -39,6 +45,9 @@ type DeploymentV1 = appsv1.Deployment
 
 // JobTemplateSpecV1Beta1 is a type alias for the v1beta1 version of the k8s batch API.
 type JobTemplateSpecV1Beta1 = batchv1beta1.JobTemplateSpec
+
+// JobTemplateSpecV1 is a type alias for the v1 version of the k8s batch API.
+type JobTemplateSpecV1 = batchv1.JobTemplateSpec
 
 // JobSpecV1 is a type alias for the v1 version of the k8s batch API.
 type JobSpecV1 = batchv1.JobSpec

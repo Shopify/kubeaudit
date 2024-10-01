@@ -85,7 +85,7 @@ func TestGetAllResources(t *testing.T) {
 		k8s.NewReplicationController(),
 		k8s.NewStatefulSet(),
 		k8s.NewPodTemplate(),
-		k8s.NewCronJob(),
+		k8s.NewCronJobV1(),
 		k8s.NewServiceAccount(),
 		k8s.NewService(),
 		k8s.NewJob(),

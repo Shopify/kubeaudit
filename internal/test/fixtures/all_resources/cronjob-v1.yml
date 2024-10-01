@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cronjob-v1
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronjob-v1
+  namespace: cronjob-v1
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          hostPID: true
+          hostIPC: true
+          hostNetwork: true
+          containers:
+            - name: container
+              image: scratch
